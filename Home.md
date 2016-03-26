@@ -20,3 +20,4 @@ Correlated Potentialistics (herein probably going to just be called "this mod", 
 ## Mechanics
 
 * [[Storage Math]] - Yes, it's extremely similar to AE2.
+* Wireless Range (coming soon) - How far does one antenna go? Is it better to have two?
