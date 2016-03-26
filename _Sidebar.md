@@ -4,7 +4,7 @@
     * [[Drive Bay]]
     * [[Terminal]]
     * Interface (NYI)
-    * Access Point (NYI)
+    * Router (NYI)
   * Items
     * [[Drive]]
     * [[Enderic Processor]]
