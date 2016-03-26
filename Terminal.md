@@ -1,6 +1,6 @@
 # ![](https://i.imgur.com/aicqVn4.png) Terminal
 
-The Terminal allows you to directly access the storage of a system. When right-clicked, it will open a GUI showing every item in the system, sorted by quantity. The search bar in the top right will allow you to search for items containing a literal case-sensitive string.
+The Terminal allows you to directly access the storage of a system. When right-clicked, it will open a GUI showing every item in the system, sorted by quantity. The search bar in the top right will allow you to search for items containing a literal case-insensitive string.
 
 Possible actions are:
 
