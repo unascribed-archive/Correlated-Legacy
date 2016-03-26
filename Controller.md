@@ -27,4 +27,4 @@ Here's an illustration, showing the basic shape of the scanning:
 
 That is to say, the controller scan order ends up assigning the *manhattan distance* from the controller to the network member as it's index for prioritization.
 
-A controller will stop and error out if it ever tries to scan more than 100 blocks. This is to prevent extremely large networks from crashing and/or lagging the server.
+A controller will stop and error out if it ever tries to scan more than 100 blocks. This is to prevent extremely large networks from crashing and/or lagging the server. Note that our examples here are 2D, while the Minecraft world is *3D*. This means that rather than 3 worst-case extra scans on ending blocks, you have *5* worst-case extra scans. *These extra scans are counted in the 100 limit.* You can have a network with way less than 100 members still error for being too big due to this. As such, large flat planes are an inefficient way of building a network, and it's better to do other things such as putting drive bays back-to-back.
