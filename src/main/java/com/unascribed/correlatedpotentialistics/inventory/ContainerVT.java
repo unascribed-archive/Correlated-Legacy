@@ -124,7 +124,7 @@ public class ContainerVT extends Container {
 	}
 	
 	public void updateSlots() {
-		boolean remote = vt.hasWorldObj() && vt.getWorld().isRemote;
+		if (vt.hasWorldObj() && vt.getWorld().isRemote) return;
 		List<ItemStack> typesAll = vt.getController().getTypes();
 		if (!searchQuery.isEmpty()) {
 			Iterator<ItemStack> itr = typesAll.iterator();
@@ -150,16 +150,14 @@ public class ContainerVT extends Container {
 		for (Slot slot : inventorySlots) {
 			if (slot instanceof SlotVirtual) {
 				SlotVirtual sv = (SlotVirtual)slot;
-				if (!remote) {
-					if (idx < types.size()) {
-						ItemStack stack = types.get(idx);
-						boolean hadTag = stack.hasTagCompound();
-						ItemStacks.ensureHasTag(stack).getTagCompound().setInteger("CorrelatedPotentialisticsExtendedStackSize", stack.stackSize);
-						ItemStacks.ensureHasTag(stack).getTagCompound().setBoolean("CorrelatedPotentialisticsHadTag", hadTag);
-						sv.setStack(stack);
-					} else {
-						sv.setStack(null);
-					}
+				if (idx < types.size()) {
+					ItemStack stack = types.get(idx);
+					boolean hadTag = stack.hasTagCompound();
+					ItemStacks.ensureHasTag(stack).getTagCompound().setInteger("CorrelatedPotentialisticsExtendedStackSize", stack.stackSize);
+					ItemStacks.ensureHasTag(stack).getTagCompound().setBoolean("CorrelatedPotentialisticsHadTag", hadTag);
+					sv.setStack(stack);
+				} else {
+					sv.setStack(null);
 				}
 			}
 			idx++;
