@@ -15,7 +15,7 @@ Correlated Potentialistics (herein probably going to just be called "this mod", 
 
 * [[Drive]] - A basic hard drive, holds digitized items for later retrieval.
 * [[Enderic Processor]] - Where do you find these?
-* [[Wireless Terminal]] - Lets you access your system, *wirelessly*!
+* Wireless Terminal (coming soon) - Lets you access your system, *wirelessly*!
 
 ## Mechanics
 
