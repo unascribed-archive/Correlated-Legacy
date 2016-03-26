@@ -34,16 +34,7 @@ public class ContainerVT extends Container {
 		@Override
 		public ItemStack getStack() {
 			ItemStack stack = this.stack;
-			if (stack != null) {
-				boolean hadTag = ItemStacks.getBoolean(stack, "CorrelatedPotentialisticsHadTag").or(false);
-				if (stack.hasTagCompound()) {
-					stack.getTagCompound().removeTag("CorrelatedPotentialisticsExtendedStackSize");
-					stack.getTagCompound().removeTag("CorrelatedPotentialisticsHadTag");
-					if (!hadTag) {
-						stack.setTagCompound(null);
-					}
-				}
-			}
+			sanitizeNBT(stack);
 			return stack;
 		}
 
@@ -53,14 +44,7 @@ public class ContainerVT extends Container {
 				this.stack = stack;
 				if (stack != null) {
 					count = ItemStacks.getInteger(stack, "CorrelatedPotentialisticsExtendedStackSize").or(stack.stackSize);
-					boolean hadTag = ItemStacks.getBoolean(stack, "CorrelatedPotentialisticsHadTag").or(false);
-					if (stack.hasTagCompound()) {
-						stack.getTagCompound().removeTag("CorrelatedPotentialisticsExtendedStackSize");
-						stack.getTagCompound().removeTag("CorrelatedPotentialisticsHadTag");
-						if (!hadTag) {
-							stack.setTagCompound(null);
-						}
-					}
+					sanitizeNBT(stack);
 					stack.stackSize = 1;
 				} else {
 					count = 0;
@@ -99,6 +83,19 @@ public class ContainerVT extends Container {
 		
 		public void setStack(ItemStack stack) {
 			this.stack = stack;
+		}
+		
+		private void sanitizeNBT(ItemStack stack) {
+			if (stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("CorrelatedPotentialisticsHadTag")) {
+				boolean hadTag = ItemStacks.getBoolean(stack, "CorrelatedPotentialisticsHadTag").or(false);
+				if (stack.hasTagCompound()) {
+					stack.getTagCompound().removeTag("CorrelatedPotentialisticsExtendedStackSize");
+					stack.getTagCompound().removeTag("CorrelatedPotentialisticsHadTag");
+					if (!hadTag) {
+						stack.setTagCompound(null);
+					}
+				}
+			}
 		}
 
 	}
