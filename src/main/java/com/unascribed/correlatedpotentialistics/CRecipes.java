@@ -52,7 +52,7 @@ public class CRecipes {
 				"Ood",
 				'd', "gemDiamond",
 				'O', luminousPearl,
-				'o', drivePlatterCeramic
+				'o', drivePlatterMetallic
 				));
 		
 		// Void Drive
