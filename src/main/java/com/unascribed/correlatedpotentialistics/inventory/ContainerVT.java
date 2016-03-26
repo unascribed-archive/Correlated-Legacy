@@ -3,6 +3,8 @@ package com.unascribed.correlatedpotentialistics.inventory;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.unascribed.correlatedpotentialistics.CoPo;
 import com.unascribed.correlatedpotentialistics.helper.ItemStacks;
@@ -31,6 +33,17 @@ public class ContainerVT extends Container {
 		
 		@Override
 		public ItemStack getStack() {
+			ItemStack stack = this.stack;
+			if (stack != null) {
+				boolean hadTag = ItemStacks.getBoolean(stack, "CorrelatedPotentialisticsHadTag").or(false);
+				if (stack.hasTagCompound()) {
+					stack.getTagCompound().removeTag("CorrelatedPotentialisticsExtendedStackSize");
+					stack.getTagCompound().removeTag("CorrelatedPotentialisticsHadTag");
+					if (!hadTag) {
+						stack.setTagCompound(null);
+					}
+				}
+			}
 			return stack;
 		}
 
@@ -40,8 +53,13 @@ public class ContainerVT extends Container {
 				this.stack = stack;
 				if (stack != null) {
 					count = ItemStacks.getInteger(stack, "CorrelatedPotentialisticsExtendedStackSize").or(stack.stackSize);
+					boolean hadTag = ItemStacks.getBoolean(stack, "CorrelatedPotentialisticsHadTag").or(false);
 					if (stack.hasTagCompound()) {
 						stack.getTagCompound().removeTag("CorrelatedPotentialisticsExtendedStackSize");
+						stack.getTagCompound().removeTag("CorrelatedPotentialisticsHadTag");
+						if (!hadTag) {
+							stack.setTagCompound(null);
+						}
 					}
 					stack.stackSize = 1;
 				} else {
@@ -110,15 +128,25 @@ public class ContainerVT extends Container {
 	
 	public void updateSlots() {
 		boolean remote = vt.hasWorldObj() && vt.getWorld().isRemote;
-		List<ItemStack> types = vt.getController().getTypes();
+		List<ItemStack> typesAll = vt.getController().getTypes();
 		if (!searchQuery.isEmpty()) {
-			Iterator<ItemStack> itr = types.iterator();
+			Iterator<ItemStack> itr = typesAll.iterator();
 			while (itr.hasNext()) {
 				ItemStack is = itr.next();
 				if (!is.getDisplayName().toLowerCase().contains(searchQuery)) {
 					itr.remove();
 				}
 			}
+		}
+		List<ItemStack> types = Lists.newArrayList();
+		outer: for (ItemStack is : typesAll) {
+			for (ItemStack existing : types) {
+				if (ItemStack.areItemsEqual(is, existing) && ItemStack.areItemStackTagsEqual(is, existing)) {
+					existing.stackSize += is.stackSize;
+					continue outer;
+				}
+			}
+			types.add(is);
 		}
 		Collections.sort(types, (a, b) -> Ints.compare(b.stackSize, a.stackSize));
 		int idx = scrollOffset*9;
@@ -128,7 +156,9 @@ public class ContainerVT extends Container {
 				if (!remote) {
 					if (idx < types.size()) {
 						ItemStack stack = types.get(idx);
+						boolean hadTag = stack.hasTagCompound();
 						ItemStacks.ensureHasTag(stack).getTagCompound().setInteger("CorrelatedPotentialisticsExtendedStackSize", stack.stackSize);
+						ItemStacks.ensureHasTag(stack).getTagCompound().setBoolean("CorrelatedPotentialisticsHadTag", hadTag);
 						sv.setStack(stack);
 					} else {
 						sv.setStack(null);

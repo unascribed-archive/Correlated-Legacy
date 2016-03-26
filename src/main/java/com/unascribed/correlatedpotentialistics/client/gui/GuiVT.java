@@ -105,7 +105,7 @@ public class GuiVT extends GuiContainer {
 	@Override
 	public void updateScreen() {
 		super.updateScreen();
-		if (container.rows > 0) {
+		if (container.rows > 6) {
 			int dWheel = Mouse.getDWheel()/container.rows;
 			if (dWheel != 0) {
 				scrollKnobY = Math.max(Math.min(101, scrollKnobY-dWheel), 6);
@@ -168,7 +168,7 @@ public class GuiVT extends GuiContainer {
 	
 	@Override
 	protected void mouseClickMove(int mouseX, int mouseY, int mouseButton, long timeSinceLastClick) {
-		if (draggingScrollKnob && container.rows > 0) {
+		if (draggingScrollKnob && container.rows > 6) {
 			int y = (height - ySize) / 2;
 			scrollKnobY = Math.max(Math.min(101, (mouseY-24)-y), 6);
 			mc.playerController.sendEnchantPacket(container.windowId, Math.round(((scrollKnobY-6)/101f)*(container.rows-6)));
