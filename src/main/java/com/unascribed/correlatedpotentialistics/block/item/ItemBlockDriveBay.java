@@ -16,7 +16,7 @@ public class ItemBlockDriveBay extends ItemBlock {
 
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
-		tooltip.add(I18n.format("tooltip.correlatedpotentialistics.rf_usage", 16));
+		tooltip.add(I18n.format("tooltip.correlatedpotentialistics.rf_usage", 8));
 	}
 	
 }
