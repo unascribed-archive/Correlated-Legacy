@@ -8,11 +8,14 @@ Correlated Potentialistics (herein probably going to just be called "this mod", 
 * [[Controller]] - The heart of any storage system in this mod.
 * [[Drive Bay]] - Holds up to 8 drives, requires a Controller.
 * [[Terminal]] - Lets you access the system.
+* Interface (coming soon) - Allows machinery to access the system.
+* Access Point (coming soon) - Allows connections from Wireless Terminals.
 
 ## Items
 
 * [[Drive]] - A basic hard drive, holds digitized items for later retrieval.
 * [[Enderic Processor]] - Where do you find these?
+* [[Wireless Terminal]] - Lets you access your system, *wirelessly*!
 
 ## Mechanics
 
