@@ -21,9 +21,14 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'maven'
 
+ext.configFile = file('build.properties')
+
+ext.config = parseConfig(configFile)
+ext.priv = parseConfig(file('private.properties'))
+
 group = "com.unascribed"
 archivesBaseName = "CorrelatedPotentialistics"
-version = "0.1.2"
+version = config.version
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -51,16 +56,17 @@ configurations {
 dependencies {
 	deploy 'org.apache.maven.wagon:wagon-ssh:2.10'
 	deobfCompile 'com.unascribed:blockrenderer:0.3.2'
-	compile files('./libs/*')
+	compile fileTree(dir: 'libs', include: '*.jar')
 }
 
 minecraft {
-	version = "1.8.9-11.15.1.1777"
-	mappings = "snapshot_20160301"
+	version = config.forge
+	mappings = config.mappings
 	
-	runDir = "eclipse"
+	runDir = "minecraft"
 	
-	makeObfSourceJar = false
+	replaceIn 'src/main/java/com/unascribed/correlatedpotentialistics/CoPo.java'
+	replace '@VERSION@', project.version
 }
 
 processResources {
@@ -90,8 +96,6 @@ def parseConfig(File config) {
 		return (new ConfigSlurper().parse(prop))
 	}
 }
-
-ext.priv = parseConfig(file('private.properties'))
 
 uploadArchives {
 	repositories.mavenDeployer {
