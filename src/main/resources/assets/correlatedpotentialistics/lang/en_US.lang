@@ -1,0 +1,83 @@
+itemGroup.correlatedPotentialistics=Correlated Potentialistics
+
+container.correlatedpotentialistics.drive_bay.name=Drive Bay
+
+tile.correlatedpotentialistics.controller.name=Controller
+tile.correlatedpotentialistics.drive_bay.name=Drive Bay
+tile.correlatedpotentialistics.vt.name=Terminal
+
+gui.correlatedpotentialistics.vt=Terminal
+
+gui.correlatedpotentialistics.priority=Priority
+gui.correlatedpotentialistics.priority.highest=Highest (3)
+gui.correlatedpotentialistics.priority.higher=Higher (2)
+gui.correlatedpotentialistics.priority.high=High (1)
+gui.correlatedpotentialistics.priority.default=Normal (0)
+gui.correlatedpotentialistics.priority.low=Low (-1)
+gui.correlatedpotentialistics.priority.lower=Lower (-2)
+gui.correlatedpotentialistics.priority.lowest=Lowest (-3)
+
+gui.correlatedpotentialistics.partition_mode=Partitioning Mode
+gui.correlatedpotentialistics.partition_mode.none=Not Partitioned
+gui.correlatedpotentialistics.partition_mode.none.0=Any items are allowed
+gui.correlatedpotentialistics.partition_mode.blacklist=Partitioned (Blacklist)
+gui.correlatedpotentialistics.partition_mode.blacklist.0=Only items not shown in
+gui.correlatedpotentialistics.partition_mode.blacklist.1=this gui are allowed
+gui.correlatedpotentialistics.partition_mode.whitelist=Partitioned (Whitelist)
+gui.correlatedpotentialistics.partition_mode.whitelist.0=Only items shown in this gui
+gui.correlatedpotentialistics.partition_mode.whitelist.1=are allowed
+
+
+item.correlatedpotentialistics.drive.0.name=1KiB Drive
+item.correlatedpotentialistics.drive.1.name=4KiB Drive
+item.correlatedpotentialistics.drive.2.name=16KiB Drive
+item.correlatedpotentialistics.drive.3.name=64KiB Drive
+item.correlatedpotentialistics.drive.4.name=Void Drive
+
+item.correlatedpotentialistics.misc.0.name=Enderic Processor
+tooltip.correlatedpotentialistics.misc.0.0=§5§oIt seems to be part of something larger.
+item.correlatedpotentialistics.misc.1.name=Ceramic Drive Platter
+item.correlatedpotentialistics.misc.2.name=Metallic Drive Platter
+item.correlatedpotentialistics.misc.3.name=Luminous Pearl
+tooltip.correlatedpotentialistics.misc.3.0=§5§oIt glows a brilliant verdant green.
+
+
+msg.correlatedpotentialistics.vt_no_controller=Cannot find a Controller to communicate with.
+msg.correlatedpotentialistics.vt_no_power=The unlit screen resists all attempts at interaction. Maybe you should power the network?
+msg.correlatedpotentialistics.vt_error=There is a fatal error preventing access to the network.
+msg.correlatedpotentialistics.vt_booting=The network is still starting up.
+
+numbers.correlatedpotentialistics.gibibytes=%d GiB
+numbers.correlatedpotentialistics.mibibytes=%d MiB
+numbers.correlatedpotentialistics.kibibytes=%d KiB
+numbers.correlatedpotentialistics.bytes=%d bytes
+numbers.correlatedpotentialistics.byte=1 byte
+
+
+numbers.correlatedpotentialistics.yotta=%sY
+numbers.correlatedpotentialistics.zetta=%sZ
+numbers.correlatedpotentialistics.exa=%sE
+numbers.correlatedpotentialistics.tera=%sT
+numbers.correlatedpotentialistics.giga=%sG
+numbers.correlatedpotentialistics.mega=%sM
+numbers.correlatedpotentialistics.kilo=%sk
+numbers.correlatedpotentialistics.normal=%d
+
+tooltip.correlatedpotentialistics.controller_booting=Initializing...
+tooltip.correlatedpotentialistics.controller_booting.hard=Booting...
+tooltip.correlatedpotentialistics.controller_boot_eta_one=ETA: 1 second
+tooltip.correlatedpotentialistics.controller_boot_eta=ETA: %d seconds
+tooltip.correlatedpotentialistics.controller_error.multiple_controllers=The network has more than one controller
+tooltip.correlatedpotentialistics.controller_error.network_too_big=The network is too big
+tooltip.correlatedpotentialistics.controller_error.too_much_power=The network takes too much power to run
+tooltip.correlatedpotentialistics.controller_consumption_rate=Using %d RF/t total (max 320 RF/t)
+tooltip.correlatedpotentialistics.controller_energy_buffer=%d/%d RF
+tooltip.correlatedpotentialistics.member_consumption_rate=Using %d RF/t from controller
+
+tooltip.correlatedpotentialistics.drive_count=%d/8 drives
+tooltip.correlatedpotentialistics.types_used=%d of %d types used (%d%%)
+tooltip.correlatedpotentialistics.bytes_used=%d of %d used (%d%%)
+tooltip.correlatedpotentialistics.rf_usage=Uses %d RF/t
+
+tooltip.correlatedpotentialistics.void_drive.0=Deletes any items that are assigned to it
+tooltip.correlatedpotentialistics.void_drive.1=Partitioning this is a good idea

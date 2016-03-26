@@ -1,0 +1,24 @@
+{
+	"parent": "builtin/generated",
+	"textures": {
+		"layer0": "correlatedpotentialistics:items/drive",
+		"layer1": "correlatedpotentialistics:items/drive_fullness_light",
+		"layer2": "correlatedpotentialistics:items/drive_tier_light",
+		"layer3": "correlatedpotentialistics:items/drive_partition_light",
+		"layer4": "correlatedpotentialistics:items/drive_priority_light_left",
+		"layer5": "correlatedpotentialistics:items/drive_priority_light_middle",
+		"layer6": "correlatedpotentialistics:items/drive_priority_light_right"
+	},
+	"display": {
+		"thirdperson": {
+			"rotation": [ -90, 0, 0 ],
+			"translation": [ 0, 1, -3 ],
+			"scale": [ 0.55, 0.55, 0.55 ]
+		},
+		"firstperson": {
+			"rotation": [ 55, 120, 45 ],
+			"translation": [ 0, 4, 1 ],
+			"scale": [ 1.7, 1.7, 1.7 ]
+		}
+	}
+}

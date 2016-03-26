@@ -1,0 +1,16 @@
+[
+{
+  "modid": "correlatedpotentialistics",
+  "name": "Correlated Potentialistics",
+  "description": "A minimalistic clone of Applied Energistics 2. Yes, the name is the result of running 'Applied Energistics' through a thesaurus.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://unascribed.com",
+  "updateUrl": "",
+  "authorList": ["Una Thompson (unascribed)"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

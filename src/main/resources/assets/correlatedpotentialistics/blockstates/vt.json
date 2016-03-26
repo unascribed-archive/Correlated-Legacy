@@ -1,0 +1,43 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"model": "minecraft:orientable",
+		"textures": {
+			"top": "correlatedpotentialistics:blocks/top",
+			"side": "correlatedpotentialistics:blocks/side"
+		}
+	},
+	"variants": {
+		"facing": {
+			"north": {
+				"textures": {
+					"front": "correlatedpotentialistics:blocks/top"
+				}
+			},
+			"east": {
+				"y": 90,
+				"textures": {
+					"front": "correlatedpotentialistics:blocks/top"
+				}
+			},
+			"south": {
+				"y": 180,
+				"textures": {
+					"front": "correlatedpotentialistics:blocks/top"
+				}
+			},
+			"west": {
+				"y": 270,
+				"textures": {
+					"front": "correlatedpotentialistics:blocks/top"
+				}
+			}
+		},
+		"inventory": {
+			"transform": "forge:default-block",
+			"textures": {
+				"front": "correlatedpotentialistics:blocks/vt"
+			}
+		}
+	}
+}

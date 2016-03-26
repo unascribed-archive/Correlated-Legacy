@@ -1,0 +1,13 @@
+private.properties
+bin/
+libs/*
+*.launch
+build/
+.classpath
+.project
+.settings
+.metadata
+.gradle
+eclipse/
+minecraft/
+.pmd
