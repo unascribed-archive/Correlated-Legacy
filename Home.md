@@ -20,4 +20,3 @@ Correlated Potentialistics (herein probably going to just be called "this mod", 
 ## Mechanics
 
 * [[Storage Math]] - Yes, it's extremely similar to AE2.
-* [[Networks]] - Where's the cables?
