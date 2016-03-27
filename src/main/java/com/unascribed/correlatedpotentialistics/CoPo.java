@@ -69,9 +69,9 @@ public class CoPo {
 		network = NetworkRegistry.INSTANCE.newSimpleChannel("CrelatedPtntialstics");
 		network.registerMessage(SetSearchQueryMessage.class, SetSearchQueryMessage.class, 0, Side.SERVER);
 		
-		register(new BlockController(), ItemBlockController.class, "controller", 4);
-		register(new BlockDriveBay(), ItemBlockDriveBay.class, "drive_bay", 0);
-		register(new BlockVT(), ItemBlockVT.class, "vt", 0);
+		register(new BlockController().setHardness(2), ItemBlockController.class, "controller", 4);
+		register(new BlockDriveBay().setHardness(2), ItemBlockDriveBay.class, "drive_bay", 0);
+		register(new BlockVT().setHardness(2), ItemBlockVT.class, "vt", 0);
 		
 		register(new ItemMisc(), "misc", -2);
 		register(new ItemDrive(), "drive", -1);
