@@ -1,7 +1,5 @@
 package com.unascribed.correlatedpotentialistics.block;
 
-import java.util.List;
-
 import com.unascribed.correlatedpotentialistics.helper.Blocks;
 import com.unascribed.correlatedpotentialistics.item.ItemDrive;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityDriveBay;
@@ -69,18 +67,18 @@ public class BlockDriveBay extends Block {
 	}
 	
 	@Override
-	public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
-		List<ItemStack> li = super.getDrops(world, pos, state, fortune);
+	public void breakBlock(World world, BlockPos pos, IBlockState state) {
 		TileEntity te = world.getTileEntity(pos);
 		if (te instanceof TileEntityDriveBay) {
 			TileEntityDriveBay tedb = (TileEntityDriveBay) te;
 			for (int i = 0; i < 8; i++) {
 				if (tedb.hasDriveInSlot(i)) {
-					li.add(tedb.getDriveInSlot(i));
+					spawnAsEntity(world, pos, tedb.getDriveInSlot(i));
+					tedb.setDriveInSlot(i, null);
 				}
 			}
 		}
-		return li;
+		super.breakBlock(world, pos, state);
 	}
 	
 	@Override
