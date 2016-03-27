@@ -1,14 +1,19 @@
 package com.unascribed.correlatedpotentialistics.network;
 
+import com.unascribed.correlatedpotentialistics.client.gui.GuiVT;
 import com.unascribed.correlatedpotentialistics.inventory.ContainerVT;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.inventory.Container;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class SetSearchQueryMessage implements IMessage, IMessageHandler<SetSearchQueryMessage, IMessage> {
 	public int windowId;
@@ -34,13 +39,33 @@ public class SetSearchQueryMessage implements IMessage, IMessageHandler<SetSearc
 	
 	@Override
 	public IMessage onMessage(SetSearchQueryMessage message, MessageContext ctx) {
+		if (ctx.side == Side.SERVER) {
+			handleServer(message, ctx);
+		} else if (ctx.side == Side.CLIENT) {
+			handleClient(message, ctx);
+		}
+		return null;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	private void handleClient(SetSearchQueryMessage message, MessageContext ctx) {
+		Minecraft.getMinecraft().addScheduledTask(() -> {
+			GuiScreen open = Minecraft.getMinecraft().currentScreen;
+			if (open instanceof GuiVT) {
+				GuiVT vt = ((GuiVT)open);
+				if (vt.inventorySlots.windowId == message.windowId) {
+					vt.updateSearchQuery(message.query);
+				}
+			}
+		});
+	}
+	private void handleServer(SetSearchQueryMessage message, MessageContext ctx) {
 		MinecraftServer.getServer().addScheduledTask(() -> {
 			Container c = ctx.getServerHandler().playerEntity.openContainer;
 			if (c instanceof ContainerVT && c.windowId == message.windowId) {
 				((ContainerVT)c).updateSearchQuery(message.query);
 			}
 		});
-		return null;
 	}
 
 }

@@ -68,6 +68,7 @@ public class CoPo {
 		// for some reason plugin message channels have a maximum length of 20 characters
 		network = NetworkRegistry.INSTANCE.newSimpleChannel("CrelatedPtntialstics");
 		network.registerMessage(SetSearchQueryMessage.class, SetSearchQueryMessage.class, 0, Side.SERVER);
+		network.registerMessage(SetSearchQueryMessage.class, SetSearchQueryMessage.class, 1, Side.CLIENT);
 		
 		register(new BlockController().setHardness(2), ItemBlockController.class, "controller", 4);
 		register(new BlockDriveBay().setHardness(2), ItemBlockDriveBay.class, "drive_bay", 0);

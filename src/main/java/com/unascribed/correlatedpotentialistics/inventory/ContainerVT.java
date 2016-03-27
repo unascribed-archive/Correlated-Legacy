@@ -1,34 +1,77 @@
 package com.unascribed.correlatedpotentialistics.inventory;
 
+import java.text.Collator;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
+import com.google.common.primitives.Booleans;
 import com.unascribed.correlatedpotentialistics.CoPo;
 import com.unascribed.correlatedpotentialistics.helper.ItemStacks;
+import com.unascribed.correlatedpotentialistics.network.SetSearchQueryMessage;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityVT;
+import com.unascribed.correlatedpotentialistics.tile.TileEntityVT.UserPreferences;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 public class ContainerVT extends Container {
+	public enum SortMode {
+		QUANTITY((a, b) -> {
+			int quantityComp = Ints.compare(a.stackSize, b.stackSize);
+			if (quantityComp != 0) return quantityComp;
+			return Collator.getInstance().compare(a.getDisplayName(), b.getDisplayName());
+		}),
+		MOD_MINECRAFT_FIRST((a, b) -> {
+			String modA = getModId(a);
+			String modB = getModId(b);
+			boolean aMinecraft = "minecraft".equals(modA);
+			boolean bMinecraft = "minecraft".equals(modB);
+			if (aMinecraft || bMinecraft && aMinecraft != bMinecraft) return Booleans.compare(aMinecraft, bMinecraft);
+			int modComp = Collator.getInstance().compare(modA, modB);
+			if (modComp != 0) return modComp;
+			return Collator.getInstance().compare(a.getDisplayName(), b.getDisplayName());
+		}),
+		MOD((a, b) -> {
+			int modComp = Collator.getInstance().compare(getModId(a), getModId(b));
+			if (modComp != 0) return modComp;
+			return Collator.getInstance().compare(a.getDisplayName(), b.getDisplayName());
+		}),
+		NAME((a, b) -> Collator.getInstance().compare(a.getDisplayName(), b.getDisplayName()));
+		public final Comparator<ItemStack> comparator;
+		public final String lowerName = name().toLowerCase(Locale.ROOT);
+		private SortMode(Comparator<ItemStack> comparator) {
+			this.comparator = comparator;
+		}
+		
+		private static String getModId(ItemStack is) {
+			return Item.itemRegistry.getNameForObject(is.getItem()).getResourceDomain();
+		}
+	}
+
 	private TileEntityVT vt;
 	private EntityPlayer player;
 	private int scrollOffset;
 	private String searchQuery = "";
 	public int rows;
+	public SortMode sortMode = SortMode.QUANTITY;
+	public boolean sortAscending = false;
 	
 	public class SlotVirtual extends Slot {
 		private ItemStack stack;
 		private int count;
-		public SlotVirtual(IInventory inventoryIn, int index, int xPosition, int yPosition) {
-			super(inventoryIn, index, xPosition, yPosition);
+		public SlotVirtual(int index, int xPosition, int yPosition) {
+			super(null, index, xPosition, yPosition);
 		}
 		
 		@Override
@@ -99,15 +142,22 @@ public class ContainerVT extends Container {
 		}
 
 	}
-
+	
 	public ContainerVT(IInventory playerInventory, EntityPlayer player, TileEntityVT vt) {
 		this.player = player;
 		this.vt = vt;
 		int y = 37;
 		
+		if (!player.worldObj.isRemote && player instanceof EntityPlayerMP) {
+			UserPreferences prefs = vt.getPreferences(player);
+			sortMode = prefs.sortMode;
+			sortAscending = prefs.sortAscending;
+			searchQuery = prefs.lastSearchQuery;
+		}
+		
 		for (int i = 0; i < 6; ++i) {
 			for (int j = 0; j < 9; ++j) {
-				addSlotToContainer(new SlotVirtual(null, j + i * 9, 8 + j * 18, 18 + i * 18));
+				addSlotToContainer(new SlotVirtual(j + i * 9, 8 + j * 18, 18 + i * 18));
 			}
 		}
 		updateSlots();
@@ -121,8 +171,9 @@ public class ContainerVT extends Container {
 		for (int i = 0; i < 9; ++i) {
 			addSlotToContainer(new Slot(playerInventory, i, 8 + i * 18, 161 + y));
 		}
+		
 	}
-	
+
 	public void updateSlots() {
 		if (vt.hasWorldObj() && vt.getWorld().isRemote) return;
 		List<ItemStack> typesAll = vt.getController().getTypes();
@@ -145,7 +196,11 @@ public class ContainerVT extends Container {
 			}
 			types.add(is);
 		}
-		Collections.sort(types, (a, b) -> Ints.compare(b.stackSize, a.stackSize));
+		if (sortAscending) {
+			Collections.sort(types, sortMode.comparator);
+		} else {
+			Collections.sort(types, (a, b) -> sortMode.comparator.compare(b, a));
+		}
 		int idx = scrollOffset*9;
 		for (Slot slot : inventorySlots) {
 			if (slot instanceof SlotVirtual) {
@@ -172,12 +227,31 @@ public class ContainerVT extends Container {
 	public void updateProgressBar(int id, int data) {
 		if (id == 0) {
 			rows = data;
+		} else if (id == 1) {
+			SortMode[] values = SortMode.values();
+			sortMode = values[data%values.length];
+		} else if (id == 2) {
+			sortAscending = data != 0;
 		}
 	}
 	
 	@Override
 	public boolean enchantItem(EntityPlayer playerIn, int id) {
-		scrollOffset = id;
+		if (id == 0) {
+			sortMode = SortMode.QUANTITY;
+		} else if (id == 1) {
+			sortMode = SortMode.MOD_MINECRAFT_FIRST;
+		} else if (id == 2) {
+			sortMode = SortMode.MOD;
+		} else if (id == 3) {
+			sortMode = SortMode.NAME;
+		} else if (id == 4) {
+			sortAscending = true;
+		} else if (id == 5) {
+			sortAscending = false;
+		} else {
+			scrollOffset = id-6;
+		}
 		updateSlots();
 		return true;
 	}
@@ -205,6 +279,11 @@ public class ContainerVT extends Container {
 	public void onCraftGuiOpened(ICrafting listener) {
 		super.onCraftGuiOpened(listener);
 		listener.sendProgressBarUpdate(this, 0, rows);
+		listener.sendProgressBarUpdate(this, 1, sortMode.ordinal());
+		listener.sendProgressBarUpdate(this, 2, sortAscending ? 1 : 0);
+		if (listener instanceof EntityPlayerMP) {
+			CoPo.inst.network.sendTo(new SetSearchQueryMessage(windowId, searchQuery), (EntityPlayerMP)listener);
+		}
 	}
 	
 	@Override
@@ -276,6 +355,16 @@ public class ContainerVT extends Container {
 	public void updateSearchQuery(String query) {
 		searchQuery = query.toLowerCase();
 		updateSlots();
+	}
+	
+	@Override
+	public void onContainerClosed(EntityPlayer playerIn) {
+		super.onContainerClosed(playerIn);
+		UserPreferences prefs = vt.getPreferences(playerIn);
+		prefs.sortMode = sortMode;
+		prefs.sortAscending = sortAscending;
+		prefs.lastSearchQuery = searchQuery;
+		vt.markDirty();
 	}
 
 }

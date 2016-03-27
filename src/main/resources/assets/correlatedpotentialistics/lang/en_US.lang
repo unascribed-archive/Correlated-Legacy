@@ -41,6 +41,14 @@ item.correlatedpotentialistics.misc.2.name=Metallic Drive Platter
 item.correlatedpotentialistics.misc.3.name=Luminous Pearl
 tooltip.correlatedpotentialistics.misc.3.0=§5§oIt glows a brilliant verdant green.
 
+tooltip.correlatedpotentialistics.sortmode.quantity=Quantity
+tooltip.correlatedpotentialistics.sortmode.mod_minecraft_first=Originating Mod (Minecraft First)
+tooltip.correlatedpotentialistics.sortmode.mod=Originating Mod
+tooltip.correlatedpotentialistics.sortmode.name=Name
+
+tooltip.correlatedpotentialistics.sortdirection.ascending=Ascending
+tooltip.correlatedpotentialistics.sortdirection.descending=Descending
+
 
 msg.correlatedpotentialistics.vt_no_controller=Cannot find a Controller to communicate with.
 msg.correlatedpotentialistics.vt_no_power=The unlit screen resists all attempts at interaction. Maybe you should power the network?

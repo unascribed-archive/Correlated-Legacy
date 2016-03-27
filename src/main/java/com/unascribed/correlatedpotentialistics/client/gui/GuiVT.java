@@ -1,33 +1,39 @@
 package com.unascribed.correlatedpotentialistics.client.gui;
 
 import java.io.IOException;
-
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import com.unascribed.correlatedpotentialistics.CoPo;
 import com.unascribed.correlatedpotentialistics.helper.Numbers;
 import com.unascribed.correlatedpotentialistics.inventory.ContainerVT;
 import com.unascribed.correlatedpotentialistics.inventory.ContainerVT.SlotVirtual;
+import com.unascribed.correlatedpotentialistics.inventory.ContainerVT.SortMode;
 import com.unascribed.correlatedpotentialistics.network.SetSearchQueryMessage;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.client.config.GuiButtonExt;
 
 public class GuiVT extends GuiContainer {
 	private static final ResourceLocation generic_54 = new ResourceLocation("textures/gui/container/generic_54.png");
 	private static final ResourceLocation tab_item_search = new ResourceLocation("textures/gui/container/creative_inventory/tab_item_search.png");
 	private static final ResourceLocation tabs = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
+	private static final ResourceLocation sorting_mode = new ResourceLocation("correlatedpotentialistics", "textures/gui/sorting_mode.png");
 	
 	private ContainerVT container;
 	private GuiTextField searchField = new GuiTextField(0, Minecraft.getMinecraft().fontRendererObj, 0, 0, 85, 8);
 	private String lastSearchQuery = "";
+	private GuiButtonExt sortDirection;
+	private GuiButtonExt sortMode;
 	
 	public GuiVT(ContainerVT container) {
 		super(container);
@@ -72,21 +78,37 @@ public class GuiVT extends GuiContainer {
 				}
 			}
 		}
-		GlStateManager.enableDepth();
 		GlStateManager.popMatrix();
+		GlStateManager.enableDepth();
 		
-		mc.getTextureManager().bindTexture(tabs);
 		int u = 232;
 		if (container.rows <= 6) {
 			u += 12;
 		}
 		int y = 18;
 		GlStateManager.color(1, 1, 1);
+		mc.getTextureManager().bindTexture(tabs);
 		drawTexturedModalRect(175, y+(scrollKnobY-6), u, 0, 12, 15);
+		
+		mc.getTextureManager().bindTexture(sorting_mode);
+		if (container.sortAscending) {
+			drawModalRectWithCustomSizedTexture(177, 6, 0, 24, 8, 8, 32, 32);
+		} else {
+			drawModalRectWithCustomSizedTexture(177, 6, 8, 24, 8, 8, 32, 32);
+		}
+		drawModalRectWithCustomSizedTexture(69, 6, container.sortMode.ordinal()*8, 0, 8, 8, 32, 32);
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(-(width - xSize) / 2, -(height - ySize) / 2, 0);
 		searchField.drawTextBox();
+		if (sortMode.isMouseOver()) {
+			drawHoveringText(Lists.newArrayList(I18n.format("tooltip.correlatedpotentialistics.sortmode."+container.sortMode.lowerName)), mouseX, mouseY);
+		}
+		if (sortDirection.isMouseOver()) {
+			String str = (container.sortAscending ? "ascending" : "descending");
+			drawHoveringText(Lists.newArrayList(I18n.format("tooltip.correlatedpotentialistics.sortdirection."+str)), mouseX, mouseY);
+		}
 		GlStateManager.popMatrix();
+		
 	}
 	
 	private boolean draggingScrollKnob = false;
@@ -100,6 +122,35 @@ public class GuiVT extends GuiContainer {
 		int y = (height - ySize) / 2;
 		searchField.xPosition = x+82;
 		searchField.yPosition = y+6;
+		buttonList.add(sortDirection = new GuiButtonExt(0, x+175, y+4, 12, 12, ""));
+		buttonList.add(sortMode = new GuiButtonExt(1, x+67, y+4, 12, 12, ""));
+	}
+	
+	@Override
+	protected void actionPerformed(GuiButton button) throws IOException {
+		if (button.id == 0) {
+			mc.playerController.sendEnchantPacket(container.windowId, container.sortAscending ? 5 : 4);
+			container.sortAscending = !container.sortAscending;
+		} else if (button.id == 1) {
+			switch (container.sortMode) {
+				case QUANTITY:
+					container.sortMode = SortMode.MOD_MINECRAFT_FIRST;
+					mc.playerController.sendEnchantPacket(container.windowId, 1);
+					break;
+				case MOD_MINECRAFT_FIRST:
+					container.sortMode = SortMode.MOD;
+					mc.playerController.sendEnchantPacket(container.windowId, 2);
+					break;
+				case MOD:
+					container.sortMode = SortMode.NAME;
+					mc.playerController.sendEnchantPacket(container.windowId, 3);
+					break;
+				case NAME:
+					container.sortMode = SortMode.QUANTITY;
+					mc.playerController.sendEnchantPacket(container.windowId, 0);
+					break;
+			}
+		}
 	}
 	
 	@Override
@@ -109,7 +160,7 @@ public class GuiVT extends GuiContainer {
 			int dWheel = Mouse.getDWheel()/container.rows;
 			if (dWheel != 0) {
 				scrollKnobY = Math.max(Math.min(101, scrollKnobY-dWheel), 6);
-				mc.playerController.sendEnchantPacket(container.windowId, Math.round(((scrollKnobY-6)/101f)*(container.rows-6)));
+				mc.playerController.sendEnchantPacket(container.windowId, Math.round(((scrollKnobY-6)/101f)*(container.rows-6))+6);
 			}
 		} else {
 			scrollKnobY = 6;
@@ -120,7 +171,7 @@ public class GuiVT extends GuiContainer {
 			ticksSinceLastQueryChange = 0;
 			if (scrollKnobY != 6) {
 				scrollKnobY = 6;
-				mc.playerController.sendEnchantPacket(container.windowId, 0);
+				mc.playerController.sendEnchantPacket(container.windowId, 5);
 			}
 		}
 		ticksSinceLastQueryChange++;
@@ -171,7 +222,7 @@ public class GuiVT extends GuiContainer {
 		if (draggingScrollKnob && container.rows > 6) {
 			int y = (height - ySize) / 2;
 			scrollKnobY = Math.max(Math.min(101, (mouseY-24)-y), 6);
-			mc.playerController.sendEnchantPacket(container.windowId, Math.round(((scrollKnobY-6)/101f)*(container.rows-6)));
+			mc.playerController.sendEnchantPacket(container.windowId, Math.round(((scrollKnobY-6)/101f)*(container.rows-6))+6);
 		}
 		super.mouseClickMove(mouseX, mouseY, mouseButton, timeSinceLastClick);
 	}
@@ -182,6 +233,11 @@ public class GuiVT extends GuiContainer {
 			draggingScrollKnob = false;
 		}
 		super.mouseReleased(mouseX, mouseY, mouseButton);
+	}
+
+	public void updateSearchQuery(String query) {
+		lastSearchQuery = query;
+		searchField.setText(query);
 	}
 	
 }
