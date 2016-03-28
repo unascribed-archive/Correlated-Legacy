@@ -11,8 +11,10 @@ A Controller decides which drive to send items to based on both it's distance fr
 
 Drive bays closest to the controller are checked first, as a consequence of how the controller scans the network. Higher priority drives are checked before lower priority ones.
 
+In addition, the export slots of interfaces will be scanned for items to be taken out. Items will never be added to an interface, unless the interfaces is configured to pull items.
+
 ## Network Scanning
-Controllers scan in an exapanding diamond around them, stopping when they hit a block that is not a member of the network. An illustrated example:
+Controllers scan in an expanding diamond around them, stopping when they hit a block that is not a member of the network. An illustrated example:
 
 ![Illustration of controller scan order](https://i.imgur.com/w1z4Yei.png)
 
