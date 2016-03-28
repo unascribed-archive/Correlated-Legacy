@@ -21,3 +21,9 @@ By right-clicking the interface while not holding a wrench, you will be presente
 * The **orange slots** are the output buffer. Every 16 ticks, the interface will attempt to put as many items as possible into each of these slots, taken from the network (including other interfaces, if necessary), as configured in the filter.
 
 The orange slots are also visible from within the storage network, so even if you have an interface with a bunch of items in it's buffer, you can still grab them from a terminal.
+
+## Examples
+
+![An autosmelter made using Interfaces](https://i.imgur.com/tYurzEx.png)
+
+An autosmelter made using Interfaces (The furnace goes in between all the interfaces, it was removed in the screenshot so the faces were visible)
