@@ -3,7 +3,7 @@
     * [[Controller]]
     * [[Drive Bay]]
     * [[Terminal]]
-    * Interface (NYI)
+    * [[Interface]]
     * Router (NYI)
   * Items
     * [[Drive]]
