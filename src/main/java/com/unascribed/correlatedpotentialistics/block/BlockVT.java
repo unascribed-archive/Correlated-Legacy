@@ -1,6 +1,7 @@
 package com.unascribed.correlatedpotentialistics.block;
 
 import com.unascribed.correlatedpotentialistics.CoPo;
+import com.unascribed.correlatedpotentialistics.helper.Blocks;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityNetworkMember;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityVT;
 
@@ -63,39 +64,45 @@ public class BlockVT extends Block {
 			((TileEntityNetworkMember)te).handleNeighborChange(world, pos, neighbor);
 		}
 	}
-	
+		
 	@Override
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ) {
-		TileEntity te = world.getTileEntity(pos);
-		if (te instanceof TileEntityNetworkMember) {
-			TileEntityNetworkMember tenm = (TileEntityNetworkMember)te;
-			if (tenm.hasController()) {
-				if (!world.isRemote) {
-					switch (world.getBlockState(tenm.getController().getPos()).getValue(BlockController.state)) {
-						case BOOTING:
-							player.addChatMessage(new ChatComponentTranslation("msg.correlatedpotentialistics.vt_booting"));
-							break;
-						case ERROR:
-							player.addChatMessage(new ChatComponentTranslation("msg.correlatedpotentialistics.vt_error"));
-							break;
-						case OFF:
-							player.addChatMessage(new ChatComponentTranslation("msg.correlatedpotentialistics.vt_no_power"));
-							break;
-						case POWERED:
-							player.openGui(CoPo.inst, 0, world, pos.getX(), pos.getY(), pos.getZ());
-							break;
-						default:
-							break;
-						
+		if (Blocks.tryWrench(world, pos, player, side, hitZ, hitZ, hitZ)) {
+			return true;
+		}
+		if (!player.isSneaking()) {
+			TileEntity te = world.getTileEntity(pos);
+			if (te instanceof TileEntityNetworkMember) {
+				TileEntityNetworkMember tenm = (TileEntityNetworkMember)te;
+				if (tenm.hasController()) {
+					if (!world.isRemote) {
+						switch (world.getBlockState(tenm.getController().getPos()).getValue(BlockController.state)) {
+							case BOOTING:
+								player.addChatMessage(new ChatComponentTranslation("msg.correlatedpotentialistics.vt_booting"));
+								break;
+							case ERROR:
+								player.addChatMessage(new ChatComponentTranslation("msg.correlatedpotentialistics.vt_error"));
+								break;
+							case OFF:
+								player.addChatMessage(new ChatComponentTranslation("msg.correlatedpotentialistics.vt_no_power"));
+								break;
+							case POWERED:
+								player.openGui(CoPo.inst, 0, world, pos.getX(), pos.getY(), pos.getZ());
+								break;
+							default:
+								break;
+							
+						}
 					}
+					return true;
 				}
-				return true;
 			}
+			if (!world.isRemote) {
+				player.addChatMessage(new ChatComponentTranslation("msg.correlatedpotentialistics.vt_no_controller"));
+			}
+			return true;
 		}
-		if (!world.isRemote) {
-			player.addChatMessage(new ChatComponentTranslation("msg.correlatedpotentialistics.vt_no_controller"));
-		}
-		return true;
+		return super.onBlockActivated(world, pos, state, player, side, hitX, hitY, hitZ);
 	}
 	
 }

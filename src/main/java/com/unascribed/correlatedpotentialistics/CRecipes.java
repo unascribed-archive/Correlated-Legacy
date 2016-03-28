@@ -128,6 +128,16 @@ public class CRecipes {
 				'p', processor,
 				'o', luminousPearl
 				));
+		
+		// Interface
+		GameRegistry.addRecipe(new ShapedOreRecipe(CoPo.iface,
+				"igi",
+				"gog",
+				"igi",
+				'i', "ingotIron",
+				'g', "ingotGold",
+				'o', luminousPearl
+				));
 	}
 
 }

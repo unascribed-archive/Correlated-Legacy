@@ -7,6 +7,7 @@ import com.unascribed.correlatedpotentialistics.helper.Numbers;
 import com.unascribed.correlatedpotentialistics.item.ItemDrive;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityController;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityDriveBay;
+import com.unascribed.correlatedpotentialistics.tile.TileEntityInterface;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityNetworkMember;
 
 import mcp.mobius.waila.api.IWailaConfigHandler;
@@ -37,6 +38,7 @@ public class CoPoWailaProvider implements IWailaDataProvider {
 		}
 		if (te instanceof TileEntityNetworkMember) {
 			nbt.setInteger("EnergyPerTick", ((TileEntityNetworkMember) te).getEnergyConsumedPerTick());
+			nbt.setBoolean("HasController", ((TileEntityNetworkMember) te).hasController());
 		}
 		return nbt;
 	}
@@ -69,7 +71,11 @@ public class CoPoWailaProvider implements IWailaDataProvider {
 			body.add(I18n.format("tooltip.correlatedpotentialistics.controller_consumption_rate", nbt.getInteger("EnergyPerTick")));
 			body.add(I18n.format("tooltip.correlatedpotentialistics.controller_energy_buffer", nbt.getInteger("Energy"), nbt.getInteger("MaxEnergy")));
 		} else if (access.getTileEntity() instanceof TileEntityNetworkMember) {
-			body.add(I18n.format("tooltip.correlatedpotentialistics.member_consumption_rate", nbt.getInteger("EnergyPerTick")));
+			if (nbt.getBoolean("HasController")) {
+				body.add(I18n.format("tooltip.correlatedpotentialistics.member_consumption_rate", nbt.getInteger("EnergyPerTick")));
+			} else {
+				body.add("\u00A7c"+I18n.format("tooltip.correlatedpotentialistics.no_controller"));
+			}
 		}
 		if (access.getTileEntity() instanceof TileEntityDriveBay) {
 			TileEntityDriveBay tedb = (TileEntityDriveBay)access.getTileEntity();
@@ -97,6 +103,11 @@ public class CoPoWailaProvider implements IWailaDataProvider {
 			body.add(I18n.format("tooltip.correlatedpotentialistics.drive_count", driveCount));
 			body.add(I18n.format("tooltip.correlatedpotentialistics.types_used", totalTypesUsed, totalMaxTypes, totalTypesPercent));
 			body.add(I18n.format("tooltip.correlatedpotentialistics.bytes_used", Numbers.humanReadableBytes(totalBytesUsed), Numbers.humanReadableBytes(totalMaxBytes), totalBytesPercent));
+		} else if (access.getTileEntity() instanceof TileEntityInterface) {
+			TileEntityInterface tei = (TileEntityInterface)access.getTileEntity();
+			EnumFacing side = access.getSide();
+			body.add(I18n.format("tooltip.correlatedpotentialistics.side", I18n.format("direction.correlatedpotentialistics."+side.getName())));
+			body.add(I18n.format("tooltip.correlatedpotentialistics.mode", I18n.format("tooltip.correlatedpotentialistics.iface.mode_"+tei.getModeForFace(side).getName())));
 		}
 		return body;
 	}

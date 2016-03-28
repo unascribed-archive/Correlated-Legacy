@@ -6,6 +6,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3i;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -60,6 +61,19 @@ public abstract class TileEntityNetworkMember extends TileEntity {
 			controllerPos = controller.getPos().subtract(getPos());
 		}
 		this.controller = controller;
+		if (controller != null) {
+			for (EnumFacing ef : EnumFacing.VALUES) {
+				TileEntity neighbor = worldObj.getTileEntity(getPos().offset(ef));
+				if (neighbor instanceof TileEntityNetworkMember) {
+					TileEntityNetworkMember tenm = (TileEntityNetworkMember)neighbor;
+					if (!tenm.hasController() && this.hasController()) {
+						tenm.setController(controller);
+						controller.updateConsumptionRate(tenm.getEnergyConsumedPerTick());
+						controller.onNetworkPatched(tenm);
+					}
+				}
+			}
+		}
 	}
 	
 	
@@ -81,7 +95,9 @@ public abstract class TileEntityNetworkMember extends TileEntity {
 			}
 		} else {
 			if (hasController()) {
-				getController().scanNetwork();
+				if (getController().knowsOfMemberAt(neighbor)) {
+					getController().scanNetwork();
+				}
 			}
 		}
 	}

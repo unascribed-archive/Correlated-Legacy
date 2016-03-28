@@ -5,9 +5,11 @@ import org.apache.logging.log4j.Logger;
 
 import com.unascribed.correlatedpotentialistics.block.BlockController;
 import com.unascribed.correlatedpotentialistics.block.BlockDriveBay;
+import com.unascribed.correlatedpotentialistics.block.BlockInterface;
 import com.unascribed.correlatedpotentialistics.block.BlockVT;
 import com.unascribed.correlatedpotentialistics.block.item.ItemBlockController;
 import com.unascribed.correlatedpotentialistics.block.item.ItemBlockDriveBay;
+import com.unascribed.correlatedpotentialistics.block.item.ItemBlockInterface;
 import com.unascribed.correlatedpotentialistics.block.item.ItemBlockVT;
 import com.unascribed.correlatedpotentialistics.compat.WailaCompatibility;
 import com.unascribed.correlatedpotentialistics.item.ItemDrive;
@@ -16,6 +18,7 @@ import com.unascribed.correlatedpotentialistics.network.CoPoGuiHandler;
 import com.unascribed.correlatedpotentialistics.network.SetSearchQueryMessage;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityController;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityDriveBay;
+import com.unascribed.correlatedpotentialistics.tile.TileEntityInterface;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityVT;
 
 import net.minecraft.block.Block;
@@ -48,6 +51,7 @@ public class CoPo {
 	public static BlockController controller;
 	public static BlockDriveBay drive_bay;
 	public static BlockVT vt;
+	public static BlockInterface iface;
 	
 	public static ItemMisc misc;
 	public static ItemDrive drive;
@@ -73,6 +77,7 @@ public class CoPo {
 		register(new BlockController().setHardness(2), ItemBlockController.class, "controller", 4);
 		register(new BlockDriveBay().setHardness(2), ItemBlockDriveBay.class, "drive_bay", 0);
 		register(new BlockVT().setHardness(2), ItemBlockVT.class, "vt", 0);
+		register(new BlockInterface().setHardness(2), ItemBlockInterface.class, "iface", 0);
 		
 		register(new ItemMisc(), "misc", -2);
 		register(new ItemDrive(), "drive", -1);
@@ -90,6 +95,7 @@ public class CoPo {
 		GameRegistry.registerTileEntity(TileEntityController.class, "correlatedpotentialistics:controller");
 		GameRegistry.registerTileEntity(TileEntityDriveBay.class, "correlatedpotentialistics:drive_bay");
 		GameRegistry.registerTileEntity(TileEntityVT.class, "correlatedpotentialistics:vt");
+		GameRegistry.registerTileEntity(TileEntityInterface.class, "correlatedpotentialistics:interface");
 		if (Loader.isModLoaded("Waila")) {
 			WailaCompatibility.init();
 		}

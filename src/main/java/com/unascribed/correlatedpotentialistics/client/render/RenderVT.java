@@ -42,7 +42,7 @@ public class RenderVT extends TileEntitySpecialRenderer<TileEntityVT> {
 			default:
 				break;
 		}
-		GlStateManager.translate(0, 0, -0.0001f);
+		GlStateManager.translate(0, 0, -0.005f);
 		
 		GlStateManager.color(1, 1, 1);
 		

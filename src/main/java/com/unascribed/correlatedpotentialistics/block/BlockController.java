@@ -90,7 +90,7 @@ public class BlockController extends Block {
 	
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (Blocks.tryWrench(worldIn, pos, playerIn)) {
+		if (Blocks.tryWrench(worldIn, pos, playerIn, side, hitZ, hitZ, hitZ)) {
 			return true;
 		}
 		TileEntity te = worldIn.getTileEntity(pos);

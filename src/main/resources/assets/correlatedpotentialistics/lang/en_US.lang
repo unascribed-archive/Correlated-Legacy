@@ -5,6 +5,7 @@ container.correlatedpotentialistics.drive_bay.name=Drive Bay
 tile.correlatedpotentialistics.controller.name=Controller
 tile.correlatedpotentialistics.drive_bay.name=Drive Bay
 tile.correlatedpotentialistics.vt.name=Terminal
+tile.correlatedpotentialistics.iface.name=Interface
 
 gui.correlatedpotentialistics.vt=Terminal
 
@@ -81,6 +82,21 @@ tooltip.correlatedpotentialistics.controller_error.too_much_power=The network ta
 tooltip.correlatedpotentialistics.controller_consumption_rate=Using %d RF/t total (max 320 RF/t)
 tooltip.correlatedpotentialistics.controller_energy_buffer=%d/%d RF
 tooltip.correlatedpotentialistics.member_consumption_rate=Using %d RF/t from controller
+tooltip.correlatedpotentialistics.side=Side: %s
+tooltip.correlatedpotentialistics.mode=Mode: %s
+tooltip.correlatedpotentialistics.no_controller=No Controller
+
+tooltip.correlatedpotentialistics.iface.mode_push=§fActive - §6Push
+tooltip.correlatedpotentialistics.iface.mode_pull=§fActive - §bPull
+tooltip.correlatedpotentialistics.iface.mode_none=§fPassive
+tooltip.correlatedpotentialistics.iface.mode_disabled=§8Disabled
+
+direction.correlatedpotentialistics.up=Top
+direction.correlatedpotentialistics.down=Bottom
+direction.correlatedpotentialistics.north=North
+direction.correlatedpotentialistics.east=East
+direction.correlatedpotentialistics.south=South
+direction.correlatedpotentialistics.west=West
 
 tooltip.correlatedpotentialistics.drive_count=%d/8 drives
 tooltip.correlatedpotentialistics.types_used=%d of %d types used (%d%%)

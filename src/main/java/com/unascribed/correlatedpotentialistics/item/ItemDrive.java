@@ -75,22 +75,18 @@ public class ItemDrive extends Item {
 		int b;
 		boolean dirty = stack.hasTagCompound() && stack.getTagCompound().getBoolean("Dirty");
 		if (stack.getItemDamage() == 4) {
+			if (dirty) return 0xFF00FF;
 			float sin = (MathHelper.sin(ClientProxy.ticks / 20f) + 2.5f) / 5f;
 			r = ((int) (sin * 192f)) & 0xFF;
 			g = 0;
 			b = ((int) (sin * 255f)) & 0xFF;
-			if (!dirty) {
-				r *= 0.85f;
-				g *= 0.85f;
-				b *= 0.85f;
-			}
 			return r << 16 | g << 8 | b;
 		} else {
 			float usedTypes = getTypesUsed(stack)/(float)getMaxTypes(stack);
 			float usedBits = getBitsUsed(stack)/(float)getMaxBits(stack);
 			float both = (usedTypes+usedBits)/2;
 			float hue = (1/3f)*(1-both);
-			return Color.HSBtoRGB(hue, 1, dirty ? 1 : 0.85f);
+			return Color.HSBtoRGB(hue, 1, dirty ? 1 : 0.65f);
 		}
 	}
 

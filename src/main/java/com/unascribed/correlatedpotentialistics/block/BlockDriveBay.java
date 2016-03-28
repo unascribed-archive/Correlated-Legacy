@@ -83,7 +83,7 @@ public class BlockDriveBay extends Block {
 	
 	@Override
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (Blocks.tryWrench(world, pos, player)) {
+		if (Blocks.tryWrench(world, pos, player, side, hitZ, hitZ, hitZ)) {
 			return true;
 		}
 		ItemStack inHand = player.getHeldItem();

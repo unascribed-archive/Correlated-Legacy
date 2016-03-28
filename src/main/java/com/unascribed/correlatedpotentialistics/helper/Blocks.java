@@ -1,5 +1,7 @@
 package com.unascribed.correlatedpotentialistics.helper;
 
+import com.unascribed.correlatedpotentialistics.ITweakable;
+
 import buildcraft.api.tools.IToolWrench;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
@@ -11,7 +13,7 @@ import net.minecraft.world.World;
 
 public class Blocks {
 
-	public static boolean tryWrench(World world, BlockPos pos, EntityPlayer player) {
+	public static boolean tryWrench(World world, BlockPos pos, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ) {
 		try {
 			ItemStack inHand = player.getHeldItem();
 			if (inHand != null && inHand.getItem() instanceof IToolWrench) {
@@ -25,6 +27,8 @@ public class Blocks {
 						} else if (state.getBlock() instanceof BlockDirectional) {
 							world.setBlockState(pos, state.withProperty(BlockDirectional.FACING,
 											EnumFacing.getHorizontal(state.getValue(BlockDirectional.FACING).getHorizontalIndex()+1)));
+						} else if (state.getBlock() instanceof ITweakable) {
+							((ITweakable)state.getBlock()).onTweak(world, pos, player, side, hitX, hitY, hitZ);
 						}
 					}
 					return true;

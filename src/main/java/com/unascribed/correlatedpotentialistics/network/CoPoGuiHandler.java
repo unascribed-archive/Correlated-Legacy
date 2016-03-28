@@ -2,10 +2,13 @@ package com.unascribed.correlatedpotentialistics.network;
 
 import com.unascribed.correlatedpotentialistics.CoPo;
 import com.unascribed.correlatedpotentialistics.client.gui.GuiDrive;
+import com.unascribed.correlatedpotentialistics.client.gui.GuiInterface;
 import com.unascribed.correlatedpotentialistics.client.gui.GuiVT;
 import com.unascribed.correlatedpotentialistics.inventory.ContainerDrive;
+import com.unascribed.correlatedpotentialistics.inventory.ContainerInterface;
 import com.unascribed.correlatedpotentialistics.inventory.ContainerVT;
 import com.unascribed.correlatedpotentialistics.item.ItemDrive;
+import com.unascribed.correlatedpotentialistics.tile.TileEntityInterface;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityVT;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -38,6 +41,15 @@ public class CoPoGuiHandler implements IGuiHandler {
 					break;
 				}
 			}
+			case 2: {
+				TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
+				if (te instanceof TileEntityInterface) {
+					return new ContainerInterface(player.inventory, player, (TileEntityInterface)te);
+				} else {
+					CoPo.log.warn("Expected TileEntityInterface at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
+					break;
+				}
+			}
 		}
 		return null;
 	}
@@ -60,6 +72,15 @@ public class CoPoGuiHandler implements IGuiHandler {
 					return new GuiDrive(new ContainerDrive(player.inventory, x, player));
 				} else {
 					CoPo.log.warn("Expected a drive, got {} instead", drive);
+					break;
+				}
+			}
+			case 2: {
+				TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
+				if (te instanceof TileEntityInterface) {
+					return new GuiInterface(new ContainerInterface(player.inventory, player, (TileEntityInterface)te));
+				} else {
+					CoPo.log.warn("Expected TileEntityInterface at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
 					break;
 				}
 			}

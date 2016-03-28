@@ -29,8 +29,11 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	private int consumedPerTick = 32;
 	public int bootTicks = 0;
 	private int networkMembers = 0;
+	private transient Set<BlockPos> networkMemberLocations = Sets.newHashSet();
+	private transient List<TileEntityInterface> interfaces = Lists.newArrayList();
 	private transient List<TileEntityDriveBay> driveBays = Lists.newArrayList();
 	private transient List<ItemStack> drives = Lists.newArrayList();
+	public int changeId = 0;
 	
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
@@ -118,7 +121,17 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		boolean foundOtherController = false;
 		int consumedPerTick = 32;
 		
+		for (BlockPos pos : networkMemberLocations) {
+			TileEntity te = worldObj.getTileEntity(pos);
+			if (te instanceof TileEntityNetworkMember) {
+				((TileEntityNetworkMember)te).setController(null);
+			}
+		}
+		
+		networkMembers = 0;
+		networkMemberLocations.clear();
 		driveBays.clear();
+		interfaces.clear();
 		
 		int itr = 0;
 		while (!queue.isEmpty()) {
@@ -152,7 +165,10 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 						members.add((TileEntityNetworkMember) te);
 						if (te instanceof TileEntityDriveBay) {
 							driveBays.add((TileEntityDriveBay)te);
+						} else if (te instanceof TileEntityInterface) {
+							interfaces.add((TileEntityInterface)te);
 						}
+						networkMemberLocations.add(pos);
 						consumedPerTick += ((TileEntityNetworkMember) te).getEnergyConsumedPerTick();
 					}
 				}
@@ -167,10 +183,10 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			error = false;
 			errorReason = null;
 		}
-		networkMembers = itr;
 		for (TileEntityNetworkMember te : members) {
 			te.setController(this);
 		}
+		networkMembers = itr;
 		if (consumedPerTick > 320) {
 			error = true;
 			errorReason = "too_much_power";
@@ -243,6 +259,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 				if (stack.stackSize <= 0) break;
 			}
 		}
+		changeId++;
 		return stack.stackSize <= 0 ? null : stack;
 	}
 	
@@ -250,6 +267,21 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		if (prototype == null) return null;
 		ItemStack stack = prototype.copy();
 		stack.stackSize = 0;
+		for (TileEntityInterface in : interfaces) {
+			for (int i = 9; i <= 17; i++) {
+				ItemStack is = in.getStackInSlot(i);
+				if (is != null && ItemStack.areItemsEqual(is, prototype) && ItemStack.areItemStackTagsEqual(is, prototype)) {
+					int amountWanted = amount-stack.stackSize;
+					int amountTaken = Math.min(is.stackSize, amountWanted);
+					is.stackSize -= amountTaken;
+					stack.stackSize += amountTaken;
+					if (is.stackSize <= 0) {
+						in.setInventorySlotContents(i, null);
+					}
+					if (stack.stackSize >= amount) break;
+				}
+			}
+		}
 		for (ItemStack drive : drives) {
 			// both these conditions should always be true, but might as well be safe
 			if (drive != null && drive.getItem() instanceof ItemDrive) {
@@ -259,18 +291,31 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 				if (stack.stackSize >= amount) break;
 			}
 		}
+		changeId++;
 		return stack.stackSize <= 0 ? null : stack;
 	}
 
 	public List<ItemStack> getTypes() {
 		List<ItemStack> li = Lists.newArrayList();
-		for (TileEntityDriveBay tedb : driveBays) {
-			for (int i = 0; i < 8; i++) {
-				if (tedb.hasDriveInSlot(i)) {
-					ItemStack stack = tedb.getDriveInSlot(i);
-					if (stack.getItem() instanceof ItemDrive) {
-						ItemDrive itemDrive = (ItemDrive)stack.getItem();
-						li.addAll(itemDrive.getTypes(stack));
+		for (ItemStack drive : drives) {
+			if (drive != null && drive.getItem() instanceof ItemDrive) {
+				li.addAll(((ItemDrive)drive.getItem()).getTypes(drive));
+			}
+		}
+		for (TileEntityInterface in : interfaces) {
+			for (int i = 9; i <= 17; i++) {
+				ItemStack ifaceStack = in.getStackInSlot(i);
+				if (ifaceStack != null) {
+					boolean added = false;
+					for (ItemStack cur : li) {
+						if (ItemStack.areItemsEqual(ifaceStack, cur) && ItemStack.areItemStackTagsEqual(ifaceStack, cur)) {
+							cur.stackSize += ifaceStack.stackSize;
+							added = true;
+							break;
+						}
+					}
+					if (!added) {
+						li.add(ifaceStack.copy());
 					}
 				}
 			}
@@ -279,16 +324,31 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	}
 
 	public void onNetworkPatched(TileEntityNetworkMember tenm) {
+		if (networkMembers == 0) return;
 		if (tenm instanceof TileEntityDriveBay) {
-			driveBays.add((TileEntityDriveBay)tenm);
-			updateDrivesCache();
+			if (!driveBays.contains(tenm)) {
+				driveBays.add((TileEntityDriveBay)tenm);
+				updateDrivesCache();
+				changeId++;
+			}
+		} else if (tenm instanceof TileEntityInterface) {
+			if (!interfaces.contains(tenm)) {
+				interfaces.add((TileEntityInterface)tenm);
+				changeId++;
+			}
 		}
-		networkMembers++;
-		if (networkMembers > 100) {
-			error = true;
-			errorReason = "network_too_big";
-			consumedPerTick = 320;
+		if (networkMemberLocations.add(tenm.getPos())) {
+			networkMembers++;
+			if (networkMembers > 100) {
+				error = true;
+				errorReason = "network_too_big";
+				consumedPerTick = 320;
+			}
 		}
+	}
+
+	public boolean knowsOfMemberAt(BlockPos pos) {
+		return networkMemberLocations.contains(pos);
 	}
 
 }

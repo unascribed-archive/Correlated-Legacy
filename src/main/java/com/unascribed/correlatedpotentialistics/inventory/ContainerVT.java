@@ -7,8 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
+import com.google.common.collect.Lists;
 import com.google.common.primitives.Booleans;
 import com.unascribed.correlatedpotentialistics.CoPo;
 import com.unascribed.correlatedpotentialistics.helper.ItemStacks;
@@ -66,6 +66,7 @@ public class ContainerVT extends Container {
 	public int rows;
 	public SortMode sortMode = SortMode.QUANTITY;
 	public boolean sortAscending = false;
+	private int lastChangeId;
 	
 	public class SlotVirtual extends Slot {
 		private ItemStack stack;
@@ -176,6 +177,7 @@ public class ContainerVT extends Container {
 
 	public void updateSlots() {
 		if (vt.hasWorldObj() && vt.getWorld().isRemote) return;
+		lastChangeId = vt.getController().changeId;
 		List<ItemStack> typesAll = vt.getController().getTypes();
 		if (!searchQuery.isEmpty()) {
 			Iterator<ItemStack> itr = typesAll.iterator();
@@ -271,8 +273,13 @@ public class ContainerVT extends Container {
 	}
 
 	@Override
-	public boolean canInteractWith(EntityPlayer playerIn) {
-		return playerIn == player && vt.hasController() && vt.getController().getEnergyStored(null) > 0;
+	public boolean canInteractWith(EntityPlayer player) {
+		if (!player.worldObj.isRemote) {
+			if (vt.hasController() && vt.getController().changeId != lastChangeId) {
+				updateSlots();
+			}
+		}
+		return player == this.player && vt.hasController() && vt.getController().getEnergyStored(null) > 0;
 	}
 	
 	@Override
