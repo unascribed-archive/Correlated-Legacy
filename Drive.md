@@ -1,6 +1,6 @@
 # ![](https://i.imgur.com/FD1n5Gy.gif) Drive
 
-Drives are what actually store the items in a network. They come in a number of varieties, named after how much storage they have. (See [[Storage Math]] for more information.)
+Drives are what actually store the items in a network. They come in a number of varieties, named after how much storage they have. In addition, there is one kind of special drive, the Void Drive, which simply deletes all items that would be stored in it. (See [[Storage Math]] for more information.)
 
 A drive has many lights on it, which indicate its state. Rather than try to explain their location, here's an annotated version of a 1KiB drive:
 
