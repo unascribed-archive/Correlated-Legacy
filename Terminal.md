@@ -24,3 +24,16 @@ The left button allows you to set the sorting mode, while the right button sets 
 * **Originating Mod (Minecraft First)** ( @ ) - Items are sorted alphabetically by which mod they are from, with items from vanilla showing up first. Items from the same mod are sorted alphabetically by name.
 * **Originating Mod** ( @! ) - Identical to Originating Mod (Minecraft First), but without vanilla being treated specially.
 * **Name** ( AZ ) - Items are sorted alphabetically by name.
+
+## Crafting
+The Terminal also has the ability to craft potentially large amounts of items using ingredients from the system. An overview:
+
+![](https://unascribed.com/i/f509c7f3.png)
+
+* The 3x3 at the top is the **crafting grid**, and accepts any recipes that can be used in a vanilla crafting table.
+* The **> (right arrow)** button to the right of the crafting grid will put all the items in the grid back into the system when clicked.
+* The button to the top-right of the result slot selects the **amount** to craft when shift-clicking, with three possible modes:
+  * **One**, represented with one dot. Crafts one item at a time. The default.
+  * **Stack**, represented with two dots. Crafts a full stack of the item at a time.
+  * **Maximum**, represented with four dots. Crafts as many of the item as possible, until you run out of ingredients, inventory space, or hit the 6400 limit, whichever comes first. To help cut down on mistakes, the mode is reset to One after a crafting operation on this mode.
+* The bottom to the bottom-right of the result slot selects the **target** for shift-clicking. The arrow points toward where it will go, and you can choose between it going to your player's inventory and it going directly into the storage system.
