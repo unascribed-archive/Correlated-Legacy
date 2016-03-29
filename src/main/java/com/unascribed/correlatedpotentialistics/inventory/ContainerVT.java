@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 
 import com.google.common.primitives.Ints;
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Booleans;
 import com.unascribed.correlatedpotentialistics.CoPo;
@@ -21,10 +22,15 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryCraftResult;
+import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
 
+// Yes, this class is a huge hardcoded mess and I'm sorry.
 public class ContainerVT extends Container {
 	public enum SortMode {
 		QUANTITY((a, b) -> {
@@ -58,6 +64,31 @@ public class ContainerVT extends Container {
 			return Item.itemRegistry.getNameForObject(is.getItem()).getResourceDomain();
 		}
 	}
+	public enum CraftingTarget {
+		NETWORK,
+		INVENTORY;
+		public final String lowerName = name().toLowerCase(Locale.ROOT);
+	}
+	public enum CraftingAmount {
+		ONE(s -> 1),
+		STACK(s -> s.getMaxStackSize()),
+		MAX(s -> 6400);
+		/*
+		 * The above is 6400 instead of MAX_VALUE, as some mods add infinite
+		 * loop recipes like two ingots of the same type -> two ingots of the
+		 * same type. If you were to set the target to the network and the
+		 * amount to max, and attempt to craft such an infinite loop operation,
+		 * it would run 2,147,483,647 crafting operations and freeze the server.
+		 * 6,400 is much more reasonable, covers the majority of legitimate
+		 * use cases, and is unlikely to cause crashes in such an infinite loop
+		 * case.
+		 */
+		public final String lowerName = name().toLowerCase(Locale.ROOT);
+		public final Function<ItemStack, Integer> amountToCraft;
+		private CraftingAmount(Function<ItemStack, Integer> amountToCraft) {
+			this.amountToCraft = amountToCraft;
+		}
+	}
 
 	private TileEntityVT vt;
 	private EntityPlayer player;
@@ -66,7 +97,11 @@ public class ContainerVT extends Container {
 	public int rows;
 	public SortMode sortMode = SortMode.QUANTITY;
 	public boolean sortAscending = false;
+	public CraftingAmount craftingAmount = CraftingAmount.ONE;
+	public CraftingTarget craftingTarget = CraftingTarget.INVENTORY;
 	private int lastChangeId;
+	public InventoryCrafting craftMatrix = new InventoryCrafting(this, 3, 3);
+	public InventoryCraftResult craftResult = new InventoryCraftResult();
 	
 	public class SlotVirtual extends Slot {
 		private ItemStack stack;
@@ -113,7 +148,9 @@ public class ContainerVT extends Container {
 
 		@Override
 		public ItemStack decrStackSize(int amount) {
-			return null;
+			ItemStack nw = stack.copy();
+			nw.stackSize = 0;
+			return nw;
 		}
 
 		@Override
@@ -147,30 +184,40 @@ public class ContainerVT extends Container {
 	public ContainerVT(IInventory playerInventory, EntityPlayer player, TileEntityVT vt) {
 		this.player = player;
 		this.vt = vt;
+		int x = 69;
 		int y = 37;
 		
-		if (!player.worldObj.isRemote && player instanceof EntityPlayerMP) {
+		if (!player.worldObj.isRemote) {
 			UserPreferences prefs = vt.getPreferences(player);
 			sortMode = prefs.sortMode;
 			sortAscending = prefs.sortAscending;
 			searchQuery = prefs.lastSearchQuery;
+			craftingTarget = prefs.craftingTarget;
 		}
 		
 		for (int i = 0; i < 6; ++i) {
 			for (int j = 0; j < 9; ++j) {
-				addSlotToContainer(new SlotVirtual(j + i * 9, 8 + j * 18, 18 + i * 18));
+				addSlotToContainer(new SlotVirtual(j + i * 9, x + j * 18, 18 + i * 18));
 			}
 		}
 		updateSlots();
 		
+		addSlotToContainer(new SlotCrafting(player, craftMatrix, craftResult, 0, 26, 104));
+
+		for (int i = 0; i < 3; ++i) {
+			for (int j = 0; j < 3; ++j) {
+				this.addSlotToContainer(new Slot(craftMatrix, j + i * 3, 7 + j * 18, 18 + i * 18));
+			}
+		}
+		
 		for (int i = 0; i < 3; ++i) {
 			for (int j = 0; j < 9; ++j) {
-				addSlotToContainer(new Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 103 + i * 18 + y));
+				addSlotToContainer(new Slot(playerInventory, j + i * 9 + 9, x + j * 18, 103 + i * 18 + y));
 			}
 		}
 
 		for (int i = 0; i < 9; ++i) {
-			addSlotToContainer(new Slot(playerInventory, i, 8 + i * 18, 161 + y));
+			addSlotToContainer(new Slot(playerInventory, i, x + i * 18, 161 + y));
 		}
 		
 	}
@@ -226,35 +273,61 @@ public class ContainerVT extends Container {
 	}
 	
 	@Override
-	public void updateProgressBar(int id, int data) {
-		if (id == 0) {
-			rows = data;
-		} else if (id == 1) {
-			SortMode[] values = SortMode.values();
-			sortMode = values[data%values.length];
-		} else if (id == 2) {
-			sortAscending = data != 0;
-		}
-	}
-	
-	@Override
 	public boolean enchantItem(EntityPlayer playerIn, int id) {
-		if (id == 0) {
-			sortMode = SortMode.QUANTITY;
-		} else if (id == 1) {
-			sortMode = SortMode.MOD_MINECRAFT_FIRST;
-		} else if (id == 2) {
-			sortMode = SortMode.MOD;
-		} else if (id == 3) {
-			sortMode = SortMode.NAME;
-		} else if (id == 4) {
-			sortAscending = true;
-		} else if (id == 5) {
-			sortAscending = false;
-		} else {
-			scrollOffset = id-6;
+		switch (id) {
+			case -1:
+				sortAscending = true;
+				break;
+			case -2:
+				sortAscending = false;
+				break;
+				
+			case -3:
+				sortMode = SortMode.QUANTITY;				
+				break;
+			case -4:
+				sortMode = SortMode.MOD_MINECRAFT_FIRST;
+				break;
+			case -5:
+				sortMode = SortMode.MOD;
+				break;
+			case -6:
+				sortMode = SortMode.NAME;
+				break;
+				
+			case -10:
+				craftingAmount = CraftingAmount.ONE;
+				break;
+			case -11:
+				craftingAmount = CraftingAmount.STACK;
+				break;
+			case -12:
+				craftingAmount = CraftingAmount.MAX;
+				break;
+				
+			case -20:
+				craftingTarget = CraftingTarget.INVENTORY;
+				break;
+			case -21:
+				craftingTarget = CraftingTarget.NETWORK;
+				break;
+				
+			case -128:
+				for (int i = 0; i < 9; i++) {
+					ItemStack is = craftMatrix.getStackInSlot(i);
+					if (is == null) continue;
+					craftMatrix.setInventorySlotContents(i, addItemToNetwork(is));
+				}
+				detectAndSendChanges();
+				break;
+				
+			default:
+				scrollOffset = id;
+				break;
 		}
-		updateSlots();
+		if (id > -10) {
+			updateSlots();
+		}
 		return true;
 	}
 	
@@ -288,8 +361,28 @@ public class ContainerVT extends Container {
 		listener.sendProgressBarUpdate(this, 0, rows);
 		listener.sendProgressBarUpdate(this, 1, sortMode.ordinal());
 		listener.sendProgressBarUpdate(this, 2, sortAscending ? 1 : 0);
+		listener.sendProgressBarUpdate(this, 3, craftingTarget.ordinal());
+		listener.sendProgressBarUpdate(this, 4, craftingAmount.ordinal());
 		if (listener instanceof EntityPlayerMP) {
 			CoPo.inst.network.sendTo(new SetSearchQueryMessage(windowId, searchQuery), (EntityPlayerMP)listener);
+		}
+	}
+	
+	@Override
+	public void updateProgressBar(int id, int data) {
+		if (id == 0) {
+			rows = data;
+		} else if (id == 1) {
+			SortMode[] values = SortMode.values();
+			sortMode = values[data%values.length];
+		} else if (id == 2) {
+			sortAscending = data != 0;
+		} else if (id == 3) {
+			CraftingTarget[] values = CraftingTarget.values();
+			craftingTarget = values[data%values.length];
+		} else if (id == 4) {
+			CraftingAmount[] values = CraftingAmount.values();
+			craftingAmount = values[data%values.length];
 		}
 	}
 	
@@ -345,12 +438,53 @@ public class ContainerVT extends Container {
 		} else {
 			if (mode == 1) {
 				// shift click
-				if (!player.worldObj.isRemote) {
-					ItemStack stack = getSlot(slotId).getStack();
+				if (!player.worldObj.isRemote && slot != null) {
+					ItemStack stack = slot.getStack();
 					if (stack != null) {
-						ItemStack is = addItemToNetwork(stack);
-						getSlot(slotId).putStack(is);
-						return is;
+						if (slot instanceof SlotCrafting) {
+							for (int i = 0; i < craftingAmount.amountToCraft.apply(stack); i++) {
+								stack = slot.getStack();
+								if (stack == null) break;
+								boolean success;
+								switch (craftingTarget) {
+									case INVENTORY:
+										success = player.inventory.addItemStackToInventory(stack);
+										break;
+									case NETWORK:
+										int amountOrig = stack.stackSize;
+										ItemStack res = addItemToNetwork(stack);
+										success = (res == null || res.stackSize <= 0);
+										if (!success && res != null) {
+											removeItemsFromNetwork(stack, amountOrig-res.stackSize);
+										}
+										break;
+									default:
+										success = false;
+								}
+								if (!success) break;
+								for (int j = 0; j < 9; j++) {
+									ItemStack inSlot = craftMatrix.getStackInSlot(j);
+									if (inSlot == null) continue;
+									ItemStack is = removeItemsFromNetwork(inSlot, 1);
+									if (is != null && is.stackSize > 0) {
+										inSlot.stackSize += is.stackSize;
+									}
+								}
+								slot.onPickupFromSlot(player, stack);
+							}
+							if (craftingAmount == CraftingAmount.MAX) {
+								craftingAmount = CraftingAmount.ONE;
+								for (ICrafting ic : crafters) {
+									ic.sendProgressBarUpdate(this, 4, craftingAmount.ordinal());
+								}
+							}
+							detectAndSendChanges();
+							return null;
+						} else {
+							ItemStack is = addItemToNetwork(stack);
+							getSlot(slotId).putStack(is);
+							return is;
+						}
 					}
 				}
 				return getSlot(slotId).getStack();
@@ -365,13 +499,33 @@ public class ContainerVT extends Container {
 	}
 	
 	@Override
-	public void onContainerClosed(EntityPlayer playerIn) {
-		super.onContainerClosed(playerIn);
-		UserPreferences prefs = vt.getPreferences(playerIn);
+	public void onContainerClosed(EntityPlayer player) {
+		super.onContainerClosed(player);
+		if (!player.worldObj.isRemote) {
+			for (int i = 0; i < 9; ++i) {
+				ItemStack itemstack = craftMatrix.removeStackFromSlot(i);
+
+				if (itemstack != null) {
+					player.dropPlayerItemWithRandomChoice(itemstack, false);
+				}
+			}
+		}
+		UserPreferences prefs = vt.getPreferences(player);
 		prefs.sortMode = sortMode;
 		prefs.sortAscending = sortAscending;
+		prefs.craftingTarget = craftingTarget;
 		prefs.lastSearchQuery = searchQuery;
 		vt.markDirty();
+	}
+	
+	@Override
+	public void onCraftMatrixChanged(IInventory inventory) {
+		craftResult.setInventorySlotContents(0, CraftingManager.getInstance().findMatchingRecipe(craftMatrix, player.worldObj));
+	}
+
+	@Override
+	public boolean canMergeSlot(ItemStack stack, Slot slot) {
+		return slot.inventory != craftResult && !(slot instanceof SlotVirtual) && super.canMergeSlot(stack, slot);
 	}
 
 }

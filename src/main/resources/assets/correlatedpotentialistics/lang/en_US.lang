@@ -42,13 +42,28 @@ item.correlatedpotentialistics.misc.2.name=Metallic Drive Platter
 item.correlatedpotentialistics.misc.3.name=Luminous Pearl
 tooltip.correlatedpotentialistics.misc.3.0=§5§oIt glows a brilliant verdant green.
 
+tooltip.correlatedpotentialistics.sortmode=Sorting Mode
 tooltip.correlatedpotentialistics.sortmode.quantity=Quantity
 tooltip.correlatedpotentialistics.sortmode.mod_minecraft_first=Originating Mod (Minecraft First)
 tooltip.correlatedpotentialistics.sortmode.mod=Originating Mod
 tooltip.correlatedpotentialistics.sortmode.name=Name
 
+tooltip.correlatedpotentialistics.sortdirection=Sorting Direction
 tooltip.correlatedpotentialistics.sortdirection.ascending=Ascending
 tooltip.correlatedpotentialistics.sortdirection.descending=Descending
+
+tooltip.correlatedpotentialistics.crafting_target=Crafting Target
+tooltip.correlatedpotentialistics.crafting_target.network=Network
+tooltip.correlatedpotentialistics.crafting_target.inventory=Inventory
+
+tooltip.correlatedpotentialistics.crafting_amount=Amount to Craft
+tooltip.correlatedpotentialistics.crafting_amount.one=One
+tooltip.correlatedpotentialistics.crafting_amount.stack=Stack
+tooltip.correlatedpotentialistics.crafting_amount.max=Maximum
+
+tooltip.correlatedpotentialistics.crafting.only_shift_click=(Only affects shift-click)
+
+tooltip.correlatedpotentialistics.clear_crafting_grid=Clear Crafting Grid
 
 
 msg.correlatedpotentialistics.vt_no_controller=Cannot find a Controller to communicate with.

@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.google.common.base.Enums;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import com.unascribed.correlatedpotentialistics.inventory.ContainerVT.CraftingTarget;
 import com.unascribed.correlatedpotentialistics.inventory.ContainerVT.SortMode;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,6 +19,7 @@ public class TileEntityVT extends TileEntityNetworkMember {
 		public SortMode sortMode = SortMode.QUANTITY;
 		public boolean sortAscending = false;
 		public String lastSearchQuery = "";
+		public CraftingTarget craftingTarget = CraftingTarget.INVENTORY;
 	}
 	private Map<UUID, UserPreferences> preferences = Maps.newHashMap();
 	
@@ -49,6 +51,7 @@ public class TileEntityVT extends TileEntityNetworkMember {
 			data.setString("SortMode", pref.sortMode.name());
 			data.setBoolean("SortAscending", pref.sortAscending);
 			data.setString("LastSearchQuery", Strings.nullToEmpty(pref.lastSearchQuery));
+			data.setString("CraftingTarget", pref.craftingTarget.name());
 			prefs.appendTag(data);
 		}
 		compound.setTag("Preferences", prefs);
@@ -64,6 +67,7 @@ public class TileEntityVT extends TileEntityNetworkMember {
 			pref.sortMode = Enums.getIfPresent(SortMode.class, data.getString("SortMode")).or(SortMode.QUANTITY);
 			pref.sortAscending = data.getBoolean("SortAscending");
 			pref.lastSearchQuery = data.getString("LastSearchQuery");
+			pref.craftingTarget = Enums.getIfPresent(CraftingTarget.class, data.getString("CraftingTarget")).or(CraftingTarget.INVENTORY);
 			preferences.put(new UUID(data.getLong("UUIDMost"), data.getLong("UUIDLeast")), pref);
 		}
 	}
