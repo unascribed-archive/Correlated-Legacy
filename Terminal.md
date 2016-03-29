@@ -36,4 +36,4 @@ The Terminal also has the ability to craft potentially large amounts of items us
   * **One**, represented with one dot. Crafts one item at a time. The default.
   * **Stack**, represented with two dots. Crafts a full stack of the item at a time.
   * **Maximum**, represented with four dots. Crafts as many of the item as possible, until you run out of ingredients, inventory space, or hit the 6400 limit, whichever comes first. To help cut down on mistakes, the mode is reset to One after a crafting operation on this mode.
-* The bottom to the bottom-right of the result slot selects the **target** for shift-clicking. The arrow points toward where it will go, and you can choose between it going to your player's inventory and it going directly into the storage system.
+* The button to the bottom-right of the result slot selects the **target** for shift-clicking. The arrow points toward where it will go, and you can choose between it going to your player's inventory and it going directly into the storage system.
