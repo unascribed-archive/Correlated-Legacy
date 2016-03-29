@@ -50,11 +50,15 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 	
 	@Override
 	public void update() {
-		for (ItemStack is : drives) {
-			if (is == null) continue;
-			if (ItemStacks.getBoolean(is, "Dirty").or(false)) {
-				markDirty();
-				is.getTagCompound().removeTag("Dirty");
+		if (hasWorldObj() && !worldObj.isRemote) {
+			for (int i = 0; i < 8; i++) {
+				ItemStack is = drives[i];
+				if (is == null) continue;
+				if (ItemStacks.getBoolean(is, "Dirty").or(false)) {
+					is.getTagCompound().removeTag("Dirty");
+					markDirty();
+					setDriveInSlot(i, is);
+				}
 			}
 		}
 	}
@@ -80,7 +84,13 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 				if (drive.hasNoTags()) {
 					drives[i] = null;
 				} else {
-					drives[i] = ItemStack.loadItemStackFromNBT(drive);
+					ItemStack is = ItemStack.loadItemStackFromNBT(drive);
+					if (hasWorldObj() && worldObj.isRemote) {
+						ItemStacks.ensureHasTag(is);
+						is.setTagCompound((NBTTagCompound)is.getTagCompound().copy());
+						is.getTagCompound().setBoolean("Dirty", true);
+					}
+					drives[i] = is;
 				}
 			}
 		}
@@ -113,7 +123,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 				consumedPerTick += ((ItemDrive)is.getItem()).getRFConsumptionRate(is);
 			}
 		}
-		if (hasController()) {
+		if (hasWorldObj() && !worldObj.isRemote && hasController()) {
 			getController().updateConsumptionRate(consumedPerTick-old);
 			getController().updateDrivesCache();
 		}

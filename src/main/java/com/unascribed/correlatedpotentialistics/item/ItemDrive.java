@@ -73,7 +73,10 @@ public class ItemDrive extends Item {
 		int r;
 		int g;
 		int b;
-		boolean dirty = stack.hasTagCompound() && stack.getTagCompound().getBoolean("Dirty");
+		boolean dirty = stack.hasTagCompound() && stack.getTagCompound().getBoolean("Dirty") && itemRand.nextBoolean();
+		if (dirty && itemRand.nextInt(20) == 0) {
+			stack.getTagCompound().removeTag("Dirty");
+		}
 		if (stack.getItemDamage() == 4) {
 			if (dirty) return 0xFF00FF;
 			float sin = (MathHelper.sin(ClientProxy.ticks / 20f) + 2.5f) / 5f;
@@ -327,6 +330,7 @@ public class ItemDrive extends Item {
 		if (amountTaken > 0) {
 			setAmountStored(drive, item, current+amountTaken);
 			item.stackSize -= amountTaken;
+			markDirty(drive);
 		}
 		if (item.stackSize <= 0) {
 			return null;
@@ -356,6 +360,7 @@ public class ItemDrive extends Item {
 		if (amountGiven > 0) {
 			setAmountStored(drive, stack, stored-amountGiven);
 			stack.stackSize += amountGiven;
+			markDirty(drive);
 		}
 		return stack;
 	}
@@ -445,6 +450,7 @@ public class ItemDrive extends Item {
 			data.setTag("Prototype", prototype);
 			data.setInteger("Count", count);
 			ItemStacks.getCompoundList(drive, "Data").appendTag(data);
+			markDirty(drive);
 		}
 	}
 	
@@ -458,6 +464,7 @@ public class ItemDrive extends Item {
 		int idx = findDataIndexForPrototype(drive, prototype);
 		if (idx != -1) {
 			ItemStacks.getCompoundList(drive, "Data").removeTag(idx);
+			markDirty(drive);
 		}
 	}
 
