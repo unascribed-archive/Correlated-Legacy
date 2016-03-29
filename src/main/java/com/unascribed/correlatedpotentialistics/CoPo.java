@@ -39,7 +39,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 
-@Mod(modid="correlatedpotentialistics", name="Correlated Potentialistics", version="@VERSION@")
+@Mod(modid="correlatedpotentialistics", name="Correlated Potentialistics", version="@VERSION@",
+	updateJSON="http://unascribed.com/update-check/correlated-potentialistics.json")
 public class CoPo {
 	public static Logger log;
 	
