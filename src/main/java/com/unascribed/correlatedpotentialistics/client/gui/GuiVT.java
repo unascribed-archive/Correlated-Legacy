@@ -58,7 +58,7 @@ public class GuiVT extends GuiContainer {
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 		fontRendererObj.drawString(I18n.format("gui.correlatedpotentialistics.vt"), 8, 6, 0x404040);
-		fontRendererObj.drawString(I18n.format("gui.inventory"), 69, 128, 0x404040);
+		fontRendererObj.drawString(I18n.format("container.inventory"), 69, 128, 0x404040);
 		GlStateManager.pushMatrix();
 		GlStateManager.disableDepth();
 		GlStateManager.scale(0.5f, 0.5f, 1);
