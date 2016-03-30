@@ -11,7 +11,8 @@ Note that anyone can edit this wiki, *this includes you*! If the pages are missi
 * [[Drive Bay]] - Holds up to 8 drives, requires a Controller.
 * [[Terminal]] - Lets you access the system.
 * [[Interface]] - Allows machinery to access the system.
-* Router (coming soon) - Allows connections from Wireless Terminals.
+* Router (coming soon) - Endpoint for Ethernet cables, and can have Antennae attached for a basic wireless setup.
+* Ethernet Cable (coming soon) - Allows connecting two Routers together.
 
 ## Items
 
