@@ -5,6 +5,7 @@
     * [[Terminal]]
     * [[Interface]]
     * Router (NYI)
+    * Ethernet (NYI)
   * Items
     * [[Drive]]
     * [[Enderic Processor]]
