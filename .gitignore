@@ -11,3 +11,4 @@ build/
 eclipse/
 minecraft/
 .pmd
+.directory
