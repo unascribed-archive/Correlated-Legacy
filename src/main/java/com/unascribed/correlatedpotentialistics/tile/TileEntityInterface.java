@@ -61,8 +61,8 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 		if (mode == null) {
 			modes[face.ordinal()] = FaceMode.PASSIVE;
 			mode = FaceMode.PASSIVE;
+			markDirty();
 		}
-		markDirty();
 		return mode;
 	}
 	
