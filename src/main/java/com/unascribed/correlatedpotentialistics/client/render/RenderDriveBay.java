@@ -2,10 +2,12 @@ package com.unascribed.correlatedpotentialistics.client.render;
 
 import org.lwjgl.opengl.GL11;
 
+import com.unascribed.correlatedpotentialistics.CoPo;
 import com.unascribed.correlatedpotentialistics.block.BlockDriveBay;
 import com.unascribed.correlatedpotentialistics.item.ItemDrive;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityDriveBay;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -48,6 +50,9 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 	};
 	@Override
 	public void renderTileEntityAt(TileEntityDriveBay te, double x, double y, double z, float partialTicks, int destroyStage) {
+		IBlockState bs = te.getWorld().getBlockState(te.getPos());
+		if (bs.getBlock() != CoPo.drive_bay) return;
+		
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);
 		
@@ -140,7 +145,7 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 				float hitX = (float)(mop.hitVec.xCoord-te.getPos().getX());
 				float hitY = (float)(mop.hitVec.yCoord-te.getPos().getY());
 				float hitZ = (float)(mop.hitVec.zCoord-te.getPos().getZ());
-				int slot = block.getLookedAtSlot(te.getWorld().getBlockState(te.getPos()), mop.sideHit, hitX, hitY, hitZ);
+				int slot = block.getLookedAtSlot(bs, mop.sideHit, hitX, hitY, hitZ);
 				if (slot != -1 && te.hasDriveInSlot(slot)) {
 					ItemStack drive = te.getDriveInSlot(slot);
 					if (drive.hasDisplayName()) {

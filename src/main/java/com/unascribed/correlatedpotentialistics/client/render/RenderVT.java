@@ -2,9 +2,11 @@ package com.unascribed.correlatedpotentialistics.client.render;
 
 import org.lwjgl.opengl.GL11;
 
+import com.unascribed.correlatedpotentialistics.CoPo;
 import com.unascribed.correlatedpotentialistics.block.BlockVT;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityVT;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -20,10 +22,13 @@ public class RenderVT extends TileEntitySpecialRenderer<TileEntityVT> {
 
 	@Override
 	public void renderTileEntityAt(TileEntityVT te, double x, double y, double z, float partialTicks, int destroyStage) {
+		IBlockState bs = te.getWorld().getBlockState(te.getPos());
+		if (bs.getBlock() != CoPo.vt) return;
+		
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);
 		
-		EnumFacing facing = te.getWorld().getBlockState(te.getPos()).getValue(BlockVT.facing);
+		EnumFacing facing = bs.getValue(BlockVT.facing);
 		switch (facing) {
 			case NORTH:
 				break;

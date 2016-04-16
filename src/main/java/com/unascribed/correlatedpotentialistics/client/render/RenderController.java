@@ -2,10 +2,12 @@ package com.unascribed.correlatedpotentialistics.client.render;
 
 import org.lwjgl.opengl.GL11;
 
+import com.unascribed.correlatedpotentialistics.CoPo;
 import com.unascribed.correlatedpotentialistics.block.BlockController;
 import com.unascribed.correlatedpotentialistics.block.BlockController.State;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityController;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -20,10 +22,13 @@ public class RenderController extends TileEntitySpecialRenderer<TileEntityContro
 
 	@Override
 	public void renderTileEntityAt(TileEntityController te, double x, double y, double z, float partialTicks, int destroyStage) {
+		IBlockState bs = te.getWorld().getBlockState(te.getPos());
+		if (bs.getBlock() != CoPo.controller) return;
+		
 		float lastX = OpenGlHelper.lastBrightnessX;
 		float lastY = OpenGlHelper.lastBrightnessY;
 		
-		State state = te.getWorld().getBlockState(te.getPos()).getValue(BlockController.state);
+		State state = bs.getValue(BlockController.state);
 		String tex;
 		switch (state) {
 			case BOOTING:
