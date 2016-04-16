@@ -334,14 +334,12 @@ public class ContainerVT extends Container {
 	public ItemStack addItemToNetwork(ItemStack stack) {
 		if (player.worldObj.isRemote) return null;
 		ItemStack is = vt.getController().addItemToNetwork(stack);
-		updateSlots();
 		return is;
 	}
 	
 	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount) {
 		if (player.worldObj.isRemote) return null;
 		ItemStack is = vt.getController().removeItemsFromNetwork(prototype, amount);
-		updateSlots();
 		return is;
 	}
 
