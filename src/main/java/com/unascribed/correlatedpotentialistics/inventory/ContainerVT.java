@@ -119,9 +119,6 @@ public class ContainerVT extends Container {
 		@Override
 		public void putStack(ItemStack stack) {
 			if (vt.hasWorldObj() && vt.getWorld().isRemote) {
-				if (this.stack != null || stack != null) {
-					System.out.println("from: "+this.stack+", to: "+stack);
-				}
 				if (stack != null) {
 					// prevent vanilla from corrupting our stack size
 					if (ItemStack.areItemsEqual(stack, this.stack) && ItemStack.areItemStackTagsEqual(stack, this.stack)) {
@@ -473,7 +470,7 @@ public class ContainerVT extends Container {
 							ItemStack template = stack.copy();
 							for (int i = 0; i < craftingAmount.amountToCraft.apply(template); i++) {
 								stack = slot.getStack();
-								if (stack == null) break;
+								if (stack == null || !ItemStack.areItemsEqual(template, stack)) break;
 								boolean success;
 								switch (craftingTarget) {
 									case INVENTORY:
