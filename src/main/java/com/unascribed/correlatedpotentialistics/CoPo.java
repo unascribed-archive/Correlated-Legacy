@@ -16,6 +16,7 @@ import com.unascribed.correlatedpotentialistics.item.ItemDrive;
 import com.unascribed.correlatedpotentialistics.item.ItemMisc;
 import com.unascribed.correlatedpotentialistics.network.CoPoGuiHandler;
 import com.unascribed.correlatedpotentialistics.network.SetSearchQueryMessage;
+import com.unascribed.correlatedpotentialistics.network.SetSlotSizeMessage;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityController;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityDriveBay;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityInterface;
@@ -74,6 +75,7 @@ public class CoPo {
 		network = NetworkRegistry.INSTANCE.newSimpleChannel("CrelatedPtntialstics");
 		network.registerMessage(SetSearchQueryMessage.class, SetSearchQueryMessage.class, 0, Side.SERVER);
 		network.registerMessage(SetSearchQueryMessage.class, SetSearchQueryMessage.class, 1, Side.CLIENT);
+		network.registerMessage(SetSlotSizeMessage.class, SetSlotSizeMessage.class, 2, Side.CLIENT);
 		
 		register(new BlockController().setHardness(2), ItemBlockController.class, "controller", 4);
 		register(new BlockDriveBay().setHardness(2), ItemBlockDriveBay.class, "drive_bay", 0);

@@ -12,8 +12,8 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Booleans;
 import com.unascribed.correlatedpotentialistics.CoPo;
-import com.unascribed.correlatedpotentialistics.helper.ItemStacks;
 import com.unascribed.correlatedpotentialistics.network.SetSearchQueryMessage;
+import com.unascribed.correlatedpotentialistics.network.SetSlotSizeMessage;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityVT;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityVT.UserPreferences;
 
@@ -71,7 +71,7 @@ public class ContainerVT extends Container {
 	}
 	public enum CraftingAmount {
 		ONE(s -> 1),
-		STACK(s -> s.getMaxStackSize()),
+		STACK(s -> s.getMaxStackSize()/Math.max(1, s.stackSize)),
 		MAX(s -> 6400);
 		/*
 		 * The above is 6400 instead of MAX_VALUE, as some mods add infinite
@@ -113,19 +113,32 @@ public class ContainerVT extends Container {
 		@Override
 		public ItemStack getStack() {
 			ItemStack stack = this.stack;
-			sanitizeNBT(stack);
 			return stack;
 		}
 
 		@Override
 		public void putStack(ItemStack stack) {
 			if (vt.hasWorldObj() && vt.getWorld().isRemote) {
-				this.stack = stack;
+				if (this.stack != null || stack != null) {
+					System.out.println("from: "+this.stack+", to: "+stack);
+				}
 				if (stack != null) {
-					count = ItemStacks.getInteger(stack, "CorrelatedPotentialisticsExtendedStackSize").or(stack.stackSize);
-					sanitizeNBT(stack);
-					stack.stackSize = 1;
+					// prevent vanilla from corrupting our stack size
+					if (ItemStack.areItemsEqual(stack, this.stack) && ItemStack.areItemStackTagsEqual(stack, this.stack)) {
+						if ((stack.stackSize <= 127 && stack.stackSize >= -128)
+								&& (count < -128 || count > 127)) {
+							int diff = Math.abs(stack.stackSize-count);
+							if (diff > stack.getMaxStackSize()) {
+								return;
+							}
+						}
+					}
+					this.stack = stack.copy();
+					count = stack.stackSize;
+					// prevent vanilla from drawing the stack size
+					this.stack.stackSize = 1;
 				} else {
+					this.stack = null;
 					count = 0;
 				}
 			} else {
@@ -164,19 +177,6 @@ public class ContainerVT extends Container {
 		
 		public void setStack(ItemStack stack) {
 			this.stack = stack;
-		}
-		
-		private void sanitizeNBT(ItemStack stack) {
-			if (stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("CorrelatedPotentialisticsHadTag")) {
-				boolean hadTag = ItemStacks.getBoolean(stack, "CorrelatedPotentialisticsHadTag").or(false);
-				if (stack.hasTagCompound()) {
-					stack.getTagCompound().removeTag("CorrelatedPotentialisticsExtendedStackSize");
-					stack.getTagCompound().removeTag("CorrelatedPotentialisticsHadTag");
-					if (!hadTag) {
-						stack.setTagCompound(null);
-					}
-				}
-			}
 		}
 
 	}
@@ -255,11 +255,7 @@ public class ContainerVT extends Container {
 			if (slot instanceof SlotVirtual) {
 				SlotVirtual sv = (SlotVirtual)slot;
 				if (idx < types.size()) {
-					ItemStack stack = types.get(idx);
-					boolean hadTag = stack.hasTagCompound();
-					ItemStacks.ensureHasTag(stack).getTagCompound().setInteger("CorrelatedPotentialisticsExtendedStackSize", stack.stackSize);
-					ItemStacks.ensureHasTag(stack).getTagCompound().setBoolean("CorrelatedPotentialisticsHadTag", hadTag);
-					sv.setStack(stack);
+					sv.setStack(types.get(idx));
 				} else {
 					sv.setStack(null);
 				}
@@ -343,6 +339,40 @@ public class ContainerVT extends Container {
 		return is;
 	}
 
+	private List<Integer> oldStackSizes = Lists.newArrayList();
+	
+	@Override
+	protected Slot addSlotToContainer(Slot slotIn) {
+		oldStackSizes.add(0);
+		return super.addSlotToContainer(slotIn);
+	}
+	
+	@Override
+	public void detectAndSendChanges() {
+		super.detectAndSendChanges();
+		for (int i = 0; i < this.inventorySlots.size(); i++) {
+			ItemStack stack = inventorySlots.get(i).getStack();
+			int cur = stack == null ? 0 : stack.stackSize;
+			int old = oldStackSizes.get(i);
+
+			if (cur != old) {
+				oldStackSizes.set(i, cur);
+				
+				// if it's out of range for the vanilla packet, we need to send our own
+				if (cur > 127 || cur < -128) {
+					for (ICrafting ic : crafters) {
+						if (ic instanceof EntityPlayerMP) {
+							EntityPlayerMP p = (EntityPlayerMP)ic;
+							if (cur > 127) {
+								CoPo.inst.network.sendTo(new SetSlotSizeMessage(windowId, i, cur), p);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	@Override
 	public boolean canInteractWith(EntityPlayer player) {
 		if (!player.worldObj.isRemote) {
@@ -440,7 +470,8 @@ public class ContainerVT extends Container {
 					ItemStack stack = slot.getStack();
 					if (stack != null) {
 						if (slot instanceof SlotCrafting) {
-							for (int i = 0; i < craftingAmount.amountToCraft.apply(stack); i++) {
+							ItemStack template = stack.copy();
+							for (int i = 0; i < craftingAmount.amountToCraft.apply(template); i++) {
 								stack = slot.getStack();
 								if (stack == null) break;
 								boolean success;
