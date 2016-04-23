@@ -22,10 +22,10 @@ import net.minecraftforge.fml.client.config.GuiButtonExt;
 public class GuiDrive extends GuiContainer {
 	private static final ResourceLocation background = new ResourceLocation("correlatedpotentialistics", "textures/gui/container/drive_editor.png");
 	private ContainerDrive container;
-	
+
 	private GuiButton priority;
 	private GuiButton partition;
-	
+
 	public GuiDrive(ContainerDrive container) {
 		super(container);
 		this.container = container;
@@ -34,7 +34,7 @@ public class GuiDrive extends GuiContainer {
 		priority = new GuiButtonExt(0, 0, 0, 18, 18, "");
 		partition = new GuiButtonExt(1, 0, 20, 18, 18, "");
 	}
-	
+
 	@Override
 	public void initGui() {
 		super.initGui();
@@ -42,14 +42,14 @@ public class GuiDrive extends GuiContainer {
 		int y = (height - ySize) / 2;
 		priority.xPosition = x+7;
 		priority.yPosition = y+107;
-		
+
 		partition.xPosition = x+187;
 		partition.yPosition = priority.yPosition;
-		
+
 		buttonList.add(priority);
 		buttonList.add(partition);
 	}
-	
+
 	@Override
 	public void updateScreen() {
 		super.updateScreen();
@@ -63,7 +63,7 @@ public class GuiDrive extends GuiContainer {
 			mc.playerController.sendEnchantPacket(container.windowId, 2);
 		}
 	}
-	
+
 	@Override
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
 		super.mouseClicked(mouseX, mouseY, mouseButton);
@@ -72,7 +72,7 @@ public class GuiDrive extends GuiContainer {
 			mc.playerController.sendEnchantPacket(container.windowId, 1);
 		}
 	}
-	
+
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		GlStateManager.pushMatrix();
@@ -81,7 +81,7 @@ public class GuiDrive extends GuiContainer {
 		drawTexturedModalRect(0, 0, 0, 0, 212, 222);
 		GlStateManager.popMatrix();
 	}
-	
+
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 		FontRenderer renderer = container.getDrive().getItem().getFontRenderer(container.getDrive());
@@ -110,25 +110,25 @@ public class GuiDrive extends GuiContainer {
 		}
 		GlStateManager.enableDepth();
 		GlStateManager.popMatrix();
-		
+
 		mc.getTextureManager().bindTexture(background);
-		
+
 		int color = container.getItemDrive().getBaseColor(container.getDrive());
 		GlStateManager.color(((color >> 16)&0xFF)/255f, ((color >> 8)&0xFF)/255f, (color&0xFF)/255f);
 		drawTexturedModalRect(195, 5, 222, 0, 10, 10);
 		color = container.getItemDrive().getFullnessColor(container.getDrive());
 		GlStateManager.color(((color >> 16)&0xFF)/255f, ((color >> 8)&0xFF)/255f, (color&0xFF)/255f);
 		drawTexturedModalRect(195, 5, 212, 0, 10, 10);
-		
-		
+
+
 		GlStateManager.color(1, 1, 1);
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(-(width - xSize) / 2, -(height - ySize) / 2, 0);
-		
+
 		PartitioningMode part = container.getItemDrive().getPartitioningMode(container.getDrive());
 		// TODO when blacklist is implemented, remove the 13 from the U calculation below
 		drawTexturedModalRect(partition.xPosition+4, partition.yPosition+2, 246, 13+(part.ordinal()*13), 10, 13);
-		
+
 		Priority pri = container.getItemDrive().getPriority(container.getDrive());
 		drawTexturedModalRect(priority.xPosition+4, priority.yPosition+2, 246, 39+(pri.ordinal()*13), 10, 13);
 		if (partition.isMouseOver()) {

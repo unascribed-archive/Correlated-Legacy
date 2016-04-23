@@ -14,7 +14,7 @@ public class CRecipes {
 		ItemStack drivePlatterCeramic = new ItemStack(CoPo.misc, 1, 1);
 		ItemStack drivePlatterMetallic = new ItemStack(CoPo.misc, 1, 2);
 		ItemStack luminousPearl = new ItemStack(CoPo.misc, 1, 3);
-		
+
 		// 1KiB Drive
 		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CoPo.drive, 1, 0),
 				"III",
@@ -24,7 +24,7 @@ public class CRecipes {
 				'O', luminousPearl,
 				'o', drivePlatterCeramic
 				));
-		
+
 		// 4KiB Drive
 		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CoPo.drive, 1, 1),
 				"III",
@@ -34,7 +34,7 @@ public class CRecipes {
 				'O', luminousPearl,
 				'o', drivePlatterCeramic
 				));
-		
+
 		// 16KiB Drive
 		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CoPo.drive, 1, 2),
 				"III",
@@ -54,7 +54,7 @@ public class CRecipes {
 				'O', luminousPearl,
 				'o', drivePlatterMetallic
 				));
-		
+
 		// Void Drive
 		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CoPo.drive, 1, 4),
 				"###",
@@ -63,8 +63,8 @@ public class CRecipes {
 				'O', luminousPearl,
 				'#', Blocks.obsidian
 				));
-		
-		
+
+
 		// Enderic Processor
 		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CoPo.misc, 2, 0),
 				"qoq",
@@ -76,11 +76,11 @@ public class CRecipes {
 				'p', processor,
 				'o', Items.ender_pearl
 				));
-		
+
 		// Luminous Pearl
 		GameRegistry.addRecipe(new ShapelessOreRecipe(luminousPearl,
 				Items.ender_pearl, "dustGlowstone"));
-		
+
 		// Ceramic Drive Platter
 		GameRegistry.addRecipe(new ShapedOreRecipe(drivePlatterCeramic,
 				" B ",
@@ -89,7 +89,7 @@ public class CRecipes {
 				'B', "ingotBrick",
 				'i', "ingotIron"
 				));
-		
+
 		// Metallic Drive Platter
 		GameRegistry.addRecipe(new ShapedOreRecipe(drivePlatterMetallic,
 				"ioi",
@@ -99,7 +99,7 @@ public class CRecipes {
 				'i', "ingotIron",
 				'I', "blockIron"
 				));
-		
+
 		// Drive Bay
 		GameRegistry.addRecipe(new ShapedOreRecipe(CoPo.drive_bay,
 				"iii",
@@ -108,7 +108,7 @@ public class CRecipes {
 				'i', "ingotIron",
 				'p', processor
 				));
-		
+
 		// Controller
 		GameRegistry.addRecipe(new ShapedOreRecipe(CoPo.controller,
 				"ioi",
@@ -118,7 +118,7 @@ public class CRecipes {
 				'p', processor,
 				'o', luminousPearl
 				));
-		
+
 		// Terminal
 		GameRegistry.addRecipe(new ShapedOreRecipe(CoPo.vt,
 				"iii",
@@ -128,7 +128,7 @@ public class CRecipes {
 				'p', processor,
 				'o', luminousPearl
 				));
-		
+
 		// Interface
 		GameRegistry.addRecipe(new ShapedOreRecipe(CoPo.iface,
 				"igi",

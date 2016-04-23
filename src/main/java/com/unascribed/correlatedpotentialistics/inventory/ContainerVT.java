@@ -59,7 +59,7 @@ public class ContainerVT extends Container {
 		private SortMode(Comparator<ItemStack> comparator) {
 			this.comparator = comparator;
 		}
-		
+
 		private static String getModId(ItemStack is) {
 			return Item.itemRegistry.getNameForObject(is.getItem()).getResourceDomain();
 		}
@@ -102,14 +102,14 @@ public class ContainerVT extends Container {
 	private int lastChangeId;
 	public InventoryCrafting craftMatrix = new InventoryCrafting(this, 3, 3);
 	public InventoryCraftResult craftResult = new InventoryCraftResult();
-	
+
 	public class SlotVirtual extends Slot {
 		private ItemStack stack;
 		private int count;
 		public SlotVirtual(int index, int xPosition, int yPosition) {
 			super(null, index, xPosition, yPosition);
 		}
-		
+
 		@Override
 		public ItemStack getStack() {
 			ItemStack stack = this.stack;
@@ -150,7 +150,7 @@ public class ContainerVT extends Container {
 		@Override
 		public void onSlotChanged() {
 		}
-		
+
 		@Override
 		public int getSlotStackLimit() {
 			return Integer.MAX_VALUE;
@@ -171,19 +171,19 @@ public class ContainerVT extends Container {
 		public int getCount() {
 			return count;
 		}
-		
+
 		public void setStack(ItemStack stack) {
 			this.stack = stack;
 		}
 
 	}
-	
+
 	public ContainerVT(IInventory playerInventory, EntityPlayer player, TileEntityVT vt) {
 		this.player = player;
 		this.vt = vt;
 		int x = 69;
 		int y = 37;
-		
+
 		if (!player.worldObj.isRemote) {
 			UserPreferences prefs = vt.getPreferences(player);
 			sortMode = prefs.sortMode;
@@ -191,14 +191,14 @@ public class ContainerVT extends Container {
 			searchQuery = prefs.lastSearchQuery;
 			craftingTarget = prefs.craftingTarget;
 		}
-		
+
 		for (int i = 0; i < 6; ++i) {
 			for (int j = 0; j < 9; ++j) {
 				addSlotToContainer(new SlotVirtual(j + i * 9, x + j * 18, 18 + i * 18));
 			}
 		}
 		updateSlots();
-		
+
 		addSlotToContainer(new SlotCrafting(player, craftMatrix, craftResult, 0, 26, 104));
 
 		for (int i = 0; i < 3; ++i) {
@@ -206,7 +206,7 @@ public class ContainerVT extends Container {
 				this.addSlotToContainer(new Slot(craftMatrix, j + i * 3, 7 + j * 18, 18 + i * 18));
 			}
 		}
-		
+
 		for (int i = 0; i < 3; ++i) {
 			for (int j = 0; j < 9; ++j) {
 				addSlotToContainer(new Slot(playerInventory, j + i * 9 + 9, x + j * 18, 103 + i * 18 + y));
@@ -216,7 +216,7 @@ public class ContainerVT extends Container {
 		for (int i = 0; i < 9; ++i) {
 			addSlotToContainer(new Slot(playerInventory, i, x + i * 18, 161 + y));
 		}
-		
+
 	}
 
 	public void updateSlots() {
@@ -264,7 +264,7 @@ public class ContainerVT extends Container {
 			crafter.sendProgressBarUpdate(this, 0, rows);
 		}
 	}
-	
+
 	@Override
 	public boolean enchantItem(EntityPlayer playerIn, int id) {
 		switch (id) {
@@ -274,9 +274,9 @@ public class ContainerVT extends Container {
 			case -2:
 				sortAscending = false;
 				break;
-				
+
 			case -3:
-				sortMode = SortMode.QUANTITY;				
+				sortMode = SortMode.QUANTITY;
 				break;
 			case -4:
 				sortMode = SortMode.MOD_MINECRAFT_FIRST;
@@ -287,7 +287,7 @@ public class ContainerVT extends Container {
 			case -6:
 				sortMode = SortMode.NAME;
 				break;
-				
+
 			case -10:
 				craftingAmount = CraftingAmount.ONE;
 				break;
@@ -297,14 +297,14 @@ public class ContainerVT extends Container {
 			case -12:
 				craftingAmount = CraftingAmount.MAX;
 				break;
-				
+
 			case -20:
 				craftingTarget = CraftingTarget.INVENTORY;
 				break;
 			case -21:
 				craftingTarget = CraftingTarget.NETWORK;
 				break;
-				
+
 			case -128:
 				for (int i = 0; i < 9; i++) {
 					ItemStack is = craftMatrix.getStackInSlot(i);
@@ -313,7 +313,7 @@ public class ContainerVT extends Container {
 				}
 				detectAndSendChanges();
 				break;
-				
+
 			default:
 				scrollOffset = id;
 				break;
@@ -323,13 +323,13 @@ public class ContainerVT extends Container {
 		}
 		return true;
 	}
-	
+
 	public ItemStack addItemToNetwork(ItemStack stack) {
 		if (player.worldObj.isRemote) return null;
 		ItemStack is = vt.getController().addItemToNetwork(stack);
 		return is;
 	}
-	
+
 	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount) {
 		if (player.worldObj.isRemote) return null;
 		ItemStack is = vt.getController().removeItemsFromNetwork(prototype, amount);
@@ -337,13 +337,13 @@ public class ContainerVT extends Container {
 	}
 
 	private List<Integer> oldStackSizes = Lists.newArrayList();
-	
+
 	@Override
 	protected Slot addSlotToContainer(Slot slotIn) {
 		oldStackSizes.add(0);
 		return super.addSlotToContainer(slotIn);
 	}
-	
+
 	@Override
 	public void detectAndSendChanges() {
 		super.detectAndSendChanges();
@@ -354,7 +354,7 @@ public class ContainerVT extends Container {
 
 			if (cur != old) {
 				oldStackSizes.set(i, cur);
-				
+
 				// if it's out of range for the vanilla packet, we need to send our own
 				if (cur > 127 || cur < -128) {
 					for (ICrafting ic : crafters) {
@@ -369,7 +369,7 @@ public class ContainerVT extends Container {
 			}
 		}
 	}
-	
+
 	@Override
 	public boolean canInteractWith(EntityPlayer player) {
 		if (!player.worldObj.isRemote) {
@@ -379,7 +379,7 @@ public class ContainerVT extends Container {
 		}
 		return player == this.player && vt.hasController() && vt.getController().getEnergyStored(null) > 0;
 	}
-	
+
 	@Override
 	public void onCraftGuiOpened(ICrafting listener) {
 		super.onCraftGuiOpened(listener);
@@ -392,7 +392,7 @@ public class ContainerVT extends Container {
 			CoPo.inst.network.sendTo(new SetSearchQueryMessage(windowId, searchQuery), (EntityPlayerMP)listener);
 		}
 	}
-	
+
 	@Override
 	public void updateProgressBar(int id, int data) {
 		if (id == 0) {
@@ -410,7 +410,7 @@ public class ContainerVT extends Container {
 			craftingAmount = values[data%values.length];
 		}
 	}
-	
+
 	@Override
 	public ItemStack slotClick(int slotId, int clickedButton, int mode, EntityPlayer player) {
 		Slot slot = slotId >= 0 ? getSlot(slotId) : null;
@@ -523,7 +523,7 @@ public class ContainerVT extends Container {
 		searchQuery = query.toLowerCase();
 		updateSlots();
 	}
-	
+
 	@Override
 	public void onContainerClosed(EntityPlayer player) {
 		super.onContainerClosed(player);
@@ -543,7 +543,7 @@ public class ContainerVT extends Container {
 		prefs.lastSearchQuery = searchQuery;
 		vt.markDirty();
 	}
-	
+
 	@Override
 	public void onCraftMatrixChanged(IInventory inventory) {
 		craftResult.setInventorySlotContents(0, CraftingManager.getInstance().findMatchingRecipe(craftMatrix, player.worldObj));

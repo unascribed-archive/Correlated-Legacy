@@ -35,7 +35,7 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 		public void renderLivingLabel(Entity entityIn, String str, double x, double y, double z, int maxDistance) {
 			super.renderLivingLabel(entityIn, str, x, y, z, maxDistance);
 		}
-		
+
 		@Override
 		protected ResourceLocation getEntityTexture(Entity entity) {
 			return null;
@@ -52,10 +52,10 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 	public void renderTileEntityAt(TileEntityDriveBay te, double x, double y, double z, float partialTicks, int destroyStage) {
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
 		if (bs.getBlock() != CoPo.drive_bay) return;
-		
+
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);
-		
+
 		EnumFacing facing = te.getWorld().getBlockState(te.getPos()).getValue(BlockDriveBay.facing);
 		switch (facing) {
 			case NORTH:
@@ -78,18 +78,18 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 		GlStateManager.translate(0, 0, -0.0001f);
 		GlStateManager.enableTexture2D();
 		Minecraft.getMinecraft().getTextureManager().bindTexture(DRIVE);
-		
+
 		Tessellator tess = Tessellator.getInstance();
 		WorldRenderer wr = tess.getWorldRenderer();
 		float oldX = OpenGlHelper.lastBrightnessX;
 		float oldY = OpenGlHelper.lastBrightnessY;
-		
-		
+
+
 		int light = te.getWorld().getCombinedLight(te.getPos().offset(facing), 0);
         int j = light % 65536;
         int k = light / 65536;
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j, k);
-        
+
 		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 		for (int i = 0; i < 8; i++) {
 			if (te.hasDriveInSlot(i)) {
@@ -101,14 +101,14 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 			}
 		}
 		tess.draw();
-		
+
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
-		
+
 		GlStateManager.disableLighting();
 		GlStateManager.enableBlend();
 		GlStateManager.disableAlpha();
 		GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		
+
 		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 		for (int i = 0; i < 8; i++) {
 			if (te.hasDriveInSlot(i)) {
@@ -120,7 +120,7 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 			}
 		}
 		tess.draw();
-		
+
 		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 		for (int i = 0; i < 8; i++) {
 			if (te.hasDriveInSlot(i)) {
@@ -132,12 +132,12 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 			}
 		}
 		tess.draw();
-		
+
 		GlStateManager.disableBlend();
 		GlStateManager.enableAlpha();
 		GlStateManager.enableLighting();
 		GlStateManager.popMatrix();
-		
+
 		MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
 		if (mop != null && mop.typeOfHit == MovingObjectType.BLOCK && mop.getBlockPos().equals(te.getPos())) {
 			if (te.getBlockType() instanceof BlockDriveBay) {
@@ -201,38 +201,38 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 		int g = (color >> 8) & 0xFF;
 		int b = color & 0xFF;
 		int a = 255;
-		
+
 		float x = 3/16f;
 		float y = 2/16f;
 		float z = 0/16f;
-		
+
 		float w = 4/16f;
 		float h = 2/16f;
 		float d = 1/16f;
-		
+
 		int renderSlot = 7-slot;
 		y += (renderSlot/2)*(3/16f);
 		x += (renderSlot%2)*(6/16f);
-		
+
 		float antiBleed = 0.0001f;
 		float m = 0.001f; // meld
-		
+
 		Tessellator tess = Tessellator.getInstance();
 		WorldRenderer wr = tess.getWorldRenderer();
-		
+
 		{
 			// Right
 			float minU = u+(5/12f);
 			float maxU = u+(6/12f);
-			
+
 			float minV = v+(1/8f);
 			float maxV = v+(3/8f);
-			
+
 			minU += antiBleed;
 			maxU -= antiBleed;
 			minV += antiBleed;
 			maxV -= antiBleed;
-			
+
 			wr.pos(x  , y  , z+m).tex(minU, maxV).color(r, g, b, a).normal(-1, 0, 0).endVertex();
 			wr.pos(x  , y+h, z+m).tex(minU, minV).color(r, g, b, a).normal(-1, 0, 0).endVertex();
 			wr.pos(x  , y+h, z-d).tex(maxU, minV).color(r, g, b, a).normal(-1, 0, 0).endVertex();
@@ -242,15 +242,15 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 			// Front
 			float minU = u+(1/12f);
 			float maxU = u+(5/12f);
-			
+
 			float minV = v+(1/8f);
 			float maxV = v+(3/8f);
-			
+
 			minU += antiBleed;
 			maxU -= antiBleed;
 			minV += antiBleed;
 			maxV -= antiBleed;
-			
+
 			wr.pos(x  , y  , z-d).tex(maxU, maxV).color(r, g, b, a).normal(0, 0, -1).endVertex();
 			wr.pos(x  , y+h, z-d).tex(maxU, minV).color(r, g, b, a).normal(0, 0, -1).endVertex();
 			wr.pos(x+w, y+h, z-d).tex(minU, minV).color(r, g, b, a).normal(0, 0, -1).endVertex();
@@ -260,15 +260,15 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 			// Left
 			float minU = u+(0/12f);
 			float maxU = u+(1/12f);
-			
+
 			float minV = v+(1/8f);
 			float maxV = v+(3/8f);
-			
+
 			minU += antiBleed;
 			maxU -= antiBleed;
 			minV += antiBleed;
 			maxV -= antiBleed;
-			
+
 			wr.pos(x+w, y  , z-d).tex(maxU, maxV).color(r, g, b, a).normal(1, 0, 0).endVertex();
 			wr.pos(x+w, y+h, z-d).tex(maxU, minV).color(r, g, b, a).normal(1, 0, 0).endVertex();
 			wr.pos(x+w, y+h, z+m).tex(minU, minV).color(r, g, b, a).normal(1, 0, 0).endVertex();
@@ -278,15 +278,15 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 			// Top
 			float minU = u+(1/12f);
 			float maxU = u+(5/12f);
-			
+
 			float minV = v+(0/8f);
 			float maxV = v+(1/8f);
-			
+
 			minU += antiBleed;
 			maxU -= antiBleed;
 			minV += antiBleed;
 			maxV -= antiBleed;
-			
+
 			wr.pos(x+w, y+h, z+m).tex(minU, minV).color(r, g, b, a).normal(0, 1, 0).endVertex();
 			wr.pos(x+w, y+h, z-d).tex(minU, maxV).color(r, g, b, a).normal(0, 1, 0).endVertex();
 			wr.pos(x  , y+h, z-d).tex(maxU, maxV).color(r, g, b, a).normal(0, 1, 0).endVertex();
@@ -296,15 +296,15 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 			// Botom
 			float minU = u+(1/12f);
 			float maxU = u+(5/12f);
-			
+
 			float minV = v+(3/8f);
 			float maxV = v+(4/8f);
-			
+
 			minU += antiBleed;
 			maxU -= antiBleed;
 			minV += antiBleed;
 			maxV -= antiBleed;
-			
+
 			wr.pos(x  , y  , z+m).tex(maxU, minV).color(r, g, b, a).normal(0, 1, 0).endVertex();
 			wr.pos(x  , y  , z-d).tex(maxU, maxV).color(r, g, b, a).normal(0, 1, 0).endVertex();
 			wr.pos(x+w, y  , z-d).tex(minU, maxV).color(r, g, b, a).normal(0, 1, 0).endVertex();

@@ -19,19 +19,19 @@ public class ContainerDrive extends Container {
 			super(index, xPosition, yPosition);
 			super.putStack(stack);
 		}
-		
+
 		@Override
 		public void putStack(ItemStack stack) {
 			if (player.worldObj.isRemote) {
 				super.putStack(stack);
 			}
 		}
-		
+
 		@Override
 		public ItemStack decrStackSize(int amount) {
 			return null;
 		}
-		
+
 		@Override
 		public void onSlotChanged() {}
 	}
@@ -41,18 +41,18 @@ public class ContainerDrive extends Container {
 		}
 
 		private ItemStack stack;
-		
+
 		@Override
 		public ItemStack getStack() {
 			return stack;
 		}
-		
+
 		@Override
 		public void putStack(ItemStack stack) {
 			this.stack = stack;
 			onSlotChanged();
 		}
-		
+
 		@Override
 		public ItemStack decrStackSize(int amount) {
 			if (stack == null) return null;
@@ -63,27 +63,27 @@ public class ContainerDrive extends Container {
 			onSlotChanged();
 			return split;
 		}
-		
+
 		@Override
 		public int getItemStackLimit(ItemStack stack) {
 			return 1;
 		}
-		
+
 		@Override
 		public boolean isHere(IInventory inv, int slotIn) {
 			return false;
 		}
-		
+
 		@Override
 		public boolean canBeHovered() {
 			return true;
 		}
-		
+
 		@Override
 		public boolean canTakeStack(EntityPlayer playerIn) {
 			return false;
 		}
-		
+
 		@Override
 		public boolean isItemValid(ItemStack stack) {
 			for (ItemStack s : prototypes) {
@@ -93,7 +93,7 @@ public class ContainerDrive extends Container {
 			}
 			return getItemDrive().getBitsFree(getDrive()) >= getItemDrive().getTypeAllocationBits(getDrive());
 		}
-		
+
 		@Override
 		public void onSlotChanged() {
 			getItemDrive().markDirty(getDrive());
@@ -111,13 +111,13 @@ public class ContainerDrive extends Container {
 		this.player = player;
 		driveSlot = new SlotStatic(-2000, -8000, -8000, drive);
 		addSlotToContainer(driveSlot);
-		
+
 		for (int i = 0; i < 64; i++) {
 			SlotFake slot = new SlotFake(i, (((i % 11)*18)+8)+(i > 54 ? 18 : 0), ((i/11)*18)+18);
 			addSlotToContainer(slot);
 		}
 		updateSlots();
-		
+
 		int x = 26;
 		int y = 37;
 		for (int i = 0; i < 3; ++i) {
@@ -139,7 +139,7 @@ public class ContainerDrive extends Container {
 			addSlotToContainer(slot);
 		}
 	}
-	
+
 	public void updateSlots() {
 		prototypes = getItemDrive().getPrototypes(getDrive());
 		for (int i = 1; i < 65; i++) {
@@ -155,7 +155,7 @@ public class ContainerDrive extends Container {
 			}
 		}
 	}
-	
+
 	@Override
 	public boolean enchantItem(EntityPlayer playerIn, int id) {
 		if (id == 0 || id == 1) {
@@ -177,24 +177,24 @@ public class ContainerDrive extends Container {
 		player.inventory.setInventorySlotContents(driveSlotId, getDrive());
 		return true;
 	}
-	
+
 	@Override
 	public void updateProgressBar(int id, int data) {
-		
+
 	}
-	
+
 	@Override
 	public void onCraftGuiOpened(ICrafting listener) {
 		super.onCraftGuiOpened(listener);
 	}
-	
+
 	@Override
 	public ItemStack slotClick(int slotId, int clickedButton, int mode, EntityPlayer playerIn) {
 		if (slotId >= 1) {
 			Slot slot = getSlot(slotId);
 			if (slot instanceof SlotFake) {
 				if (mode == 0 && clickedButton == 0) {
-					if (slot.getHasStack()) { 
+					if (slot.getHasStack()) {
 						int stored = getItemDrive().getAmountStored(getDrive(), slot.getStack());
 						if (stored <= 0) {
 							getItemDrive().deallocateType(getDrive(), slot.getStack());
@@ -219,22 +219,22 @@ public class ContainerDrive extends Container {
 				if (getSlot(1).isItemValid(stack)) {
 					getItemDrive().allocateType(getDrive(), stack, 0);
 					updateSlots();
-					player.inventory.setInventorySlotContents(driveSlotId, getDrive());					
+					player.inventory.setInventorySlotContents(driveSlotId, getDrive());
 				}
 				return stack;
 			}
 		}
 		return super.slotClick(slotId, clickedButton, mode, playerIn);
 	}
-	
+
 	public ItemStack getDrive() {
 		return driveSlot.getStack();
 	}
-	
+
 	public ItemDrive getItemDrive() {
 		return (ItemDrive)getDrive().getItem();
 	}
-	
+
 	@Override
 	public boolean canInteractWith(EntityPlayer playerIn) {
 		return playerIn == player;

@@ -27,7 +27,7 @@ import net.minecraftforge.fml.client.config.GuiButtonExt;
 
 public class GuiVT extends GuiContainer {
 	private static final ResourceLocation background = new ResourceLocation("correlatedpotentialistics", "textures/gui/container/vt.png");
-	
+
 	private ContainerVT container;
 	private GuiTextField searchField = new GuiTextField(0, Minecraft.getMinecraft().fontRendererObj, 0, 0, 85, 8);
 	private String lastSearchQuery = "";
@@ -36,7 +36,7 @@ public class GuiVT extends GuiContainer {
 	private GuiButtonExt craftingTarget;
 	private GuiButtonExt craftingAmount;
 	private GuiButtonExt clearGrid;
-	
+
 	public GuiVT(ContainerVT container) {
 		super(container);
 		searchField.setEnableBackgroundDrawing(false);
@@ -54,7 +54,7 @@ public class GuiVT extends GuiContainer {
 		drawTexturedModalRect(0, 0, 0, 0, 256, 222);
 		GlStateManager.popMatrix();
 	}
-	
+
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 		fontRendererObj.drawString(I18n.format("gui.correlatedpotentialistics.vt"), 8, 6, 0x404040);
@@ -77,7 +77,7 @@ public class GuiVT extends GuiContainer {
 		}
 		GlStateManager.popMatrix();
 		GlStateManager.enableDepth();
-		
+
 		int u = 232;
 		if (container.rows <= 6) {
 			u += 12;
@@ -86,7 +86,7 @@ public class GuiVT extends GuiContainer {
 		GlStateManager.color(1, 1, 1);
 		mc.getTextureManager().bindTexture(background);
 		drawTexturedModalRect(236, y+(scrollKnobY-6), u, 241, 12, 15);
-		
+
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(-(width - xSize) / 2, -(height - ySize) / 2, 0);
 		drawTexturedModalRect(clearGrid.xPosition+2, clearGrid.yPosition+2, 0, 222, 2, 10);
@@ -126,13 +126,13 @@ public class GuiVT extends GuiContainer {
 			drawHoveringText(Lists.newArrayList(I18n.format("tooltip.correlatedpotentialistics.clear_crafting_grid")), mouseX, mouseY);
 		}
 		GlStateManager.popMatrix();
-		
+
 	}
-	
+
 	private boolean draggingScrollKnob = false;
 	private int scrollKnobY = 6;
 	private int ticksSinceLastQueryChange = 0;
-	
+
 	@Override
 	public void initGui() {
 		super.initGui();
@@ -146,7 +146,7 @@ public class GuiVT extends GuiContainer {
 		buttonList.add(craftingTarget = new GuiButtonExt(3, x+51, y+113, 12, 12, ""));
 		buttonList.add(clearGrid = new GuiButtonExt(4, x+61, y+37, 6, 14, ""));
 	}
-	
+
 	@Override
 	protected void actionPerformed(GuiButton button) throws IOException {
 		if (button.id == 0) {
@@ -196,13 +196,13 @@ public class GuiVT extends GuiContainer {
 					container.craftingTarget = CraftingTarget.INVENTORY;
 					mc.playerController.sendEnchantPacket(container.windowId, -20);
 					break;
-				
+
 			}
 		} else if (button.id == 4) {
 			mc.playerController.sendEnchantPacket(container.windowId, -128);
 		}
 	}
-	
+
 	@Override
 	public void updateScreen() {
 		super.updateScreen();
@@ -229,7 +229,7 @@ public class GuiVT extends GuiContainer {
 			CoPo.inst.network.sendToServer(new SetSearchQueryMessage(container.windowId, lastSearchQuery));
 		}
 	}
-	
+
 	@Override
 	protected void keyTyped(char typedChar, int keyCode) throws IOException {
 		if (searchField.isFocused()) {
@@ -242,7 +242,7 @@ public class GuiVT extends GuiContainer {
 			super.keyTyped(typedChar, keyCode);
 		}
 	}
-	
+
 	@Override
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
 		int x = (width - xSize) / 2;
@@ -266,7 +266,7 @@ public class GuiVT extends GuiContainer {
 		searchField.mouseClicked(mouseX, mouseY, mouseButton);
 		super.mouseClicked(mouseX, mouseY, mouseButton);
 	}
-	
+
 	@Override
 	protected void mouseClickMove(int mouseX, int mouseY, int mouseButton, long timeSinceLastClick) {
 		if (draggingScrollKnob && container.rows > 6) {
@@ -276,7 +276,7 @@ public class GuiVT extends GuiContainer {
 		}
 		super.mouseClickMove(mouseX, mouseY, mouseButton, timeSinceLastClick);
 	}
-	
+
 	@Override
 	protected void mouseReleased(int mouseX, int mouseY, int mouseButton) {
 		if (mouseButton == 0) {
@@ -289,5 +289,5 @@ public class GuiVT extends GuiContainer {
 		lastSearchQuery = query;
 		searchField.setText(query);
 	}
-	
+
 }

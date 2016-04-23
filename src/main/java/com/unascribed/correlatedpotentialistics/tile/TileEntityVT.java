@@ -22,23 +22,23 @@ public class TileEntityVT extends TileEntityNetworkMember {
 		public CraftingTarget craftingTarget = CraftingTarget.INVENTORY;
 	}
 	private Map<UUID, UserPreferences> preferences = Maps.newHashMap();
-	
+
 	@Override
 	public int getEnergyConsumedPerTick() {
 		return 4;
 	}
-	
+
 	public UserPreferences getPreferences(UUID uuid) {
 		if (!preferences.containsKey(uuid)) {
 			preferences.put(uuid, new UserPreferences());
 		}
 		return preferences.get(uuid);
 	}
-	
+
 	public UserPreferences getPreferences(EntityPlayer player) {
 		return getPreferences(player.getGameProfile().getId());
 	}
-	
+
 	@Override
 	public void writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
@@ -56,7 +56,7 @@ public class TileEntityVT extends TileEntityNetworkMember {
 		}
 		compound.setTag("Preferences", prefs);
 	}
-	
+
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);

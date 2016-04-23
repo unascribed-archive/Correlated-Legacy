@@ -14,7 +14,7 @@ import net.minecraft.world.World;
 public abstract class TileEntityNetworkMember extends TileEntity {
 	private TileEntityController controller;
 	private Vec3i controllerPos;
-	
+
 	@Override
 	public void writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
@@ -24,7 +24,7 @@ public abstract class TileEntityNetworkMember extends TileEntity {
 			compound.setInteger("ControllerOffsetZ", controllerPos.getZ());
 		}
 	}
-	
+
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
@@ -35,11 +35,11 @@ public abstract class TileEntityNetworkMember extends TileEntity {
 					compound.getInteger("ControllerOffsetZ"));
 		}
 	}
-	
+
 	public boolean hasController() {
 		return getController() != null;
 	}
-	
+
 	public TileEntityController getController() {
 		if (!hasWorldObj()) return null;
 		if (controller == null && controllerPos != null) {
@@ -75,13 +75,13 @@ public abstract class TileEntityNetworkMember extends TileEntity {
 			}
 		}
 	}
-	
-	
+
+
 	@Override
 	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
 		return oldState.getBlock() != newState.getBlock();
 	}
-	
+
 	public abstract int getEnergyConsumedPerTick();
 
 	public void handleNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {

@@ -19,11 +19,11 @@ public class Numbers {
 		}
 		return I18n.format("numbers.correlatedpotentialistics.bytes", bytes);
 	}
-	
+
 	public static final int GIGA = 1_000_000_000;
 	public static final int MEGA = 1_000_000;
 	public static final int KILO = 1_000;
-	
+
 	private static final NumberFormat formatter = NumberFormat.getNumberInstance();
 	private static boolean formatterInitialized = false;
 	public static String humanReadableItemCount(int count) {

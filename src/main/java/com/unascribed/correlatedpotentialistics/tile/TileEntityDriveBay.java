@@ -18,19 +18,19 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 
 	private ItemStack[] drives = new ItemStack[8];
 	private int consumedPerTick = 8;
-	
+
 	@Override
 	public void writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
 		writeDrives(compound, 0, 1, 2, 3, 4, 5, 6, 7);
 	}
-	
+
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
 		readDrives(compound);
 	}
-	
+
 	@Override
 	public int getEnergyConsumedPerTick() {
 		return consumedPerTick;
@@ -42,12 +42,12 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 		writeDrives(nbt, 0, 1, 2, 3, 4, 5, 6, 7);
 		return new S35PacketUpdateTileEntity(getPos(), getBlockMetadata(), nbt);
 	}
-	
+
 	@Override
 	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
 		readDrives(pkt.getNbtCompound());
 	}
-	
+
 	@Override
 	public void update() {
 		if (hasWorldObj() && !worldObj.isRemote) {
@@ -62,13 +62,13 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 			}
 		}
 	}
-	
+
 	private void writeDrives(NBTTagCompound nbt, int... slots) {
 		for (int i : slots) {
 			writeDrive(nbt, i);
 		}
 	}
-	
+
 	private void writeDrive(NBTTagCompound nbt, int slot) {
 		NBTTagCompound drive = new NBTTagCompound();
 		if (drives[slot] != null) {
@@ -76,7 +76,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 		}
 		nbt.setTag("Drive"+slot, drive);
 	}
-	
+
 	private void readDrives(NBTTagCompound nbt) {
 		for (int i = 0; i < drives.length; i++) {
 			if (nbt.hasKey("Drive"+i)) {
@@ -96,7 +96,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 		}
 		onDriveChange();
 	}
-	
+
 	public void setDriveInSlot(int slot, ItemStack drive) {
 		drives[slot] = drive;
 		if (hasWorldObj() && !worldObj.isRemote && worldObj instanceof WorldServer) {
@@ -136,5 +136,5 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 	public boolean hasDriveInSlot(int slot) {
 		return drives[slot] != null;
 	}
-	
+
 }

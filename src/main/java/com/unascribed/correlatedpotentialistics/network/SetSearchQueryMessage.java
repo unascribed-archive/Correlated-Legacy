@@ -18,13 +18,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class SetSearchQueryMessage implements IMessage, IMessageHandler<SetSearchQueryMessage, IMessage> {
 	public int windowId;
 	public String query;
-	
+
 	public SetSearchQueryMessage() {}
 	public SetSearchQueryMessage(int windowId, String query) {
 		this.windowId = windowId;
 		this.query = query;
 	}
-	
+
 	@Override
 	public void fromBytes(ByteBuf buf) {
 		windowId = buf.readInt();
@@ -36,7 +36,7 @@ public class SetSearchQueryMessage implements IMessage, IMessageHandler<SetSearc
 		buf.writeInt(windowId);
 		ByteBufUtils.writeUTF8String(buf, query);
 	}
-	
+
 	@Override
 	public IMessage onMessage(SetSearchQueryMessage message, MessageContext ctx) {
 		if (ctx.side == Side.SERVER) {
@@ -46,7 +46,7 @@ public class SetSearchQueryMessage implements IMessage, IMessageHandler<SetSearc
 		}
 		return null;
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	private void handleClient(SetSearchQueryMessage message, MessageContext ctx) {
 		Minecraft.getMinecraft().addScheduledTask(() -> {

@@ -24,10 +24,10 @@ public class RenderController extends TileEntitySpecialRenderer<TileEntityContro
 	public void renderTileEntityAt(TileEntityController te, double x, double y, double z, float partialTicks, int destroyStage) {
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
 		if (bs.getBlock() != CoPo.controller) return;
-		
+
 		float lastX = OpenGlHelper.lastBrightnessX;
 		float lastY = OpenGlHelper.lastBrightnessY;
-		
+
 		State state = bs.getValue(BlockController.state);
 		String tex;
 		switch (state) {
@@ -51,60 +51,60 @@ public class RenderController extends TileEntitySpecialRenderer<TileEntityContro
 		float maxU = tas.getMaxU();
 		float minV = tas.getMinV();
 		float maxV = tas.getMaxV();
-		
+
 		float diffU = maxU-minU;
 		float diffV = maxV-minV;
 		minU += (diffU/8);
 		minV += (diffV/8);
 		maxU -= (diffU/8);
 		maxV -= (diffV/8);
-		
+
 		GlStateManager.color(1, 1, 1);
-		
+
 		Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
 		if (state != State.OFF) {
 			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
 			GlStateManager.disableLighting();
 		}
-		
+
 		Tessellator tess = Tessellator.getInstance();
 		WorldRenderer wr = tess.getWorldRenderer();
 		wr.setTranslation(x, y, z);
 		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-		
+
 		wr.pos(0.125, 0.125, 1.001).tex(minU, minV).endVertex();
 		wr.pos(0.875, 0.125, 1.001).tex(maxU, minV).endVertex();
 		wr.pos(0.875, 0.875, 1.001).tex(maxU, maxV).endVertex();
 		wr.pos(0.125, 0.875, 1.001).tex(minU, maxV).endVertex();
-		
+
 		wr.pos(0.125, 0.125, -0.001).tex(minU, minV).endVertex();
 		wr.pos(0.125, 0.875, -0.001).tex(minU, maxV).endVertex();
 		wr.pos(0.875, 0.875, -0.001).tex(maxU, maxV).endVertex();
 		wr.pos(0.875, 0.125, -0.001).tex(maxU, minV).endVertex();
-	
+
 		wr.pos(0.125, -0.001, 0.125).tex(minU, minV).endVertex();
 		wr.pos(0.875, -0.001, 0.125).tex(maxU, minV).endVertex();
 		wr.pos(0.875, -0.001, 0.875).tex(maxU, maxV).endVertex();
 		wr.pos(0.125, -0.001, 0.875).tex(minU, maxV).endVertex();
-		
+
 		wr.pos(0.125, 1.001, 0.875).tex(minU, maxV).endVertex();
 		wr.pos(0.875, 1.001, 0.875).tex(maxU, maxV).endVertex();
 		wr.pos(0.875, 1.001, 0.125).tex(maxU, minV).endVertex();
 		wr.pos(0.125, 1.001, 0.125).tex(minU, minV).endVertex();
-		
+
 		wr.pos(1.001, 0.125, 0.125).tex(minU, minV).endVertex();
 		wr.pos(1.001, 0.875, 0.125).tex(maxU, minV).endVertex();
 		wr.pos(1.001, 0.875, 0.875).tex(maxU, maxV).endVertex();
 		wr.pos(1.001, 0.125, 0.875).tex(minU, maxV).endVertex();
-		
+
 		wr.pos(-0.001, 0.125, 0.875).tex(minU, maxV).endVertex();
 		wr.pos(-0.001, 0.875, 0.875).tex(maxU, maxV).endVertex();
 		wr.pos(-0.001, 0.875, 0.125).tex(maxU, minV).endVertex();
 		wr.pos(-0.001, 0.125, 0.125).tex(minU, minV).endVertex();
-		
+
 		tess.draw();
 		wr.setTranslation(0, 0, 0);
-		
+
 		if (state != State.OFF) {
 			GlStateManager.enableLighting();
 			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lastX, lastY);

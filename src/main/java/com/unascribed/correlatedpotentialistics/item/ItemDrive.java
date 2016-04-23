@@ -219,24 +219,24 @@ public class ItemDrive extends Item {
 		return ItemStacks.getEnum(stack, "Priority", Priority.class)
 				.or(Priority.DEFAULT);
 	}
-	
+
 	public void setPriority(ItemStack stack, Priority priority) {
 		ItemStacks.ensureHasTag(stack).getTagCompound().setString("Priority", priority.name());
 	}
-	
+
 	public PartitioningMode getPartitioningMode(ItemStack stack) {
 		return ItemStacks.getEnum(stack, "PartitioningMode", PartitioningMode.class)
 				.or(PartitioningMode.NONE);
 	}
-	
+
 	public void setPartitioningMode(ItemStack stack, PartitioningMode mode) {
 		ItemStacks.ensureHasTag(stack).getTagCompound().setString("PartitioningMode", mode.name());
 	}
-	
+
 	public void markDirty(ItemStack stack) {
 		ItemStacks.ensureHasTag(stack).getTagCompound().setBoolean("Dirty", true);
 	}
-	
+
 	@Override
 	public ItemStack onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn) {
 		playerIn.openGui(CoPo.inst, 1, worldIn, playerIn.inventory.currentItem, 0, 0);
@@ -309,7 +309,7 @@ public class ItemDrive extends Item {
 	 * <p>
 	 * The stackSize of the passed stack will be affected. Return value is for
 	 * convenience, and will be null if all items are taken.
-	 * 
+	 *
 	 * @param drive
 	 *            The drive to affect
 	 * @param item
@@ -339,14 +339,14 @@ public class ItemDrive extends Item {
 			return item;
 		}
 	}
-	
+
 	/**
 	 * Take as many items as possible, up to the passed limit, from a drive into
 	 * the given stack.
 	 * <p>
 	 * The stackSize of the passed stack will be affected. Return value is for
 	 * convenience.
-	 * 
+	 *
 	 * @param drive
 	 *            The drive to affect
 	 * @param item
@@ -365,14 +365,14 @@ public class ItemDrive extends Item {
 		}
 		return stack;
 	}
-	
+
 	public int getAmountStored(ItemStack drive, ItemStack item) {
 		if (getMaxBits(drive) == -1) return 0;
 		NBTTagCompound data = findDataForPrototype(drive, createPrototype(item));
 		if (data == null) return 0;
 		return data.getInteger("Count");
 	}
-	
+
 	public void setAmountStored(ItemStack drive, ItemStack item, int amount) {
 		if (getMaxBits(drive) == -1) return;
 		NBTTagCompound prototype = createPrototype(item);
@@ -463,7 +463,7 @@ public class ItemDrive extends Item {
 			markDirty(drive);
 		}
 	}
-	
+
 	/**
 	 * Forcefully deallocates a type for the given item. If there
 	 * were any items of the given type stored in this drive,

@@ -15,14 +15,14 @@ public class SetSlotSizeMessage implements IMessage, IMessageHandler<SetSlotSize
 	public int windowId;
 	public int slot;
 	public int slotSize;
-	
+
 	public SetSlotSizeMessage() {}
 	public SetSlotSizeMessage(int windowId, int slot, int slotSize) {
 		this.windowId = windowId;
 		this.slot = slot;
 		this.slotSize = slotSize;
 	}
-	
+
 	@Override
 	public void fromBytes(ByteBuf buf) {
 		windowId = buf.readInt();

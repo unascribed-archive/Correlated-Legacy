@@ -29,11 +29,11 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 		public boolean canInsert() {
 			return this == FaceMode.PASSIVE || this == ACTIVE_PULL;
 		}
-		
+
 		public boolean canExtract() {
 			return this == FaceMode.PASSIVE || this == ACTIVE_PUSH;
 		}
-		
+
 		@Override
 		public String getName() {
 			switch (this) {
@@ -44,7 +44,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 			}
 			return null;
 		}
-		
+
 		@Override
 		public String toString() {
 			return getName();
@@ -52,9 +52,9 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 	}
 	private InventoryBasic inv = new InventoryBasic("container.interface", false, 18);
 	private ItemStack[] prototypes = new ItemStack[9];
-	
+
 	private FaceMode[] modes = new FaceMode[6];
-	
+
 	public FaceMode getModeForFace(EnumFacing face) {
 		if (face == null) return null;
 		FaceMode mode = modes[face.ordinal()];
@@ -65,21 +65,21 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 		}
 		return mode;
 	}
-	
+
 	public void setModeForFace(EnumFacing face, FaceMode mode) {
 		if (face == null) return;
 		modes[face.ordinal()] = mode;
 		markDirty();
 	}
-	
+
 	public ItemStack getOutputPrototype(int i) {
 		return prototypes[i];
 	}
-	
+
 	public void setOutputPrototype(int i, ItemStack prototype) {
 		prototypes[i] = prototype;
 	}
-	
+
 	@Override
 	public void writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
@@ -106,7 +106,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 		}
 		compound.setTag("Prototypes", proto);
 	}
-	
+
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
@@ -123,33 +123,33 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 			prototypes[nbt.getInteger("Slot")] = ItemStack.loadItemStackFromNBT(nbt);
 		}
 	}
-	
+
 	@Override
 	public Packet getDescriptionPacket() {
 		NBTTagCompound nbt = new NBTTagCompound();
 		writeFacesToNBT(nbt);
 		return new S35PacketUpdateTileEntity(getPos(), getBlockMetadata(), nbt);
 	}
-	
+
 	@Override
 	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
 		super.onDataPacket(net, pkt);
 		readFacesFromNBT(pkt.getNbtCompound());
 		worldObj.markBlockRangeForRenderUpdate(getPos(), getPos());
 	}
-	
+
 	private void writeFacesToNBT(NBTTagCompound nbt) {
 		for (EnumFacing face : EnumFacing.VALUES) {
 			nbt.setString("Mode-"+face.getName(), getModeForFace(face).name());
 		}
 	}
-	
+
 	private void readFacesFromNBT(NBTTagCompound nbt) {
 		for (EnumFacing face : EnumFacing.VALUES) {
 			setModeForFace(face, Enums.getIfPresent(FaceMode.class, nbt.getString("Mode-"+face.getName())).or(FaceMode.PASSIVE));
 		}
 	}
-	
+
 	@Override
 	public void update() {
 		if (hasController() && hasWorldObj() && !worldObj.isRemote && worldObj.getTotalWorldTime() % 16 == 0) {
@@ -247,7 +247,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 			}
 		}
 	}
-	
+
 	private static void transfer(IInventory fromInv, int fromSlot, IInventory toInv, int toSlot) {
 		ItemStack fromStack = fromInv.getStackInSlot(fromSlot);
 		if (fromStack == null) return;
@@ -277,7 +277,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 		}
 		return -1;
 	}
-	
+
 	private static int findSlot(IInventory inv, ItemStack a, int[] slots) {
 		for (int i : slots) {
 			ItemStack b = inv.getStackInSlot(i);

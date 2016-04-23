@@ -13,13 +13,13 @@ public class ItemStacks {
 		if (!stack.getTagCompound().hasKey(key, NBT.TAG_ANY_NUMERIC)) return Optional.absent();
 		return Optional.of(stack.getTagCompound().getInteger(key));
 	}
-	
+
 	public static Optional<Boolean> getBoolean(ItemStack stack, String key) {
 		if (!stack.hasTagCompound()) return Optional.absent();
 		if (!stack.getTagCompound().hasKey(key, NBT.TAG_ANY_NUMERIC)) return Optional.absent();
 		return Optional.of(stack.getTagCompound().getBoolean(key));
 	}
-	
+
 	public static NBTTagCompound getSubCompound(ItemStack stack, String key) {
 		ensureHasTag(stack);
 		if (!stack.getTagCompound().hasKey(key, NBT.TAG_COMPOUND)) {
@@ -27,7 +27,7 @@ public class ItemStacks {
 		}
 		return stack.getTagCompound().getCompoundTag(key);
 	}
-	
+
 	public static ItemStack ensureHasTag(ItemStack stack) {
 		if (!stack.hasTagCompound()) {
 			stack.setTagCompound(new NBTTagCompound());

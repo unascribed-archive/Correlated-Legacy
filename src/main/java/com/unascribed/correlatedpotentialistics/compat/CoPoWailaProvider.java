@@ -96,10 +96,10 @@ public class CoPoWailaProvider implements IWailaDataProvider {
 					}
 				}
 			}
-			
+
 			int totalTypesPercent = (int)(((double)totalTypesUsed/(double)totalMaxTypes)*100);
 			int totalBytesPercent = (int)(((double)totalBytesUsed/(double)totalMaxBytes)*100);
-			
+
 			body.add(I18n.format("tooltip.correlatedpotentialistics.drive_count", driveCount));
 			body.add(I18n.format("tooltip.correlatedpotentialistics.types_used", totalTypesUsed, totalMaxTypes, totalTypesPercent));
 			body.add(I18n.format("tooltip.correlatedpotentialistics.bytes_used", Numbers.humanReadableBytes(totalBytesUsed), Numbers.humanReadableBytes(totalMaxBytes), totalBytesPercent));

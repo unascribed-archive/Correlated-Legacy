@@ -16,7 +16,7 @@ public class ItemMisc extends Item {
 			"metallic_drive_platter",
 			"luminous_pearl"
 	};
-	
+
 	@Override
 	public boolean getHasSubtypes() {
 		return true;

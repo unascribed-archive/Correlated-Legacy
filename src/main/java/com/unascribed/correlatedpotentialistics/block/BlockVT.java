@@ -30,33 +30,33 @@ public class BlockVT extends Block {
 	public boolean hasTileEntity(IBlockState state) {
 		return true;
 	}
-	
+
 	@Override
 	public TileEntity createTileEntity(World world, IBlockState state) {
 		return new TileEntityVT();
 	}
-	
+
 	@Override
 	protected BlockState createBlockState() {
 		return new BlockState(this, facing);
 	}
-	
+
 	@Override
 	public int getMetaFromState(IBlockState state) {
 		return state.getValue(facing).getHorizontalIndex();
 	}
-	
+
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
 		return getDefaultState().withProperty(facing, EnumFacing.getHorizontal(meta));
 	}
-	
+
 	@Override
 	public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facingIn, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
 		return this.getDefaultState()
 				.withProperty(facing, placer.getHorizontalFacing().getOpposite());
 	}
-	
+
 	@Override
 	public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
 		TileEntity te = world.getTileEntity(pos);
@@ -64,7 +64,7 @@ public class BlockVT extends Block {
 			((TileEntityNetworkMember)te).handleNeighborChange(world, pos, neighbor);
 		}
 	}
-		
+
 	@Override
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (Blocks.tryWrench(world, pos, player, side, hitZ, hitZ, hitZ)) {
@@ -91,7 +91,7 @@ public class BlockVT extends Block {
 								break;
 							default:
 								break;
-							
+
 						}
 					}
 					return true;
@@ -104,5 +104,5 @@ public class BlockVT extends Block {
 		}
 		return super.onBlockActivated(world, pos, state, player, side, hitX, hitY, hitZ);
 	}
-	
+
 }

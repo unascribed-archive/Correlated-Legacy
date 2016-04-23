@@ -28,26 +28,26 @@ public class BlockInterface extends Block implements ITweakable {
 	public static final IProperty<FaceMode> east = PropertyEnum.create("east", FaceMode.class);
 	public static final IProperty<FaceMode> south = PropertyEnum.create("south", FaceMode.class);
 	public static final IProperty<FaceMode> west = PropertyEnum.create("west", FaceMode.class);
-	
+
 	public BlockInterface() {
 		super(Material.iron);
 	}
-	
+
 	@Override
 	protected BlockState createBlockState() {
 		return new BlockState(this, top, bottom, north, east, south, west);
 	}
-	
+
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
 		return getDefaultState();
 	}
-	
+
 	@Override
 	public int getMetaFromState(IBlockState state) {
 		return 0;
 	}
-	
+
 	@Override
 	public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos) {
 		TileEntity te = world.getTileEntity(pos);
@@ -62,17 +62,17 @@ public class BlockInterface extends Block implements ITweakable {
 		}
 		return super.getActualState(state, world, pos);
 	}
-	
+
 	@Override
 	public boolean hasTileEntity(IBlockState state) {
 		return true;
 	}
-	
+
 	@Override
 	public TileEntity createTileEntity(World world, IBlockState state) {
 		return new TileEntityInterface();
 	}
-	
+
 	@Override
 	public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
 		TileEntity te = world.getTileEntity(pos);
@@ -80,7 +80,7 @@ public class BlockInterface extends Block implements ITweakable {
 			((TileEntityNetworkMember)te).handleNeighborChange(world, pos, neighbor);
 		}
 	}
-	
+
 	@Override
 	public void breakBlock(World world, BlockPos pos, IBlockState state) {
 		TileEntity te = world.getTileEntity(pos);
@@ -96,7 +96,7 @@ public class BlockInterface extends Block implements ITweakable {
 		}
 		super.breakBlock(world, pos, state);
 	}
-	
+
 	@Override
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (Blocks.tryWrench(world, pos, player, side, hitX, hitY, hitZ)) {

@@ -16,18 +16,18 @@ public class ContainerInterface extends Container {
 		}
 
 		private ItemStack stack;
-		
+
 		@Override
 		public ItemStack getStack() {
 			return stack;
 		}
-		
+
 		@Override
 		public void putStack(ItemStack stack) {
 			this.stack = stack;
 			onSlotChanged();
 		}
-		
+
 		@Override
 		public ItemStack decrStackSize(int amount) {
 			if (stack == null) return null;
@@ -38,54 +38,54 @@ public class ContainerInterface extends Container {
 			onSlotChanged();
 			return split;
 		}
-		
+
 		@Override
 		public int getItemStackLimit(ItemStack stack) {
 			return 1;
 		}
-		
+
 		@Override
 		public boolean isHere(IInventory inv, int slotIn) {
 			return false;
 		}
-		
+
 		@Override
 		public boolean canBeHovered() {
 			return true;
 		}
-		
+
 		@Override
 		public boolean canTakeStack(EntityPlayer playerIn) {
 			return false;
 		}
-		
+
 		@Override
 		public boolean isItemValid(ItemStack stack) {
 			return true;
 		}
-		
+
 		@Override
 		public void onSlotChanged() {
 		}
 	}
-	
+
 	private TileEntityInterface te;
 	private EntityPlayer player;
-	
+
 	public ContainerInterface(InventoryPlayer playerInventory, EntityPlayer player, TileEntityInterface te) {
 		this.te = te;
 		this.player = player;
-		
+
 		for (int i = 0; i < 9; i++) {
 			addSlotToContainer(new Slot(te, i, 6+((i%3)*18), 18+((i/3)*18)));
 		}
-		
+
 		for (int i = 0; i < 9; i++) {
 			SlotFake slot = new SlotFake(i, 62+((i%3)*18), 18+((i/3)*18));
 			slot.putStack(te.getOutputPrototype(i));
 			addSlotToContainer(slot);
 		}
-		
+
 		for (int i = 0; i < 9; i++) {
 			addSlotToContainer(new Slot(te, i+9, 118+((i%3)*18), 18+((i/3)*18)));
 		}
@@ -127,14 +127,14 @@ public class ContainerInterface extends Container {
 
 		return result;
 	}
-	
+
 	@Override
 	public ItemStack slotClick(int slotId, int clickedButton, int mode, EntityPlayer playerIn) {
 		if (slotId >= 1) {
 			Slot slot = getSlot(slotId);
 			if (slot instanceof SlotFake) {
 				if (mode == 0 && clickedButton == 0) {
-					if (slot.getHasStack()) { 
+					if (slot.getHasStack()) {
 						slot.putStack(null);
 						te.setOutputPrototype(slot.getSlotIndex(), null);
 						return null;
@@ -155,7 +155,7 @@ public class ContainerInterface extends Container {
 		}
 		return super.slotClick(slotId, clickedButton, mode, playerIn);
 	}
-	
+
 	@Override
 	public boolean canInteractWith(EntityPlayer player) {
 		return player == this.player;

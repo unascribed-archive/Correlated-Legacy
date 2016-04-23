@@ -34,19 +34,19 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	private transient List<TileEntityDriveBay> driveBays = Lists.newArrayList();
 	private transient List<ItemStack> drives = Lists.newArrayList();
 	public int changeId = 0;
-	
+
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
 		energy.readFromNBT(compound);
 	}
-	
+
 	@Override
 	public void writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
 		energy.writeToNBT(compound);
 	}
-	
+
 	@Override
 	public int getEnergyStored(EnumFacing from) {
 		return energy.getEnergyStored();
@@ -61,7 +61,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	public boolean canConnectEnergy(EnumFacing from) {
 		return true;
 	}
-	
+
 	@Override
 	public void update() {
 		if (!hasWorldObj()) return;
@@ -85,32 +85,32 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		}
 		updateState();
 	}
-	
+
 	@Override
 	public int getEnergyConsumedPerTick() {
 		return consumedPerTick;
 	}
-	
+
 	@Override
 	public int receiveEnergy(EnumFacing from, int maxReceive, boolean simulate) {
 		int rtrn = energy.receiveEnergy(maxReceive, simulate);
 		updateState();
 		return rtrn;
 	}
-	
+
 	@Override
 	public boolean hasController() {
 		return true;
 	}
-	
+
 	@Override
 	public TileEntityController getController() {
 		return this;
 	}
-	
+
 	@Override
 	public void setController(TileEntityController controller) {}
-	
+
 	public void scanNetwork() {
 		if (!hasWorldObj()) return;
 		if (worldObj.isRemote) return;
@@ -120,19 +120,19 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		List<BlockPos> queue = Lists.newArrayList(getPos());
 		boolean foundOtherController = false;
 		int consumedPerTick = 32;
-		
+
 		for (BlockPos pos : networkMemberLocations) {
 			TileEntity te = worldObj.getTileEntity(pos);
 			if (te instanceof TileEntityNetworkMember) {
 				((TileEntityNetworkMember)te).setController(null);
 			}
 		}
-		
+
 		networkMembers = 0;
 		networkMemberLocations.clear();
 		driveBays.clear();
 		interfaces.clear();
-		
+
 		int itr = 0;
 		while (!queue.isEmpty()) {
 			if (itr > 100) {
@@ -235,7 +235,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		}
 		Collections.sort(drives, new DriveComparator());
 	}
-	
+
 	public void updateConsumptionRate(int change) {
 		consumedPerTick += change;
 		if (consumedPerTick > 320) {
@@ -262,7 +262,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		changeId++;
 		return stack.stackSize <= 0 ? null : stack;
 	}
-	
+
 	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount) {
 		if (prototype == null) return null;
 		ItemStack stack = prototype.copy();

@@ -14,13 +14,13 @@ public class WailaCompatibility {
 		ModuleRegistrar.instance().registerNBTProvider(provider, TileEntityNetworkMember.class);
 		ModuleRegistrar.instance().registerStackProvider(provider, BlockController.class);
 		ModuleRegistrar.instance().registerBodyProvider(provider, BlockController.class);
-		
+
 		ModuleRegistrar.instance().registerStackProvider(provider, BlockDriveBay.class);
 		ModuleRegistrar.instance().registerBodyProvider(provider, BlockDriveBay.class);
-		
+
 		ModuleRegistrar.instance().registerStackProvider(provider, BlockVT.class);
 		ModuleRegistrar.instance().registerBodyProvider(provider, BlockVT.class);
-		
+
 		ModuleRegistrar.instance().registerStackProvider(provider, BlockInterface.class);
 		ModuleRegistrar.instance().registerBodyProvider(provider, BlockInterface.class);
 	}

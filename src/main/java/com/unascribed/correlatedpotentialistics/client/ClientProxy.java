@@ -33,9 +33,9 @@ public class ClientProxy extends Proxy {
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityController.class, new RenderController());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityDriveBay.class, new RenderDriveBay());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityVT.class, new RenderVT());
-		
+
 		MinecraftForge.EVENT_BUS.register(this);
-		
+
 		int idx = 0;
 		for (String s : ItemMisc.items) {
 			ModelLoader.setCustomModelResourceLocation(CoPo.misc, idx++, new ModelResourceLocation(new ResourceLocation("correlatedpotentialistics", s), "inventory"));
