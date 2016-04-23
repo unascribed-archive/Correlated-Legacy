@@ -263,22 +263,24 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		return stack.stackSize <= 0 ? null : stack;
 	}
 
-	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount) {
+	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount, boolean checkInterfaces) {
 		if (prototype == null) return null;
 		ItemStack stack = prototype.copy();
 		stack.stackSize = 0;
-		for (TileEntityInterface in : interfaces) {
-			for (int i = 9; i <= 17; i++) {
-				ItemStack is = in.getStackInSlot(i);
-				if (is != null && ItemStack.areItemsEqual(is, prototype) && ItemStack.areItemStackTagsEqual(is, prototype)) {
-					int amountWanted = amount-stack.stackSize;
-					int amountTaken = Math.min(is.stackSize, amountWanted);
-					is.stackSize -= amountTaken;
-					stack.stackSize += amountTaken;
-					if (is.stackSize <= 0) {
-						in.setInventorySlotContents(i, null);
+		if (checkInterfaces) {
+			for (TileEntityInterface in : interfaces) {
+				for (int i = 9; i <= 17; i++) {
+					ItemStack is = in.getStackInSlot(i);
+					if (is != null && ItemStack.areItemsEqual(is, prototype) && ItemStack.areItemStackTagsEqual(is, prototype)) {
+						int amountWanted = amount-stack.stackSize;
+						int amountTaken = Math.min(is.stackSize, amountWanted);
+						is.stackSize -= amountTaken;
+						stack.stackSize += amountTaken;
+						if (is.stackSize <= 0) {
+							in.setInventorySlotContents(i, null);
+						}
+						if (stack.stackSize >= amount) break;
 					}
-					if (stack.stackSize >= amount) break;
 				}
 			}
 		}

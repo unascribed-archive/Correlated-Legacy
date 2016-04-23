@@ -170,10 +170,13 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 						cur = prototype.copy();
 						cur.stackSize = 0;
 					} else {
+						if (!ItemStack.areItemsEqual(cur, prototype) || !ItemStack.areItemStackTagsEqual(cur, prototype)) {
+							continue;
+						}
 						needed = prototype.getMaxStackSize()-cur.stackSize;
 					}
 					if (needed > 0) {
-						ItemStack stack = controller.removeItemsFromNetwork(prototype, needed);
+						ItemStack stack = controller.removeItemsFromNetwork(prototype, needed, false);
 						if (stack != null) {
 							cur.stackSize += stack.stackSize;
 						}
