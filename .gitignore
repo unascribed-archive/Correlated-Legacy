@@ -12,3 +12,4 @@ eclipse/
 minecraft/
 .pmd
 .directory
+*.class

@@ -102,6 +102,7 @@ public class ItemDrive extends Item {
 	}
 
 	@Override
+	@SuppressWarnings("fallthrough")
 	public int getColorFromItemStack(ItemStack stack, int tintIndex) {
 		if (tintIndex == 1) {
 			return getFullnessColor(stack);
