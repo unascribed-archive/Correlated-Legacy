@@ -401,7 +401,12 @@ public class ItemDrive extends Item {
 		List<ItemStack> rtrn = Lists.newArrayList();
 		for (int i = 0; i < list.tagCount(); i++) {
 			NBTTagCompound tag = list.getCompoundTagAt(i);
-			rtrn.add(ItemStack.loadItemStackFromNBT(tag.getCompoundTag("Prototype")));
+			ItemStack is = ItemStack.loadItemStackFromNBT(tag.getCompoundTag("Prototype"));
+			if (is == null) {
+				list.removeTag(i);
+				continue;
+			}
+			rtrn.add(is);
 		}
 		return rtrn;
 	}
@@ -428,6 +433,10 @@ public class ItemDrive extends Item {
 			int count = tag.getInteger("Count");
 			if (count > 0) {
 				ItemStack is = ItemStack.loadItemStackFromNBT(tag.getCompoundTag("Prototype"));
+				if (is == null) {
+					list.removeTag(i);
+					continue;
+				}
 				is.stackSize = count;
 				rtrn.add(is);
 			}
