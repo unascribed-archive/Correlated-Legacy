@@ -192,6 +192,8 @@ public class ContainerVT extends Container {
 			craftingTarget = prefs.craftingTarget;
 		}
 
+		addSlotToContainer(new Slot(vt, 0, 25, 161));
+		
 		for (int i = 0; i < 6; ++i) {
 			for (int j = 0; j < 9; ++j) {
 				addSlotToContainer(new SlotVirtual(j + i * 9, x + j * 18, 18 + i * 18));
