@@ -8,6 +8,7 @@ import com.unascribed.correlatedpotentialistics.tile.TileEntityVT;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
@@ -22,6 +23,8 @@ import net.minecraft.world.World;
 
 public class BlockVT extends Block {
 	public static final IProperty<EnumFacing> facing = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
+	public static final PropertyBool lit = PropertyBool.create("lit");
+	
 	public BlockVT() {
 		super(Material.iron);
 	}
@@ -38,17 +41,20 @@ public class BlockVT extends Block {
 
 	@Override
 	protected BlockState createBlockState() {
-		return new BlockState(this, facing);
+		return new BlockState(this, facing, lit);
 	}
-
+	
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		return state.getValue(facing).getHorizontalIndex();
+		return (state.getValue(facing).getHorizontalIndex() & 0b0011)
+				| (state.getValue(lit) ? 0b0100 : 0);
 	}
 
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
-		return getDefaultState().withProperty(facing, EnumFacing.getHorizontal(meta));
+		return getDefaultState()
+				.withProperty(facing, EnumFacing.getHorizontal(meta&0b0011))
+				.withProperty(lit, (meta&0b0100) != 0);
 	}
 
 	@Override

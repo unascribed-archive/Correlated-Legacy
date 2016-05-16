@@ -23,7 +23,7 @@ public class RenderVT extends TileEntitySpecialRenderer<TileEntityVT> {
 	@Override
 	public void renderTileEntityAt(TileEntityVT te, double x, double y, double z, float partialTicks, int destroyStage) {
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
-		if (bs.getBlock() != CoPo.vt) return;
+		if (bs.getBlock() != CoPo.vt || !bs.getValue(BlockVT.lit)) return;
 
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);

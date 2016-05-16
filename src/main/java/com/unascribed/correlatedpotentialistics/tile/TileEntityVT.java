@@ -6,15 +6,19 @@ import java.util.UUID;
 import com.google.common.base.Enums;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import com.unascribed.correlatedpotentialistics.CoPo;
+import com.unascribed.correlatedpotentialistics.block.BlockVT;
 import com.unascribed.correlatedpotentialistics.inventory.ContainerVT.CraftingTarget;
 import com.unascribed.correlatedpotentialistics.inventory.ContainerVT.SortMode;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.ITickable;
 import net.minecraftforge.common.util.Constants.NBT;
 
-public class TileEntityVT extends TileEntityNetworkMember {
+public class TileEntityVT extends TileEntityNetworkMember implements ITickable {
 	public class UserPreferences {
 		public SortMode sortMode = SortMode.QUANTITY;
 		public boolean sortAscending = false;
@@ -23,6 +27,24 @@ public class TileEntityVT extends TileEntityNetworkMember {
 	}
 	private Map<UUID, UserPreferences> preferences = Maps.newHashMap();
 
+	@Override
+	public void update() {
+		if (hasWorldObj() && !worldObj.isRemote) {
+			IBlockState state = getWorld().getBlockState(getPos());
+			if (state.getBlock() == CoPo.vt) {
+				boolean lit;
+				if (hasController() && getController().isPowered()) {
+					lit = true;
+				} else {
+					lit = false;
+				}
+				if (lit != state.getValue(BlockVT.lit)) {
+					getWorld().setBlockState(getPos(), state.withProperty(BlockVT.lit, lit));
+				}
+			}
+		}
+	}
+	
 	@Override
 	public int getEnergyConsumedPerTick() {
 		return 4;

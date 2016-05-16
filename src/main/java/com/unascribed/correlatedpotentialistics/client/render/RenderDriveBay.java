@@ -53,6 +53,8 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
 		if (bs.getBlock() != CoPo.drive_bay) return;
 
+		boolean lit = bs.getValue(BlockDriveBay.lit);
+		
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);
 
@@ -115,7 +117,7 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 				ItemStack drive = te.getDriveInSlot(i);
 				if (drive.getItem() instanceof ItemDrive) {
 					ItemDrive itemDrive = (ItemDrive)drive.getItem();
-					drawDriveBox(itemDrive.getFullnessColor(drive), i, 0, 0.5f);
+					drawDriveBox(lit ? itemDrive.getFullnessColor(drive) : 0x222222, i, 0, 0.5f);
 				}
 			}
 		}

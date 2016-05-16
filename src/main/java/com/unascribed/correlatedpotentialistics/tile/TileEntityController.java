@@ -64,7 +64,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 
 	@Override
 	public void update() {
-		if (!hasWorldObj()) return;
+		if (!hasWorldObj() || getWorld().isRemote) return;
 		if (bootTicks > 100 && booting) {
 			/*
 			 * The booting delay is meant to deal with people avoiding the
@@ -77,7 +77,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			booting = false;
 			scanNetwork();
 		}
-		if (energy.getEnergyStored() >= getEnergyConsumedPerTick()) {
+		if (isPowered()) {
 			energy.modifyEnergyStored(-getEnergyConsumedPerTick());
 			bootTicks++;
 		} else {
@@ -201,7 +201,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		if (worldObj.isRemote) return;
 		State old = worldObj.getBlockState(getPos()).getValue(BlockController.state);
 		State nw;
-		if (energy.getEnergyStored() >= getEnergyConsumedPerTick()) {
+		if (isPowered()) {
 			if (old == State.OFF) {
 				booting = true;
 				bootTicks = -200;
@@ -220,6 +220,10 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			worldObj.setBlockState(getPos(), worldObj.getBlockState(getPos())
 					.withProperty(BlockController.state, nw));
 		}
+	}
+	
+	public boolean isPowered() {
+		return energy.getEnergyStored() >= getEnergyConsumedPerTick();
 	}
 
 	/** assumes the network cache is also up to date, if it's not, call scanNetwork */

@@ -42,6 +42,7 @@ public abstract class TileEntityNetworkMember extends TileEntity {
 
 	public TileEntityController getController() {
 		if (!hasWorldObj()) return null;
+		if (controller != null && controller.isInvalid()) controller = null;
 		if (controller == null && controllerPos != null) {
 			BlockPos pos = getPos().add(controllerPos);
 			TileEntity te = getWorld().getTileEntity(pos);

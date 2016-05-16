@@ -8,28 +8,29 @@
 		}
 	},
 	"variants": {
+		"lit": {"true":{},"false":{}},
 		"facing": {
 			"north": {
 				"textures": {
-					"front": "correlatedpotentialistics:blocks/top"
+					"front": "correlatedpotentialistics:blocks/vt_dead"
 				}
 			},
 			"east": {
 				"y": 90,
 				"textures": {
-					"front": "correlatedpotentialistics:blocks/top"
+					"front": "correlatedpotentialistics:blocks/vt_dead"
 				}
 			},
 			"south": {
 				"y": 180,
 				"textures": {
-					"front": "correlatedpotentialistics:blocks/top"
+					"front": "correlatedpotentialistics:blocks/vt_dead"
 				}
 			},
 			"west": {
 				"y": 270,
 				"textures": {
-					"front": "correlatedpotentialistics:blocks/top"
+					"front": "correlatedpotentialistics:blocks/vt_dead"
 				}
 			}
 		},

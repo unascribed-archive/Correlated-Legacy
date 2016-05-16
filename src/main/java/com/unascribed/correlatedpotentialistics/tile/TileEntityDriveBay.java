@@ -1,9 +1,12 @@
 package com.unascribed.correlatedpotentialistics.tile;
 
 import com.google.common.base.Predicates;
+import com.unascribed.correlatedpotentialistics.CoPo;
+import com.unascribed.correlatedpotentialistics.block.BlockDriveBay;
 import com.unascribed.correlatedpotentialistics.helper.ItemStacks;
 import com.unascribed.correlatedpotentialistics.item.ItemDrive;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -58,6 +61,18 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 					is.getTagCompound().removeTag("Dirty");
 					markDirty();
 					setDriveInSlot(i, is);
+				}
+			}
+			IBlockState state = getWorld().getBlockState(getPos());
+			if (state.getBlock() == CoPo.drive_bay) {
+				boolean lit;
+				if (hasController() && getController().isPowered()) {
+					lit = true;
+				} else {
+					lit = false;
+				}
+				if (lit != state.getValue(BlockDriveBay.lit)) {
+					getWorld().setBlockState(getPos(), state.withProperty(BlockDriveBay.lit, lit));
 				}
 			}
 		}
