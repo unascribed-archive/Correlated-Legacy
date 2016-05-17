@@ -348,7 +348,10 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		for (TileEntityWirelessReceiver r : receivers) {
 			TileEntityController cont = r.getTransmitterController();
 			if (cont != null) {
-				cont.removeItemsFromNetwork(prototype, amount, checkInterfaces);
+				ItemStack remote = cont.removeItemsFromNetwork(prototype, amount-stack.stackSize, checkInterfaces);
+				if (remote != null) {
+					stack.stackSize += remote.stackSize;
+				}
 			}
 			if (stack.stackSize >= amount) break;
 		}
