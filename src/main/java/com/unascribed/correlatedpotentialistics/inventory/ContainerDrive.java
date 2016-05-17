@@ -193,7 +193,7 @@ public class ContainerDrive extends Container {
 		if (slotId >= 1) {
 			Slot slot = getSlot(slotId);
 			if (slot instanceof SlotFake) {
-				if (mode == 0 && (clickedButton == 0 || clickedButton == 2)) {
+				if (mode == 0) {
 					if (slot.getHasStack()) {
 						int stored = getItemDrive().getAmountStored(getDrive(), slot.getStack());
 						if (stored <= 0) {
