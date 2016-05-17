@@ -1,0 +1,37 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"model": "correlatedpotentialistics:wireless_endpoint",
+		"textures": {
+			"particle": "correlatedpotentialistics:blocks/top",
+			"top": "correlatedpotentialistics:blocks/top",
+			"pole": "correlatedpotentialistics:blocks/side"
+		}
+	},
+	"variants": {
+		"kind": {"receiver":{},"transmitter":{}},
+		"state": {
+			"dead": {
+				"textures": {
+					"side": "correlatedpotentialistics:blocks/wireless_endpoint_base"
+				}
+			},
+			"error": {
+				"textures": {
+					"side": "correlatedpotentialistics:blocks/wireless_endpoint_base"
+				}
+			},
+			"linked": {
+				"textures": {
+					"side": "correlatedpotentialistics:blocks/wireless_endpoint_base"
+				}
+			}
+		},
+		"inventory": {
+			"transform": "forge:default-block",
+			"textures": {
+				"side": "correlatedpotentialistics:blocks/wireless_endpoint_base"
+			}
+		}
+	}
+}

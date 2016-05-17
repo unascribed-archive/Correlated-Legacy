@@ -4,6 +4,7 @@ import com.unascribed.correlatedpotentialistics.block.BlockController;
 import com.unascribed.correlatedpotentialistics.block.BlockDriveBay;
 import com.unascribed.correlatedpotentialistics.block.BlockInterface;
 import com.unascribed.correlatedpotentialistics.block.BlockVT;
+import com.unascribed.correlatedpotentialistics.block.BlockWirelessEndpoint;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityNetworkMember;
 
 import mcp.mobius.waila.api.impl.ModuleRegistrar;
@@ -23,5 +24,8 @@ public class WailaCompatibility {
 
 		ModuleRegistrar.instance().registerStackProvider(provider, BlockInterface.class);
 		ModuleRegistrar.instance().registerBodyProvider(provider, BlockInterface.class);
+		
+		ModuleRegistrar.instance().registerStackProvider(provider, BlockWirelessEndpoint.class);
+		ModuleRegistrar.instance().registerBodyProvider(provider, BlockWirelessEndpoint.class);
 	}
 }

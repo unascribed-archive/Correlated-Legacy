@@ -3,6 +3,8 @@ package com.unascribed.correlatedpotentialistics.compat;
 import java.util.List;
 
 import com.unascribed.correlatedpotentialistics.CoPo;
+import com.unascribed.correlatedpotentialistics.block.BlockWirelessEndpoint;
+import com.unascribed.correlatedpotentialistics.block.BlockWirelessEndpoint.Kind;
 import com.unascribed.correlatedpotentialistics.helper.Numbers;
 import com.unascribed.correlatedpotentialistics.item.ItemDrive;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityController;
@@ -121,6 +123,8 @@ public class CoPoWailaProvider implements IWailaDataProvider {
 	public ItemStack getWailaStack(IWailaDataAccessor access, IWailaConfigHandler config) {
 		if (access.getBlock() == CoPo.controller) {
 			return new ItemStack(access.getBlock(), 1, access.getMetadata());
+		} else if (access.getBlock() == CoPo.wireless_endpoint) {
+			return new ItemStack(access.getBlock(), 1, access.getBlockState().getValue(BlockWirelessEndpoint.kind) == Kind.RECEIVER ? 0 : 1);
 		} else {
 			return new ItemStack(access.getBlock());
 		}

@@ -7,10 +7,12 @@ import com.unascribed.correlatedpotentialistics.block.BlockController;
 import com.unascribed.correlatedpotentialistics.block.BlockDriveBay;
 import com.unascribed.correlatedpotentialistics.block.BlockInterface;
 import com.unascribed.correlatedpotentialistics.block.BlockVT;
+import com.unascribed.correlatedpotentialistics.block.BlockWirelessEndpoint;
 import com.unascribed.correlatedpotentialistics.block.item.ItemBlockController;
 import com.unascribed.correlatedpotentialistics.block.item.ItemBlockDriveBay;
 import com.unascribed.correlatedpotentialistics.block.item.ItemBlockInterface;
 import com.unascribed.correlatedpotentialistics.block.item.ItemBlockVT;
+import com.unascribed.correlatedpotentialistics.block.item.ItemBlockWirelessEndpoint;
 import com.unascribed.correlatedpotentialistics.compat.WailaCompatibility;
 import com.unascribed.correlatedpotentialistics.item.ItemDrive;
 import com.unascribed.correlatedpotentialistics.item.ItemMisc;
@@ -21,6 +23,8 @@ import com.unascribed.correlatedpotentialistics.tile.TileEntityController;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityDriveBay;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityInterface;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityVT;
+import com.unascribed.correlatedpotentialistics.tile.TileEntityWirelessReceiver;
+import com.unascribed.correlatedpotentialistics.tile.TileEntityWirelessTransmitter;
 
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
@@ -54,6 +58,7 @@ public class CoPo {
 	public static BlockDriveBay drive_bay;
 	public static BlockVT vt;
 	public static BlockInterface iface;
+	public static BlockWirelessEndpoint wireless_endpoint;
 
 	public static ItemMisc misc;
 	public static ItemDrive drive;
@@ -81,6 +86,7 @@ public class CoPo {
 		register(new BlockDriveBay().setHardness(2), ItemBlockDriveBay.class, "drive_bay", 0);
 		register(new BlockVT().setHardness(2), ItemBlockVT.class, "vt", 0);
 		register(new BlockInterface().setHardness(2), ItemBlockInterface.class, "iface", 0);
+		register(new BlockWirelessEndpoint().setHardness(2), ItemBlockWirelessEndpoint.class, "wireless_endpoint", -4);
 
 		register(new ItemMisc(), "misc", -2);
 		register(new ItemDrive(), "drive", -1);
@@ -99,6 +105,8 @@ public class CoPo {
 		GameRegistry.registerTileEntity(TileEntityDriveBay.class, "correlatedpotentialistics:drive_bay");
 		GameRegistry.registerTileEntity(TileEntityVT.class, "correlatedpotentialistics:vt");
 		GameRegistry.registerTileEntity(TileEntityInterface.class, "correlatedpotentialistics:interface");
+		GameRegistry.registerTileEntity(TileEntityWirelessReceiver.class, "correlatedpotentialistics:wireless_receiver");
+		GameRegistry.registerTileEntity(TileEntityWirelessTransmitter.class, "correlatedpotentialistics:wireless_transmitter");
 		if (Loader.isModLoaded("Waila")) {
 			WailaCompatibility.init();
 		}

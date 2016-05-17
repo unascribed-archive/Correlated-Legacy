@@ -6,6 +6,8 @@ tile.correlatedpotentialistics.controller.name=Controller
 tile.correlatedpotentialistics.drive_bay.name=Drive Bay
 tile.correlatedpotentialistics.vt.name=Terminal
 tile.correlatedpotentialistics.iface.name=Interface
+tile.correlatedpotentialistics.wireless_receiver.name=Wireless Receiver
+tile.correlatedpotentialistics.wireless_transmitter.name=Wireless Transmitter
 
 gui.correlatedpotentialistics.vt=Terminal
 
@@ -36,11 +38,12 @@ item.correlatedpotentialistics.drive.3.name=64KiB Drive
 item.correlatedpotentialistics.drive.4.name=Void Drive
 
 item.correlatedpotentialistics.misc.0.name=Enderic Processor
-tooltip.correlatedpotentialistics.misc.0.0=§5§oIt seems to be part of something larger.
+tooltip.correlatedpotentialistics.misc.0.0=§5It seems to be part of something larger.
 item.correlatedpotentialistics.misc.1.name=Ceramic Drive Platter
 item.correlatedpotentialistics.misc.2.name=Metallic Drive Platter
 item.correlatedpotentialistics.misc.3.name=Luminous Pearl
-tooltip.correlatedpotentialistics.misc.3.0=§5§oIt glows a brilliant verdant green.
+tooltip.correlatedpotentialistics.misc.3.0=§5It glows a brilliant verdant green.
+item.correlatedpotentialistics.misc.4.name=Luminous Torch
 
 tooltip.correlatedpotentialistics.sortmode=Sorting Mode
 tooltip.correlatedpotentialistics.sortmode.quantity=Quantity

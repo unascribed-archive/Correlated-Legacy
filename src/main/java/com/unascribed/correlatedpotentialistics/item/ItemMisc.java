@@ -14,7 +14,8 @@ public class ItemMisc extends Item {
 			"processor",
 			"ceramic_drive_platter",
 			"metallic_drive_platter",
-			"luminous_pearl"
+			"luminous_pearl",
+			"lumtorch"
 	};
 
 	@Override
