@@ -193,7 +193,7 @@ public class ContainerDrive extends Container {
 		if (slotId >= 1) {
 			Slot slot = getSlot(slotId);
 			if (slot instanceof SlotFake) {
-				if (mode == 0 && clickedButton == 0) {
+				if (mode == 0 && (clickedButton == 0 || clickedButton == 2)) {
 					if (slot.getHasStack()) {
 						int stored = getItemDrive().getAmountStored(getDrive(), slot.getStack());
 						if (stored <= 0) {
@@ -204,6 +204,7 @@ public class ContainerDrive extends Container {
 						return null;
 					} else {
 						ItemStack cursor = player.inventory.getItemStack();
+						if (getItemDrive().getPartitioningMode(getDrive()) == PartitioningMode.NONE) return cursor;
 						if (cursor != null) {
 							if (slot.isItemValid(cursor)) {
 								getItemDrive().allocateType(getDrive(), cursor, 0);
@@ -216,6 +217,7 @@ public class ContainerDrive extends Container {
 				}
 			} else if (mode == 1) {
 				ItemStack stack = slot.getStack();
+				if (getItemDrive().getPartitioningMode(getDrive()) == PartitioningMode.NONE) return stack;
 				if (getSlot(1).isItemValid(stack)) {
 					getItemDrive().allocateType(getDrive(), stack, 0);
 					updateSlots();
