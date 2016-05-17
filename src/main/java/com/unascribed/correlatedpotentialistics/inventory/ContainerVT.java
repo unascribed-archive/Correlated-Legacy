@@ -12,10 +12,10 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Booleans;
 import com.unascribed.correlatedpotentialistics.CoPo;
+import com.unascribed.correlatedpotentialistics.IVT;
+import com.unascribed.correlatedpotentialistics.IVT.UserPreferences;
 import com.unascribed.correlatedpotentialistics.network.SetSearchQueryMessage;
 import com.unascribed.correlatedpotentialistics.network.SetSlotSizeMessage;
-import com.unascribed.correlatedpotentialistics.tile.TileEntityVT;
-import com.unascribed.correlatedpotentialistics.tile.TileEntityVT.UserPreferences;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -29,6 +29,7 @@ import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.world.World;
 
 // Yes, this class is a huge hardcoded mess and I'm sorry.
 public class ContainerVT extends Container {
@@ -90,7 +91,8 @@ public class ContainerVT extends Container {
 		}
 	}
 
-	private TileEntityVT vt;
+	public IVT vt;
+	private World world;
 	private EntityPlayer player;
 	private int scrollOffset;
 	private String searchQuery = "";
@@ -118,7 +120,7 @@ public class ContainerVT extends Container {
 
 		@Override
 		public void putStack(ItemStack stack) {
-			if (vt.hasWorldObj() && vt.getWorld().isRemote) {
+			if (world.isRemote) {
 				if (stack != null) {
 					// prevent vanilla from corrupting our stack size
 					if (ItemStack.areItemsEqual(stack, this.stack) && ItemStack.areItemStackTagsEqual(stack, this.stack)) {
@@ -178,8 +180,9 @@ public class ContainerVT extends Container {
 
 	}
 
-	public ContainerVT(IInventory playerInventory, EntityPlayer player, TileEntityVT vt) {
+	public ContainerVT(IInventory playerInventory, EntityPlayer player, IVT vt) {
 		this.player = player;
+		this.world = player.worldObj;
 		this.vt = vt;
 		int x = 69;
 		int y = 37;
@@ -192,7 +195,9 @@ public class ContainerVT extends Container {
 			craftingTarget = prefs.craftingTarget;
 		}
 
-		addSlotToContainer(new Slot(vt, 0, 25, 161));
+		if (vt.supportsDumpSlot()) {
+			addSlotToContainer(new Slot(vt.getDumpSlotInventory(), 0, 25, 161));
+		}
 		
 		for (int i = 0; i < 6; ++i) {
 			for (int j = 0; j < 9; ++j) {
@@ -222,7 +227,7 @@ public class ContainerVT extends Container {
 	}
 
 	public void updateSlots() {
-		if (vt.hasWorldObj() && vt.getWorld().isRemote) return;
+		if (world.isRemote) return;
 		lastChangeId = vt.getController().changeId;
 		List<ItemStack> typesAll = vt.getController().getTypes();
 		if (!searchQuery.isEmpty()) {
@@ -374,12 +379,12 @@ public class ContainerVT extends Container {
 
 	@Override
 	public boolean canInteractWith(EntityPlayer player) {
-		if (!player.worldObj.isRemote) {
+		if (!world.isRemote) {
 			if (vt.hasController() && vt.getController().changeId != lastChangeId) {
 				updateSlots();
 			}
 		}
-		return player == this.player && vt.hasController() && vt.getController().getEnergyStored(null) > 0;
+		return player == this.player && vt.hasController() && vt.getController().getEnergyStored(null) > 0 && vt.canContinueInteracting(player);
 	}
 
 	@Override

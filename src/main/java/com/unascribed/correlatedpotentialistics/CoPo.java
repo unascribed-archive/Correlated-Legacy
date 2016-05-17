@@ -16,6 +16,7 @@ import com.unascribed.correlatedpotentialistics.block.item.ItemBlockWirelessEndp
 import com.unascribed.correlatedpotentialistics.compat.WailaCompatibility;
 import com.unascribed.correlatedpotentialistics.item.ItemDrive;
 import com.unascribed.correlatedpotentialistics.item.ItemMisc;
+import com.unascribed.correlatedpotentialistics.item.ItemWirelessTerminal;
 import com.unascribed.correlatedpotentialistics.network.CoPoGuiHandler;
 import com.unascribed.correlatedpotentialistics.network.SetSearchQueryMessage;
 import com.unascribed.correlatedpotentialistics.network.SetSlotSizeMessage;
@@ -34,7 +35,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.WeightedRandomChestContent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ChestGenHooks;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -64,6 +64,7 @@ public class CoPo {
 
 	public static ItemMisc misc;
 	public static ItemDrive drive;
+	public static ItemWirelessTerminal wireless_terminal;
 
 	public static CreativeTabs creativeTab = new CreativeTabs("correlatedPotentialistics") {
 		@Override
@@ -92,6 +93,7 @@ public class CoPo {
 
 		register(new ItemMisc(), "misc", -2);
 		register(new ItemDrive(), "drive", -1);
+		register(new ItemWirelessTerminal(), "wireless_terminal", 0);
 
 		CRecipes.register();
 
@@ -113,7 +115,6 @@ public class CoPo {
 			WailaCompatibility.init();
 		}
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, new CoPoGuiHandler());
-		MinecraftForge.EVENT_BUS.register(this);
 		proxy.preInit();
 	}
 	

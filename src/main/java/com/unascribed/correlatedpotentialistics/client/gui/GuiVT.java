@@ -52,6 +52,9 @@ public class GuiVT extends GuiContainer {
 		GlStateManager.translate((width - xSize) / 2, (height - ySize) / 2, 0);
 		mc.getTextureManager().bindTexture(background);
 		drawTexturedModalRect(0, 0, 0, 0, 256, 222);
+		if (container.vt.supportsDumpSlot()) {
+			drawTexturedModalRect(17, 153, 200, 224, 32, 32);
+		}
 		GlStateManager.popMatrix();
 	}
 

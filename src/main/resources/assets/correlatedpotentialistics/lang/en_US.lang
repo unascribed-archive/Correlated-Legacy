@@ -45,6 +45,8 @@ item.correlatedpotentialistics.misc.3.name=Luminous Pearl
 tooltip.correlatedpotentialistics.misc.3.0=§5It glows a brilliant verdant green.
 item.correlatedpotentialistics.misc.4.name=Luminous Torch
 
+item.correlatedpotentialistics.wireless_terminal.name=Wireless Terminal
+
 tooltip.correlatedpotentialistics.sortmode=Sorting Mode
 tooltip.correlatedpotentialistics.sortmode.quantity=Quantity
 tooltip.correlatedpotentialistics.sortmode.mod_minecraft_first=Originating Mod (Minecraft First)
@@ -76,6 +78,11 @@ msg.correlatedpotentialistics.vt_booting=The network is still starting up.
 
 msg.correlatedpotentialistics.receiver_unlinked=This receiver does not have a linked transmitter. Right-click on a transmitter to link this receiver.
 msg.correlatedpotentialistics.receiver_linked=Receiver linked.
+
+msg.correlatedpotentialistics.terminal_unlinked=This terminal does not have a linked transmitter. Right-click on a transmitter to link this terminal.
+msg.correlatedpotentialistics.terminal_linked=Terminal linked.
+msg.correlatedpotentialistics.terminal_cantconnect=Cannot find the linked transmitter.
+msg.correlatedpotentialistics.terminal_outofrange=Transmitter out of range.
 
 numbers.correlatedpotentialistics.gibibytes=%d GiB
 numbers.correlatedpotentialistics.mibibytes=%d MiB

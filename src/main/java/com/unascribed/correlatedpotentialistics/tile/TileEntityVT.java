@@ -4,13 +4,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.google.common.base.Enums;
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.unascribed.correlatedpotentialistics.CoPo;
+import com.unascribed.correlatedpotentialistics.IVT;
 import com.unascribed.correlatedpotentialistics.block.BlockVT;
-import com.unascribed.correlatedpotentialistics.inventory.ContainerVT.CraftingTarget;
-import com.unascribed.correlatedpotentialistics.inventory.ContainerVT.SortMode;
 import com.unascribed.correlatedpotentialistics.item.ItemDrive;
 
 import net.minecraft.block.state.IBlockState;
@@ -23,13 +20,7 @@ import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ITickable;
 import net.minecraftforge.common.util.Constants.NBT;
 
-public class TileEntityVT extends TileEntityNetworkMember implements ITickable, IInventory {
-	public class UserPreferences {
-		public SortMode sortMode = SortMode.QUANTITY;
-		public boolean sortAscending = false;
-		public String lastSearchQuery = "";
-		public CraftingTarget craftingTarget = CraftingTarget.INVENTORY;
-	}
+public class TileEntityVT extends TileEntityNetworkMember implements ITickable, IInventory, IVT {
 	private Map<UUID, UserPreferences> preferences = Maps.newHashMap();
 
 	@Override
@@ -90,6 +81,7 @@ public class TileEntityVT extends TileEntityNetworkMember implements ITickable, 
 		return preferences.get(uuid);
 	}
 
+	@Override
 	public UserPreferences getPreferences(EntityPlayer player) {
 		return getPreferences(player.getGameProfile().getId());
 	}
@@ -103,10 +95,7 @@ public class TileEntityVT extends TileEntityNetworkMember implements ITickable, 
 			NBTTagCompound data = new NBTTagCompound();
 			data.setLong("UUIDMost", en.getKey().getMostSignificantBits());
 			data.setLong("UUIDLeast", en.getKey().getLeastSignificantBits());
-			data.setString("SortMode", pref.sortMode.name());
-			data.setBoolean("SortAscending", pref.sortAscending);
-			data.setString("LastSearchQuery", Strings.nullToEmpty(pref.lastSearchQuery));
-			data.setString("CraftingTarget", pref.craftingTarget.name());
+			pref.writeToNBT(data);
 			prefs.appendTag(data);
 		}
 		compound.setTag("Preferences", prefs);
@@ -127,10 +116,7 @@ public class TileEntityVT extends TileEntityNetworkMember implements ITickable, 
 		for (int i = 0; i < prefs.tagCount(); i++) {
 			UserPreferences pref = new UserPreferences();
 			NBTTagCompound data = prefs.getCompoundTagAt(i);
-			pref.sortMode = Enums.getIfPresent(SortMode.class, data.getString("SortMode")).or(SortMode.QUANTITY);
-			pref.sortAscending = data.getBoolean("SortAscending");
-			pref.lastSearchQuery = data.getString("LastSearchQuery");
-			pref.craftingTarget = Enums.getIfPresent(CraftingTarget.class, data.getString("CraftingTarget")).or(CraftingTarget.INVENTORY);
+			pref.readFromNBT(data);
 			preferences.put(new UUID(data.getLong("UUIDMost"), data.getLong("UUIDLeast")), pref);
 		}
 	}
@@ -225,6 +211,21 @@ public class TileEntityVT extends TileEntityNetworkMember implements ITickable, 
 	@Override
 	public void clear() {
 		dumpDrive = null;
+	}
+
+	@Override
+	public boolean supportsDumpSlot() {
+		return true;
+	}
+
+	@Override
+	public IInventory getDumpSlotInventory() {
+		return this;
+	}
+
+	@Override
+	public boolean canContinueInteracting(EntityPlayer player) {
+		return true;
 	}
 
 }

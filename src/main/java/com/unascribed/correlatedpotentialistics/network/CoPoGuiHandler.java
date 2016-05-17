@@ -1,6 +1,7 @@
 package com.unascribed.correlatedpotentialistics.network;
 
 import com.unascribed.correlatedpotentialistics.CoPo;
+import com.unascribed.correlatedpotentialistics.WirelessTerminalVT;
 import com.unascribed.correlatedpotentialistics.client.gui.GuiDrive;
 import com.unascribed.correlatedpotentialistics.client.gui.GuiInterface;
 import com.unascribed.correlatedpotentialistics.client.gui.GuiVT;
@@ -8,6 +9,7 @@ import com.unascribed.correlatedpotentialistics.inventory.ContainerDrive;
 import com.unascribed.correlatedpotentialistics.inventory.ContainerInterface;
 import com.unascribed.correlatedpotentialistics.inventory.ContainerVT;
 import com.unascribed.correlatedpotentialistics.item.ItemDrive;
+import com.unascribed.correlatedpotentialistics.item.ItemWirelessTerminal;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityInterface;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityVT;
 
@@ -50,6 +52,15 @@ public class CoPoGuiHandler implements IGuiHandler {
 					break;
 				}
 			}
+			case 3: {
+				ItemStack terminal = player.inventory.getStackInSlot(x);
+				if (terminal != null && terminal.getItem() instanceof ItemWirelessTerminal) {
+					return new ContainerVT(player.inventory, player, new WirelessTerminalVT(world, player, (ItemWirelessTerminal)terminal.getItem(), terminal));
+				} else {
+					CoPo.log.warn("Expected a wireless terminal, got {} instead", terminal);
+					break;
+				}
+			}
 		}
 		return null;
 	}
@@ -81,6 +92,15 @@ public class CoPoGuiHandler implements IGuiHandler {
 					return new GuiInterface(new ContainerInterface(player.inventory, player, (TileEntityInterface)te));
 				} else {
 					CoPo.log.warn("Expected TileEntityInterface at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
+					break;
+				}
+			}
+			case 3: {
+				ItemStack terminal = player.inventory.getStackInSlot(x);
+				if (terminal != null && terminal.getItem() instanceof ItemWirelessTerminal) {
+					return new GuiVT(new ContainerVT(player.inventory, player, new WirelessTerminalVT(world, player, (ItemWirelessTerminal)terminal.getItem(), terminal)));
+				} else {
+					CoPo.log.warn("Expected a wireless terminal, got {} instead", terminal);
 					break;
 				}
 			}

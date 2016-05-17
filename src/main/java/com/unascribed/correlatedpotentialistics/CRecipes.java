@@ -169,6 +169,14 @@ public class CRecipes {
 				't', luminousTorch,
 				'p', processor
 				));
+		
+		// Wireless Terminal
+		GameRegistry.addRecipe(new ShapedOreRecipe(CoPo.wireless_terminal,
+				"r",
+				"v",
+				'r', new ItemStack(CoPo.wireless_endpoint, 1, 0),
+				'v', CoPo.vt
+				));
 	}
 
 }

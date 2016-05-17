@@ -44,7 +44,7 @@ public class TileEntityWirelessReceiver extends TileEntityWirelessEndpoint {
 	public float getPitch(float partialTicks) {
 		switch (getCurrentState()) {
 			case ERROR:
-				return (((MathHelper.sin((worldObj.getTotalWorldTime()+partialTicks)/20f)+1)/2)*45)+30;
+				return (((MathHelper.sin((worldObj.getTotalWorldTime()+partialTicks)/20f)+1)/2)*90)-20;
 			case LINKED:
 				if (hasWorldObj() && getWorld().isRemote) {
 					return syncedPitch;

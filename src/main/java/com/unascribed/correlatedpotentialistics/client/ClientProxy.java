@@ -16,6 +16,7 @@ import com.unascribed.correlatedpotentialistics.tile.TileEntityDriveBay;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityVT;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityWirelessReceiver;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityWirelessTransmitter;
+
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -44,7 +45,7 @@ public class ClientProxy extends Proxy {
 		
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CoPo.wireless_endpoint), 0, TileEntityWirelessReceiver.class);
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CoPo.wireless_endpoint), 1, TileEntityWirelessTransmitter.class);
-
+		
 		MinecraftForge.EVENT_BUS.register(this);
 
 		int idx = 0;
