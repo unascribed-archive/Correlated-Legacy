@@ -258,8 +258,8 @@ public class ContainerVT extends Container {
 				} else {
 					sv.setStack(null);
 				}
+				idx++;
 			}
-			idx++;
 		}
 		rows = (int)Math.ceil(types.size()/9f);
 		for (ICrafting crafter : crafters) {
