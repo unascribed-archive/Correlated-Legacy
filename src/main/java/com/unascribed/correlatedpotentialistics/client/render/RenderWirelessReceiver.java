@@ -4,6 +4,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.unascribed.correlatedpotentialistics.CoPo;
 import com.unascribed.correlatedpotentialistics.block.BlockWirelessEndpoint;
+import com.unascribed.correlatedpotentialistics.block.BlockWirelessEndpoint.Kind;
 import com.unascribed.correlatedpotentialistics.block.BlockWirelessEndpoint.State;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityWirelessReceiver;
 
@@ -20,7 +21,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.Vec3;
 
 public class RenderWirelessReceiver extends TileEntitySpecialRenderer<TileEntityWirelessReceiver> {
-
+	private final IBlockState receiverBlockState = CoPo.wireless_endpoint.getDefaultState().withProperty(BlockWirelessEndpoint.kind, Kind.RECEIVER);
 	@Override
 	public void renderTileEntityAt(TileEntityWirelessReceiver te, double x, double y, double z, float partialTicks, int destroyStage) {
 		State state = State.DEAD;
@@ -39,22 +40,22 @@ public class RenderWirelessReceiver extends TileEntitySpecialRenderer<TileEntity
 		float yaw;
 		float pitch;
 		if (te == null) {
-			yaw = 90;
-			pitch = 45;
-			facing = new Vec3(-0.7071067657322365, 0.7071067966408575, 3.090861960987738E-8);
+			yaw = 105;
+			pitch = 30;
+			facing = new Vec3(0, 0, 0);
 		} else {
-			yaw = te.getYaw();
-			pitch = te.getPitch();
-			facing = te.getFacing();
+			yaw = te.getYaw(partialTicks);
+			pitch = te.getPitch(partialTicks);
+			facing = te.getFacing(partialTicks);
 		}
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);
 		GlStateManager.pushMatrix();
 			Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
 			if (te == null) {
-				RenderWirelessEndpoint.renderBaseForItem();
+				RenderWirelessEndpoint.renderBaseForItem(receiverBlockState);
 			}
-			GlStateManager.translate(0.5, 1, 0.5);
+			GlStateManager.translate(0.5, 0.875, 0.5);
 			GlStateManager.disableLighting();
 			
 			float nXF = (float)facing.xCoord;
@@ -72,6 +73,25 @@ public class RenderWirelessReceiver extends TileEntitySpecialRenderer<TileEntity
 			float nXU = (float)up.xCoord;
 			float nYU = (float)up.yCoord;
 			float nZU = (float)up.zCoord;
+
+			if (Minecraft.getMinecraft().gameSettings.showDebugInfo) {
+				GlStateManager.disableTexture2D();
+				GL11.glLineWidth(3);
+				GL11.glBegin(GL11.GL_LINES);
+				GL11.glColor3f(0, 0, 1);
+				GL11.glVertex3f(0, 0, 0);
+				GL11.glVertex3f(nXR, nYR, nZR);
+				GL11.glColor3f(1, 0, 0);
+				GL11.glVertex3f(0, 0, 0);
+				GL11.glVertex3f(nXF, nYF, nZF);
+				GL11.glColor3f(0, 1, 0);
+				GL11.glVertex3f(0, 0, 0);
+				GL11.glVertex3f(nXU, nYU, nZU);
+				GL11.glColor3f(1, 1, 1);
+				GL11.glEnd();
+				GL11.glLineWidth(1);
+				GlStateManager.enableTexture2D();
+			}
 			
 			GlStateManager.color(1,1,1);
 			
@@ -79,11 +99,39 @@ public class RenderWirelessReceiver extends TileEntitySpecialRenderer<TileEntity
 			
 			GlStateManager.rotate(yaw, 0, 1, 0);
 			GlStateManager.rotate(pitch, 1, 0, 0);
-			GlStateManager.translate(-0.3125, -0.3125, -0.0625);
+			GlStateManager.translate(-0.3125, -0.3125, -0.375);
 			GlStateManager.scale(0.625, 0.625, 0.125);
 			TextureAtlasSprite top = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("correlatedpotentialistics:blocks/top");
 			TextureAtlasSprite trc = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("correlatedpotentialistics:blocks/lumtorch");
 			wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_NORMAL);
+			
+			
+			wr.pos(0.3, 0.4, 1).tex(trc.getInterpolatedU(6), trc.getInterpolatedV(12)).normal(-nXU, -nYU, -nZU).endVertex();
+			wr.pos(0.7, 0.4, 1).tex(trc.getInterpolatedU(10), trc.getInterpolatedV(12)).normal(-nXU, -nYU, -nZU).endVertex();
+			wr.pos(0.7, 0.4, 3.5).tex(trc.getInterpolatedU(10), trc.getInterpolatedV(9)).normal(-nXU, -nYU, -nZU).endVertex();
+			wr.pos(0.3, 0.4, 3.5).tex(trc.getInterpolatedU(6), trc.getInterpolatedV(9)).normal(-nXU, -nYU, -nZU).endVertex();
+			
+			wr.pos(0.3, 0.6, 3.5).tex(trc.getInterpolatedU(6), trc.getInterpolatedV(9)).normal(nXU, nYU, nZU).endVertex();
+			wr.pos(0.7, 0.6, 3.5).tex(trc.getInterpolatedU(10), trc.getInterpolatedV(9)).normal(nXU, nYU, nZU).endVertex();
+			wr.pos(0.7, 0.6, 1).tex(trc.getInterpolatedU(10), trc.getInterpolatedV(12)).normal(nXU, nYU, nZU).endVertex();
+			wr.pos(0.3, 0.6, 1).tex(trc.getInterpolatedU(6), trc.getInterpolatedV(12)).normal(nXU, nYU, nZU).endVertex();
+			
+			wr.pos(0.6, 0.3, 1).tex(trc.getInterpolatedU(6), trc.getInterpolatedV(12)).normal(nXR, nYR, nZR).endVertex();
+			wr.pos(0.6, 0.7, 1).tex(trc.getInterpolatedU(10), trc.getInterpolatedV(12)).normal(nXR, nYR, nZR).endVertex();
+			wr.pos(0.6, 0.7, 3.5).tex(trc.getInterpolatedU(10), trc.getInterpolatedV(9)).normal(nXR, nYR, nZR).endVertex();
+			wr.pos(0.6, 0.3, 3.5).tex(trc.getInterpolatedU(6), trc.getInterpolatedV(9)).normal(nXR, nYR, nZR).endVertex();
+			
+			wr.pos(0.4, 0.3, 3.5).tex(trc.getInterpolatedU(6), trc.getInterpolatedV(9)).normal(-nXR, -nYR, -nZR).endVertex();
+			wr.pos(0.4, 0.7, 3.5).tex(trc.getInterpolatedU(10), trc.getInterpolatedV(9)).normal(-nXR, -nYR, -nZR).endVertex();
+			wr.pos(0.4, 0.7, 1).tex(trc.getInterpolatedU(10), trc.getInterpolatedV(12)).normal(-nXR, -nYR, -nZR).endVertex();
+			wr.pos(0.4, 0.3, 1).tex(trc.getInterpolatedU(6), trc.getInterpolatedV(12)).normal(-nXR, -nYR, -nZR).endVertex();
+			
+			
+			
+			
+			
+			
+			
 			
 			wr.pos(0, 1, 0).tex(top.getInterpolatedU(3), top.getInterpolatedV(13)).normal(nXF, nYF, nZF).endVertex();
 			wr.pos(1, 1, 0).tex(top.getInterpolatedU(13), top.getInterpolatedV(13)).normal(nXF, nYF, nZF).endVertex();

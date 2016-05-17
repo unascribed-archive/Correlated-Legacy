@@ -74,6 +74,9 @@ msg.correlatedpotentialistics.vt_no_power=The unlit screen resists all attempts 
 msg.correlatedpotentialistics.vt_error=There is a fatal error preventing access to the network.
 msg.correlatedpotentialistics.vt_booting=The network is still starting up.
 
+msg.correlatedpotentialistics.receiver_unlinked=This receiver does not have a linked transmitter. Right-click on a transmitter to link this receiver.
+msg.correlatedpotentialistics.receiver_linked=Receiver linked.
+
 numbers.correlatedpotentialistics.gibibytes=%d GiB
 numbers.correlatedpotentialistics.mibibytes=%d MiB
 numbers.correlatedpotentialistics.kibibytes=%d KiB
@@ -97,6 +100,7 @@ tooltip.correlatedpotentialistics.controller_boot_eta=ETA: %d seconds
 tooltip.correlatedpotentialistics.controller_error.multiple_controllers=The network has more than one controller
 tooltip.correlatedpotentialistics.controller_error.network_too_big=The network is too big
 tooltip.correlatedpotentialistics.controller_error.too_much_power=The network takes too much power to run
+tooltip.correlatedpotentialistics.controller_error.infinite_loop=Wireless links are connected in an infinite loop
 tooltip.correlatedpotentialistics.controller_consumption_rate=Using %d RF/t total (max 320 RF/t)
 tooltip.correlatedpotentialistics.controller_energy_buffer=%d/%d RF
 tooltip.correlatedpotentialistics.member_consumption_rate=Using %d RF/t from controller

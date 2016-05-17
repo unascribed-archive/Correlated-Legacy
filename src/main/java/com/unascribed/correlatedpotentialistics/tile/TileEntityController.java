@@ -31,9 +31,11 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	private int networkMembers = 0;
 	private transient Set<BlockPos> networkMemberLocations = Sets.newHashSet();
 	private transient List<TileEntityInterface> interfaces = Lists.newArrayList();
+	private transient List<TileEntityWirelessReceiver> receivers = Lists.newArrayList();
 	private transient List<TileEntityDriveBay> driveBays = Lists.newArrayList();
 	private transient List<ItemStack> drives = Lists.newArrayList();
 	public int changeId = 0;
+	private boolean checkingInfiniteLoop = false;
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
@@ -131,6 +133,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		networkMembers = 0;
 		networkMemberLocations.clear();
 		driveBays.clear();
+		receivers.clear();
 		interfaces.clear();
 
 		int itr = 0;
@@ -167,6 +170,8 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 							driveBays.add((TileEntityDriveBay)te);
 						} else if (te instanceof TileEntityInterface) {
 							interfaces.add((TileEntityInterface)te);
+						} else if (te instanceof TileEntityWirelessReceiver) {
+							receivers.add((TileEntityWirelessReceiver)te);
 						}
 						networkMemberLocations.add(pos);
 						consumedPerTick += ((TileEntityNetworkMember) te).getEnergyConsumedPerTick();
@@ -183,6 +188,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			error = false;
 			errorReason = null;
 		}
+		checkInfiniteLoop();
 		for (TileEntityNetworkMember te : members) {
 			te.setController(this);
 		}
@@ -194,6 +200,40 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		this.consumedPerTick = consumedPerTick;
 		updateDrivesCache();
 		CoPo.log.info("Found "+members.size()+" network members");
+	}
+	
+	public void checkInfiniteLoop() {
+		checkingInfiniteLoop = true;
+		for (TileEntityWirelessReceiver r : receivers) {
+			TileEntityController cont = r.getTransmitterController();
+			if (cont != null && cont.isLinkedTo(this)) {
+				error = true;
+				errorReason = "infinite_loop";
+				receivers.clear();
+				checkingInfiniteLoop = false;
+				return;
+			}
+		}
+		if (error && errorReason.equals("infinite_loop")) {
+			error = false;
+			errorReason = null;
+		}
+		checkingInfiniteLoop = false;
+	}
+	
+	public boolean isCheckingInfiniteLoop() {
+		return checkingInfiniteLoop;
+	}
+	
+	public boolean isLinkedTo(TileEntityController tec) {
+		if (tec.equals(this)) return true;
+		for (TileEntityWirelessReceiver r : receivers) {
+			TileEntityController cont = r.getTransmitterController();
+			if (cont != null && cont.isLinkedTo(tec)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void updateState() {
@@ -231,6 +271,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		if (hasWorldObj() && worldObj.isRemote) return;
 		drives.clear();
 		for (TileEntityDriveBay tedb : driveBays) {
+			if (tedb.isInvalid()) continue;
 			for (int i = 0; i < 8; i++) {
 				if (tedb.hasDriveInSlot(i)) {
 					drives.add(tedb.getDriveInSlot(i));
@@ -262,6 +303,13 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 				itemDrive.addItem(drive, stack);
 				if (stack.stackSize <= 0) break;
 			}
+		}
+		for (TileEntityWirelessReceiver r : receivers) {
+			TileEntityController cont = r.getTransmitterController();
+			if (cont != null) {
+				cont.addItemToNetwork(stack);
+			}
+			if (stack.stackSize <= 0) break;
 		}
 		changeId++;
 		return stack.stackSize <= 0 ? null : stack;
@@ -297,6 +345,13 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 				if (stack.stackSize >= amount) break;
 			}
 		}
+		for (TileEntityWirelessReceiver r : receivers) {
+			TileEntityController cont = r.getTransmitterController();
+			if (cont != null) {
+				cont.removeItemsFromNetwork(prototype, amount, checkInterfaces);
+			}
+			if (stack.stackSize >= amount) break;
+		}
 		changeId++;
 		return stack.stackSize <= 0 ? null : stack;
 	}
@@ -326,6 +381,12 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 				}
 			}
 		}
+		for (TileEntityWirelessReceiver r : receivers) {
+			TileEntityController cont = r.getTransmitterController();
+			if (cont != null) {
+				li.addAll(cont.getTypes());
+			}
+		}
 		return li;
 	}
 
@@ -340,6 +401,12 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		} else if (tenm instanceof TileEntityInterface) {
 			if (!interfaces.contains(tenm)) {
 				interfaces.add((TileEntityInterface)tenm);
+				changeId++;
+			}
+		} else if (tenm instanceof TileEntityWirelessReceiver) {
+			if (!receivers.contains(tenm)) {
+				receivers.add((TileEntityWirelessReceiver)tenm);
+				checkInfiniteLoop();
 				changeId++;
 			}
 		}

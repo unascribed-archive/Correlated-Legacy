@@ -14,6 +14,7 @@ public class CRecipes {
 		ItemStack drivePlatterCeramic = new ItemStack(CoPo.misc, 1, 1);
 		ItemStack drivePlatterMetallic = new ItemStack(CoPo.misc, 1, 2);
 		ItemStack luminousPearl = new ItemStack(CoPo.misc, 1, 3);
+		ItemStack luminousTorch = new ItemStack(CoPo.misc, 1, 4);
 
 		// 1KiB Drive
 		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CoPo.drive, 1, 0),
@@ -137,6 +138,36 @@ public class CRecipes {
 				'i', "ingotIron",
 				'g', "ingotGold",
 				'o', luminousPearl
+				));
+		
+		// Luminous Torch
+		GameRegistry.addRecipe(new ShapedOreRecipe(luminousTorch,
+				"o",
+				"i",
+				"i",
+				'i', "ingotIron",
+				'o', luminousPearl
+				));
+		
+		// Wireless Receiver
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CoPo.wireless_endpoint, 1, 0),
+				" t ",
+				"___",
+				"ipi",
+				'_', Blocks.heavy_weighted_pressure_plate,
+				'i', "ingotIron",
+				't', luminousTorch,
+				'p', processor
+				));
+		
+		// Wireless Transmitter
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CoPo.wireless_endpoint, 1, 1),
+				" t ",
+				"iii",
+				"ipi",
+				'i', "ingotIron",
+				't', luminousTorch,
+				'p', processor
 				));
 	}
 

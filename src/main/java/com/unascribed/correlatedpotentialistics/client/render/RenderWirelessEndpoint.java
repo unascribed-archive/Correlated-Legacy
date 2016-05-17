@@ -2,7 +2,6 @@ package com.unascribed.correlatedpotentialistics.client.render;
 
 import org.lwjgl.opengl.GL11;
 
-import com.unascribed.correlatedpotentialistics.CoPo;
 import com.unascribed.correlatedpotentialistics.block.BlockWirelessEndpoint.State;
 
 import net.minecraft.block.state.IBlockState;
@@ -22,8 +21,8 @@ import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 
 public class RenderWirelessEndpoint {
-	static final IBlockAccess dummy = new IBlockAccess() {
-
+	private static class DummyBlockAccess implements IBlockAccess {
+		private IBlockState state;
 		@Override
 		public TileEntity getTileEntity(BlockPos pos) {
 			return null;
@@ -36,7 +35,7 @@ public class RenderWirelessEndpoint {
 
 		@Override
 		public IBlockState getBlockState(BlockPos pos) {
-			return CoPo.wireless_endpoint.getDefaultState();
+			return state;
 		}
 
 		@Override
@@ -68,14 +67,18 @@ public class RenderWirelessEndpoint {
 		public boolean isSideSolid(BlockPos pos, EnumFacing side, boolean _default) {
 			return false;
 		}
-		
-	};
+		public void setBlockState(IBlockState state) {
+			this.state = state;
+		}
+	}
+	static final DummyBlockAccess dummy = new DummyBlockAccess();
 
-	public static void renderBaseForItem() {
+	public static void renderBaseForItem(IBlockState state) {
 		Tessellator tess = Tessellator.getInstance();
 		WorldRenderer wr = tess.getWorldRenderer();
+		dummy.setBlockState(state);
 		IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher()
-				.getModelFromBlockState(CoPo.wireless_endpoint.getDefaultState(), dummy, BlockPos.ORIGIN);
+				.getModelFromBlockState(state, dummy, BlockPos.ORIGIN);
 		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
 		for (EnumFacing ef : EnumFacing.VALUES) {
 			for (BakedQuad quad : model.getFaceQuads(ef)) {

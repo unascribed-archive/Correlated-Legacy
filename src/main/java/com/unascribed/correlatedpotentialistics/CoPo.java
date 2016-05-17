@@ -32,7 +32,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.WeightedRandomChestContent;
+import net.minecraft.world.World;
 import net.minecraftforge.common.ChestGenHooks;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -111,7 +113,17 @@ public class CoPo {
 			WailaCompatibility.init();
 		}
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, new CoPoGuiHandler());
+		MinecraftForge.EVENT_BUS.register(this);
 		proxy.preInit();
+	}
+	
+	public static CoPoWorldData getDataFor(World w) {
+		CoPoWorldData data = (CoPoWorldData)w.getPerWorldStorage().loadData(CoPoWorldData.class, "correlatedpotentialistics");
+		if (data == null) {
+			data = new CoPoWorldData("correlatedpotentialistics");
+			w.getPerWorldStorage().setData("correlatedpotentialistics", data);
+		}
+		return data;
 	}
 
 	private void register(Block block, Class<? extends ItemBlock> item, String name, int itemVariants) {

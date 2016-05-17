@@ -1,8 +1,13 @@
 package com.unascribed.correlatedpotentialistics.block;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.google.common.base.Supplier;
+import com.unascribed.correlatedpotentialistics.CoPo;
+import com.unascribed.correlatedpotentialistics.CoPoWorldData;
+import com.unascribed.correlatedpotentialistics.CoPoWorldData.Transmitter;
+import com.unascribed.correlatedpotentialistics.helper.Blocks;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityWirelessReceiver;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityWirelessTransmitter;
 
@@ -15,6 +20,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -23,6 +29,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants.NBT;
 
 public class BlockWirelessEndpoint extends Block {
 	public enum Kind implements IStringSerializable {
@@ -100,6 +107,31 @@ public class BlockWirelessEndpoint extends Block {
 	}
 	
 	@Override
+	public int damageDropped(IBlockState state) {
+		return state.getValue(kind).ordinal();
+	}
+	
+	@Override
+	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
+		TileEntity te = world.getTileEntity(pos);
+		if (te instanceof TileEntityWirelessTransmitter && !world.isRemote) {
+			TileEntityWirelessTransmitter tewt = (TileEntityWirelessTransmitter)te;
+			CoPoWorldData data = CoPo.getDataFor(world);
+			if (stack.hasTagCompound() && stack.getTagCompound().hasKey("TransmitterUUIDMost", NBT.TAG_LONG)) {
+				tewt.setId(new UUID(stack.getTagCompound().getLong("TransmitterUUIDMost"), stack.getTagCompound().getLong("TransmitterUUIDLeast")));
+			}
+			Transmitter t = new Transmitter(tewt.getId(), pos);
+			data.addTransmitter(t);
+		} else if (te instanceof TileEntityWirelessReceiver && !world.isRemote) {
+			TileEntityWirelessReceiver tewr = (TileEntityWirelessReceiver)te;
+			if (stack.hasTagCompound() && stack.getTagCompound().hasKey("TransmitterUUIDMost", NBT.TAG_LONG)) {
+				tewr.setTransmitter(new UUID(stack.getTagCompound().getLong("TransmitterUUIDMost"), stack.getTagCompound().getLong("TransmitterUUIDLeast")));
+			}
+		}
+		super.onBlockPlacedBy(world, pos, state, placer, stack);
+	}
+	
+	@Override
 	protected BlockState createBlockState() {
 		return new BlockState(this, state, kind);
 	}
@@ -123,8 +155,27 @@ public class BlockWirelessEndpoint extends Block {
 	}
 	
 	@Override
+	public void breakBlock(World world, BlockPos pos, IBlockState state) {
+		TileEntity te = world.getTileEntity(pos);
+		if (te instanceof TileEntityWirelessTransmitter) {
+			TileEntityWirelessTransmitter tewt = (TileEntityWirelessTransmitter)te;
+			CoPoWorldData data = CoPo.getDataFor(world);
+			data.removeTransmitterById(tewt.getId());
+		}
+		super.breakBlock(world, pos, state);
+	}
+	
+	@Override
 	public void getSubBlocks(Item itemIn, CreativeTabs tab, List<ItemStack> list) {
 		list.add(new ItemStack(itemIn, 1, 0));
 		list.add(new ItemStack(itemIn, 1, 1));
+	}
+	
+	@Override
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ) {
+		if (Blocks.tryWrench(world, pos, player, side, hitZ, hitZ, hitZ)) {
+			return true;
+		}
+		return super.onBlockActivated(world, pos, state, player, side, hitX, hitY, hitZ);
 	}
 }

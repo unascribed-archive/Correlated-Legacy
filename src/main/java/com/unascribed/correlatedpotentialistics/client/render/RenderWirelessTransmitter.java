@@ -4,6 +4,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.unascribed.correlatedpotentialistics.CoPo;
 import com.unascribed.correlatedpotentialistics.block.BlockWirelessEndpoint;
+import com.unascribed.correlatedpotentialistics.block.BlockWirelessEndpoint.Kind;
 import com.unascribed.correlatedpotentialistics.block.BlockWirelessEndpoint.State;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityWirelessTransmitter;
 import net.minecraft.block.state.IBlockState;
@@ -18,6 +19,7 @@ import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
 public class RenderWirelessTransmitter extends TileEntitySpecialRenderer<TileEntityWirelessTransmitter> {
+	private final IBlockState transmitterBlockState = CoPo.wireless_endpoint.getDefaultState().withProperty(BlockWirelessEndpoint.kind, Kind.TRANSMITTER);
 	@Override
 	public void renderTileEntityAt(TileEntityWirelessTransmitter te, double x, double y, double z, float partialTicks, int destroyStage) {
 		State state = State.DEAD;
@@ -38,7 +40,7 @@ public class RenderWirelessTransmitter extends TileEntitySpecialRenderer<TileEnt
 		GlStateManager.pushMatrix();
 			Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
 			if (te == null) {
-				RenderWirelessEndpoint.renderBaseForItem();
+				RenderWirelessEndpoint.renderBaseForItem(transmitterBlockState);
 			}
 			GlStateManager.translate(0.5, 1, 0.5);
 			GlStateManager.disableLighting();
@@ -48,7 +50,7 @@ public class RenderWirelessTransmitter extends TileEntitySpecialRenderer<TileEnt
 			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
 			
 			GlStateManager.rotate(90, 1, 0, 0);
-			GlStateManager.translate(-0.3125, -0.3125, 0.1875);
+			GlStateManager.translate(-0.3125, -0.3125, 0.5);
 			GlStateManager.scale(0.625, 0.625, 0.125);
 			
 			wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
