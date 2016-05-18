@@ -7,92 +7,34 @@ import com.unascribed.correlatedpotentialistics.block.BlockWirelessEndpoint.Stat
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.resources.model.IBakedModel;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.WorldType;
-import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 
 public class RenderWirelessEndpoint {
-	private static class DummyBlockAccess implements IBlockAccess {
-		private IBlockState state;
-		@Override
-		public TileEntity getTileEntity(BlockPos pos) {
-			return null;
-		}
-
-		@Override
-		public int getCombinedLight(BlockPos pos, int lightValue) {
-			return 0;
-		}
-
-		@Override
-		public IBlockState getBlockState(BlockPos pos) {
-			return state;
-		}
-
-		@Override
-		public boolean isAirBlock(BlockPos pos) {
-			return false;
-		}
-
-		@Override
-		public BiomeGenBase getBiomeGenForCoords(BlockPos pos) {
-			return null;
-		}
-
-		@Override
-		public boolean extendedLevelsInChunkCache() {
-			return false;
-		}
-
-		@Override
-		public int getStrongPower(BlockPos pos, EnumFacing direction) {
-			return 0;
-		}
-
-		@Override
-		public WorldType getWorldType() {
-			return WorldType.DEFAULT;
-		}
-
-		@Override
-		public boolean isSideSolid(BlockPos pos, EnumFacing side, boolean _default) {
-			return false;
-		}
-		public void setBlockState(IBlockState state) {
-			this.state = state;
-		}
-	}
-	static final DummyBlockAccess dummy = new DummyBlockAccess();
 
 	public static void renderBaseForItem(IBlockState state) {
 		Tessellator tess = Tessellator.getInstance();
-		WorldRenderer wr = tess.getWorldRenderer();
-		dummy.setBlockState(state);
-		IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher()
-				.getModelFromBlockState(state, dummy, BlockPos.ORIGIN);
+		VertexBuffer wr = tess.getBuffer();
+		IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(state);
 		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
 		for (EnumFacing ef : EnumFacing.VALUES) {
-			for (BakedQuad quad : model.getFaceQuads(ef)) {
+			for (BakedQuad quad : model.getQuads(state, ef, 0)) {
 				LightUtil.renderQuadColor(wr, quad, 0xFFFFFFFF);
 			}
 		}
-		for (BakedQuad quad : model.getGeneralQuads()) {
+		for (BakedQuad quad : model.getQuads(state, null, 0)) {
 			LightUtil.renderQuadColor(wr, quad, 0xFFFFFFFF);
 		}
 		tess.draw();
 	}
 
 	public static void drawGlow(State state) {
-		WorldRenderer wr = Tessellator.getInstance().getWorldRenderer();
+		VertexBuffer wr = Tessellator.getInstance().getBuffer();
 		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 		TextureAtlasSprite tas = null;
 		switch (state) {

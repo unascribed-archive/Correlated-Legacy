@@ -12,7 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
@@ -21,9 +21,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.MovingObjectPosition.MovingObjectType;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.RayTraceResult.Type;
 
 public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay> {
 	private static class RenderDummy extends Render<Entity> {
@@ -82,7 +82,7 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 		Minecraft.getMinecraft().getTextureManager().bindTexture(DRIVE);
 
 		Tessellator tess = Tessellator.getInstance();
-		WorldRenderer wr = tess.getWorldRenderer();
+		VertexBuffer wr = tess.getBuffer();
 		float oldX = OpenGlHelper.lastBrightnessX;
 		float oldY = OpenGlHelper.lastBrightnessY;
 
@@ -140,8 +140,8 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 		GlStateManager.enableLighting();
 		GlStateManager.popMatrix();
 
-		MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
-		if (mop != null && mop.typeOfHit == MovingObjectType.BLOCK && mop.getBlockPos().equals(te.getPos())) {
+		RayTraceResult mop = Minecraft.getMinecraft().objectMouseOver;
+		if (mop != null && mop.typeOfHit == Type.BLOCK && mop.getBlockPos().equals(te.getPos())) {
 			if (te.getBlockType() instanceof BlockDriveBay) {
 				BlockDriveBay block = (BlockDriveBay)te.getBlockType();
 				float hitX = (float)(mop.hitVec.xCoord-te.getPos().getX());
@@ -220,7 +220,7 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 		float m = 0.001f; // meld
 
 		Tessellator tess = Tessellator.getInstance();
-		WorldRenderer wr = tess.getWorldRenderer();
+		VertexBuffer wr = tess.getBuffer();
 
 		{
 			// Right

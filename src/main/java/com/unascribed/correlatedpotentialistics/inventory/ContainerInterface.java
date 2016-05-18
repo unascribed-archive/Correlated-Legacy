@@ -4,6 +4,7 @@ import com.unascribed.correlatedpotentialistics.tile.TileEntityInterface;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
@@ -129,11 +130,11 @@ public class ContainerInterface extends Container {
 	}
 
 	@Override
-	public ItemStack slotClick(int slotId, int clickedButton, int mode, EntityPlayer playerIn) {
+	public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, EntityPlayer player) {
 		if (slotId >= 1) {
 			Slot slot = getSlot(slotId);
 			if (slot instanceof SlotFake) {
-				if (mode == 0 && clickedButton == 0) {
+				if (clickTypeIn == ClickType.PICKUP) {
 					if (slot.getHasStack()) {
 						slot.putStack(null);
 						te.setOutputPrototype(slot.getSlotIndex(), null);
@@ -153,7 +154,7 @@ public class ContainerInterface extends Container {
 				}
 			}
 		}
-		return super.slotClick(slotId, clickedButton, mode, playerIn);
+		return super.slotClick(slotId, dragType, clickTypeIn, player);
 	}
 
 	@Override

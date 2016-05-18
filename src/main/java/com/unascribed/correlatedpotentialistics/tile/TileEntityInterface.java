@@ -11,13 +11,13 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.IChatComponent;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.util.Constants.NBT;
 
 public class TileEntityInterface extends TileEntityNetworkMember implements IInventory, ISidedInventory, ITickable {
@@ -128,11 +128,11 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 	public Packet getDescriptionPacket() {
 		NBTTagCompound nbt = new NBTTagCompound();
 		writeFacesToNBT(nbt);
-		return new S35PacketUpdateTileEntity(getPos(), getBlockMetadata(), nbt);
+		return new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), nbt);
 	}
 
 	@Override
-	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
+	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
 		super.onDataPacket(net, pkt);
 		readFacesFromNBT(pkt.getNbtCompound());
 		worldObj.markBlockRangeForRenderUpdate(getPos(), getPos());
@@ -311,8 +311,8 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 	}
 
 	@Override
-	public IChatComponent getDisplayName() {
-		return new ChatComponentTranslation(getName());
+	public ITextComponent getDisplayName() {
+		return new TextComponentTranslation(getName());
 	}
 
 	@Override

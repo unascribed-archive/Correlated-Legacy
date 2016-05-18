@@ -7,6 +7,7 @@ import com.unascribed.correlatedpotentialistics.item.ItemDrive.PartitioningMode;
 import com.unascribed.correlatedpotentialistics.item.ItemDrive.Priority;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.IInventory;
@@ -184,16 +185,16 @@ public class ContainerDrive extends Container {
 	}
 
 	@Override
-	public void onCraftGuiOpened(ICrafting listener) {
-		super.onCraftGuiOpened(listener);
+	public void addListener(ICrafting listener) {
+		super.addListener(listener);
 	}
 
 	@Override
-	public ItemStack slotClick(int slotId, int clickedButton, int mode, EntityPlayer playerIn) {
+	public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, EntityPlayer player) {
 		if (slotId >= 1) {
 			Slot slot = getSlot(slotId);
 			if (slot instanceof SlotFake) {
-				if (mode == 0) {
+				if (clickTypeIn == ClickType.PICKUP) {
 					if (slot.getHasStack()) {
 						int stored = getItemDrive().getAmountStored(getDrive(), slot.getStack());
 						if (stored <= 0) {
@@ -215,7 +216,7 @@ public class ContainerDrive extends Container {
 						return cursor;
 					}
 				}
-			} else if (mode == 1) {
+			} else if (clickTypeIn == ClickType.QUICK_MOVE) {
 				ItemStack stack = slot.getStack();
 				if (getItemDrive().getPartitioningMode(getDrive()) == PartitioningMode.NONE) return stack;
 				if (getSlot(1).isItemValid(stack)) {
@@ -226,7 +227,7 @@ public class ContainerDrive extends Container {
 				return stack;
 			}
 		}
-		return super.slotClick(slotId, clickedButton, mode, playerIn);
+		return super.slotClick(slotId, dragType, clickTypeIn, player);
 	}
 
 	public ItemStack getDrive() {

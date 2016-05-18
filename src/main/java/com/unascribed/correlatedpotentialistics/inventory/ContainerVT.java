@@ -19,6 +19,7 @@ import com.unascribed.correlatedpotentialistics.network.SetSlotSizeMessage;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.IInventory;
@@ -62,7 +63,7 @@ public class ContainerVT extends Container {
 		}
 
 		private static String getModId(ItemStack is) {
-			return Item.itemRegistry.getNameForObject(is.getItem()).getResourceDomain();
+			return Item.REGISTRY.getNameForObject(is.getItem()).getResourceDomain();
 		}
 	}
 	public enum CraftingTarget {
@@ -267,7 +268,7 @@ public class ContainerVT extends Container {
 			}
 		}
 		rows = (int)Math.ceil(types.size()/9f);
-		for (ICrafting crafter : crafters) {
+		for (ICrafting crafter : listeners) {
 			crafter.sendProgressBarUpdate(this, 0, rows);
 		}
 	}
@@ -364,7 +365,7 @@ public class ContainerVT extends Container {
 
 				// if it's out of range for the vanilla packet, we need to send our own
 				if (cur > 127 || cur < -128) {
-					for (ICrafting ic : crafters) {
+					for (ICrafting ic : listeners) {
 						if (ic instanceof EntityPlayerMP) {
 							EntityPlayerMP p = (EntityPlayerMP)ic;
 							if (cur > 127) {
@@ -388,8 +389,8 @@ public class ContainerVT extends Container {
 	}
 
 	@Override
-	public void onCraftGuiOpened(ICrafting listener) {
-		super.onCraftGuiOpened(listener);
+	public void addListener(ICrafting listener) {
+		super.addListener(listener);
 		listener.sendProgressBarUpdate(this, 0, rows);
 		listener.sendProgressBarUpdate(this, 1, sortMode.ordinal());
 		listener.sendProgressBarUpdate(this, 2, sortAscending ? 1 : 0);
@@ -419,12 +420,12 @@ public class ContainerVT extends Container {
 	}
 
 	@Override
-	public ItemStack slotClick(int slotId, int clickedButton, int mode, EntityPlayer player) {
+	public ItemStack slotClick(int slotId, int clickedButton, ClickType clickTypeIn, EntityPlayer player) {
 		Slot slot = slotId >= 0 ? getSlot(slotId) : null;
 		if (slot instanceof SlotVirtual) {
 			if (!player.worldObj.isRemote) {
 				if (player.inventory.getItemStack() != null) {
-					if (mode == 0) {
+					if (clickTypeIn == ClickType.PICKUP) {
 						if (clickedButton == 0) {
 							addItemToNetwork(player.inventory.getItemStack());
 						} else if (clickedButton == 1) {
@@ -432,13 +433,13 @@ public class ContainerVT extends Container {
 						}
 					}
 				} else if (slot.getHasStack()) {
-					if (mode == 0) {
+					if (clickTypeIn == ClickType.PICKUP) {
 						if (clickedButton == 0) {
 							player.inventory.setItemStack(removeItemsFromNetwork(slot.getStack(), Math.min(64, slot.getStack().getMaxStackSize())));
 						} else if (clickedButton == 1) {
 							player.inventory.setItemStack(removeItemsFromNetwork(slot.getStack(), 1));
 						}
-					} else if (mode == 1) {
+					} else if (clickTypeIn == ClickType.QUICK_MOVE) {
 						ItemStack is = null;
 						if (clickedButton == 0) {
 							is = removeItemsFromNetwork(slot.getStack(), Math.min(64, slot.getStack().getMaxStackSize()));
@@ -451,7 +452,7 @@ public class ContainerVT extends Container {
 							}
 							detectAndSendChanges();
 						}
-					} else if (mode == 4) {
+					} else if (clickTypeIn == ClickType.THROW) {
 						ItemStack is = null;
 						if (clickedButton == 0) {
 							is = removeItemsFromNetwork(slot.getStack(), 1);
@@ -459,7 +460,7 @@ public class ContainerVT extends Container {
 							is = removeItemsFromNetwork(slot.getStack(), Math.min(64, slot.getStack().getMaxStackSize()));
 						}
 						detectAndSendChanges();
-						player.dropPlayerItemWithRandomChoice(is, false);
+						player.dropItem(is, false);
 					}
 				}
 			}
@@ -468,7 +469,7 @@ public class ContainerVT extends Container {
 			}
 			return player.inventory.getItemStack();
 		} else {
-			if (mode == 1) {
+			if (clickTypeIn == ClickType.QUICK_MOVE) {
 				// shift click
 				if (!player.worldObj.isRemote && slot != null) {
 					ItemStack stack = slot.getStack();
@@ -507,7 +508,7 @@ public class ContainerVT extends Container {
 							}
 							if (craftingAmount == CraftingAmount.MAX) {
 								craftingAmount = CraftingAmount.ONE;
-								for (ICrafting ic : crafters) {
+								for (ICrafting ic : listeners) {
 									ic.sendProgressBarUpdate(this, 4, craftingAmount.ordinal());
 								}
 							}
@@ -522,7 +523,7 @@ public class ContainerVT extends Container {
 				}
 				return getSlot(slotId).getStack();
 			}
-			return super.slotClick(slotId, clickedButton, mode, player);
+			return super.slotClick(slotId, clickedButton, clickTypeIn, player);
 		}
 	}
 
@@ -539,7 +540,7 @@ public class ContainerVT extends Container {
 				ItemStack itemstack = craftMatrix.removeStackFromSlot(i);
 
 				if (itemstack != null) {
-					player.dropPlayerItemWithRandomChoice(itemstack, false);
+					player.dropItem(itemstack, false);
 				}
 			}
 		}

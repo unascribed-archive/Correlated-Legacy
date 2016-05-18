@@ -12,7 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
@@ -43,11 +43,11 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 	public Packet getDescriptionPacket() {
 		NBTTagCompound nbt = new NBTTagCompound();
 		writeDrives(nbt, 0, 1, 2, 3, 4, 5, 6, 7);
-		return new S35PacketUpdateTileEntity(getPos(), getBlockMetadata(), nbt);
+		return new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), nbt);
 	}
 
 	@Override
-	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
+	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
 		readDrives(pkt.getNbtCompound());
 	}
 
@@ -119,10 +119,10 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 			writeDrive(nbt, slot);
 			WorldServer ws = (WorldServer)worldObj;
 			Chunk c = worldObj.getChunkFromBlockCoords(getPos());
-			S35PacketUpdateTileEntity packet = new S35PacketUpdateTileEntity(getPos(), getBlockMetadata(), nbt);
+			SPacketUpdateTileEntity packet = new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), nbt);
 			for (EntityPlayerMP player : worldObj.getPlayers(EntityPlayerMP.class, Predicates.alwaysTrue())) {
-				if (ws.getPlayerManager().isPlayerWatchingChunk(player, c.xPosition, c.zPosition)) {
-					player.playerNetServerHandler.sendPacket(packet);
+				if (ws.getPlayerChunkMap().isPlayerWatchingChunk(player, c.xPosition, c.zPosition)) {
+					player.connection.sendPacket(packet);
 				}
 			}
 			onDriveChange();

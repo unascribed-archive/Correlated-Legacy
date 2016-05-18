@@ -10,15 +10,16 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -41,11 +42,12 @@ public class BlockController extends Block {
 	}
 	public static final IProperty<State> state = PropertyEnum.create("state", State.class);
 	public BlockController() {
-		super(Material.iron);
+		super(Material.IRON);
 	}
 
+	
 	@Override
-	public boolean getUseNeighborBrightness() {
+	public boolean getUseNeighborBrightness(IBlockState state) {
 		return true;
 	}
 
@@ -69,8 +71,8 @@ public class BlockController extends Block {
 	}
 
 	@Override
-	protected BlockState createBlockState() {
-		return new BlockState(this, state);
+	protected BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, state);
 	}
 
 	@Override
@@ -84,20 +86,15 @@ public class BlockController extends Block {
 	}
 
 	@Override
-	public int getRenderType() {
-		return 3;
-	}
-
-	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (Blocks.tryWrench(worldIn, pos, playerIn, side, hitZ, hitZ, hitZ)) {
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+		if (Blocks.tryWrench(worldIn, pos, playerIn, hand, side, hitZ, hitZ, hitZ)) {
 			return true;
 		}
 		TileEntity te = worldIn.getTileEntity(pos);
 		if (te instanceof TileEntityController) {
 			((TileEntityController) te).scanNetwork();
 		}
-		return super.onBlockActivated(worldIn, pos, state, playerIn, side, hitX, hitY, hitZ);
+		return super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
 	}
 
 	@Override

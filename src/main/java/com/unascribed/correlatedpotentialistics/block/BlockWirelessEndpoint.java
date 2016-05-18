@@ -15,7 +15,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -24,10 +24,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 
@@ -64,28 +66,29 @@ public class BlockWirelessEndpoint extends Block {
 	public static final IProperty<Kind> kind = PropertyEnum.create("kind", Kind.class);
 	public static final IProperty<State> state = PropertyEnum.create("state", State.class);
 	
+	private AxisAlignedBB aabb = new AxisAlignedBB(0, 0, 0, 1, 0.3125, 1);
+	
 	public BlockWirelessEndpoint() {
-		super(Material.iron);
-		setBlockBounds(0, 0, 0, 1, 0.3125f, 1);
+		super(Material.IRON);
 	}
 	
 	@Override
-	public boolean isOpaqueCube() {
+	public boolean isOpaqueCube(IBlockState state) {
 		return false;
 	}
 	
 	@Override
-	public boolean isFullCube() {
+	public boolean isFullCube(IBlockState state) {
 		return false;
 	}
 	
 	@Override
 	public boolean hasTileEntity(IBlockState state) {
 		return true;
-	}
+	}	
 
 	@Override
-	public void addCollisionBoxesToList(World worldIn, BlockPos pos, IBlockState state, AxisAlignedBB mask, List<AxisAlignedBB> list, Entity collidingEntity) {
+	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB mask, List<AxisAlignedBB> list, Entity collidingEntity) {
 		AxisAlignedBB base = new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX()+1, pos.getY()+(4/16d), pos.getZ()+1);
 		AxisAlignedBB pole = new AxisAlignedBB(pos.getX()+(7/16d), pos.getY()+(4/16d), pos.getZ()+(7/16d), pos.getX()+(9/16d), pos.getY()+(16/16d), pos.getZ()+(9/16d));
 		if (mask.intersectsWith(base)) {
@@ -94,6 +97,11 @@ public class BlockWirelessEndpoint extends Block {
 		if (mask.intersectsWith(pole)) {
 			list.add(pole);
 		}
+	}
+	
+	@Override
+	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+		return aabb;
 	}
 	
 	@Override
@@ -132,8 +140,8 @@ public class BlockWirelessEndpoint extends Block {
 	}
 	
 	@Override
-	protected BlockState createBlockState() {
-		return new BlockState(this, state, kind);
+	protected BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, state, kind);
 	}
 	
 	@Override
@@ -147,11 +155,6 @@ public class BlockWirelessEndpoint extends Block {
 		return getDefaultState()
 				.withProperty(state, State.VALUES[meta%State.VALUES.length])
 				.withProperty(kind, ((meta & 0b1000) != 0) ? Kind.RECEIVER : Kind.TRANSMITTER);
-	}
-	
-	@Override
-	public int getRenderType() {
-		return 3;
 	}
 	
 	@Override
@@ -172,10 +175,10 @@ public class BlockWirelessEndpoint extends Block {
 	}
 	
 	@Override
-	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (Blocks.tryWrench(world, pos, player, side, hitZ, hitZ, hitZ)) {
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+		if (Blocks.tryWrench(world, pos, player, hand, side, hitZ, hitZ, hitZ)) {
 			return true;
 		}
-		return super.onBlockActivated(world, pos, state, player, side, hitX, hitY, hitZ);
+		return super.onBlockActivated(world, pos, state, player, hand, heldItem, side, hitX, hitY, hitZ);
 	}
 }

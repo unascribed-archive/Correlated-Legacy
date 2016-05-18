@@ -10,31 +10,36 @@ import com.unascribed.correlatedpotentialistics.client.ClientProxy;
 import com.unascribed.correlatedpotentialistics.helper.ItemStacks;
 import com.unascribed.correlatedpotentialistics.helper.Numbers;
 
-import net.minecraft.client.resources.I18n;
+import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemDrive extends Item {
+public class ItemDrive extends Item implements IItemColor {
 	public enum Priority {
-		HIGHEST(EnumChatFormatting.RED),
-		HIGHER(EnumChatFormatting.DARK_RED),
-		HIGH(EnumChatFormatting.GRAY),
-		DEFAULT(EnumChatFormatting.GRAY),
-		LOW(EnumChatFormatting.GRAY),
-		LOWER(EnumChatFormatting.DARK_GREEN),
-		LOWEST(EnumChatFormatting.GREEN);
+		HIGHEST(TextFormatting.RED),
+		HIGHER(TextFormatting.DARK_RED),
+		HIGH(TextFormatting.GRAY),
+		DEFAULT(TextFormatting.GRAY),
+		LOW(TextFormatting.GRAY),
+		LOWER(TextFormatting.DARK_GREEN),
+		LOWEST(TextFormatting.GREEN);
 		public final String lowerName = name().toLowerCase(Locale.ROOT);
-		public final EnumChatFormatting color;
-		private Priority(EnumChatFormatting color) {
+		public final TextFormatting color;
+		private Priority(TextFormatting color) {
 			this.color = color;
 		}
 	}
@@ -100,10 +105,11 @@ public class ItemDrive extends Item {
 	public int getBaseColor(ItemStack stack) {
 		return stack.getItemDamage() == 4 ? 0x554455 : 0xFFFFFF;
 	}
-
+	
 	@Override
+	@SideOnly(Side.CLIENT)
 	@SuppressWarnings("fallthrough")
-	public int getColorFromItemStack(ItemStack stack, int tintIndex) {
+	public int getColorFromItemstack(ItemStack stack, int tintIndex) {
 		if (tintIndex == 1) {
 			return getFullnessColor(stack);
 		} else if (tintIndex == 2) {
@@ -157,11 +163,11 @@ public class ItemDrive extends Item {
 
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
-		tooltip.add(I18n.format("tooltip.correlatedpotentialistics.rf_usage", getRFConsumptionRate(stack)));
+		tooltip.add(I18n.translateToLocalFormatted("tooltip.correlatedpotentialistics.rf_usage", getRFConsumptionRate(stack)));
 		if (stack.getItemDamage() == 4) {
 			int i = 0;
-			while (StatCollector.canTranslate("tooltip.correlatedpotentialistics.void_drive." + i)) {
-				tooltip.add(I18n.format("tooltip.correlatedpotentialistics.void_drive." + i));
+			while (I18n.canTranslate("tooltip.correlatedpotentialistics.void_drive." + i)) {
+				tooltip.add(I18n.translateToLocalFormatted("tooltip.correlatedpotentialistics.void_drive." + i));
 				i++;
 			}
 		} else {
@@ -173,8 +179,8 @@ public class ItemDrive extends Item {
 			int typesPercent = (int) (((double) typesUsed / (double) typesMax) * 100);
 			int bytesPercent = (int) (((double) bytesUsed / (double) bytesMax) * 100);
 
-			tooltip.add(I18n.format("tooltip.correlatedpotentialistics.types_used", typesUsed, typesMax, typesPercent));
-			tooltip.add(I18n.format("tooltip.correlatedpotentialistics.bytes_used", Numbers.humanReadableBytes(bytesUsed), Numbers.humanReadableBytes(bytesMax), bytesPercent));
+			tooltip.add(I18n.translateToLocalFormatted("tooltip.correlatedpotentialistics.types_used", typesUsed, typesMax, typesPercent));
+			tooltip.add(I18n.translateToLocalFormatted("tooltip.correlatedpotentialistics.bytes_used", Numbers.humanReadableBytes(bytesUsed), Numbers.humanReadableBytes(bytesMax), bytesPercent));
 		}
 	}
 
@@ -238,9 +244,9 @@ public class ItemDrive extends Item {
 	}
 
 	@Override
-	public ItemStack onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn) {
+	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
 		playerIn.openGui(CoPo.inst, 1, worldIn, playerIn.inventory.currentItem, 0, 0);
-		return super.onItemRightClick(itemStackIn, worldIn, playerIn);
+		return ActionResult.newResult(EnumActionResult.SUCCESS, itemStackIn);
 	}
 
 	// all this code should probably be refactored into some sort of general

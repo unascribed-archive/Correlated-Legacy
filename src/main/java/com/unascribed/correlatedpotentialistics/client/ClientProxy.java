@@ -1,6 +1,7 @@
 package com.unascribed.correlatedpotentialistics.client;
 
 import java.util.List;
+import java.util.Random;
 
 import com.google.common.collect.Lists;
 import com.unascribed.correlatedpotentialistics.CoPo;
@@ -17,10 +18,13 @@ import com.unascribed.correlatedpotentialistics.tile.TileEntityVT;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityWirelessReceiver;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityWirelessTransmitter;
 
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -30,7 +34,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
-import net.minecraftforge.fml.common.registry.GameData;
 
 public class ClientProxy extends Proxy {
 	public static float ticks = 0;
@@ -54,8 +57,12 @@ public class ClientProxy extends Proxy {
 		}
 	}
 	@Override
+	public void postInit() {
+		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(CoPo.drive, CoPo.drive);
+	}
+	@Override
 	public void registerItemModel(Item item, int variants) {
-		ResourceLocation loc = GameData.getItemRegistry().getNameForObject(item);
+		ResourceLocation loc = Item.REGISTRY.getNameForObject(item);
 		if (variants < -1) {
 			variants = (variants*-1)-1;
 			loc = new ResourceLocation("correlatedpotentialistics", "tesrstack");
@@ -74,6 +81,25 @@ public class ClientProxy extends Proxy {
 			}
 		}
 	}
+	@Override
+	public void weldthrowerTick(EntityPlayer player) {
+		Vec3d look = player.getLookVec();
+		Vec3d right = look.rotateYaw(-90);
+		double dist = 0.5;
+		double gap = 1;
+		double fuzz = 0.05;
+		look.rotateYaw(20);
+		for (int i = 0; i < 5; i++) {
+			Random rand = player.worldObj.rand;
+			EntityWeldthrowerFX dust = new EntityWeldthrowerFX(player.worldObj,
+					player.posX+(right.xCoord*dist)+(look.xCoord*gap),
+					player.posY+(player.getEyeHeight()-0.1)+(right.yCoord*dist)+(look.yCoord*gap),
+					player.posZ+(right.zCoord*dist)+(look.zCoord*gap), 1);
+			dust.setRBGColorF(0, 0.9725490196078431f-(rand.nextFloat()/5), 0.8235294117647059f-(rand.nextFloat()/5));
+			dust.setMotion(look.xCoord+(rand.nextGaussian()*fuzz), look.yCoord+(rand.nextGaussian()*fuzz), look.zCoord+(rand.nextGaussian()*fuzz));
+			Minecraft.getMinecraft().effectRenderer.addEffect(dust);
+		}
+	}
 	@SubscribeEvent
 	public void onClientTick(ClientTickEvent e) {
 		if (e.phase == Phase.START) {
@@ -88,7 +114,7 @@ public class ClientProxy extends Proxy {
 	}
 	@SubscribeEvent
 	public void onStitch(TextureStitchEvent.Pre e) {
-		e.map.registerSprite(new ResourceLocation("correlatedpotentialistics", "blocks/wireless_endpoint_error"));
-		e.map.registerSprite(new ResourceLocation("correlatedpotentialistics", "blocks/wireless_endpoint_linked"));
+		e.getMap().registerSprite(new ResourceLocation("correlatedpotentialistics", "blocks/wireless_endpoint_error"));
+		e.getMap().registerSprite(new ResourceLocation("correlatedpotentialistics", "blocks/wireless_endpoint_linked"));
 	}
 }

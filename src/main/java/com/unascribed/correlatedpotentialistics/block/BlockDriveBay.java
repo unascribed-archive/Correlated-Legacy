@@ -10,15 +10,17 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -27,7 +29,7 @@ public class BlockDriveBay extends Block {
 	public static final PropertyBool lit = PropertyBool.create("lit");
 	
 	public BlockDriveBay() {
-		super(Material.iron);
+		super(Material.IRON);
 	}
 
 	@Override
@@ -41,8 +43,8 @@ public class BlockDriveBay extends Block {
 	}
 
 	@Override
-	protected BlockState createBlockState() {
-		return new BlockState(this, facing, lit);
+	protected BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, facing, lit);
 	}
 	
 	@Override
@@ -88,11 +90,11 @@ public class BlockDriveBay extends Block {
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (Blocks.tryWrench(world, pos, player, side, hitZ, hitZ, hitZ)) {
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+		if (Blocks.tryWrench(world, pos, player, hand, side, hitZ, hitZ, hitZ)) {
 			return true;
 		}
-		ItemStack inHand = player.getHeldItem();
+		ItemStack inHand = player.getHeldItem(hand);
 		int slot = getLookedAtSlot(state, side, hitX, hitY, hitZ);
 
 		if (slot != -1) {
@@ -113,14 +115,18 @@ public class BlockDriveBay extends Block {
 					if (inHand != null && inHand.getItem() instanceof ItemDrive) {
 						if (!world.isRemote) {
 							tedb.setDriveInSlot(slot, inHand);
-							player.setCurrentItemOrArmor(0, null);
+							if (hand == EnumHand.MAIN_HAND) {
+								player.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, null);
+							} else {
+								player.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, null);
+							}
 						}
 						return true;
 					}
 				}
 			}
 		}
-		return super.onBlockActivated(world, pos, state, player, side, hitX, hitY, hitZ);
+		return super.onBlockActivated(world, pos, state, player, hand, heldItem, side, hitX, hitY, hitZ);
 	}
 
 	public int getLookedAtSlot(IBlockState state, EnumFacing side, float hitX, float hitY, float hitZ) {

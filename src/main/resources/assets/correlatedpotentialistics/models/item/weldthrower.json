@@ -1,7 +1,7 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "correlatedpotentialistics:items/metallic_drive_platter"
+		"layer0": "correlatedpotentialistics:items/weldthrower"
 	},
 	"display": {
 		"ground": {

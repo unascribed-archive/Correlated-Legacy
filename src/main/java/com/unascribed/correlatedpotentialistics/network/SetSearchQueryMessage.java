@@ -7,7 +7,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.inventory.Container;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -60,7 +60,7 @@ public class SetSearchQueryMessage implements IMessage, IMessageHandler<SetSearc
 		});
 	}
 	private void handleServer(SetSearchQueryMessage message, MessageContext ctx) {
-		MinecraftServer.getServer().addScheduledTask(() -> {
+		((WorldServer)ctx.getServerHandler().playerEntity.worldObj).addScheduledTask(() -> {
 			Container c = ctx.getServerHandler().playerEntity.openContainer;
 			if (c instanceof ContainerVT && c.windowId == message.windowId) {
 				((ContainerVT)c).updateSearchQuery(message.query);

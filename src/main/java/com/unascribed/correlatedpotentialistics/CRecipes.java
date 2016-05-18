@@ -62,7 +62,7 @@ public class CRecipes {
 				"#O#",
 				"###",
 				'O', luminousPearl,
-				'#', Blocks.obsidian
+				'#', Blocks.OBSIDIAN
 				));
 
 
@@ -75,7 +75,7 @@ public class CRecipes {
 					'q', "gemQuartz",
 					'g', "ingotGold",
 					'd', "gemDiamond",
-					'o', Items.ender_pearl
+					'o', Items.ENDER_PEARL
 					));
 		} else {
 			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CoPo.misc, 2, 0),
@@ -86,13 +86,13 @@ public class CRecipes {
 					'g', "ingotGold",
 					'd', "gemDiamond",
 					'p', processor,
-					'o', Items.ender_pearl
+					'o', Items.ENDER_PEARL
 					));
 		}
 
 		// Luminous Pearl
 		GameRegistry.addRecipe(new ShapelessOreRecipe(luminousPearl,
-				Items.ender_pearl, "dustGlowstone"));
+				Items.ENDER_PEARL, "dustGlowstone"));
 
 		// Ceramic Drive Platter
 		GameRegistry.addRecipe(new ShapedOreRecipe(drivePlatterCeramic,
@@ -166,7 +166,7 @@ public class CRecipes {
 				" t ",
 				"___",
 				"ipi",
-				'_', Blocks.heavy_weighted_pressure_plate,
+				'_', Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE,
 				'i', "ingotIron",
 				't', luminousTorch,
 				'p', processor
@@ -189,6 +189,10 @@ public class CRecipes {
 				'r', new ItemStack(CoPo.wireless_endpoint, 1, 0),
 				'v', CoPo.vt
 				));
+		
+		// Weldthrower Fuel
+		GameRegistry.addShapelessRecipe(new ItemStack(CoPo.misc, 4, 5), luminousPearl);
+		
 	}
 
 }

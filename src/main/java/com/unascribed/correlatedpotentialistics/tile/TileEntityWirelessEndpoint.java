@@ -4,8 +4,8 @@ import com.unascribed.correlatedpotentialistics.CoPo;
 import com.unascribed.correlatedpotentialistics.block.BlockWirelessEndpoint;
 import com.unascribed.correlatedpotentialistics.block.BlockWirelessEndpoint.State;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.math.AxisAlignedBB;
 
 public abstract class TileEntityWirelessEndpoint extends TileEntityNetworkMember implements ITickable {
 

@@ -13,12 +13,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.Vec3d;
 
 public class RenderWirelessReceiver extends TileEntitySpecialRenderer<TileEntityWirelessReceiver> {
 	private final IBlockState receiverBlockState = CoPo.wireless_endpoint.getDefaultState().withProperty(BlockWirelessEndpoint.kind, Kind.RECEIVER);
@@ -35,14 +35,14 @@ public class RenderWirelessReceiver extends TileEntitySpecialRenderer<TileEntity
 			}
 		}
 		Tessellator tess = Tessellator.getInstance();
-		WorldRenderer wr = tess.getWorldRenderer();
-		Vec3 facing;
+		VertexBuffer wr = tess.getBuffer();
+		Vec3d facing;
 		float yaw;
 		float pitch;
 		if (te == null) {
-			yaw = 105;
+			yaw = -90;
 			pitch = 30;
-			facing = new Vec3(0, 0, 0);
+			facing = new Vec3d(0, 0, 0);
 		} else {
 			yaw = te.getYaw(partialTicks);
 			pitch = te.getPitch(partialTicks);
@@ -51,7 +51,7 @@ public class RenderWirelessReceiver extends TileEntitySpecialRenderer<TileEntity
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);
 		GlStateManager.pushMatrix();
-			Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
+			Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 			if (te == null) {
 				RenderWirelessEndpoint.renderBaseForItem(receiverBlockState);
 			}
@@ -62,13 +62,13 @@ public class RenderWirelessReceiver extends TileEntitySpecialRenderer<TileEntity
 			float nYF = (float)facing.yCoord;
 			float nZF = (float)facing.zCoord;
 			
-			Vec3 right = facing.crossProduct(new Vec3(0, 1, 0)).normalize();
+			Vec3d right = facing.crossProduct(new Vec3d(0, 1, 0)).normalize();
 			
 			float nXR = (float)right.xCoord;
 			float nYR = (float)right.yCoord;
 			float nZR = (float)right.zCoord;
 			
-			Vec3 up = right.crossProduct(facing).normalize();
+			Vec3d up = right.crossProduct(facing).normalize();
 			
 			float nXU = (float)up.xCoord;
 			float nYU = (float)up.yCoord;

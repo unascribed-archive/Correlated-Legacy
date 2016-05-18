@@ -11,13 +11,14 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -30,12 +31,12 @@ public class BlockInterface extends Block implements ITweakable {
 	public static final IProperty<FaceMode> west = PropertyEnum.create("west", FaceMode.class);
 
 	public BlockInterface() {
-		super(Material.iron);
+		super(Material.IRON);
 	}
 
 	@Override
-	protected BlockState createBlockState() {
-		return new BlockState(this, top, bottom, north, east, south, west);
+	protected BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, top, bottom, north, east, south, west);
 	}
 
 	@Override
@@ -98,27 +99,29 @@ public class BlockInterface extends Block implements ITweakable {
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (Blocks.tryWrench(world, pos, player, side, hitX, hitY, hitZ)) {
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+		if (Blocks.tryWrench(world, pos, player, hand, side, hitX, hitY, hitZ)) {
 			return true;
 		}
 		if (!player.isSneaking()) {
 			player.openGui(CoPo.inst, 2, world, pos.getX(), pos.getY(), pos.getZ());
 			return true;
 		}
-		return super.onBlockActivated(world, pos, state, player, side, hitX, hitY, hitZ);
+		return onBlockActivated(world, pos, state, player, hand, heldItem, side, hitX, hitY, hitZ);
 	}
 
 	@Override
 	public void onTweak(World world, BlockPos pos, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ) {
 		TileEntity te = world.getTileEntity(pos);
 		if (te instanceof TileEntityInterface) {
+			IBlockState oldstate = world.getBlockState(pos);
 			TileEntityInterface tei = (TileEntityInterface)te;
 			FaceMode[] values = FaceMode.values();
 			FaceMode cur = tei.getModeForFace(side);
 			FaceMode nw = values[(cur.ordinal()+1)%values.length];
 			tei.setModeForFace(side, nw);
-			world.markBlockForUpdate(pos);
+			IBlockState newstate = world.getBlockState(pos);
+			world.notifyBlockUpdate(pos, oldstate, newstate, 8);
 		}
 	}
 

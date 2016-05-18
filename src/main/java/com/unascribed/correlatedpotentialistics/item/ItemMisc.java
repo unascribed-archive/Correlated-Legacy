@@ -2,12 +2,11 @@ package com.unascribed.correlatedpotentialistics.item;
 
 import java.util.List;
 
-import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.text.translation.I18n;
 
 public class ItemMisc extends Item {
 	public static final String[] items = {
@@ -15,7 +14,8 @@ public class ItemMisc extends Item {
 			"ceramic_drive_platter",
 			"metallic_drive_platter",
 			"luminous_pearl",
-			"lumtorch"
+			"lumtorch",
+			"weldthrower_fuel"
 	};
 
 	@Override
@@ -29,8 +29,8 @@ public class ItemMisc extends Item {
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
 		int i = 0;
-		while (StatCollector.canTranslate("tooltip.correlatedpotentialistics.misc." + stack.getItemDamage() + "." + i)) {
-			tooltip.add(I18n.format("tooltip.correlatedpotentialistics.misc." + stack.getItemDamage() + "." + i));
+		while (I18n.canTranslate("tooltip.correlatedpotentialistics.misc." + stack.getItemDamage() + "." + i)) {
+			tooltip.add(I18n.translateToLocal("tooltip.correlatedpotentialistics.misc." + stack.getItemDamage() + "." + i));
 			i++;
 		}
 	}

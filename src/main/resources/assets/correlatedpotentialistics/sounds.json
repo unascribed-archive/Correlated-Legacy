@@ -1,0 +1,10 @@
+{
+	"weldthrow": {
+		"category": "player",
+		"sounds": [
+			"correlatedpotentialistics:weldthrower_0",
+			"correlatedpotentialistics:weldthrower_1"
+		],
+		"subtitle": "subtitles.correlatedpotentialistics.weldthrow"
+	}
+}

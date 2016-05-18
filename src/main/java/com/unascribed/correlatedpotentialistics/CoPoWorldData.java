@@ -10,8 +10,8 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldSavedData;
 import net.minecraftforge.common.util.Constants.NBT;
 
@@ -78,7 +78,7 @@ public class CoPoWorldData extends WorldSavedData {
 		return ImmutableList.copyOf(transmitters.values());
 	}
 	
-	public List<Transmitter> getTransmittersVisibleAt(Vec3 pos) {
+	public List<Transmitter> getTransmittersVisibleAt(Vec3d pos) {
 		return getTransmittersVisibleAt(pos.xCoord, pos.yCoord, pos.zCoord);
 	}
 	

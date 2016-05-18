@@ -1,6 +1,6 @@
 package com.unascribed.correlatedpotentialistics.tile;
 
-import static net.minecraft.util.MathHelper.*;
+import static net.minecraft.util.math.MathHelper.*;
 
 import java.util.UUID;
 
@@ -13,11 +13,11 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 
 public class TileEntityWirelessReceiver extends TileEntityWirelessEndpoint {
 	private UUID transmitter;
@@ -33,8 +33,8 @@ public class TileEntityWirelessReceiver extends TileEntityWirelessEndpoint {
 				if (hasWorldObj() && getWorld().isRemote) {
 					return syncedYaw;
 				} else {
-					Vec3 dir = getDirectionToTransmitter();
-					return (float)Math.toDegrees(MathHelper.atan2(dir.xCoord, dir.zCoord));
+					Vec3d dir = getDirectionToTransmitter();
+					return (float)Math.toDegrees(atan2(dir.xCoord, dir.zCoord));
 				}
 			default:
 				return 0;
@@ -49,26 +49,26 @@ public class TileEntityWirelessReceiver extends TileEntityWirelessEndpoint {
 				if (hasWorldObj() && getWorld().isRemote) {
 					return syncedPitch;
 				} else {
-					Vec3 dir = getDirectionToTransmitter();
-					Vec3 xz = new Vec3(dir.xCoord, 0, dir.zCoord);
+					Vec3d dir = getDirectionToTransmitter();
+					Vec3d xz = new Vec3d(dir.xCoord, 0, dir.zCoord);
 					double xzLength = xz.lengthVector();
-					return (float)-Math.toDegrees(MathHelper.atan2(dir.yCoord, xzLength));
+					return (float)-Math.toDegrees(atan2(dir.yCoord, xzLength));
 				}
 			default:
 				return 20;
 		}
 	}
 
-	public Vec3 getFacing(float partialTicks) {
+	public Vec3d getFacing(float partialTicks) {
 		switch (getCurrentState()) {
 			case ERROR:
 				float yr = (float)Math.toRadians(getYaw(partialTicks));
 				float pr = (float)Math.toRadians(getPitch(partialTicks));
-				return new Vec3(-(sin(yr)*cos(pr)), sin(pr), -(cos(yr)*cos(pr)));
+				return new Vec3d(-(sin(yr)*cos(pr)), sin(pr), -(cos(yr)*cos(pr)));
 			case LINKED:
 				return getDirectionToTransmitter();
 			default:
-				return new Vec3(0, 0.265, -0.735);
+				return new Vec3d(0, 0.265, -0.735);
 		}
 	}
 	
@@ -77,11 +77,11 @@ public class TileEntityWirelessReceiver extends TileEntityWirelessEndpoint {
 		NBTTagCompound tag = new NBTTagCompound();
 		tag.setFloat("Yaw", getYaw(0));
 		tag.setFloat("Pitch", getPitch(0));
-		return new S35PacketUpdateTileEntity(getPos(), getBlockMetadata(), tag);
+		return new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), tag);
 	}
 	
 	@Override
-	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
+	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
 		super.onDataPacket(net, pkt);
 		syncedYaw = pkt.getNbtCompound().getFloat("Yaw");
 		syncedPitch = pkt.getNbtCompound().getFloat("Pitch");
@@ -100,7 +100,8 @@ public class TileEntityWirelessReceiver extends TileEntityWirelessEndpoint {
 		}
 		Transmitter t = CoPo.getDataFor(getWorld()).getTransmitterById(transmitter);
 		if (t == null || t.position.distanceSqToCenter(getPos().getX()+0.5, getPos().getY()+0.5, getPos().getZ()+0.5) > t.range*t.range) return null;
-		getWorld().markBlockForUpdate(getPos());
+		IBlockState state = getWorld().getBlockState(getPos());
+		getWorld().notifyBlockUpdate(getPos(), state, state, 8);
 		transmitterCache = t;
 		return t;
 	}
@@ -110,10 +111,10 @@ public class TileEntityWirelessReceiver extends TileEntityWirelessEndpoint {
 		transmitterCache = null;
 	}
 	
-	private Vec3 getDirectionToTransmitter() {
-		if (!hasTransmitter()) return new Vec3(0, 0, 0);
+	private Vec3d getDirectionToTransmitter() {
+		if (!hasTransmitter()) return new Vec3d(0, 0, 0);
 		BlockPos sub = getPos().subtract(getTransmitter().position);
-		return new Vec3(sub).normalize();
+		return new Vec3d(sub).normalize();
 	}
 	
 	@Override
