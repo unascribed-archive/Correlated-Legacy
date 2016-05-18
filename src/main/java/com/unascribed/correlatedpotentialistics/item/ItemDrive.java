@@ -10,7 +10,6 @@ import com.unascribed.correlatedpotentialistics.client.ClientProxy;
 import com.unascribed.correlatedpotentialistics.helper.ItemStacks;
 import com.unascribed.correlatedpotentialistics.helper.Numbers;
 
-import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -25,10 +24,8 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemDrive extends Item implements IItemColor {
+public class ItemDrive extends Item {
 	public enum Priority {
 		HIGHEST(TextFormatting.RED),
 		HIGHER(TextFormatting.DARK_RED),
@@ -106,61 +103,6 @@ public class ItemDrive extends Item implements IItemColor {
 		return stack.getItemDamage() == 4 ? 0x554455 : 0xFFFFFF;
 	}
 	
-	@Override
-	@SideOnly(Side.CLIENT)
-	@SuppressWarnings("fallthrough")
-	public int getColorFromItemstack(ItemStack stack, int tintIndex) {
-		if (tintIndex == 1) {
-			return getFullnessColor(stack);
-		} else if (tintIndex == 2) {
-			return getTierColor(stack);
-		} else if (tintIndex == 3) {
-			switch (getPartitioningMode(stack)) {
-				case NONE:
-					return 0x00FFAA;
-				case WHITELIST:
-					return 0xFFFFFF;
-			}
-		} else if (tintIndex >= 4 && tintIndex <= 6) {
-			int uncolored;
-			if (stack.getItemDamage() == 4) {
-				uncolored = 0;
-			} else {
-				uncolored = 0x555555;
-			}
-
-			int left = uncolored;
-			int middle = uncolored;
-			int right = uncolored;
-			switch (getPriority(stack)) {
-				case HIGHEST:
-					right = 0xFF0000;
-				case HIGHER:
-					middle = 0xFF0000;
-				case HIGH:
-					left = 0xFF0000;
-					break;
-				case LOWEST:
-					left = 0x00FF00;
-				case LOWER:
-					middle = 0x00FF00;
-				case LOW:
-					right = 0x00FF00;
-					break;
-				default:
-					break;
-			}
-			if (tintIndex == 4) {
-				return left;
-			} else if (tintIndex == 5) {
-				return middle;
-			} else if (tintIndex == 6) {
-				return right;
-			}
-		}
-		return getBaseColor(stack);
-	}
-
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
 		tooltip.add(I18n.translateToLocalFormatted("tooltip.correlatedpotentialistics.rf_usage", getRFConsumptionRate(stack)));

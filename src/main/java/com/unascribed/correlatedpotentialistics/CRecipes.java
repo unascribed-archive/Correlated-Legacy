@@ -193,6 +193,16 @@ public class CRecipes {
 		// Weldthrower Fuel
 		GameRegistry.addShapelessRecipe(new ItemStack(CoPo.misc, 4, 5), luminousPearl);
 		
+		// Weldthrower
+		GameRegistry.addRecipe(new ShapedOreRecipe(CoPo.weldthrower,
+				"i  ",
+				"ti_",
+				"  i",
+				'i', "ingotIron",
+				'_', Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE,
+				't', luminousTorch
+				));
+		
 	}
 
 }

@@ -6,12 +6,15 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.google.common.collect.Maps;
 import com.unascribed.correlatedpotentialistics.CoPo;
+import com.unascribed.correlatedpotentialistics.network.StartWeldthrowingMessage;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.Packet;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EnumActionResult;
@@ -23,6 +26,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
@@ -33,7 +37,7 @@ public class ItemWeldthrower extends Item {
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 	
-	private Map<EntityPlayer, MutableInt> weldthrowing = Maps.newHashMap();
+	public Map<EntityPlayer, MutableInt> weldthrowing = Maps.newIdentityHashMap();
 	
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
@@ -51,15 +55,23 @@ public class ItemWeldthrower extends Item {
 	}
 	
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
+	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStack, World world, EntityPlayer player, EnumHand hand) {
 		if (hand == EnumHand.MAIN_HAND) {
-			if (!worldIn.isRemote && !weldthrowing.containsKey(playerIn) && (playerIn.capabilities.isCreativeMode || playerIn.inventory.clearMatchingItems(CoPo.misc, 5, 1, null) > 0)) {
-				worldIn.playSound(null, playerIn.posX, playerIn.posY, playerIn.posZ, CoPo.weldthrow, SoundCategory.PLAYERS, 0.4f, 1f);
-				weldthrowing.put(playerIn, new MutableInt());
-				return ActionResult.newResult(EnumActionResult.SUCCESS, itemStackIn);
+			if (!world.isRemote && !weldthrowing.containsKey(player) && (player.capabilities.isCreativeMode || player.inventory.clearMatchingItems(CoPo.misc, 5, 1, null) > 0)) {
+				world.playSound(null, player.posX, player.posY, player.posZ, CoPo.weldthrow, SoundCategory.PLAYERS, 0.4f, 1f);
+				weldthrowing.put(player, new MutableInt());
+				if (world instanceof WorldServer && player instanceof EntityPlayerMP) {
+					WorldServer srv = (WorldServer)world;
+					StartWeldthrowingMessage msg = new StartWeldthrowingMessage();
+					msg.entityId = player.getEntityId();
+					Packet p = CoPo.inst.network.getPacketFrom(msg);
+					((EntityPlayerMP)player).connection.sendPacket(p);
+					srv.getEntityTracker().sendToAllTrackingEntity(player, p);
+				}
+				return ActionResult.newResult(EnumActionResult.SUCCESS, itemStack);
 			}
 		}
-		return super.onItemRightClick(itemStackIn, worldIn, playerIn, hand);
+		return super.onItemRightClick(itemStack, world, player, hand);
 	}
 	
 	@SubscribeEvent
@@ -67,7 +79,7 @@ public class ItemWeldthrower extends Item {
 		if (weldthrowing.containsKey(e.player)) {
 			MutableInt mi = weldthrowing.get(e.player);
 			mi.increment();
-			if (mi.intValue() > 100 || !e.player.isEntityAlive()) {
+			if (mi.intValue() > 65 || !e.player.isEntityAlive()) {
 				weldthrowing.remove(e.player);
 				return;
 			}
@@ -83,7 +95,7 @@ public class ItemWeldthrower extends Item {
 			for (int i = 0; i < Math.min(mi.intValue()/4, 10); i++) {
 				AxisAlignedBB aabb = new AxisAlignedBB(cursor.xCoord-0.1, cursor.yCoord-0.1, cursor.zCoord-0.1, cursor.xCoord+0.1, cursor.yCoord+0.1, cursor.zCoord+0.1);
 				if (e.player.worldObj.collidesWithAnyBlock(aabb)) break;
-				aabb = aabb.expandXyz(1.4);
+				aabb = aabb.expandXyz(0.9);
 				for (Entity ent : e.player.worldObj.getEntitiesWithinAABBExcludingEntity(e.player, aabb)) {
 					if (ent instanceof EntityLivingBase) {
 						EntityLivingBase elb = (EntityLivingBase)ent;

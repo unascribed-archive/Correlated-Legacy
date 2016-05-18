@@ -49,6 +49,11 @@ public class ItemWirelessTerminal extends Item {
 		return super.onItemUse(stack, player, world, pos, hand, facing, hitX, hitY, hitZ);
 	}
 	
+	@Override
+	public int getItemStackLimit(ItemStack is) {
+		return 1;
+	}
+	
 	public Transmitter getTransmitter(ItemStack stack, World world, EntityPlayer player, boolean sendMessages) {
 		if (!stack.hasTagCompound() || !stack.getTagCompound().hasKey("TransmitterUUIDMost")) {
 			if (sendMessages) player.addChatMessage(new TextComponentTranslation("msg.correlatedpotentialistics.terminal_unlinked"));

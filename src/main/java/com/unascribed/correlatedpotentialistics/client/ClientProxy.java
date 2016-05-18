@@ -11,6 +11,7 @@ import com.unascribed.correlatedpotentialistics.client.render.RenderDriveBay;
 import com.unascribed.correlatedpotentialistics.client.render.RenderVT;
 import com.unascribed.correlatedpotentialistics.client.render.RenderWirelessReceiver;
 import com.unascribed.correlatedpotentialistics.client.render.RenderWirelessTransmitter;
+import com.unascribed.correlatedpotentialistics.item.ItemDrive;
 import com.unascribed.correlatedpotentialistics.item.ItemMisc;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityController;
 import com.unascribed.correlatedpotentialistics.tile.TileEntityDriveBay;
@@ -20,6 +21,7 @@ import com.unascribed.correlatedpotentialistics.tile.TileEntityWirelessTransmitt
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -58,7 +60,64 @@ public class ClientProxy extends Proxy {
 	}
 	@Override
 	public void postInit() {
-		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(CoPo.drive, CoPo.drive);
+		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
+			@Override
+			@SuppressWarnings("fallthrough")
+			public int getColorFromItemstack(ItemStack stack, int tintIndex) {
+				if (stack == null || !(stack.getItem() instanceof ItemDrive)) return -1;
+				ItemDrive id = (ItemDrive)stack.getItem();
+				if (tintIndex == 1) {
+					return id.getFullnessColor(stack);
+				} else if (tintIndex == 2) {
+					return id.getTierColor(stack);
+				} else if (tintIndex == 3) {
+					switch (id.getPartitioningMode(stack)) {
+						case NONE:
+							return 0x00FFAA;
+						case WHITELIST:
+							return 0xFFFFFF;
+					}
+				} else if (tintIndex >= 4 && tintIndex <= 6) {
+					int uncolored;
+					if (stack.getItemDamage() == 4) {
+						uncolored = 0;
+					} else {
+						uncolored = 0x555555;
+					}
+
+					int left = uncolored;
+					int middle = uncolored;
+					int right = uncolored;
+					switch (id.getPriority(stack)) {
+						case HIGHEST:
+							right = 0xFF0000;
+						case HIGHER:
+							middle = 0xFF0000;
+						case HIGH:
+							left = 0xFF0000;
+							break;
+						case LOWEST:
+							left = 0x00FF00;
+						case LOWER:
+							middle = 0x00FF00;
+						case LOW:
+							right = 0x00FF00;
+							break;
+						default:
+							break;
+					}
+					if (tintIndex == 4) {
+						return left;
+					} else if (tintIndex == 5) {
+						return middle;
+					} else if (tintIndex == 6) {
+						return right;
+					}
+				}
+				return id.getBaseColor(stack);
+			}
+			
+		}, CoPo.drive);
 	}
 	@Override
 	public void registerItemModel(Item item, int variants) {
