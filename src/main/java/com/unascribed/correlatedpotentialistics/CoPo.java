@@ -35,6 +35,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.WeightedRandomChestContent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ChestGenHooks;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -74,11 +75,17 @@ public class CoPo {
 	};
 
 	public SimpleNetworkWrapper network;
+	
+	public boolean easyProcessors;
 
 	@EventHandler
 	public void onPreInit(FMLPreInitializationEvent e) {
 		log = LogManager.getLogger("CorrelatedPotentialistics");
 
+		Configuration config = new Configuration(e.getSuggestedConfigurationFile());
+		easyProcessors = config.getBoolean("easyProcessors", "Crafting", false, "If true, processors can be crafted without finding one in a dungeon.");
+		config.save();
+		
 		// for some reason plugin message channels have a maximum length of 20 characters
 		network = NetworkRegistry.INSTANCE.newSimpleChannel("CrelatedPtntialstics");
 		network.registerMessage(SetSearchQueryMessage.class, SetSearchQueryMessage.class, 0, Side.SERVER);

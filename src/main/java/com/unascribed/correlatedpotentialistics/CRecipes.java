@@ -67,16 +67,28 @@ public class CRecipes {
 
 
 		// Enderic Processor
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CoPo.misc, 2, 0),
-				"qoq",
-				"gpg",
-				"qdq",
-				'q', "gemQuartz",
-				'g', "ingotGold",
-				'd', "gemDiamond",
-				'p', processor,
-				'o', Items.ender_pearl
-				));
+		if (CoPo.inst.easyProcessors) {
+			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CoPo.misc, 1, 0),
+					"qdq",
+					"gog",
+					"qdq",
+					'q', "gemQuartz",
+					'g', "ingotGold",
+					'd', "gemDiamond",
+					'o', Items.ender_pearl
+					));
+		} else {
+			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CoPo.misc, 2, 0),
+					"qoq",
+					"gpg",
+					"qdq",
+					'q', "gemQuartz",
+					'g', "ingotGold",
+					'd', "gemDiamond",
+					'p', processor,
+					'o', Items.ender_pearl
+					));
+		}
 
 		// Luminous Pearl
 		GameRegistry.addRecipe(new ShapelessOreRecipe(luminousPearl,
