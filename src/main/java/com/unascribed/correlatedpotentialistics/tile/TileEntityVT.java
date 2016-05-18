@@ -227,5 +227,10 @@ public class TileEntityVT extends TileEntityNetworkMember implements ITickable, 
 	public boolean canContinueInteracting(EntityPlayer player) {
 		return true;
 	}
+	
+	@Override
+	public void markUnderlyingStorageDirty() {
+		markDirty();
+	}
 
 }

@@ -548,7 +548,7 @@ public class ContainerVT extends Container {
 		prefs.sortAscending = sortAscending;
 		prefs.craftingTarget = craftingTarget;
 		prefs.lastSearchQuery = searchQuery;
-		vt.markDirty();
+		vt.markUnderlyingStorageDirty();
 	}
 
 	@Override

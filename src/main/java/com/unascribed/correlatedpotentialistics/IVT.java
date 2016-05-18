@@ -37,7 +37,7 @@ public interface IVT {
 	boolean supportsDumpSlot();
 	IInventory getDumpSlotInventory();
 	boolean canContinueInteracting(EntityPlayer player);
-	void markDirty();
+	void markUnderlyingStorageDirty();
 
 }
 

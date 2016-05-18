@@ -55,7 +55,7 @@ public class WirelessTerminalVT implements IVT {
 	}
 
 	@Override
-	public void markDirty() {
+	public void markUnderlyingStorageDirty() {
 		prefs.writeToNBT(stack.getSubCompound("Preferences", true));
 	}
 
