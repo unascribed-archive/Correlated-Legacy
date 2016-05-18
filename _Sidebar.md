@@ -9,5 +9,4 @@
   * Items
     * [[Drive]]
     * [[Enderic Processor]]
-    * Wireless Terminal (NYI)
   * [[Storage Math]]
