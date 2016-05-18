@@ -11,16 +11,14 @@ Note that anyone can edit this wiki, *this includes you*! If the pages are missi
 * [[Drive Bay]] - Holds up to 8 drives, requires a Controller.
 * [[Terminal]] - Lets you access the system.
 * [[Interface]] - Allows machinery to access the system.
-* Router (coming soon) - Endpoint for Ethernet cables, and can have Antennae attached for a basic wireless setup.
+* Router (coming soon) - Endpoint for Ethernet cables.
 * Ethernet Cable (coming soon) - Allows connecting two Routers together.
 
 ## Items
 
 * [[Drive]] - A basic hard drive, holds digitized items for later retrieval.
 * [[Enderic Processor]] - Where do you find these?
-* Wireless Terminal (coming soon) - Lets you access your system, *wirelessly*!
 
 ## Mechanics
 
 * [[Storage Math]] - Yes, it's extremely similar to AE2.
-* Wireless Range (coming soon) - How far does one antenna go? Is it better to have two?
