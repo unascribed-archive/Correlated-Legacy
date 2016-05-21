@@ -26,7 +26,7 @@ ext.configFile = file('build.properties')
 ext.config = parseConfig(configFile)
 ext.priv = parseConfig(file('private.properties'))
 
-group = "com.unascribed"
+group = "io.github.elytra"
 archivesBaseName = "CorrelatedPotentialistics"
 version = config.version
 
@@ -64,7 +64,7 @@ minecraft {
 
 	runDir = "minecraft"
 
-	replaceIn 'src/main/java/com/unascribed/correlatedpotentialistics/CoPo.java'
+	replaceIn 'src/main/java/io/github/elytra/copo/CoPo.java'
 	replace '@VERSION@', project.version
 }
 
