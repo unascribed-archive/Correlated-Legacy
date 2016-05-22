@@ -23,6 +23,10 @@ Note that anyone can edit this wiki, *this includes you*! If the pages are missi
 * [[Wireless Terminal|Wireless#-wireless-terminal]] - Lets you access a system, *wirelessly*!
 * [[Weldthrower]] - **1.9 exclusive**. Wrench, welder, flamethrower. What more could you possibly want?
 
+## Entities
+
+* Automaton (Possibly coming soon?) - Robots? Robots!
+
 ## Mechanics
 
 * [[Storage Math]] - Yes, it's extremely similar to AE2.
