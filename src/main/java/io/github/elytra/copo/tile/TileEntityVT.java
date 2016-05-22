@@ -87,7 +87,7 @@ public class TileEntityVT extends TileEntityNetworkMember implements ITickable, 
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound compound) {
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
 		NBTTagList prefs = new NBTTagList();
 		for (Map.Entry<UUID, UserPreferences> en : preferences.entrySet()) {
@@ -102,6 +102,7 @@ public class TileEntityVT extends TileEntityNetworkMember implements ITickable, 
 		if (dumpDrive != null) {
 			compound.setTag("DumpDrive", dumpDrive.writeToNBT(new NBTTagCompound()));
 		}
+		return compound;
 	}
 
 	@Override

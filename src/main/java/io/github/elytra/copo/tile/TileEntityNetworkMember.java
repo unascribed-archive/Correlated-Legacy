@@ -15,13 +15,14 @@ public abstract class TileEntityNetworkMember extends TileEntity {
 	private Vec3i controllerPos;
 
 	@Override
-	public void writeToNBT(NBTTagCompound compound) {
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
 		if (controllerPos != null) {
 			compound.setInteger("ControllerOffsetX", controllerPos.getX());
 			compound.setInteger("ControllerOffsetY", controllerPos.getY());
 			compound.setInteger("ControllerOffsetZ", controllerPos.getZ());
 		}
+		return compound;
 	}
 
 	@Override

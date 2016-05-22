@@ -66,12 +66,13 @@ public class CoPoWorldData extends WorldSavedData {
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound nbt) {
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
 		NBTTagList li = new NBTTagList();
 		for (Transmitter t : transmitters.values()) {
 			li.appendTag(t.writeToNBT());
 		}
 		nbt.setTag("Transmitters", li);
+		return nbt;
 	}
 	
 	public List<Transmitter> getTransmitters() {

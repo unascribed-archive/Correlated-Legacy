@@ -8,7 +8,7 @@ import io.github.elytra.copo.item.ItemDrive.Priority;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.ICrafting;
+import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -184,7 +184,7 @@ public class ContainerDrive extends Container {
 	}
 
 	@Override
-	public void addListener(ICrafting listener) {
+	public void addListener(IContainerListener listener) {
 		super.addListener(listener);
 	}
 

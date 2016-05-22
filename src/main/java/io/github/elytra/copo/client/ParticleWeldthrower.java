@@ -1,12 +1,12 @@
 package io.github.elytra.copo.client;
 
-import net.minecraft.client.particle.EntityReddustFX;
+import net.minecraft.client.particle.ParticleRedstone;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
-public class EntityWeldthrowerFX extends EntityReddustFX {
+public class ParticleWeldthrower extends ParticleRedstone {
 
-	public EntityWeldthrowerFX(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, float scale) {
+	public ParticleWeldthrower(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, float scale) {
 		super(worldIn, xCoordIn, yCoordIn, zCoordIn, scale, 0, 0, 0);
 	}
 	

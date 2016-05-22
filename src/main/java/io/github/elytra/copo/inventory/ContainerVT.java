@@ -23,7 +23,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.ICrafting;
+import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.inventory.InventoryCrafting;
@@ -270,7 +270,7 @@ public class ContainerVT extends Container {
 			}
 		}
 		rows = (int)Math.ceil(types.size()/9f);
-		for (ICrafting crafter : listeners) {
+		for (IContainerListener crafter : listeners) {
 			crafter.sendProgressBarUpdate(this, 0, rows);
 		}
 	}
@@ -367,7 +367,7 @@ public class ContainerVT extends Container {
 
 				// if it's out of range for the vanilla packet, we need to send our own
 				if (cur > 127 || cur < -128) {
-					for (ICrafting ic : listeners) {
+					for (IContainerListener ic : listeners) {
 						if (ic instanceof EntityPlayerMP) {
 							EntityPlayerMP p = (EntityPlayerMP)ic;
 							if (cur > 127) {
@@ -391,7 +391,7 @@ public class ContainerVT extends Container {
 	}
 
 	@Override
-	public void addListener(ICrafting listener) {
+	public void addListener(IContainerListener listener) {
 		super.addListener(listener);
 		listener.sendProgressBarUpdate(this, 0, rows);
 		listener.sendProgressBarUpdate(this, 1, sortMode.ordinal());
@@ -510,7 +510,7 @@ public class ContainerVT extends Container {
 							}
 							if (craftingAmount == CraftingAmount.MAX) {
 								craftingAmount = CraftingAmount.ONE;
-								for (ICrafting ic : listeners) {
+								for (IContainerListener ic : listeners) {
 									ic.sendProgressBarUpdate(this, 4, craftingAmount.ordinal());
 								}
 							}

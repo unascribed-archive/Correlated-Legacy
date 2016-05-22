@@ -28,10 +28,11 @@ public class TileEntityWirelessTransmitter extends TileEntityWirelessEndpoint {
 	}
 	
 	@Override
-	public void writeToNBT(NBTTagCompound nbt) {
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
 		super.writeToNBT(nbt);
 		nbt.setLong("UUIDMost", id.getMostSignificantBits());
 		nbt.setLong("UUIDLeast", id.getLeastSignificantBits());
+		return nbt;
 	}
 	
 	@Override

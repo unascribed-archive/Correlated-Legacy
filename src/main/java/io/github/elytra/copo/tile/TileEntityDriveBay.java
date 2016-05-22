@@ -11,7 +11,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.world.WorldServer;
@@ -23,9 +22,10 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 	private int consumedPerTick = 8;
 
 	@Override
-	public void writeToNBT(NBTTagCompound compound) {
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
 		writeDrives(compound, 0, 1, 2, 3, 4, 5, 6, 7);
+		return compound;
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 	}
 
 	@Override
-	public Packet getDescriptionPacket() {
+	public SPacketUpdateTileEntity getUpdatePacket() {
 		NBTTagCompound nbt = new NBTTagCompound();
 		writeDrives(nbt, 0, 1, 2, 3, 4, 5, 6, 7);
 		return new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), nbt);

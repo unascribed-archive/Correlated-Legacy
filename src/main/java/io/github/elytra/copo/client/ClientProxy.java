@@ -150,7 +150,7 @@ public class ClientProxy extends Proxy {
 		look.rotateYaw(20);
 		for (int i = 0; i < 5; i++) {
 			Random rand = player.worldObj.rand;
-			EntityWeldthrowerFX dust = new EntityWeldthrowerFX(player.worldObj,
+			ParticleWeldthrower dust = new ParticleWeldthrower(player.worldObj,
 					player.posX+(right.xCoord*dist)+(look.xCoord*gap),
 					player.posY+(player.getEyeHeight()-0.1)+(right.yCoord*dist)+(look.yCoord*gap),
 					player.posZ+(right.zCoord*dist)+(look.zCoord*gap), 1);

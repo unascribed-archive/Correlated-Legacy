@@ -63,7 +63,7 @@ public class CoPo {
 
 	@Instance
 	public static CoPo inst;
-	@SidedProxy(clientSide="com.unascribed.correlatedpotentialistics.client.ClientProxy", serverSide="com.unascribed.correlatedpotentialistics.Proxy")
+	@SidedProxy(clientSide="io.github.elytra.copo.client.ClientProxy", serverSide="io.github.elytra.copo.Proxy")
 	public static Proxy proxy;
 
 	public static BlockController controller;

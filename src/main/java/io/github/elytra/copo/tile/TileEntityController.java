@@ -44,9 +44,10 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound compound) {
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
 		energy.writeToNBT(compound);
+		return compound;
 	}
 
 	@Override

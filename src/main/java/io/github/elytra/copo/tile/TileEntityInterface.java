@@ -10,7 +10,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -81,7 +80,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound compound) {
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
 		writeFacesToNBT(compound);
 		NBTTagList inv = new NBTTagList();
@@ -105,6 +104,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 			}
 		}
 		compound.setTag("Prototypes", proto);
+		return compound;
 	}
 
 	@Override
@@ -125,7 +125,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 	}
 
 	@Override
-	public Packet getDescriptionPacket() {
+	public SPacketUpdateTileEntity getUpdatePacket() {
 		NBTTagCompound nbt = new NBTTagCompound();
 		writeFacesToNBT(nbt);
 		return new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), nbt);

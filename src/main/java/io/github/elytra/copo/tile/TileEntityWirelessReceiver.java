@@ -11,7 +11,6 @@ import io.github.elytra.copo.block.BlockWirelessEndpoint.State;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -72,7 +71,7 @@ public class TileEntityWirelessReceiver extends TileEntityWirelessEndpoint {
 	}
 	
 	@Override
-	public Packet getDescriptionPacket() {
+	public SPacketUpdateTileEntity getUpdatePacket() {
 		NBTTagCompound tag = new NBTTagCompound();
 		tag.setFloat("Yaw", getYaw(0));
 		tag.setFloat("Pitch", getPitch(0));
@@ -128,10 +127,11 @@ public class TileEntityWirelessReceiver extends TileEntityWirelessEndpoint {
 	}
 	
 	@Override
-	public void writeToNBT(NBTTagCompound compound) {
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
 		compound.setLong("TransmitterUUIDMost", transmitter.getMostSignificantBits());
 		compound.setLong("TransmitterUUIDLeast", transmitter.getLeastSignificantBits());
+		return compound;
 	}
 	
 	@Override
