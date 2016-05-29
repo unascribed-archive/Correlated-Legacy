@@ -89,6 +89,7 @@ public class CoPo {
 	public SimpleNetworkWrapper network;
 	
 	public boolean easyProcessors;
+	public double defaultWirelessRange;
 
 	@EventHandler
 	public void onPreInit(FMLPreInitializationEvent e) {
@@ -96,6 +97,7 @@ public class CoPo {
 
 		Configuration config = new Configuration(e.getSuggestedConfigurationFile());
 		easyProcessors = config.getBoolean("easyProcessors", "Crafting", false, "If true, processors can be crafted without finding one in a dungeon.");
+		defaultWirelessRange = config.getFloat("defaultWirelessRange", "Balance", 64, 1, 65536, "The default radius of wireless transmitters, in blocks.");
 		config.save();
 		
 		// for some reason plugin message channels have a maximum length of 20 characters

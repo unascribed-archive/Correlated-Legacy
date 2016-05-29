@@ -19,12 +19,13 @@ public class CoPoWorldData extends WorldSavedData {
 	public static final class Transmitter {
 		public UUID id;
 		public BlockPos position;
-		public double range = 64;
+		public double range;
 		protected boolean valid = false;
 		public Transmitter() {}
 		public Transmitter(UUID id, BlockPos position) {
 			this.id = id;
 			this.position = position;
+			this.range = CoPo.inst.defaultWirelessRange;
 		}
 		public Transmitter(UUID id, BlockPos position, double range) {
 			this.id = id;
