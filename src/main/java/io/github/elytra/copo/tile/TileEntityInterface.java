@@ -127,6 +127,9 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 	@Override
 	public SPacketUpdateTileEntity getUpdatePacket() {
 		NBTTagCompound nbt = new NBTTagCompound();
+		nbt.setInteger("x", getPos().getX());
+		nbt.setInteger("y", getPos().getY());
+		nbt.setInteger("z", getPos().getZ());
 		writeFacesToNBT(nbt);
 		return new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), nbt);
 	}

@@ -72,10 +72,18 @@ public class TileEntityWirelessReceiver extends TileEntityWirelessEndpoint {
 	
 	@Override
 	public SPacketUpdateTileEntity getUpdatePacket() {
+		return new SPacketUpdateTileEntity(getPos(), 0, getUpdateTag());
+	}
+	
+	@Override
+	public NBTTagCompound getUpdateTag() {
 		NBTTagCompound tag = new NBTTagCompound();
+		tag.setInteger("x", getPos().getX());
+		tag.setInteger("y", getPos().getY());
+		tag.setInteger("z", getPos().getZ());
 		tag.setFloat("Yaw", getYaw(0));
 		tag.setFloat("Pitch", getPitch(0));
-		return new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), tag);
+		return tag;
 	}
 	
 	@Override

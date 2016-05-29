@@ -41,11 +41,19 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 
 	@Override
 	public SPacketUpdateTileEntity getUpdatePacket() {
-		NBTTagCompound nbt = new NBTTagCompound();
-		writeDrives(nbt, 0, 1, 2, 3, 4, 5, 6, 7);
-		return new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), nbt);
+		return new SPacketUpdateTileEntity(getPos(), 0, getUpdateTag());
 	}
-
+	
+	@Override
+	public NBTTagCompound getUpdateTag() {
+		NBTTagCompound nbt = new NBTTagCompound();
+		nbt.setInteger("x", getPos().getX());
+		nbt.setInteger("y", getPos().getY());
+		nbt.setInteger("z", getPos().getZ());
+		writeDrives(nbt, 0, 1, 2, 3, 4, 5, 6, 7);
+		return nbt;
+	}
+	
 	@Override
 	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
 		readDrives(pkt.getNbtCompound());
