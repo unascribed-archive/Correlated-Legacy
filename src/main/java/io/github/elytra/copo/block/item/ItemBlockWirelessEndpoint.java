@@ -2,6 +2,7 @@ package io.github.elytra.copo.block.item;
 
 import java.util.List;
 
+import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.tile.TileEntityWirelessTransmitter;
 import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
@@ -25,7 +26,7 @@ public class ItemBlockWirelessEndpoint extends ItemBlock {
 
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
-		tooltip.add(I18n.format("tooltip.correlatedpotentialistics.rf_usage", 24));
+		tooltip.add(I18n.format("tooltip.correlatedpotentialistics.rf_usage", stack.getItemDamage() == 0 ? CoPo.inst.receiverRfUsage : CoPo.inst.transmitterRfUsage));
 	}
 	
 	@Override

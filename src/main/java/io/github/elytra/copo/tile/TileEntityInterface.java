@@ -2,6 +2,7 @@ package io.github.elytra.copo.tile;
 
 import com.google.common.base.Enums;
 
+import io.github.elytra.copo.CoPo;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
@@ -305,7 +306,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 
 	@Override
 	public int getEnergyConsumedPerTick() {
-		return 12;
+		return CoPo.inst.interfaceRfUsage;
 	}
 
 	@Override

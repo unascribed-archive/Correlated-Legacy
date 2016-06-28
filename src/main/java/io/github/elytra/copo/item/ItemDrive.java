@@ -128,10 +128,10 @@ public class ItemDrive extends Item {
 
 	public int getRFConsumptionRate(ItemStack stack) {
 		if (stack.getItemDamage() == 4) {
-			return 4;
+			return CoPo.inst.voidDriveUsage;
 		}
 		int dmg = stack.getItemDamage() + 1;
-		return ((int) Math.pow(2, dmg))/2;
+		return ((int) Math.pow(CoPo.inst.driveRfUsagePow, dmg))/CoPo.inst.driveRfUsageDiv;
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package io.github.elytra.copo.tile;
 
 import java.util.UUID;
 
+import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.block.BlockWirelessEndpoint.State;
 import net.minecraft.nbt.NBTTagCompound;
 
@@ -38,6 +39,11 @@ public class TileEntityWirelessTransmitter extends TileEntityWirelessEndpoint {
 	@Override
 	protected State getCurrentState() {
 		return State.LINKED;
+	}
+
+	@Override
+	public int getEnergyConsumedPerTick() {
+		return CoPo.inst.transmitterRfUsage;
 	}
 	
 }

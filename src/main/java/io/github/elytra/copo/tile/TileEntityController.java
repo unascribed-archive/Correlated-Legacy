@@ -124,7 +124,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		List<TileEntityNetworkMember> members = Lists.newArrayList();
 		List<BlockPos> queue = Lists.newArrayList(getPos());
 		boolean foundOtherController = false;
-		int consumedPerTick = 32;
+		int consumedPerTick = CoPo.inst.controllerRfUsage;
 
 		for (BlockPos pos : networkMemberLocations) {
 			TileEntity te = worldObj.getTileEntity(pos);

@@ -90,6 +90,20 @@ public class CoPo {
 	
 	public boolean easyProcessors;
 	public double defaultWirelessRange;
+	
+	public int controllerRfUsage;
+	public int driveBayRfUsage;
+	public int terminalRfUsage;
+	public int interfaceRfUsage;
+	public int transmitterRfUsage;
+	public int receiverRfUsage;
+	
+	public int driveRfUsagePow;
+	public int driveRfUsageDiv;
+	
+	public int voidDriveUsage;
+	
+	public boolean weldthrowerHurts;
 
 	@EventHandler
 	public void onPreInit(FMLPreInitializationEvent e) {
@@ -98,6 +112,20 @@ public class CoPo {
 		Configuration config = new Configuration(e.getSuggestedConfigurationFile());
 		easyProcessors = config.getBoolean("easyProcessors", "Crafting", false, "If true, processors can be crafted without finding one in a dungeon.");
 		defaultWirelessRange = config.getFloat("defaultWirelessRange", "Balance", 64, 1, 65536, "The default radius of wireless transmitters, in blocks.");
+		weldthrowerHurts = config.getBoolean("weldthrowerHurts", "Balance", true, "If enabled, the Weldthrower will damage mobs and set them on fire.");
+		
+		controllerRfUsage = config.getInt("controller", "PowerUsage", 32, 0, 640, "The RF/t used by the Controller.");
+		driveBayRfUsage = config.getInt("driveBay", "PowerUsage", 8, 0, 640, "The RF/t used by the Drive Bay.");
+		terminalRfUsage = config.getInt("terminal", "PowerUsage", 4, 0, 640, "The RF/t used by the Terminal.");
+		interfaceRfUsage = config.getInt("interface", "PowerUsage", 12, 0, 640, "The RF/t used by the Interface.");
+		transmitterRfUsage = config.getInt("transmitter", "PowerUsage", 24, 0, 640, "The RF/t used by the Wireless Transmitter.");
+		receiverRfUsage = config.getInt("receiver", "PowerUsage", 24, 0, 640, "The RF/t used by the Wireless Receiver.");
+		
+		driveRfUsagePow = config.getInt("drivePow", "PowerUsage", 2, 0, 8, "Drive power usage is (pow**tier)/div");
+		driveRfUsageDiv = config.getInt("driveDiv", "PowerUsage", 2, 0, 8, "Drive power usage is (pow**tier)/div");
+		
+		voidDriveUsage = config.getInt("voidDrive", "PowerUsage", 4, 0, 640, "The RF/t used by the Void Drive.");
+		
 		config.save();
 		
 		// for some reason plugin message channels have a maximum length of 20 characters

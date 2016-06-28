@@ -64,7 +64,7 @@ public class ItemWeldthrower extends Item {
 					WorldServer srv = (WorldServer)world;
 					StartWeldthrowingMessage msg = new StartWeldthrowingMessage();
 					msg.entityId = player.getEntityId();
-					Packet p = CoPo.inst.network.getPacketFrom(msg);
+					Packet<?> p = CoPo.inst.network.getPacketFrom(msg);
 					((EntityPlayerMP)player).connection.sendPacket(p);
 					srv.getEntityTracker().sendToAllTrackingEntity(player, p);
 				}
@@ -84,6 +84,7 @@ public class ItemWeldthrower extends Item {
 				return;
 			}
 			CoPo.proxy.weldthrowerTick(e.player);
+			if (!CoPo.inst.weldthrowerHurts) return;
 			Vec3d look = e.player.getLookVec();
 			Vec3d right = look.rotateYaw(-90);
 			double dist = 0.5;

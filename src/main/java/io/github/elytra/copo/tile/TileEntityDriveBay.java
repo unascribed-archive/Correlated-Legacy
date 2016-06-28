@@ -19,7 +19,7 @@ import net.minecraft.world.chunk.Chunk;
 public class TileEntityDriveBay extends TileEntityNetworkMember implements ITickable {
 
 	private ItemStack[] drives = new ItemStack[8];
-	private int consumedPerTick = 8;
+	private int consumedPerTick = CoPo.inst.driveBayRfUsage;
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
@@ -139,7 +139,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 
 	private void onDriveChange() {
 		int old = consumedPerTick;
-		consumedPerTick = 8;
+		consumedPerTick = CoPo.inst.driveBayRfUsage;
 		for (ItemStack is : drives) {
 			if (is == null) continue;
 			if (is.getItem() instanceof ItemDrive) {

@@ -8,11 +8,6 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 
 public abstract class TileEntityWirelessEndpoint extends TileEntityNetworkMember implements ITickable {
-
-	@Override
-	public int getEnergyConsumedPerTick() {
-		return 24;
-	}
 	
 	@Override
 	public AxisAlignedBB getRenderBoundingBox() {

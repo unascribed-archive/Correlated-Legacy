@@ -2,6 +2,7 @@ package io.github.elytra.copo.block.item;
 
 import java.util.List;
 
+import io.github.elytra.copo.CoPo;
 import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
@@ -16,7 +17,7 @@ public class ItemBlockDriveBay extends ItemBlock {
 
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
-		tooltip.add(I18n.format("tooltip.correlatedpotentialistics.rf_usage", 8));
+		tooltip.add(I18n.format("tooltip.correlatedpotentialistics.rf_usage", CoPo.inst.driveBayRfUsage));
 	}
 
 }

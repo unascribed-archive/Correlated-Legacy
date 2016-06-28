@@ -71,7 +71,7 @@ public class TileEntityVT extends TileEntityNetworkMember implements ITickable, 
 	
 	@Override
 	public int getEnergyConsumedPerTick() {
-		return 4;
+		return CoPo.inst.terminalRfUsage;
 	}
 
 	public UserPreferences getPreferences(UUID uuid) {
