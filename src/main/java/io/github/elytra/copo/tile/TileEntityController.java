@@ -202,7 +202,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		}
 		this.consumedPerTick = consumedPerTick;
 		updateDrivesCache();
-		CoPo.log.info("Found "+members.size()+" network members");
+		CoPo.log.debug("Found "+members.size()+" network members");
 	}
 	
 	public void checkInfiniteLoop() {
