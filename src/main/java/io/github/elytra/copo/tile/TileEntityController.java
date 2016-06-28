@@ -22,7 +22,9 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 
 public class TileEntityController extends TileEntityNetworkMember implements IEnergyReceiver, ITickable {
-	private EnergyStorage energy = new EnergyStorage(32000, 321);
+	public static final int POWER_CAP = 640;
+	
+	private EnergyStorage energy = new EnergyStorage(POWER_CAP*100, POWER_CAP+1);
 	public boolean error = false;
 	public boolean booting = true;
 	public String errorReason;
@@ -142,7 +144,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			if (itr > 100) {
 				error = true;
 				errorReason = "network_too_big";
-				consumedPerTick = 320;
+				consumedPerTick = POWER_CAP;
 				return;
 			}
 			BlockPos pos = queue.remove(0);
@@ -194,7 +196,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			te.setController(this);
 		}
 		networkMembers = itr;
-		if (consumedPerTick > 320) {
+		if (consumedPerTick > POWER_CAP) {
 			error = true;
 			errorReason = "too_much_power";
 		}
@@ -284,7 +286,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 
 	public void updateConsumptionRate(int change) {
 		consumedPerTick += change;
-		if (consumedPerTick > 320) {
+		if (consumedPerTick > POWER_CAP) {
 			error = true;
 			errorReason = "too_much_power";
 		} else {
@@ -419,7 +421,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			if (networkMembers > 100) {
 				error = true;
 				errorReason = "network_too_big";
-				consumedPerTick = 320;
+				consumedPerTick = POWER_CAP;
 			}
 		}
 	}
