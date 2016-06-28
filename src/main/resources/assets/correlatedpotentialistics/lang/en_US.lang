@@ -1,5 +1,7 @@
 itemGroup.correlatedPotentialistics=Correlated Potentialistics
 
+gui.inventory=Inventory
+
 container.correlatedpotentialistics.drive_bay.name=Drive Bay
 
 tile.correlatedpotentialistics.controller.name=Controller
