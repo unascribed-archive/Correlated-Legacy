@@ -100,7 +100,7 @@ public class ItemDrive extends Item {
 	}
 
 	public int getBaseColor(ItemStack stack) {
-		return stack.getItemDamage() == 4 ? 0x554455 : 0xFFFFFF;
+		return stack.getItemDamage() == 4 ? 0x311B92 : 0x607D8B;
 	}
 	
 	@Override
