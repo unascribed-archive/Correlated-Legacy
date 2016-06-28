@@ -106,7 +106,7 @@ public class BlockInterface extends Block implements ITweakable {
 			player.openGui(CoPo.inst, 2, world, pos.getX(), pos.getY(), pos.getZ());
 			return true;
 		}
-		return onBlockActivated(world, pos, state, player, hand, heldItem, side, hitX, hitY, hitZ);
+		return super.onBlockActivated(world, pos, state, player, hand, heldItem, side, hitX, hitY, hitZ);
 	}
 
 	@Override
