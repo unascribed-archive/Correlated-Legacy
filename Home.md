@@ -21,7 +21,7 @@ Note that anyone can edit this wiki, *this includes you*! If the pages are missi
 * [[Drive]] - A basic hard drive, holds digitized items for later retrieval.
 * [[Enderic Processor]] - Where do you find these?
 * [[Wireless Terminal|Wireless#-wireless-terminal]] - Lets you access a system, *wirelessly*!
-* [[Weldthrower]] - **1.9 exclusive**. Wrench, welder, flamethrower. What more could you possibly want?
+* [[Weldthrower]] - Wrench, welder, flamethrower. What more could you possibly want?
 
 ## Entities
 
