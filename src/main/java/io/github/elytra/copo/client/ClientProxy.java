@@ -1,17 +1,30 @@
 package io.github.elytra.copo.client;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
+
+import javax.imageio.ImageIO;
+
+import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Lists;
 
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.Proxy;
+import io.github.elytra.copo.client.gui.GuiFakeReboot;
+import io.github.elytra.copo.client.gui.GuiGlitchedMainMenu;
 import io.github.elytra.copo.client.render.RenderController;
 import io.github.elytra.copo.client.render.RenderDriveBay;
+import io.github.elytra.copo.client.render.RenderThrownItem;
 import io.github.elytra.copo.client.render.RenderVT;
 import io.github.elytra.copo.client.render.RenderWirelessReceiver;
 import io.github.elytra.copo.client.render.RenderWirelessTransmitter;
+import io.github.elytra.copo.entity.EntityThrownItem;
 import io.github.elytra.copo.item.ItemDrive;
 import io.github.elytra.copo.item.ItemMisc;
 import io.github.elytra.copo.tile.TileEntityController;
@@ -20,18 +33,28 @@ import io.github.elytra.copo.tile.TileEntityVT;
 import io.github.elytra.copo.tile.TileEntityWirelessReceiver;
 import io.github.elytra.copo.tile.TileEntityWirelessTransmitter;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.color.IItemColor;
+import net.minecraft.client.renderer.texture.TextureUtil;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.ScreenShotHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.client.registry.RenderingRegistry;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
@@ -39,6 +62,12 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 
 public class ClientProxy extends Proxy {
 	public static float ticks = 0;
+	
+	public static int glitchTicks = -1;
+	private BitSet glitchJpeg;
+	private int jpegTexture = -1;
+	private Random rand = new Random();
+	
 	@SuppressWarnings("deprecation")
 	@Override
 	public void preInit() {
@@ -50,6 +79,8 @@ public class ClientProxy extends Proxy {
 		
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CoPo.wireless_endpoint), 0, TileEntityWirelessReceiver.class);
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CoPo.wireless_endpoint), 1, TileEntityWirelessTransmitter.class);
+		
+		RenderingRegistry.registerEntityRenderingHandler(EntityThrownItem.class, (rm) -> new RenderThrownItem(rm, Minecraft.getMinecraft().getRenderItem()));
 		
 		MinecraftForge.EVENT_BUS.register(this);
 
@@ -163,12 +194,83 @@ public class ClientProxy extends Proxy {
 	public void onClientTick(ClientTickEvent e) {
 		if (e.phase == Phase.START) {
 			ticks++;
+			if (glitchTicks > -1 && jpegTexture != -1) {
+				glitchTicks++;
+				if (glitchTicks >= 240) {
+					glitchTicks = -1;
+					Minecraft.getMinecraft().displayGuiScreen(new GuiFakeReboot());
+					Minecraft.getMinecraft().getSoundHandler().stopSounds();
+				}
+				if (glitchJpeg != null && !Minecraft.getMinecraft().isGamePaused()) {
+					int tries = 0;
+					while (true) {
+						tries++;
+						if (tries > 20) {
+							break;
+						}
+						int idx = rand.nextInt(glitchJpeg.size());
+						glitchJpeg.flip(idx);
+						try {
+							BufferedImage jpeg = ImageIO.read(new ByteArrayInputStream(glitchJpeg.toByteArray()));
+							TextureUtil.uploadTextureImage(jpegTexture, jpeg);
+							break;
+						} catch (IOException e1) {
+							glitchJpeg.flip(idx);
+							continue;
+						}
+					}
+				}
+			}
 		}
 	}
-	@SubscribeEvent
+	@SubscribeEvent(priority=EventPriority.LOWEST)
 	public void onRenderTick(RenderTickEvent e) {
 		if (e.phase == Phase.START) {
 			ticks = ((int)ticks)+e.renderTickTime;
+		} else if (e.phase == Phase.END) {
+			if (Minecraft.getMinecraft().currentScreen == null || Minecraft.getMinecraft().currentScreen instanceof GuiGlitchedMainMenu) {
+				drawGlitch();
+			}
+		}
+	}
+	@SubscribeEvent(priority=EventPriority.LOWEST)
+	public void onGuiDraw(GuiScreenEvent.DrawScreenEvent.Pre e) {
+		if (!(e.getGui() instanceof GuiGlitchedMainMenu)) drawGlitch();
+	}
+	private void drawGlitch() {
+		if (glitchTicks == 0) {
+			if (jpegTexture != -1) {
+				TextureUtil.deleteTexture(jpegTexture);
+				jpegTexture = -1;
+			}
+			jpegTexture = TextureUtil.glGenTextures();
+			BufferedImage screenshot = ScreenShotHelper.createScreenshot(Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight, Minecraft.getMinecraft().getFramebuffer());
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			try {
+				ImageIO.write(screenshot, "JPEG", baos);
+				glitchJpeg = BitSet.valueOf(baos.toByteArray());
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		} else if (glitchTicks == -1) {
+			if (jpegTexture != -1) {
+				TextureUtil.deleteTexture(jpegTexture);
+				jpegTexture = -1;
+			}
+		} else if (glitchTicks > 0) {
+			Tessellator tess = Tessellator.getInstance();
+			VertexBuffer vb = tess.getBuffer();
+			GlStateManager.color(1, 1, 1);
+			GlStateManager.disableDepth();
+			GlStateManager.bindTexture(jpegTexture);
+			ScaledResolution res = new ScaledResolution(Minecraft.getMinecraft());
+			vb.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+			vb.pos(0, res.getScaledHeight(), 0).tex(0, 1).endVertex();
+			vb.pos(res.getScaledWidth(), res.getScaledHeight(), 0).tex(1, 1).endVertex();
+			vb.pos(res.getScaledWidth(), 0, 0).tex(1, 0).endVertex();
+			vb.pos(0, 0, 0).tex(0, 0).endVertex();
+			tess.draw();
+			GlStateManager.enableDepth();
 		}
 	}
 	@SubscribeEvent

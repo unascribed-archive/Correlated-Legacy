@@ -6,5 +6,31 @@
 			"correlatedpotentialistics:weldthrower_1"
 		],
 		"subtitle": "subtitles.correlatedpotentialistics.weldthrow"
+	},
+	"glitchbgm": {
+		"category": "master",
+		"sounds": [
+			{"name":"correlatedpotentialistics:glitch-bgm0","stream":true},
+			{"name":"correlatedpotentialistics:glitch-bgm1","stream":true},
+			{"name":"correlatedpotentialistics:glitch-bgm2","stream":true},
+			{"name":"correlatedpotentialistics:glitch-bgm3","stream":true}
+		]
+	},
+	"floppy": {
+		"category": "master",
+		"sounds": [ "correlatedpotentialistics:floppy" ]
+	},
+	"boot": {
+		"category": "master",
+		"sounds": [ "correlatedpotentialistics:boot" ]
+	},
+	"glitch": {
+		"category": "master",
+		"sounds": [ "correlatedpotentialistics:glitch" ],
+		"subtitle": "subtitles.correlatedpotentialistics.glitch"
+	},
+	"travel": {
+		"category": "master",
+		"sounds": [ "correlatedpotentialistics:travel" ]
 	}
 }

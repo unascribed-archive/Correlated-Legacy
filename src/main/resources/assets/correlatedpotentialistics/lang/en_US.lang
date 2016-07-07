@@ -47,6 +47,8 @@ item.correlatedpotentialistics.misc.3.name=Luminous Pearl
 tooltip.correlatedpotentialistics.misc.3.0=§5It glows a brilliant verdant green.
 item.correlatedpotentialistics.misc.4.name=Luminous Torch
 item.correlatedpotentialistics.misc.5.name=Weldthrower Fuel
+item.correlatedpotentialistics.misc.6.name=Unstable Pearl
+tooltip.correlatedpotentialistics.misc.6.0=§5What did you do?
 
 item.correlatedpotentialistics.wireless_terminal.name=Wireless Terminal
 item.correlatedpotentialistics.weldthrower.name=Weldthrower
@@ -142,6 +144,7 @@ tooltip.correlatedpotentialistics.void_drive.0=Deletes any items that are assign
 tooltip.correlatedpotentialistics.void_drive.1=Partitioning this is a good idea
 
 subtitles.correlatedpotentialistics.weldthrow=Weldthrower weldthrows
+subtitles.correlatedpotentialistics.glitch=Pearl converts
 
 death.attack.correlatedpotentialistics.weld=%s was welded by %s
 death.attack.correlatedpotentialistics.weld.item=%s was welded by %s using %s
