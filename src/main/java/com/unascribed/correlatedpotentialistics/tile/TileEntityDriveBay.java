@@ -25,13 +25,35 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 	@Override
 	public void writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
-		writeDrives(compound, 0, 1, 2, 3, 4, 5, 6, 7);
+		for (int i = 0; i < drives.length; i++) {
+			NBTTagCompound drive = new NBTTagCompound();
+			if (drives[i] != null) {
+				drives[i].writeToNBT(drive);
+			}
+			compound.setTag("Drive"+i, drive);
+		}
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
-		readDrives(compound);
+		for (int i = 0; i < drives.length; i++) {
+			if (compound.hasKey("Drive"+i)) {
+				NBTTagCompound drive = compound.getCompoundTag("Drive"+i);
+				if (drive.hasNoTags()) {
+					drives[i] = null;
+				} else {
+					ItemStack is = ItemStack.loadItemStackFromNBT(drive);
+					if (hasWorldObj() && worldObj.isRemote) {
+						ItemStacks.ensureHasTag(is);
+						is.setTagCompound((NBTTagCompound)is.getTagCompound().copy());
+						is.getTagCompound().setBoolean("Dirty", true);
+					}
+					drives[i] = is;
+				}
+			}
+		}
+		onDriveChange();
 	}
 
 	@Override
@@ -42,13 +64,36 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 	@Override
 	public Packet getDescriptionPacket() {
 		NBTTagCompound nbt = new NBTTagCompound();
-		writeDrives(nbt, 0, 1, 2, 3, 4, 5, 6, 7);
+		for (int i = 0; i < drives.length; i++) {
+			ItemStack drive = drives[i];
+			if (drive == null) continue;
+			ItemStack prototype = drive.copy();
+			ItemStacks.ensureHasTag(prototype).getTagCompound().removeTag("Data");
+			nbt.setTag("Drive"+i, prototype.serializeNBT());
+		}
 		return new S35PacketUpdateTileEntity(getPos(), getBlockMetadata(), nbt);
 	}
-
+	
 	@Override
 	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
-		readDrives(pkt.getNbtCompound());
+		if (pkt.getNbtCompound().getBoolean("JustBlink")) {
+			int slot = pkt.getNbtCompound().getInteger("Blink");
+			ItemStack stack = drives[slot];
+			if (stack != null) {
+				ItemStacks.ensureHasTag(stack).getTagCompound().setBoolean("Dirty", true);
+			}
+		} else {
+			for (int i = 0; i < drives.length; i++) {
+				if (pkt.getNbtCompound().hasKey("Drive"+i)) {
+					NBTTagCompound tag = pkt.getNbtCompound().getCompoundTag("Drive"+i);
+					if (tag.hasNoTags()) {
+						drives[i] = null;
+					} else {
+						drives[i] = ItemStack.loadItemStackFromNBT(tag);
+					}
+				}
+			}
+		}
 	}
 
 	@Override
@@ -60,7 +105,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 				if (ItemStacks.getBoolean(is, "Dirty").or(false)) {
 					is.getTagCompound().removeTag("Dirty");
 					markDirty();
-					setDriveInSlot(i, is);
+					blinkDriveInSlot(i);
 				}
 			}
 			IBlockState state = getWorld().getBlockState(getPos());
@@ -78,54 +123,37 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 		}
 	}
 
-	private void writeDrives(NBTTagCompound nbt, int... slots) {
-		for (int i : slots) {
-			writeDrive(nbt, i);
-		}
+	public void blinkDriveInSlot(int slot) {
+		NBTTagCompound nbt = new NBTTagCompound();
+		nbt.setBoolean("JustBlink", true);
+		nbt.setInteger("Blink", slot);
+		sendUpdatePacket(nbt);
 	}
-
-	private void writeDrive(NBTTagCompound nbt, int slot) {
-		NBTTagCompound drive = new NBTTagCompound();
-		if (drives[slot] != null) {
-			drives[slot].writeToNBT(drive);
-		}
-		nbt.setTag("Drive"+slot, drive);
-	}
-
-	private void readDrives(NBTTagCompound nbt) {
-		for (int i = 0; i < drives.length; i++) {
-			if (nbt.hasKey("Drive"+i)) {
-				NBTTagCompound drive = nbt.getCompoundTag("Drive"+i);
-				if (drive.hasNoTags()) {
-					drives[i] = null;
-				} else {
-					ItemStack is = ItemStack.loadItemStackFromNBT(drive);
-					if (hasWorldObj() && worldObj.isRemote) {
-						ItemStacks.ensureHasTag(is);
-						is.setTagCompound((NBTTagCompound)is.getTagCompound().copy());
-						is.getTagCompound().setBoolean("Dirty", true);
-					}
-					drives[i] = is;
-				}
-			}
-		}
-		onDriveChange();
-	}
-
+	
 	public void setDriveInSlot(int slot, ItemStack drive) {
 		drives[slot] = drive;
 		if (hasWorldObj() && !worldObj.isRemote && worldObj instanceof WorldServer) {
 			NBTTagCompound nbt = new NBTTagCompound();
-			writeDrive(nbt, slot);
-			WorldServer ws = (WorldServer)worldObj;
-			Chunk c = worldObj.getChunkFromBlockCoords(getPos());
-			S35PacketUpdateTileEntity packet = new S35PacketUpdateTileEntity(getPos(), getBlockMetadata(), nbt);
-			for (EntityPlayerMP player : worldObj.getPlayers(EntityPlayerMP.class, Predicates.alwaysTrue())) {
-				if (ws.getPlayerManager().isPlayerWatchingChunk(player, c.xPosition, c.zPosition)) {
-					player.playerNetServerHandler.sendPacket(packet);
-				}
+			if (drive != null) {
+				ItemStack prototype = drive.copy();
+				ItemStacks.ensureHasTag(prototype).getTagCompound().removeTag("Data");
+				nbt.setTag("Drive"+slot, prototype.serializeNBT());
+			} else {
+				nbt.setTag("Drive"+slot, new NBTTagCompound());
 			}
+			sendUpdatePacket(nbt); 
 			onDriveChange();
+		}
+	}
+
+	private void sendUpdatePacket(NBTTagCompound nbt) {
+		WorldServer ws = (WorldServer)worldObj;
+		Chunk c = worldObj.getChunkFromBlockCoords(getPos());
+		S35PacketUpdateTileEntity packet = new S35PacketUpdateTileEntity(getPos(), getBlockMetadata(), nbt);
+		for (EntityPlayerMP player : worldObj.getPlayers(EntityPlayerMP.class, Predicates.alwaysTrue())) {
+			if (ws.getPlayerManager().isPlayerWatchingChunk(player, c.xPosition, c.zPosition)) {
+				player.playerNetServerHandler.sendPacket(packet);
+			}
 		}
 	}
 
