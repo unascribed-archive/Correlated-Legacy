@@ -39,19 +39,22 @@ public class SetGlitchingStateMessage implements IMessage, IMessageHandler<SetGl
 	@Override
 	@SideOnly(Side.CLIENT)
 	public IMessage onMessage(SetGlitchingStateMessage message, MessageContext ctx) {
-		Minecraft.getMinecraft().addScheduledTask(() -> {
-			if (message.state == GlitchState.CORRUPTING) {
-				Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(CoPo.glitch_bgm, 1f));
-				ClientProxy.glitchTicks = 0;
-			} else {
-				Minecraft.getMinecraft().getSoundHandler().stopSounds();
-				ClientProxy.glitchTicks = -1;
-			}
-			if (message.state == GlitchState.REBOOT) {
-				Minecraft.getMinecraft().displayGuiScreen(new GuiFakeReboot());
-			}
-		});
+		Minecraft.getMinecraft().addScheduledTask(() -> perform(message));
 		return null;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	private void perform(SetGlitchingStateMessage message) {
+		Minecraft.getMinecraft().getSoundHandler().stopSounds();
+		if (message.state == GlitchState.CORRUPTING) {
+			Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(CoPo.glitchbgm, 1f));
+			ClientProxy.glitchTicks = 0;
+		} else {
+			ClientProxy.glitchTicks = -1;
+		}
+		if (message.state == GlitchState.REBOOT) {
+			Minecraft.getMinecraft().displayGuiScreen(new GuiFakeReboot());
+		}
 	}
 
 }

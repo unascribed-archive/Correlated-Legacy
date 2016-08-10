@@ -1,9 +1,14 @@
 package io.github.elytra.copo;
 
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.UUID;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 
 import io.github.elytra.copo.block.BlockController;
 import io.github.elytra.copo.block.BlockDriveBay;
@@ -16,13 +21,18 @@ import io.github.elytra.copo.block.item.ItemBlockInterface;
 import io.github.elytra.copo.block.item.ItemBlockVT;
 import io.github.elytra.copo.block.item.ItemBlockWirelessEndpoint;
 import io.github.elytra.copo.compat.WailaCompatibility;
+import io.github.elytra.copo.entity.EntityAutomaton;
 import io.github.elytra.copo.entity.EntityThrownItem;
+import io.github.elytra.copo.item.ItemCoPoRecord;
 import io.github.elytra.copo.item.ItemDrive;
+import io.github.elytra.copo.item.ItemKeycard;
 import io.github.elytra.copo.item.ItemMisc;
 import io.github.elytra.copo.item.ItemWeldthrower;
 import io.github.elytra.copo.item.ItemWirelessTerminal;
 import io.github.elytra.copo.network.CoPoGuiHandler;
-import io.github.elytra.copo.network.EnterTheDungeonMessage;
+import io.github.elytra.copo.network.EnterDungeonMessage;
+import io.github.elytra.copo.network.LeaveDungeonMessage;
+import io.github.elytra.copo.network.SetAutomatonNameMessage;
 import io.github.elytra.copo.network.SetGlitchingStateMessage;
 import io.github.elytra.copo.network.SetSearchQueryMessage;
 import io.github.elytra.copo.network.SetSlotSizeMessage;
@@ -57,7 +67,10 @@ import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -83,13 +96,21 @@ public class CoPo {
 	public static ItemDrive drive;
 	public static ItemWirelessTerminal wireless_terminal;
 	public static ItemWeldthrower weldthrower;
+	public static ItemKeycard keycard;
+	
 	
 	public static SoundEvent weldthrow;
-	public static SoundEvent glitch_bgm;
-	public static SoundEvent floppy;
-	public static SoundEvent boot;
-	public static SoundEvent glitch;
-	public static SoundEvent travel;
+	public static SoundEvent glitchbgm;
+	public static SoundEvent glitchfloppy;
+	public static SoundEvent glitchboot;
+	public static SoundEvent convert;
+	public static SoundEvent glitchtravel;
+	public static SoundEvent automaton_idle;
+	public static SoundEvent automaton_hurt;
+	
+	
+	public static List<ItemCoPoRecord> recordItems = Lists.newArrayList();
+	public static List<String> records = Lists.newArrayList();
 	
 	public static CreativeTabs creativeTab = new CreativeTabs("correlatedPotentialistics") {
 		@Override
@@ -147,17 +168,57 @@ public class CoPo {
 		
 		// for some reason plugin message channels have a maximum length of 20 characters
 		network = NetworkRegistry.INSTANCE.newSimpleChannel("CrelatedPtntialstics");
-		network.registerMessage(SetSearchQueryMessage.class, SetSearchQueryMessage.class, 0, Side.SERVER);
-		network.registerMessage(SetSearchQueryMessage.class, SetSearchQueryMessage.class, 1, Side.CLIENT);
-		network.registerMessage(SetSlotSizeMessage.class, SetSlotSizeMessage.class, 2, Side.CLIENT);
-		network.registerMessage(StartWeldthrowingMessage.class, StartWeldthrowingMessage.class, 3, Side.CLIENT);
-		network.registerMessage(SetGlitchingStateMessage.class, SetGlitchingStateMessage.class, 4, Side.CLIENT);
-		network.registerMessage(EnterTheDungeonMessage.class, EnterTheDungeonMessage.class, 5, Side.SERVER);
+		registerMessage(SetSearchQueryMessage.class, Side.SERVER);
+		registerMessage(SetSearchQueryMessage.class, Side.CLIENT);
+		registerMessage(SetSlotSizeMessage.class, Side.CLIENT);
+		registerMessage(StartWeldthrowingMessage.class, Side.CLIENT);
+		registerMessage(SetGlitchingStateMessage.class, Side.CLIENT);
+		registerMessage(EnterDungeonMessage.class, Side.SERVER);
+		registerMessage(SetAutomatonNameMessage.class, Side.SERVER);
+		registerMessage(LeaveDungeonMessage.class, Side.SERVER);
 
 		EntityRegistry.registerModEntity(EntityThrownItem.class, "thrown_item", 0, this, 64, 10, true);
+		EntityRegistry.registerModEntity(EntityAutomaton.class, "automaton", 1, this, 64, 1, true);
+		
+		EntityRegistry.registerEgg(EntityAutomaton.class, 0x37474F, 0x00F8C1);
 		
 		limbo = DimensionType.register("Limbo", "_copodungeon", limboDimId, LimboProvider.class, false);
 		DimensionManager.registerDimension(limboDimId, limbo);
+		
+		registerSound("weldthrow");
+		registerSound("glitchbgm");
+		registerSound("glitchfloppy");
+		registerSound("glitchboot");
+		registerSound("convert");
+		registerSound("glitchtravel");
+		registerSound("automaton_hurt");
+		registerSound("automaton_idle");
+		
+		registerRecord("danslarue.xm");
+		registerRecord("jesuisbaguette.xm");
+		registerRecord("papillons.xm");
+		registerRecord("dreidl.mod");
+		registerRecord("oak.mod");
+		registerRecord("king.mod");
+		registerRecord("comrades.mod");
+		registerRecord("devenirmondefi.mod");
+		registerRecord("ngenracer.mod");
+		registerRecord("sevensixteen.mod");
+		registerRecord("ombres.mod");
+		registerRecord("sacrecharlemagne.mod");
+		registerRecord("danone.mod");
+		registerRecord("spark.mod");
+		registerRecord("genesis.mod");
+		registerRecord("greyatari.mod");
+		registerRecord("ella.mod");
+		registerRecord("framboise.mod");
+		registerRecord("grecque.mod");
+		registerRecord("que.mod");
+		registerRecord("suddenlyisee.mod");
+		registerRecord("sixsixtythreefoureightytwo.mod");
+		registerRecord("pinkssideoftown.mod");
+		registerRecord("thirteen.mod");
+		registerRecord("irokos.mod");
 		
 		register(new BlockController().setHardness(2), ItemBlockController.class, "controller", 4);
 		register(new BlockDriveBay().setHardness(2), ItemBlockDriveBay.class, "drive_bay", 0);
@@ -169,24 +230,7 @@ public class CoPo {
 		register(new ItemDrive(), "drive", -1);
 		register(new ItemWirelessTerminal(), "wireless_terminal", 0);
 		register(new ItemWeldthrower(), "weldthrower", 0);
-		
-		ResourceLocation weldthrowLoc = new ResourceLocation("correlatedpotentialistics", "weldthrow");
-		GameRegistry.register(weldthrow = new SoundEvent(weldthrowLoc), weldthrowLoc);
-		
-		ResourceLocation glitchBgmLoc = new ResourceLocation("correlatedpotentialistics", "glitchbgm");
-		GameRegistry.register(glitch_bgm = new SoundEvent(glitchBgmLoc), glitchBgmLoc);
-		
-		ResourceLocation floppyLoc = new ResourceLocation("correlatedpotentialistics", "floppy");
-		GameRegistry.register(floppy = new SoundEvent(floppyLoc), floppyLoc);
-		
-		ResourceLocation bootLoc = new ResourceLocation("correlatedpotentialistics", "boot");
-		GameRegistry.register(boot = new SoundEvent(bootLoc), bootLoc);
-		
-		ResourceLocation glitchLoc = new ResourceLocation("correlatedpotentialistics", "glitch");
-		GameRegistry.register(glitch = new SoundEvent(glitchLoc), glitchLoc);
-		
-		ResourceLocation travelLoc = new ResourceLocation("correlatedpotentialistics", "travel");
-		GameRegistry.register(travel = new SoundEvent(travelLoc), travelLoc);
+		register(new ItemKeycard(), "keycard", -2);
 
 		CRecipes.register();
 
@@ -202,8 +246,15 @@ public class CoPo {
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, new CoPoGuiHandler());
 		MinecraftForge.EVENT_BUS.register(this);
 		proxy.preInit();
+		
 	}
 	
+	private int discriminator = 0;
+	
+	private <T extends IMessage & IMessageHandler<T, IMessage>> void registerMessage(Class<T> msg, Side side) {
+		network.registerMessage(msg, msg, discriminator++, side);
+	}
+
 	@EventHandler
 	public void onPostInit(FMLPostInitializationEvent e) {
 		proxy.postInit();
@@ -216,6 +267,16 @@ public class CoPo {
 		}
 	}
 	
+	@SubscribeEvent
+	public void onRespawn(PlayerRespawnEvent e) {
+		CoPoWorldData d = getDataFor(e.player.worldObj);
+		UUID id = e.player.getGameProfile().getId();
+		if (d.getPlayerRespawnData().containsKey(id)) {
+			// for BTM
+			//e.player.readFromNBT(d.getPlayerRespawnData().remove(id));
+		}
+	}
+	
 	public static CoPoWorldData getDataFor(World w) {
 		CoPoWorldData data = (CoPoWorldData)w.getPerWorldStorage().getOrLoadData(CoPoWorldData.class, "correlatedpotentialistics");
 		if (data == null) {
@@ -225,6 +286,38 @@ public class CoPo {
 		return data;
 	}
 
+	private void registerRecord(String str) {
+		try {
+			records.add(str);
+			String basename = str.substring(0, str.indexOf('.'));
+			ResourceLocation loc = new ResourceLocation("correlatedpotentialistics", basename);
+			SoundEvent snd = new SoundEvent(loc);
+			GameRegistry.register(snd, loc);
+			ItemCoPoRecord item = new ItemCoPoRecord(basename, snd);
+			item.setRegistryName(basename+"_record");
+			item.setUnlocalizedName("record");
+			item.setCreativeTab(creativeTab);
+			GameRegistry.register(item);
+			proxy.registerItemModel(item, 0);
+			recordItems.add(item);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void registerSound(String str) {
+		ResourceLocation loc = new ResourceLocation("correlatedpotentialistics", str);
+		SoundEvent snd = new SoundEvent(loc);
+		GameRegistry.register(snd, loc);
+		try {
+			Field f = this.getClass().getField(str);
+			f.set(null, snd);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	
 	private void register(Block block, Class<? extends ItemBlock> item, String name, int itemVariants) {
 		block.setUnlocalizedName("correlatedpotentialistics."+name);
 		block.setCreativeTab(creativeTab);
@@ -259,3 +352,4 @@ public class CoPo {
 	}
 
 }
+

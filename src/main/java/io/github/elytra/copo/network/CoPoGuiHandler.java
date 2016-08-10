@@ -2,9 +2,12 @@ package io.github.elytra.copo.network;
 
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.WirelessTerminalVT;
+import io.github.elytra.copo.client.gui.GuiAutomaton;
 import io.github.elytra.copo.client.gui.GuiDrive;
 import io.github.elytra.copo.client.gui.GuiInterface;
 import io.github.elytra.copo.client.gui.GuiVT;
+import io.github.elytra.copo.entity.EntityAutomaton;
+import io.github.elytra.copo.inventory.ContainerAutomaton;
 import io.github.elytra.copo.inventory.ContainerDrive;
 import io.github.elytra.copo.inventory.ContainerInterface;
 import io.github.elytra.copo.inventory.ContainerVT;
@@ -12,6 +15,7 @@ import io.github.elytra.copo.item.ItemDrive;
 import io.github.elytra.copo.item.ItemWirelessTerminal;
 import io.github.elytra.copo.tile.TileEntityInterface;
 import io.github.elytra.copo.tile.TileEntityVT;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -60,6 +64,15 @@ public class CoPoGuiHandler implements IGuiHandler {
 					break;
 				}
 			}
+			case 4: {
+				Entity ent = world.getEntityByID(x);
+				if (ent != null && ent instanceof EntityAutomaton) {
+					return new ContainerAutomaton(player.inventory, player, (EntityAutomaton)ent);
+				} else {
+					CoPo.log.warn("Expected an Automaton, got {} instead", ent == null ? "null" : ent.getClass());
+					break;
+				}
+			}
 		}
 		return null;
 	}
@@ -100,6 +113,15 @@ public class CoPoGuiHandler implements IGuiHandler {
 					return new GuiVT(new ContainerVT(player.inventory, player, new WirelessTerminalVT(world, player, (ItemWirelessTerminal)terminal.getItem(), terminal)));
 				} else {
 					CoPo.log.warn("Expected a wireless terminal, got {} instead", terminal);
+					break;
+				}
+			}
+			case 4: {
+				Entity ent = world.getEntityByID(x);
+				if (ent != null && ent instanceof EntityAutomaton) {
+					return new GuiAutomaton(new ContainerAutomaton(player.inventory, player, (EntityAutomaton)ent));
+				} else {
+					CoPo.log.warn("Expected an Automaton, got {} instead", ent == null ? "null" : ent.getClass());
 					break;
 				}
 			}

@@ -6,9 +6,11 @@ import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.entity.EntityThrownItem;
 import net.minecraft.block.BlockDispenser;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.stats.StatList;
@@ -19,6 +21,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.FakePlayer;
 
 public class ItemMisc extends Item {
 	public static final String[] items = {
@@ -28,7 +31,8 @@ public class ItemMisc extends Item {
 			"luminous_pearl",
 			"lumtorch",
 			"weldthrower_fuel",
-			"unstable_pearl"
+			"unstable_pearl",
+			"unfinished_organic_circuit"
 		};
 
 	public ItemMisc() {
@@ -55,16 +59,20 @@ public class ItemMisc extends Item {
 
 	@Override
 	public String getUnlocalizedName(ItemStack stack) {
-		return super.getUnlocalizedName(stack) + "." + stack.getItemDamage();
+		return super.getUnlocalizedName(stack) + "." + getItemName(stack);
 	}
 
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
 		int i = 0;
-		while (I18n.canTranslate("tooltip.correlatedpotentialistics.misc." + stack.getItemDamage() + "." + i)) {
-			tooltip.add(I18n.translateToLocal("tooltip.correlatedpotentialistics.misc." + stack.getItemDamage() + "." + i));
+		while (I18n.canTranslate("tooltip.correlatedpotentialistics.misc." + getItemName(stack) + "." + i)) {
+			tooltip.add(I18n.translateToLocal("tooltip.correlatedpotentialistics.misc." + getItemName(stack) + "." + i));
 			i++;
 		}
+	}
+
+	private String getItemName(ItemStack stack) {
+		return stack.getMetadata() < 0 || stack.getMetadata() >= items.length ? "missingno." : items[stack.getMetadata()];
 	}
 
 	@Override
@@ -76,7 +84,7 @@ public class ItemMisc extends Item {
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
-		if (playerIn.dimension != CoPo.limboDimId && (itemStackIn.getMetadata() == 3 || itemStackIn.getMetadata() == 6)) {
+		if (!(playerIn instanceof FakePlayer) && playerIn.dimension != CoPo.limboDimId && (itemStackIn.getMetadata() == 3 || itemStackIn.getMetadata() == 6)) {
 			if (!playerIn.capabilities.isCreativeMode) {
 				--itemStackIn.stackSize;
 			}
@@ -94,6 +102,13 @@ public class ItemMisc extends Item {
 
 			playerIn.addStat(StatList.getObjectUseStats(this));
 			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemStackIn);
+		} else if (itemStackIn.getMetadata() == 7) {
+			if (playerIn.canEat(false)) {
+				playerIn.setActiveHand(hand);
+				return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemStackIn);
+			} else {
+				return new ActionResult<ItemStack>(EnumActionResult.FAIL, itemStackIn);
+			}
 		}
 		return super.onItemRightClick(itemStackIn, worldIn, playerIn, hand);
 	}
@@ -113,5 +128,29 @@ public class ItemMisc extends Item {
 			}
 		}
 		return builder.toString();
+	}
+	
+	@Override
+	public ItemStack onItemUseFinish(ItemStack stack, World worldIn, EntityLivingBase entityLiving) {
+		--stack.stackSize;
+
+		if (entityLiving instanceof EntityPlayer) {
+			EntityPlayer entityplayer = (EntityPlayer) entityLiving;
+			entityplayer.getFoodStats().addStats(2, 4);
+			worldIn.playSound((EntityPlayer) null, entityplayer.posX, entityplayer.posY, entityplayer.posZ, SoundEvents.ENTITY_PLAYER_BURP, SoundCategory.PLAYERS, 0.5F, worldIn.rand.nextFloat() * 0.1F + 0.9F);
+			entityplayer.addStat(StatList.getObjectUseStats(this));
+		}
+
+		return stack;
+	}
+
+	@Override
+	public int getMaxItemUseDuration(ItemStack stack) {
+		return 48;
+	}
+
+	@Override
+	public EnumAction getItemUseAction(ItemStack stack) {
+		return stack.getMetadata() == 7 ? EnumAction.EAT : EnumAction.NONE;
 	}
 }

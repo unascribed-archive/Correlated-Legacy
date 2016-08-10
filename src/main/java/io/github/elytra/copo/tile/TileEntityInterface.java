@@ -161,8 +161,8 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 
 	@Override
 	public void update() {
-		if (hasController() && hasWorldObj() && !worldObj.isRemote && worldObj.getTotalWorldTime() % 16 == 0) {
-			TileEntityController controller = getController();
+		if (hasStorage() && hasWorldObj() && !worldObj.isRemote && worldObj.getTotalWorldTime() % 16 == 0) {
+			TileEntityController controller = getStorage();
 			if (!controller.isPowered() || controller.booting || controller.error) return;
 			for (int i = 0; i <= 8; i++) {
 				ItemStack stack = inv.getStackInSlot(i);

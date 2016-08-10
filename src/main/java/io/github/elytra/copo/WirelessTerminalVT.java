@@ -2,7 +2,6 @@ package io.github.elytra.copo;
 
 import io.github.elytra.copo.CoPoWorldData.Transmitter;
 import io.github.elytra.copo.item.ItemWirelessTerminal;
-import io.github.elytra.copo.tile.TileEntityController;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -29,12 +28,12 @@ public class WirelessTerminalVT implements IVT {
 	}
 
 	@Override
-	public TileEntityController getController() {
+	public IDigitalStorage getStorage() {
 		return iwt.getTransmitterController(stack, world, player);
 	}
 
 	@Override
-	public boolean hasController() {
+	public boolean hasStorage() {
 		return iwt.getTransmitterController(stack, world, player) != null;
 	}
 

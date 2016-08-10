@@ -81,9 +81,9 @@ public class BlockVT extends Block {
 			TileEntity te = world.getTileEntity(pos);
 			if (te instanceof TileEntityNetworkMember) {
 				TileEntityNetworkMember tenm = (TileEntityNetworkMember)te;
-				if (tenm.hasController()) {
+				if (tenm.hasStorage()) {
 					if (!world.isRemote) {
-						switch (world.getBlockState(tenm.getController().getPos()).getValue(BlockController.state)) {
+						switch (world.getBlockState(tenm.getStorage().getPos()).getValue(BlockController.state)) {
 							case BOOTING:
 								player.addChatMessage(new TextComponentTranslation("msg.correlatedpotentialistics.vt_booting"));
 								break;

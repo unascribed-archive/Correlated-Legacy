@@ -10,6 +10,7 @@ import com.google.common.collect.Sets;
 import cofh.api.energy.EnergyStorage;
 import cofh.api.energy.IEnergyReceiver;
 import io.github.elytra.copo.CoPo;
+import io.github.elytra.copo.IDigitalStorage;
 import io.github.elytra.copo.block.BlockController;
 import io.github.elytra.copo.block.BlockController.State;
 import io.github.elytra.copo.helper.DriveComparator;
@@ -21,7 +22,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 
-public class TileEntityController extends TileEntityNetworkMember implements IEnergyReceiver, ITickable {
+public class TileEntityController extends TileEntityNetworkMember implements IEnergyReceiver, ITickable, IDigitalStorage {
 	public static final int POWER_CAP = 640;
 	
 	private EnergyStorage energy = new EnergyStorage(POWER_CAP*100, POWER_CAP+1);
@@ -104,12 +105,12 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	}
 
 	@Override
-	public boolean hasController() {
+	public boolean hasStorage() {
 		return true;
 	}
 
 	@Override
-	public TileEntityController getController() {
+	public TileEntityController getStorage() {
 		return this;
 	}
 
@@ -217,7 +218,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 				return;
 			}
 		}
-		if (error && errorReason.equals("infinite_loop")) {
+		if (error && "infinite_loop".equals(errorReason)) {
 			error = false;
 			errorReason = null;
 		}
@@ -265,6 +266,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		}
 	}
 	
+	@Override
 	public boolean isPowered() {
 		return energy.getEnergyStored() >= getEnergyConsumedPerTick();
 	}
@@ -297,6 +299,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		}
 	}
 
+	@Override
 	public ItemStack addItemToNetwork(ItemStack stack) {
 		if (stack == null) return null;
 		for (ItemStack drive : drives) {
@@ -318,6 +321,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		return stack.stackSize <= 0 ? null : stack;
 	}
 
+	@Override
 	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount, boolean checkInterfaces) {
 		if (prototype == null) return null;
 		ItemStack stack = prototype.copy();
@@ -361,7 +365,19 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		changeId++;
 		return stack.stackSize <= 0 ? null : stack;
 	}
+	
+	@Override
+	public int getBitsFree() {
+		int accum = 0;
+		for (ItemStack drive : drives) {
+			if (drive != null && drive.getItem() instanceof ItemDrive) {
+				accum += ((ItemDrive)drive.getItem()).getBitsFree(drive);
+			}
+		}
+		return accum;
+	}
 
+	@Override
 	public List<ItemStack> getTypes() {
 		List<ItemStack> li = Lists.newArrayList();
 		for (ItemStack drive : drives) {
@@ -430,4 +446,9 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		return networkMemberLocations.contains(pos);
 	}
 
+	@Override
+	public int getChangeId() {
+		return changeId;
+	}
+	
 }

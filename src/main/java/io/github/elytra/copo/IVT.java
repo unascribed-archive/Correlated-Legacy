@@ -5,7 +5,6 @@ import com.google.common.base.Strings;
 
 import io.github.elytra.copo.inventory.ContainerVT.CraftingTarget;
 import io.github.elytra.copo.inventory.ContainerVT.SortMode;
-import io.github.elytra.copo.tile.TileEntityController;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.nbt.NBTTagCompound;
@@ -32,8 +31,8 @@ public interface IVT {
 	}
 	
 	UserPreferences getPreferences(EntityPlayer player);
-	TileEntityController getController();
-	boolean hasController();
+	IDigitalStorage getStorage();
+	boolean hasStorage();
 	boolean supportsDumpSlot();
 	IInventory getDumpSlotInventory();
 	boolean canContinueInteracting(EntityPlayer player);

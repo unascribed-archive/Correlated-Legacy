@@ -39,7 +39,7 @@ public class CoPoWailaProvider implements IWailaDataProvider {
 		}
 		if (te instanceof TileEntityNetworkMember) {
 			nbt.setInteger("EnergyPerTick", ((TileEntityNetworkMember) te).getEnergyConsumedPerTick());
-			nbt.setBoolean("HasController", ((TileEntityNetworkMember) te).hasController());
+			nbt.setBoolean("HasController", ((TileEntityNetworkMember) te).hasStorage());
 		}
 		return nbt;
 	}

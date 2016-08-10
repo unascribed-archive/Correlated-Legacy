@@ -9,6 +9,7 @@ import java.text.NumberFormat;
 import java.util.Iterator;
 
 import io.github.elytra.copo.CoPo;
+import io.github.elytra.copo.client.IBMFontRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiScreen;
@@ -69,7 +70,7 @@ public class GuiFakeReboot extends GuiScreen {
 			if (ticks > 26) drawIBMString(10, 47, "Copyright (C) 2009-2016 Mojang AB.");
 			if (ticks > 28) drawIBMString(10, 54, "All Rights Reserved");
 			if (ticks > 28) drawIBMString(10, 68, "19920225151230");
-			if (ticks > 84) {
+			if (ticks > 94) {
 				float heap = this.heap;
 				float perm = this.perm;
 				int heapLen = Integer.toString((int)(heap/1024/1024)).length();
@@ -106,23 +107,9 @@ public class GuiFakeReboot extends GuiScreen {
 		}
 	}
 	
-	private static final String IBM = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz.,()_-:\\>/";
-	
 	private void drawIBMString(int x, int y, String str) {
-		x*=2;
-		y*=2;
-		GlStateManager.pushMatrix();
-		GlStateManager.scale(0.5, 0.5, 1);
-		for (int i = 0; i < str.length(); i++) {
-			char c = str.charAt(i);
-			int pos = IBM.indexOf(c);
-			if (pos == -1) continue;
-			int u = (pos%8)*9;
-			int v = (pos/8)*13;
-			drawTexturedModalRect(x+(i*9), y, u, v, 9, 13);
-		}
-		GlStateManager.popMatrix();
-		cursorY = (y/2)+7;
+		IBMFontRenderer.drawString(x, y, str);
+		cursorY = y+7;
 	}
 	
 	@Override
@@ -134,10 +121,10 @@ public class GuiFakeReboot extends GuiScreen {
 	public void updateScreen() {
 		ticks++;
 		if (ticks == 30) {
-			Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(CoPo.floppy, 1f));
+			Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(CoPo.glitchfloppy, 1f));
 		}
 		if (ticks == 115) {
-			Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(CoPo.boot, 1f));
+			Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(CoPo.glitchboot, 1f));
 		}
 		if (ticks > 250) {
 			Minecraft.getMinecraft().displayGuiScreen(new GuiGlitchedMainMenu());

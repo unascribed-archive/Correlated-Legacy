@@ -29,7 +29,7 @@ public class TileEntityVT extends TileEntityNetworkMember implements ITickable, 
 			IBlockState state = getWorld().getBlockState(getPos());
 			if (state.getBlock() == CoPo.vt) {
 				boolean lit;
-				if (hasController() && getController().isPowered()) {
+				if (hasStorage() && getStorage().isPowered()) {
 					lit = true;
 				} else {
 					lit = false;
@@ -39,8 +39,8 @@ public class TileEntityVT extends TileEntityNetworkMember implements ITickable, 
 				}
 			}
 			
-			if (hasController()) {
-				TileEntityController controller = getController();
+			if (hasStorage()) {
+				TileEntityController controller = getStorage();
 				if (controller.isPowered() && !controller.error && !controller.booting && dumpDrive != null) {
 					if (dumpDrive.getItem() instanceof ItemDrive) {
 						ItemDrive id = (ItemDrive)dumpDrive.getItem();

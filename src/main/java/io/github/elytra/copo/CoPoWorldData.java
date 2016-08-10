@@ -13,10 +13,11 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldSavedData;
+import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.Constants.NBT;
 
 public class CoPoWorldData extends WorldSavedData {
-	public static final class Transmitter {
+	public static final class Transmitter implements INBTSerializable<NBTTagCompound> {
 		public UUID id;
 		public BlockPos position;
 		public double range;
@@ -32,12 +33,14 @@ public class CoPoWorldData extends WorldSavedData {
 			this.position = position;
 			this.range = range;
 		}
-		public void readFromNBT(NBTTagCompound nbt) {
+		@Override
+		public void deserializeNBT(NBTTagCompound nbt) {
 			id = new UUID(nbt.getLong("UUIDMost"), nbt.getLong("UUIDLeast"));
 			position = BlockPos.fromLong(nbt.getLong("Position"));
 			range = nbt.getDouble("Range");
 		}
-		public NBTTagCompound writeToNBT() {
+		@Override
+		public NBTTagCompound serializeNBT() {
 			NBTTagCompound nbt = new NBTTagCompound();
 			nbt.setLong("UUIDMost", id.getMostSignificantBits());
 			nbt.setLong("UUIDLeast", id.getLeastSignificantBits());
@@ -51,6 +54,7 @@ public class CoPoWorldData extends WorldSavedData {
 	}
 	
 	private Map<UUID, Transmitter> transmitters = Maps.newHashMap();
+	private Map<UUID, NBTTagCompound> playerRespawnData = Maps.newHashMap();
 	
 	public CoPoWorldData(String name) {
 		super(name);
@@ -58,21 +62,36 @@ public class CoPoWorldData extends WorldSavedData {
 
 	@Override
 	public void readFromNBT(NBTTagCompound nbt) {
-		NBTTagList li = nbt.getTagList("Transmitters", NBT.TAG_COMPOUND);
-		for (int i = 0; i < li.tagCount(); i++) {
+		NBTTagList tr = nbt.getTagList("Transmitters", NBT.TAG_COMPOUND);
+		transmitters.clear();
+		for (int i = 0; i < tr.tagCount(); i++) {
 			Transmitter t = new Transmitter();
-			t.readFromNBT(li.getCompoundTagAt(i));
+			t.deserializeNBT(tr.getCompoundTagAt(i));
 			transmitters.put(t.id, t);
+		}
+		NBTTagList re = nbt.getTagList("PlayerRespawnData", NBT.TAG_COMPOUND);
+		playerRespawnData.clear();
+		for (int i = 0; i < re.tagCount(); i++) {
+			NBTTagCompound tag = re.getCompoundTagAt(i);
+			playerRespawnData.put(tag.getUniqueId("Id"), tag.getCompoundTag("Data"));
 		}
 	}
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-		NBTTagList li = new NBTTagList();
+		NBTTagList tr = new NBTTagList();
 		for (Transmitter t : transmitters.values()) {
-			li.appendTag(t.writeToNBT());
+			tr.appendTag(t.serializeNBT());
 		}
-		nbt.setTag("Transmitters", li);
+		nbt.setTag("Transmitters", tr);
+		NBTTagList re = new NBTTagList();
+		for (Map.Entry<UUID, NBTTagCompound> en : playerRespawnData.entrySet()) {
+			NBTTagCompound tag = new NBTTagCompound();
+			tag.setUniqueId("Id", en.getKey());
+			tag.setTag("Data", en.getValue());
+			re.appendTag(tag);
+		}
+		nbt.setTag("PlayerRespawnData", re);
 		return nbt;
 	}
 	
@@ -118,6 +137,10 @@ public class CoPoWorldData extends WorldSavedData {
 			CoPo.log.info("Removing transmitter at {}, id {}", t.position, t.id);
 			markDirty();
 		}
+	}
+	
+	public Map<UUID, NBTTagCompound> getPlayerRespawnData() {
+		return playerRespawnData;
 	}
 
 }

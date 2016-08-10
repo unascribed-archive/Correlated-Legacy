@@ -7,6 +7,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import com.google.common.collect.Maps;
 
 import io.github.elytra.copo.CoPo;
+import io.github.elytra.copo.entity.EntityAutomaton;
 import io.github.elytra.copo.network.StartWeldthrowingMessage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -35,6 +36,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 public class ItemWeldthrower extends Item {
 	public ItemWeldthrower() {
 		MinecraftForge.EVENT_BUS.register(this);
+		setMaxStackSize(1);
 	}
 	
 	public Map<EntityPlayer, MutableInt> weldthrowing = Maps.newIdentityHashMap();
@@ -84,7 +86,6 @@ public class ItemWeldthrower extends Item {
 				return;
 			}
 			CoPo.proxy.weldthrowerTick(e.player);
-			if (!CoPo.inst.weldthrowerHurts) return;
 			Vec3d look = e.player.getLookVec();
 			Vec3d right = look.rotateYaw(-90);
 			double dist = 0.5;
@@ -98,7 +99,16 @@ public class ItemWeldthrower extends Item {
 				if (e.player.worldObj.collidesWithAnyBlock(aabb)) break;
 				aabb = aabb.expandXyz(0.9);
 				for (Entity ent : e.player.worldObj.getEntitiesWithinAABBExcludingEntity(e.player, aabb)) {
-					if (ent instanceof EntityLivingBase) {
+					if (ent instanceof EntityAutomaton) {
+						EntityAutomaton a = ((EntityAutomaton) ent);
+						if (!a.worldObj.isRemote) {
+							if (a.worldObj.rand.nextInt(3) == 0 && a.getHealth() < a.getMaxHealth() && a.getFavor(e.player) >= 0) {
+								a.adjustFavor(e.player, 1);
+							}
+							a.heal(0.05f);
+							CoPo.proxy.weldthrowerHeal((EntityAutomaton)ent);
+						}
+					} else if (ent instanceof EntityLivingBase && CoPo.inst.weldthrowerHurts) {
 						EntityLivingBase elb = (EntityLivingBase)ent;
 						elb.setFire(4);
 						elb.attackEntityFrom(new EntityDamageSource("correlatedpotentialistics.weld", e.player), 2);

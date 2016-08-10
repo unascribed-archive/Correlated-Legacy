@@ -5,6 +5,7 @@ import com.google.common.base.Optional;
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.network.SetGlitchingStateMessage;
 import io.github.elytra.copo.network.SetGlitchingStateMessage.GlitchState;
+import io.github.elytra.copo.world.DungeonPlayer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityEnderPearl;
 import net.minecraft.entity.item.EntityItem;
@@ -63,13 +64,17 @@ public class EntityThrownItem extends EntityEnderPearl {
 					EntityPlayerMP p = (EntityPlayerMP)getThrower();
 					p.mcServer.addScheduledTask(() -> {
 						NBTTagCompound oldEntity = p.writeToNBT(new NBTTagCompound());
-						CoPo.inst.network.sendTo(new SetGlitchingStateMessage(GlitchState.CORRUPTING), p);
+						DungeonPlayer player = new DungeonPlayer(p.getGameProfile(), p.inventory.getFirstEmptyStack(), oldEntity);
 						int dim = CoPo.limboDimId;
 						if (net.minecraftforge.common.ForgeHooks.onTravelToDimension(p, dim)) {
+							CoPo.inst.network.sendTo(new SetGlitchingStateMessage(GlitchState.CORRUPTING), p);
+							/*WorldServer dest = p.mcServer.worldServerForDimension(dim);
+							if (dest.provider instanceof LimboProvider) {
+								((LimboProvider)dest.provider).addEnteringPlayer(player);
+							}*/// for BTM
 							PlayerList r = p.mcServer.getPlayerList();
 							r.updatePermissionLevel(p);
-							p.setDropItemsWhenDead(false);
-							p.setDead();
+							//p.setDead(); for BTM
 						}
 					});
 					return;
@@ -83,16 +88,19 @@ public class EntityThrownItem extends EntityEnderPearl {
 	
 	@Override
 	public void onUpdate() {
-		if (worldObj.getBlockState(getPosition()).getBlock() == Blocks.PORTAL) {
-			if (getStack() != null && getStack().getItem() == CoPo.misc && getStack().getMetadata() == 3) {
-				if (!worldObj.isRemote) {
-					worldObj.playSound(null, posX, posY, posZ, CoPo.glitch, SoundCategory.PLAYERS, 1, rand.nextFloat()+0.75f);
+		if (!worldObj.isRemote && worldObj.getBlockState(getPosition()).getBlock() == Blocks.PORTAL) {
+			if (getStack() != null && getStack().getItem() == CoPo.misc) {
+				if (getStack().getMetadata() == 3) {
+					worldObj.playSound(null, posX, posY, posZ, CoPo.convert, SoundCategory.PLAYERS, 1, rand.nextFloat()+0.75f);
 					if (worldObj instanceof WorldServer) {
 						((WorldServer)worldObj).spawnParticle(EnumParticleTypes.REDSTONE, posX, posY, posZ, 100, 0.2, 0.2, 0.2, 100);
 					}
+					setStack(new ItemStack(CoPo.misc, getStack().stackSize, 6));
+					noTeleport = true;
+				} else if (getStack().getMetadata() == 6) {
+					worldObj.createExplosion(this, posX, posY, posZ, 0, false);
+					setDead();
 				}
-				setStack(new ItemStack(CoPo.misc, getStack().stackSize, 6));
-				noTeleport = true;
 			}
 		}
 		super.onUpdate();

@@ -20,7 +20,7 @@ public abstract class TileEntityWirelessEndpoint extends TileEntityNetworkMember
 			IBlockState state = getWorld().getBlockState(getPos());
 			if (state.getBlock() == CoPo.wireless_endpoint) {
 				State newState;
-				if (hasController() && getController().isPowered()) {
+				if (hasStorage() && getStorage().isPowered()) {
 					newState = getCurrentState();
 				} else {
 					newState = State.DEAD;

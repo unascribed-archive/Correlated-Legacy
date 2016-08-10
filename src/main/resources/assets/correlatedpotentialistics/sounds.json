@@ -16,21 +16,38 @@
 			{"name":"correlatedpotentialistics:glitch-bgm3","stream":true}
 		]
 	},
-	"floppy": {
+	"glitchfloppy": {
 		"category": "master",
 		"sounds": [ "correlatedpotentialistics:floppy" ]
 	},
-	"boot": {
+	"glitchboot": {
 		"category": "master",
 		"sounds": [ "correlatedpotentialistics:boot" ]
 	},
-	"glitch": {
+	"convert": {
 		"category": "master",
-		"sounds": [ "correlatedpotentialistics:glitch" ],
-		"subtitle": "subtitles.correlatedpotentialistics.glitch"
+		"sounds": [ "correlatedpotentialistics:convert" ],
+		"subtitle": "subtitles.correlatedpotentialistics.convert"
 	},
-	"travel": {
+	"glitchtravel": {
 		"category": "master",
-		"sounds": [ "correlatedpotentialistics:travel" ]
+		"sounds": [ "correlatedpotentialistics:glitchtravel" ]
+	},
+	"automaton_hurt": {
+		"category": "neutral",
+		"sounds": [
+			"correlatedpotentialistics:automaton/hurt1",
+			"correlatedpotentialistics:automaton/hurt2",
+			"correlatedpotentialistics:automaton/hurt3"
+		],
+		"subtitle": "subtitles.correlatedpotentialistics.automaton_hurt"
+	},
+	"automaton_idle": {
+		"category": "neutral",
+		"sounds": [
+			"correlatedpotentialistics:automaton/idle1",
+			"correlatedpotentialistics:automaton/idle2"
+		],
+		"subtitle": "subtitles.correlatedpotentialistics.automaton_idle"
 	}
 }

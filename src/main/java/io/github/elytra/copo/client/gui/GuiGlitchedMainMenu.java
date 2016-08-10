@@ -5,7 +5,7 @@ import java.util.Random;
 
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.client.ClientProxy;
-import io.github.elytra.copo.network.EnterTheDungeonMessage;
+import io.github.elytra.copo.network.EnterDungeonMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiButton;
@@ -37,7 +37,7 @@ public class GuiGlitchedMainMenu extends GuiScreen {
 			this.drawTexturedModalRect(j + 155 + glitch, k + i*stripeSize, 0, 45+i*stripeSize, 155, stripeSize);
 		}
 		if (ClientProxy.glitchTicks >= 80) {
-			CoPo.inst.network.sendToServer(new EnterTheDungeonMessage());
+			CoPo.inst.network.sendToServer(new EnterDungeonMessage());
 			Minecraft.getMinecraft().displayGuiScreen(null);
 			ClientProxy.glitchTicks = -1;
 		}
@@ -45,8 +45,10 @@ public class GuiGlitchedMainMenu extends GuiScreen {
 
 	@Override
 	protected void actionPerformed(GuiButton button) throws IOException {
-		ClientProxy.glitchTicks = 0;
-		Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(CoPo.travel, 1f));
+		if (ClientProxy.glitchTicks == -1) {
+			ClientProxy.glitchTicks = 0;
+			Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(CoPo.glitchtravel, 1f));
+		}
 	}
 	
 	@Override public void handleKeyboardInput() throws IOException {}

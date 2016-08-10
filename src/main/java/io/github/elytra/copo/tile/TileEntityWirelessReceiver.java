@@ -81,8 +81,10 @@ public class TileEntityWirelessReceiver extends TileEntityWirelessEndpoint {
 		tag.setInteger("x", getPos().getX());
 		tag.setInteger("y", getPos().getY());
 		tag.setInteger("z", getPos().getZ());
-		tag.setFloat("Yaw", getYaw(0));
-		tag.setFloat("Pitch", getPitch(0));
+		if (getCurrentState() == State.LINKED) {
+			tag.setFloat("Yaw", getYaw(0));
+			tag.setFloat("Pitch", getPitch(0));
+		}
 		return tag;
 	}
 	
@@ -101,8 +103,8 @@ public class TileEntityWirelessReceiver extends TileEntityWirelessEndpoint {
 		if (!hasWorldObj()) return null;
 		if (transmitter == null) return null;
 		if (transmitterCache != null && transmitterCache.isValid()) return transmitterCache;
-		if (hasController() && !getController().isCheckingInfiniteLoop()) {
-			getController().checkInfiniteLoop();
+		if (hasStorage() && !getStorage().isCheckingInfiniteLoop()) {
+			getStorage().checkInfiniteLoop();
 		}
 		Transmitter t = CoPo.getDataFor(getWorld()).getTransmitterById(transmitter);
 		if (t == null || t.position.distanceSqToCenter(getPos().getX()+0.5, getPos().getY()+0.5, getPos().getZ()+0.5) > t.range*t.range) return null;
@@ -153,7 +155,7 @@ public class TileEntityWirelessReceiver extends TileEntityWirelessEndpoint {
 		Transmitter t = getTransmitter();
 		TileEntity te = getWorld().getTileEntity(t.position);
 		if (te != null && te instanceof TileEntityWirelessTransmitter) {
-			return ((TileEntityWirelessTransmitter)te).getController();
+			return ((TileEntityWirelessTransmitter)te).getStorage();
 		}
 		return null;
 	}

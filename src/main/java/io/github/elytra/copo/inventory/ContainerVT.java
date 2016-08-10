@@ -107,6 +107,13 @@ public class ContainerVT extends Container {
 	private int lastChangeId;
 	public InventoryCrafting craftMatrix = new InventoryCrafting(this, 3, 3);
 	public InventoryCraftResult craftResult = new InventoryCraftResult();
+	public int slotsAcross;
+	public int slotsTall;
+	public int startX;
+	public int startY;
+	public int playerInventoryOffsetX;
+	public int playerInventoryOffsetY;
+	public boolean hasCraftingMatrix = true;
 
 	public class SlotVirtual extends Slot {
 		private ItemStack stack;
@@ -187,8 +194,9 @@ public class ContainerVT extends Container {
 		this.player = player;
 		this.world = player.worldObj;
 		this.vt = vt;
-		int x = 69;
-		int y = 37;
+		initializeVTSize();
+		int x = startX;
+		int y = startY;
 
 		if (!player.worldObj.isRemote) {
 			UserPreferences prefs = vt.getPreferences(player);
@@ -202,37 +210,52 @@ public class ContainerVT extends Container {
 			addSlotToContainer(new Slot(vt.getDumpSlotInventory(), 0, 25, 161));
 		}
 		
-		for (int i = 0; i < 6; ++i) {
-			for (int j = 0; j < 9; ++j) {
-				addSlotToContainer(new SlotVirtual(j + i * 9, x + j * 18, 18 + i * 18));
+		for (int i = 0; i < slotsTall; ++i) {
+			for (int j = 0; j < slotsAcross; ++j) {
+				addSlotToContainer(new SlotVirtual(j + i * slotsAcross, x + j * 18, (18 + i * 18) + startY));
 			}
 		}
 		updateSlots();
 
-		addSlotToContainer(new SlotCrafting(player, craftMatrix, craftResult, 0, 26, 104));
-
-		for (int i = 0; i < 3; ++i) {
-			for (int j = 0; j < 3; ++j) {
-				this.addSlotToContainer(new Slot(craftMatrix, j + i * 3, 7 + j * 18, 18 + i * 18));
+		if (hasCraftingMatrix) {
+			addSlotToContainer(new SlotCrafting(player, craftMatrix, craftResult, 0, 26, 104));
+	
+			for (int i = 0; i < 3; ++i) {
+				for (int j = 0; j < 3; ++j) {
+					this.addSlotToContainer(new Slot(craftMatrix, j + i * 3, 7 + j * 18, 18 + i * 18));
+				}
 			}
 		}
 
 		for (int i = 0; i < 3; ++i) {
 			for (int j = 0; j < 9; ++j) {
-				addSlotToContainer(new Slot(playerInventory, j + i * 9 + 9, x + j * 18, 103 + i * 18 + y));
+				addSlotToContainer(new Slot(playerInventory, j + i * 9 + 9, (x + j * 18) + playerInventoryOffsetX, (103 + i * 18 + y) + playerInventoryOffsetY));
 			}
 		}
 
 		for (int i = 0; i < 9; ++i) {
-			addSlotToContainer(new Slot(playerInventory, i, x + i * 18, 161 + y));
+			addSlotToContainer(new Slot(playerInventory, i, (x + i * 18) + playerInventoryOffsetX, (161 + y) + playerInventoryOffsetY));
 		}
 
 	}
 
+	/**
+	 * If overridden, <b>do not call super</b>.
+	 */
+	protected void initializeVTSize() {
+		slotsTall = 6;
+		slotsAcross = 9;
+		startX = 69;
+		startY = 0;
+		playerInventoryOffsetX = 0;
+		playerInventoryOffsetY = 37;
+		hasCraftingMatrix = true;
+	}
+
 	public void updateSlots() {
 		if (world.isRemote) return;
-		lastChangeId = vt.getController().changeId;
-		List<ItemStack> typesAll = vt.getController().getTypes();
+		lastChangeId = vt.getStorage().getChangeId();
+		List<ItemStack> typesAll = vt.getStorage().getTypes();
 		if (!searchQuery.isEmpty()) {
 			Iterator<ItemStack> itr = typesAll.iterator();
 			while (itr.hasNext()) {
@@ -257,7 +280,10 @@ public class ContainerVT extends Container {
 		} else {
 			Collections.sort(types, (a, b) -> sortMode.comparator.compare(b, a));
 		}
-		int idx = scrollOffset*9;
+		if (scrollOffset < 0) {
+			scrollOffset = 0;
+		}
+		int idx = scrollOffset*slotsAcross;
 		for (Slot slot : inventorySlots) {
 			if (slot instanceof SlotVirtual) {
 				SlotVirtual sv = (SlotVirtual)slot;
@@ -269,7 +295,7 @@ public class ContainerVT extends Container {
 				idx++;
 			}
 		}
-		rows = (int)Math.ceil(types.size()/9f);
+		rows = (int)Math.ceil(types.size()/(float)slotsAcross);
 		for (IContainerListener crafter : listeners) {
 			crafter.sendProgressBarUpdate(this, 0, rows);
 		}
@@ -315,6 +341,10 @@ public class ContainerVT extends Container {
 				craftingTarget = CraftingTarget.NETWORK;
 				break;
 
+			/*
+			 * -30 (inclusive) through -60 (inclusive) are for subclass use
+			 */
+				
 			case -128:
 				for (int i = 0; i < 9; i++) {
 					ItemStack is = craftMatrix.getStackInSlot(i);
@@ -336,13 +366,13 @@ public class ContainerVT extends Container {
 
 	public ItemStack addItemToNetwork(ItemStack stack) {
 		if (player.worldObj.isRemote) return null;
-		ItemStack is = vt.getController().addItemToNetwork(stack);
+		ItemStack is = vt.getStorage().addItemToNetwork(stack);
 		return is;
 	}
 
 	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount) {
 		if (player.worldObj.isRemote) return null;
-		ItemStack is = vt.getController().removeItemsFromNetwork(prototype, amount, true);
+		ItemStack is = vt.getStorage().removeItemsFromNetwork(prototype, amount, true);
 		return is;
 	}
 
@@ -383,11 +413,11 @@ public class ContainerVT extends Container {
 	@Override
 	public boolean canInteractWith(EntityPlayer player) {
 		if (!world.isRemote) {
-			if (vt.hasController() && vt.getController().changeId != lastChangeId) {
+			if (vt.hasStorage() && vt.getStorage().getChangeId() != lastChangeId) {
 				updateSlots();
 			}
 		}
-		return player == this.player && vt.hasController() && vt.getController().getEnergyStored(null) > 0 && vt.canContinueInteracting(player);
+		return player == this.player && vt.hasStorage() && vt.getStorage().isPowered() && vt.canContinueInteracting(player);
 	}
 
 	@Override

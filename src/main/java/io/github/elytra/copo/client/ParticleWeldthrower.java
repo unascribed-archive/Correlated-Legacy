@@ -19,11 +19,11 @@ public class ParticleWeldthrower extends ParticleRedstone {
 	@Override
 	public int getBrightnessForRender(float p_189214_1_) {
 		float f = (this.particleAge + p_189214_1_) / this.particleMaxAge;
-        f = MathHelper.clamp_float(f, 0.0F, 1.0F);
-        int i = super.getBrightnessForRender(p_189214_1_);
-        int j = 240;
-        int k = i >> 16 & 255;
-        return j | k << 16;
+		f = MathHelper.clamp_float(f, 0.0F, 1.0F);
+		int i = super.getBrightnessForRender(p_189214_1_);
+		int j = 240;
+		int k = i >> 16 & 255;
+		return j | k << 16;
 	}
-	
+
 }

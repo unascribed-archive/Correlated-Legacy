@@ -36,7 +36,7 @@ public class GuiVT extends GuiContainer {
 	private GuiButtonExt craftingTarget;
 	private GuiButtonExt craftingAmount;
 	private GuiButtonExt clearGrid;
-
+	
 	public GuiVT(ContainerVT container) {
 		super(container);
 		searchField.setEnableBackgroundDrawing(false);
@@ -46,22 +46,32 @@ public class GuiVT extends GuiContainer {
 		ySize = 222;
 	}
 
+	protected ResourceLocation getBackground() {
+		return background;
+	}
+	
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate((width - xSize) / 2, (height - ySize) / 2, 0);
-		mc.getTextureManager().bindTexture(background);
+		mc.getTextureManager().bindTexture(getBackground());
 		drawTexturedModalRect(0, 0, 0, 0, 256, 222);
 		if (container.vt.supportsDumpSlot()) {
 			drawTexturedModalRect(17, 153, 200, 224, 32, 32);
 		}
 		GlStateManager.popMatrix();
 	}
+	
+	protected String getTitle() {
+		return I18n.format("gui.correlatedpotentialistics.vt");
+	}
 
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-		fontRendererObj.drawString(I18n.format("gui.correlatedpotentialistics.vt"), 8, 6, 0x404040);
-		fontRendererObj.drawString(I18n.format("container.inventory"), 69, 128, 0x404040);
+		fontRendererObj.drawString(getTitle(), 8, 6, 0x404040);
+		if (container.playerInventoryOffsetX == 0 && container.playerInventoryOffsetY == 37) {
+			fontRendererObj.drawString(I18n.format("container.inventory"), 69, 128, 0x404040);
+		}
 		GlStateManager.pushMatrix();
 		GlStateManager.disableDepth();
 		GlStateManager.scale(0.5f, 0.5f, 1);
@@ -82,21 +92,23 @@ public class GuiVT extends GuiContainer {
 		GlStateManager.enableDepth();
 
 		int u = 232;
-		if (container.rows <= 6) {
+		if (container.rows <= container.slotsTall) {
 			u += 12;
 		}
 		int y = 18;
 		GlStateManager.color(1, 1, 1);
-		mc.getTextureManager().bindTexture(background);
-		drawTexturedModalRect(236, y+(scrollKnobY-6), u, 241, 12, 15);
+		mc.getTextureManager().bindTexture(getBackground());
+		drawTexturedModalRect(getScrollTrackX(), getScrollTrackY()+y+(scrollKnobY-6), u, 241, 12, 15);
 
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(-(width - xSize) / 2, -(height - ySize) / 2, 0);
-		drawTexturedModalRect(clearGrid.xPosition+2, clearGrid.yPosition+2, 0, 222, 2, 10);
+		if (container.hasCraftingMatrix) {
+			drawTexturedModalRect(clearGrid.xPosition+2, clearGrid.yPosition+2, 0, 222, 2, 10);
+			drawTexturedModalRect(craftingTarget.xPosition+2, craftingTarget.yPosition+2, container.craftingTarget.ordinal()*8, 232, 8, 8);
+			drawTexturedModalRect(craftingAmount.xPosition+2, craftingAmount.yPosition+2, container.craftingAmount.ordinal()*8, 240, 8, 8);			
+		}
 		drawTexturedModalRect(sortDirection.xPosition+2, sortDirection.yPosition+2, container.sortAscending ? 0 : 8, 248, 8, 8);
 		drawTexturedModalRect(sortMode.xPosition+2, sortMode.yPosition+2, 16+(container.sortMode.ordinal()*8), 248, 8, 8);
-		drawTexturedModalRect(craftingTarget.xPosition+2, craftingTarget.yPosition+2, container.craftingTarget.ordinal()*8, 232, 8, 8);
-		drawTexturedModalRect(craftingAmount.xPosition+2, craftingAmount.yPosition+2, container.craftingAmount.ordinal()*8, 240, 8, 8);
 		searchField.drawTextBox();
 		if (sortMode.isMouseOver()) {
 			drawHoveringText(Lists.newArrayList(
@@ -111,22 +123,24 @@ public class GuiVT extends GuiContainer {
 					"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.sortdirection."+str)
 				), mouseX, mouseY);
 		}
-		if (craftingAmount.isMouseOver()) {
-			drawHoveringText(Lists.newArrayList(
-					I18n.format("tooltip.correlatedpotentialistics.crafting_amount"),
-					"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.crafting.only_shift_click"),
-					"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.crafting_amount."+container.craftingAmount.lowerName)
-				), mouseX, mouseY);
-		}
-		if (craftingTarget.isMouseOver()) {
-			drawHoveringText(Lists.newArrayList(
-					I18n.format("tooltip.correlatedpotentialistics.crafting_target"),
-					"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.crafting.only_shift_click"),
-					"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.crafting_target."+container.craftingTarget.lowerName)
-				), mouseX, mouseY);
-		}
-		if (clearGrid.isMouseOver()) {
-			drawHoveringText(Lists.newArrayList(I18n.format("tooltip.correlatedpotentialistics.clear_crafting_grid")), mouseX, mouseY);
+		if (container.hasCraftingMatrix) {
+			if (craftingAmount.isMouseOver()) {
+				drawHoveringText(Lists.newArrayList(
+						I18n.format("tooltip.correlatedpotentialistics.crafting_amount"),
+						"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.crafting.only_shift_click"),
+						"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.crafting_amount."+container.craftingAmount.lowerName)
+					), mouseX, mouseY);
+			}
+			if (craftingTarget.isMouseOver()) {
+				drawHoveringText(Lists.newArrayList(
+						I18n.format("tooltip.correlatedpotentialistics.crafting_target"),
+						"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.crafting.only_shift_click"),
+						"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.crafting_target."+container.craftingTarget.lowerName)
+					), mouseX, mouseY);
+			}
+			if (clearGrid.isMouseOver()) {
+				drawHoveringText(Lists.newArrayList(I18n.format("tooltip.correlatedpotentialistics.clear_crafting_grid")), mouseX, mouseY);
+			}
 		}
 		GlStateManager.popMatrix();
 
@@ -140,14 +154,26 @@ public class GuiVT extends GuiContainer {
 	public void initGui() {
 		super.initGui();
 		int x = (width - xSize) / 2;
+		x += getXOffset();
 		int y = (height - ySize) / 2;
+		y += getYOffset();
 		searchField.xPosition = x+143;
 		searchField.yPosition = y+6;
 		buttonList.add(sortDirection = new GuiButtonExt(0, x+236, y+4, 12, 12, ""));
 		buttonList.add(sortMode = new GuiButtonExt(1, x+128, y+4, 12, 12, ""));
-		buttonList.add(craftingAmount = new GuiButtonExt(2, x+51, y+99, 12, 12, ""));
-		buttonList.add(craftingTarget = new GuiButtonExt(3, x+51, y+113, 12, 12, ""));
-		buttonList.add(clearGrid = new GuiButtonExt(4, x+61, y+37, 6, 14, ""));
+		if (container.hasCraftingMatrix) {
+			buttonList.add(craftingAmount = new GuiButtonExt(2, x+51, y+99, 12, 12, ""));
+			buttonList.add(craftingTarget = new GuiButtonExt(3, x+51, y+113, 12, 12, ""));
+			buttonList.add(clearGrid = new GuiButtonExt(4, x+61, y+37, 6, 14, ""));
+		}
+	}
+	
+	protected int getYOffset() {
+		return 0;
+	}
+	
+	protected int getXOffset() {
+		return 0;
 	}
 
 	@Override
@@ -209,11 +235,11 @@ public class GuiVT extends GuiContainer {
 	@Override
 	public void updateScreen() {
 		super.updateScreen();
-		if (container.rows > 6) {
+		if (container.rows > container.slotsTall) {
 			int dWheel = Mouse.getDWheel()/container.rows;
 			if (dWheel != 0) {
-				scrollKnobY = Math.max(Math.min(101, scrollKnobY-dWheel), 6);
-				mc.playerController.sendEnchantPacket(container.windowId, Math.round(((scrollKnobY-6)/101f)*(container.rows-6)));
+				scrollKnobY = Math.max(Math.min(getScrollTrackHeight()-9, scrollKnobY-dWheel), 6);
+				mc.playerController.sendEnchantPacket(container.windowId, Math.round(((scrollKnobY-6)/(float)(getScrollTrackHeight()-9))*(container.rows-container.slotsTall)));
 			}
 		} else {
 			scrollKnobY = 6;
@@ -246,13 +272,26 @@ public class GuiVT extends GuiContainer {
 		}
 	}
 
+	protected int getScrollTrackX() {
+		return 236;
+	}
+	
+	protected int getScrollTrackY() {
+		return 0;
+	}
+	
+	protected int getScrollTrackHeight() {
+		return 110;
+	}
+	
 	@Override
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
 		int x = (width - xSize) / 2;
 		int y = (height - ySize) / 2;
 		int width = 12;
-		int height = 110;
-		x += 236;
+		int height = getScrollTrackHeight();
+		x += getScrollTrackX();
+		y += getScrollTrackY();
 		y += 18;
 		if (mouseButton == 0
 				&& mouseX >= x && mouseX <= x+width
@@ -272,10 +311,12 @@ public class GuiVT extends GuiContainer {
 
 	@Override
 	protected void mouseClickMove(int mouseX, int mouseY, int mouseButton, long timeSinceLastClick) {
-		if (draggingScrollKnob && container.rows > 6) {
+		if (draggingScrollKnob && container.rows > container.slotsTall) {
 			int y = (height - ySize) / 2;
-			scrollKnobY = Math.max(Math.min(101, (mouseY-24)-y), 6);
-			mc.playerController.sendEnchantPacket(container.windowId, Math.round(((scrollKnobY-6)/101f)*(container.rows-6)));
+			y += getScrollTrackY();
+			scrollKnobY = Math.max(Math.min(getScrollTrackHeight()-9, (mouseY-24)-y), 6);
+			int s = Math.round(((scrollKnobY+12)/(float)(getScrollTrackHeight()-9))*(container.rows-container.slotsTall));
+			mc.playerController.sendEnchantPacket(container.windowId, s);
 		}
 		super.mouseClickMove(mouseX, mouseY, mouseButton, timeSinceLastClick);
 	}
