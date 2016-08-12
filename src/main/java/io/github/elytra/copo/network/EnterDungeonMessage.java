@@ -14,8 +14,7 @@ public class EnterDungeonMessage implements IMessage, IMessageHandler<EnterDunge
 	public IMessage onMessage(EnterDungeonMessage message, MessageContext ctx) {
 		ctx.getServerHandler().playerEntity.mcServer.addScheduledTask(() -> {
 			EntityPlayerMP p = ctx.getServerHandler().playerEntity;
-			p.connection.setPlayerLocation(17212, 64, -38132, p.rotationYaw, p.rotationPitch);
-			/*int dim = CoPo.limboDimId;
+			int dim = CoPo.limboDimId;
 			Teleporter teleporter;
 			WorldServer world = p.mcServer.worldServerForDimension(dim);
 			WorldProvider provider = world.provider;
@@ -38,7 +37,7 @@ public class EnterDungeonMessage implements IMessage, IMessageHandler<EnterDunge
 			
 			p.getFoodStats().setFoodLevel(5);
 			p.getFoodStats().setFoodSaturationLevel(2);
-			p.setHealth(10);*/
+			p.setHealth(10);
 		});
 		return null;
 	}

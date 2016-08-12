@@ -1,7 +1,11 @@
 package io.github.elytra.copo.world;
 
+import com.google.common.base.Stopwatch;
+
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.CoPoWorldData;
+import io.github.elytra.copo.math.Vec2f;
+import io.github.elytra.copo.math.Vec2i;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
@@ -34,7 +38,7 @@ public class LimboTeleporter extends Teleporter {
 	
 	@Override
 	public void placeInPortal(Entity entityIn, float rotationYaw) {
-		/*Vec2i freeSpot = grid.findFreeSpot();
+		Vec2i freeSpot = grid.findFreeSpot();
 		Stopwatch sw = Stopwatch.createUnstarted();
 		sw.start();
 		scribe.erase(freeSpot);
@@ -59,11 +63,7 @@ public class LimboTeleporter extends Teleporter {
 		z += (entrance.y*Dungeon.NODE_SIZE);
 		x += (Dungeon.NODE_SIZE/2);
 		z += (Dungeon.NODE_SIZE/2);
-		int y = 51;*/
-		// for BTM
-		int x = 0;
-		int y = 64;
-		int z = 0;
+		int y = 51;
 		BlockPos pos = new BlockPos(x, y-1, z);
 		if (world.isAirBlock(pos)) {
 			world.setBlockState(pos, Blocks.STONE.getDefaultState());

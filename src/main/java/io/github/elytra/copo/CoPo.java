@@ -272,8 +272,7 @@ public class CoPo {
 		CoPoWorldData d = getDataFor(e.player.worldObj);
 		UUID id = e.player.getGameProfile().getId();
 		if (d.getPlayerRespawnData().containsKey(id)) {
-			// for BTM
-			//e.player.readFromNBT(d.getPlayerRespawnData().remove(id));
+			e.player.readFromNBT(d.getPlayerRespawnData().remove(id));
 		}
 	}
 	

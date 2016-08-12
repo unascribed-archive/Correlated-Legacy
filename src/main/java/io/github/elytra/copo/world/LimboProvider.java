@@ -1,5 +1,6 @@
 package io.github.elytra.copo.world;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -10,14 +11,18 @@ import com.google.common.collect.Sets;
 
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.math.Vec2i;
+import io.github.elytra.copo.network.SetGlitchingStateMessage;
+import io.github.elytra.copo.network.SetGlitchingStateMessage.GlitchState;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Biomes;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.WorldSettings.GameType;
 import net.minecraft.world.biome.BiomeProviderSingle;
 import net.minecraft.world.chunk.IChunkGenerator;
 import net.minecraftforge.fml.relauncher.Side;
@@ -155,10 +160,8 @@ public class LimboProvider extends WorldProvider {
 	
 	@Override
 	public void onWorldUpdateEntities() {
-		//Iterator<Map.Entry<EntityPlayerMP, Vec2i>> iter = constraints.entrySet().iterator();
-		// for BTM
-		constraints.clear();
-		/*while (iter.hasNext()) {
+		Iterator<Map.Entry<EntityPlayerMP, Vec2i>> iter = constraints.entrySet().iterator();
+		while (iter.hasNext()) {
 			Map.Entry<EntityPlayerMP, Vec2i> en = iter.next();
 			EntityPlayerMP player = en.getKey();
 			if (player.isDead) {
@@ -190,7 +193,7 @@ public class LimboProvider extends WorldProvider {
 				en.getKey().attackEntityFrom(constraint_violation, 75000);
 				en.getKey().setDead(); // just in case
 			}
-		}*/
+		}
 	}
 
 	public void addLeavingPlayer(UUID id) {
