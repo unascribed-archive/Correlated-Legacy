@@ -1,6 +1,6 @@
 Welcome to the Correlated Potentialistics wiki!
 
-## **Note**: This wiki is only relevant for CoPo 0.x and 1.x. For 2.x and later, there is ingame documentation that is up-to-date.
+## *Note*: This wiki is only relevant for CoPo 0.x and 1.x. For 2.x and later, there is ingame documentation that is up-to-date.
 
 
 Correlated Potentialistics (herein probably going to just be called "this mod", since that is a *long* name) is a mod based around the digitization of items. This wiki is written mainly for people who are already familiar with Applied Energistics, the mod this one is inspired by. Even still, we will go over some topics that are identical to their analogues in AE.
