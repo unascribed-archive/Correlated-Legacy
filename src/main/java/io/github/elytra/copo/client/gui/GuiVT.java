@@ -3,11 +3,12 @@ package io.github.elytra.copo.client.gui;
 import java.io.IOException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-
 import com.google.common.base.Objects;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import io.github.elytra.copo.CoPo;
+import io.github.elytra.copo.client.IBMFontRenderer;
 import io.github.elytra.copo.helper.Numbers;
 import io.github.elytra.copo.inventory.ContainerVT;
 import io.github.elytra.copo.inventory.ContainerVT.CraftingAmount;
@@ -69,9 +70,18 @@ public class GuiVT extends GuiContainer {
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 		fontRendererObj.drawString(getTitle(), 8, 6, 0x404040);
-		if (container.playerInventoryOffsetX == 0 && container.playerInventoryOffsetY == 37) {
-			fontRendererObj.drawString(I18n.format("container.inventory"), 69, 128, 0x404040);
+		String lastLine = Strings.nullToEmpty(container.status.get(container.status.size()-1));
+		if (lastLine.length() > 32) {
+			lastLine = lastLine.substring(0, 32)+"...";
 		}
+		int left = 68+container.playerInventoryOffsetX;
+		int top = 90+container.playerInventoryOffsetY;
+		int right = 162+68+container.playerInventoryOffsetX;
+		int bottom = 11+89+container.playerInventoryOffsetY;
+		
+		drawRect(left, top, right, bottom, 0xFF006D4B);
+		IBMFontRenderer.drawString(left+2, top+1, lastLine, 0x00DBAD);
+		
 		GlStateManager.pushMatrix();
 		GlStateManager.disableDepth();
 		GlStateManager.scale(0.5f, 0.5f, 1);
@@ -288,6 +298,17 @@ public class GuiVT extends GuiContainer {
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
 		int x = (width - xSize) / 2;
 		int y = (height - ySize) / 2;
+		
+		int left = 68+container.playerInventoryOffsetX;
+		int top = 90+container.playerInventoryOffsetY;
+		int right = 162+68+container.playerInventoryOffsetX;
+		int bottom = 11+89+container.playerInventoryOffsetY;
+		if (mouseButton == 0
+				&& mouseX >= x+left && mouseX <= x+right
+				&& mouseY >= y+top && mouseY <= y+bottom) {
+			Minecraft.getMinecraft().displayGuiScreen(new GuiVTLog(this, container));
+		}
+		
 		int width = 12;
 		int height = getScrollTrackHeight();
 		x += getScrollTrackX();
@@ -332,6 +353,10 @@ public class GuiVT extends GuiContainer {
 	public void updateSearchQuery(String query) {
 		lastSearchQuery = query;
 		searchField.setText(query);
+	}
+
+	public void addLine(String line) {
+		container.status.add(line);
 	}
 
 }

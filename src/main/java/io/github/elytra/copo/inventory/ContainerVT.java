@@ -12,9 +12,10 @@ import com.google.common.primitives.Ints;
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.IVT;
 import io.github.elytra.copo.IVT.UserPreferences;
+import io.github.elytra.copo.item.ItemDrive;
+import io.github.elytra.copo.network.AddStatusLineMessage;
 import io.github.elytra.copo.network.SetSearchQueryMessage;
 import io.github.elytra.copo.network.SetSlotSizeMessage;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Booleans;
@@ -340,6 +341,13 @@ public class ContainerVT extends Container {
 			case -21:
 				craftingTarget = CraftingTarget.NETWORK;
 				break;
+			
+			case -22:
+				/*if (storage instanceof TileEntityController) {
+					TileEntityController cont = ((TileEntityController)storage);
+					cont.
+				}*/
+				break;
 
 			/*
 			 * -30 (inclusive) through -60 (inclusive) are for subclass use
@@ -366,17 +374,50 @@ public class ContainerVT extends Container {
 
 	public ItemStack addItemToNetwork(ItemStack stack) {
 		if (player.worldObj.isRemote) return null;
+		int oldBits = vt.getStorage().getBitsFree();
+		int initialStackSize = stack.stackSize;
 		ItemStack is = vt.getStorage().addItemToNetwork(stack);
+		int newBits = vt.getStorage().getBitsFree();
+		int delta = oldBits-newBits;
+		String amt = delta < 8 ? delta == 1 ? "1 bit" : delta+" bits" : delta < 16 ? "1 byte" : (delta/8)+" bytes";
+		if (is == null) {
+			addStatusLine("Add "+initialStackSize+": OK, used "+amt);
+		} else if (is.stackSize < initialStackSize) {
+			addStatusLine("Add "+(initialStackSize-is.stackSize)+": OK, used "+amt);
+		} else {
+			int needed = ItemDrive.getNBTComplexity(stack.getTagCompound());
+			needed += 8*8;
+			needed += stack.stackSize;
+			addStatusLine("Add: Insufficient disk space. Need about "+needed+", only "+newBits+" available");
+		}
 		return is;
+	}
+
+	private void addStatusLine(String line) {
+		status.add(line);
+		for (IContainerListener ic : listeners) {
+			if (ic instanceof EntityPlayerMP) {
+				EntityPlayerMP p = (EntityPlayerMP)ic;
+				CoPo.inst.network.sendTo(new AddStatusLineMessage(windowId, line), p);
+			}
+		}
 	}
 
 	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount) {
 		if (player.worldObj.isRemote) return null;
+		int oldBits = vt.getStorage().getBitsFree();
 		ItemStack is = vt.getStorage().removeItemsFromNetwork(prototype, amount, true);
+		int newBits = vt.getStorage().getBitsFree();
+		int delta = newBits-oldBits;
+		String amt = delta < 8 ? delta == 1 ? "1 bit" : delta+" bits" : delta < 16 ? "1 byte" : (delta/8)+" bytes";
+		if (is != null) {
+			addStatusLine("Remove "+is.stackSize+": OK, freed "+amt);
+		}
 		return is;
 	}
 
 	private List<Integer> oldStackSizes = Lists.newArrayList();
+	public List<String> status = Lists.newArrayList("Ready.");
 
 	@Override
 	protected Slot addSlotToContainer(Slot slotIn) {

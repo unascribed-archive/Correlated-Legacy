@@ -27,20 +27,24 @@ public class GuiAbortRetryFail extends GuiGameOver {
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		drawRect(0, 0, width, height, 0xFF000000);
 		String txt = causeOfDeath == null ? "You died" : causeOfDeath.getUnformattedText();
-		IBMFontRenderer.drawString(10, 40, txt.substring(0, Math.min(ticks, txt.length())));
+		drawIBMString(10, 40, txt.substring(0, Math.min(ticks, txt.length())));
 		int base = txt.length()+10;
 		if (ticks >= base) {
-			IBMFontRenderer.drawString(10, 48, "Abort/Retry?"+(ticks % 10 < 5 ? "_" : ""));
+			drawIBMString(10, 48, "Abort/Retry?"+(ticks % 10 < 5 ? "_" : ""));
 		}
-		if (ticks > base+20) IBMFontRenderer.drawString(10, 80, "[A]bort: Return to the overworld");
-		if (ticks > base+22) IBMFontRenderer.drawString(10, 88, "         You will lose the items you found, but");
-		if (ticks > base+24) IBMFontRenderer.drawString(10, 96, "         your Unstable Pearl can be used again");
+		if (ticks > base+20) drawIBMString(10, 80, "[A]bort: Return to the overworld");
+		if (ticks > base+22) drawIBMString(10, 88, "         You will lose the items you found, but");
+		if (ticks > base+24) drawIBMString(10, 96, "         your Unstable Pearl can be used again");
 		
-		if (ticks > base+30) IBMFontRenderer.drawString(10, 112, "[R]etry: Respawn within the dungeon");
-		if (ticks > base+32) IBMFontRenderer.drawString(10, 120, "         You will have to find your items, but");
-		if (ticks > base+34) IBMFontRenderer.drawString(10, 128, "         they will not despawn");
+		if (ticks > base+30) drawIBMString(10, 112, "[R]etry: Respawn within the dungeon");
+		if (ticks > base+32) drawIBMString(10, 120, "         You will have to find your items, but");
+		if (ticks > base+34) drawIBMString(10, 128, "         they will not despawn");
 
-		if (ticks > base+100) IBMFontRenderer.drawString(10, 200, "Press A or R to make a decision");
+		if (ticks > base+100) drawIBMString(10, 200, "Press A or R to make a decision");
+	}
+	
+	private void drawIBMString(int x, int y, String str) {
+		IBMFontRenderer.drawString(x, y, str, IBMFontRenderer.DIM_WHITE);
 	}
 	
 	@Override

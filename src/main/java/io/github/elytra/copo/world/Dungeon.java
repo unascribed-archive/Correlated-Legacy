@@ -114,7 +114,6 @@ public class Dungeon implements INBTSerializable<NBTTagCompound> {
 		}
 		planTag.setInteger("Width", plan.getWidth());
 		planTag.setInteger("Height", plan.getHeight());
-		System.out.println(planTag);
 		tag.setTag("Plan", planTag);
 		return tag;
 	}

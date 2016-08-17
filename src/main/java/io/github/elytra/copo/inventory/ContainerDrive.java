@@ -91,7 +91,7 @@ public class ContainerDrive extends Container {
 					return false;
 				}
 			}
-			return getItemDrive().getBitsFree(getDrive()) >= getItemDrive().getTypeAllocationBits(getDrive());
+			return getItemDrive().getBitsFree(getDrive()) >= getItemDrive().getTypeAllocationBits(getDrive(), stack.serializeNBT());
 		}
 
 		@Override

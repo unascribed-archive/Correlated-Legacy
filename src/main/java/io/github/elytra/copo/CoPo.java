@@ -29,6 +29,7 @@ import io.github.elytra.copo.item.ItemKeycard;
 import io.github.elytra.copo.item.ItemMisc;
 import io.github.elytra.copo.item.ItemWeldthrower;
 import io.github.elytra.copo.item.ItemWirelessTerminal;
+import io.github.elytra.copo.network.AddStatusLineMessage;
 import io.github.elytra.copo.network.CoPoGuiHandler;
 import io.github.elytra.copo.network.EnterDungeonMessage;
 import io.github.elytra.copo.network.LeaveDungeonMessage;
@@ -176,6 +177,7 @@ public class CoPo {
 		registerMessage(EnterDungeonMessage.class, Side.SERVER);
 		registerMessage(SetAutomatonNameMessage.class, Side.SERVER);
 		registerMessage(LeaveDungeonMessage.class, Side.SERVER);
+		registerMessage(AddStatusLineMessage.class, Side.CLIENT);
 
 		EntityRegistry.registerModEntity(EntityThrownItem.class, "thrown_item", 0, this, 64, 10, true);
 		EntityRegistry.registerModEntity(EntityAutomaton.class, "automaton", 1, this, 64, 1, true);

@@ -65,7 +65,7 @@ public class GuiFakeReboot extends GuiScreen {
 			drawTexturedModalRect(10, 10, 72, 0, w, 19);
 			drawRect(10, 10, w+10, 29, logoColor | (opacity << 24));
 		} else {
-			if (ticks < 125) drawTexturedModalRect(10, 10, 72, 0, 126, 19);
+			if (ticks < 125) drawModalRectWithCustomSizedTexture(10, 10, 0, 128, 126, 19, 288, 147);
 			if (ticks > 22) drawIBMString(10, 40, "Ender 80386 ROM BIOS PLUS Version "+Minecraft.getMinecraft().getVersion()+" "+ForgeVersion.buildVersion);
 			if (ticks > 26) drawIBMString(10, 47, "Copyright (C) 2009-2016 Mojang AB.");
 			if (ticks > 28) drawIBMString(10, 54, "All Rights Reserved");
@@ -108,7 +108,7 @@ public class GuiFakeReboot extends GuiScreen {
 	}
 	
 	private void drawIBMString(int x, int y, String str) {
-		IBMFontRenderer.drawString(x, y, str);
+		IBMFontRenderer.drawString(x, y, str, IBMFontRenderer.DIM_WHITE);
 		cursorY = y+7;
 	}
 	

@@ -14,8 +14,13 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagByteArray;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
+import net.minecraft.nbt.NBTBase.NBTPrimitive;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
@@ -61,9 +66,9 @@ public class ItemDrive extends Item {
 	};
 	private final int[] tierAllocSizes = {
 			8 * 8,
+			16 * 8,
 			32 * 8,
-			128 * 8,
-			512 * 8,
+			64 * 8,
 			0
 	};
 
@@ -87,10 +92,8 @@ public class ItemDrive extends Item {
 			b = ((int) (sin * 255f)) & 0xFF;
 			return r << 16 | g << 8 | b;
 		} else {
-			float usedTypes = getTypesUsed(stack)/(float)getMaxTypes(stack);
 			float usedBits = getBitsUsed(stack)/(float)getMaxBits(stack);
-			float both = (usedTypes+usedBits)/2;
-			float hue = (1/3f)*(1-both);
+			float hue = (1/3f)*(1-usedBits);
 			return Color.HSBtoRGB(hue, 1, dirty ? 1 : 0.65f);
 		}
 	}
@@ -113,15 +116,11 @@ public class ItemDrive extends Item {
 				i++;
 			}
 		} else {
-			int typesUsed = getTypesUsed(stack);
-			int typesMax = getMaxTypes(stack);
 			int bytesUsed = getBitsUsed(stack) / 8;
 			int bytesMax = getMaxBits(stack) / 8;
 
-			int typesPercent = (int) (((double) typesUsed / (double) typesMax) * 100);
 			int bytesPercent = (int) (((double) bytesUsed / (double) bytesMax) * 100);
 
-			tooltip.add(I18n.translateToLocalFormatted("tooltip.correlatedpotentialistics.types_used", typesUsed, typesMax, typesPercent));
 			tooltip.add(I18n.translateToLocalFormatted("tooltip.correlatedpotentialistics.bytes_used", Numbers.humanReadableBytes(bytesUsed), Numbers.humanReadableBytes(bytesMax), bytesPercent));
 		}
 	}
@@ -151,16 +150,77 @@ public class ItemDrive extends Item {
 		}
 	}
 
-	public int getMaxTypes(ItemStack stack) {
-		return 64;
-	}
-
 	public int getMaxBits(ItemStack stack) {
 		return tierSizes[stack.getItemDamage() % tierSizes.length];
 	}
 
-	public int getTypeAllocationBits(ItemStack stack) {
-		return tierAllocSizes[stack.getItemDamage() % tierSizes.length];
+	public int getTypeAllocationBits(ItemStack stack, NBTTagCompound prototype) {
+		return tierAllocSizes[stack.getItemDamage() % tierSizes.length] + getNBTComplexity(prototype == null ? null : prototype.getTag("tag"));
+	}
+	
+	public static int getNBTComplexity(NBTBase base) {
+		if (base == null) return 0;
+		int complexity = 0;
+		switch (base.getId()) {
+			case NBT.TAG_BYTE:
+				complexity += 4;
+				break;
+			case NBT.TAG_SHORT:
+				complexity += 8;
+				break;
+			case NBT.TAG_INT:
+				complexity += 16;
+				break;
+			case NBT.TAG_LONG:
+				complexity += 32;
+				break;
+			case NBT.TAG_BYTE_ARRAY:
+				complexity += 8;
+				complexity += ((NBTTagByteArray)base).getByteArray().length*4;
+				break;
+			case NBT.TAG_INT_ARRAY:
+				complexity += 8;
+				complexity += ((NBTTagIntArray)base).getIntArray().length*16;
+				break;
+			case NBT.TAG_STRING:
+				String str = ((NBTTagString)base).getString();
+				complexity += getStringComplexity(str);
+				break;
+			case NBT.TAG_LIST:
+				NBTTagList li = ((NBTTagList)base);
+				complexity += 4;
+				for (int i = 0; i < li.tagCount(); i++) {
+					complexity += getNBTComplexity(li.get(i));
+				}
+				break;
+			case NBT.TAG_COMPOUND:
+				NBTTagCompound compound = ((NBTTagCompound)base);
+				complexity += 4;
+				for (String k : compound.getKeySet()) {
+					complexity += getStringComplexity(k);
+					NBTBase tag = compound.getTag(k);
+					if ("Count".equals(k) || "Amount".equals(k) && tag instanceof NBTPrimitive) {
+						// !!
+						complexity += ((NBTPrimitive)tag).getInt();
+					}
+					complexity += getNBTComplexity(compound.getTag(k));
+				}
+				break;
+		}
+		return complexity;
+	}
+
+	public static int getStringComplexity(String str) {
+		int complexity = 8;
+		for (int i = 0; i < str.length(); i++) {
+			char c = str.charAt(i);
+			if (c < 0xFF) {
+				complexity += 4;
+			} else {
+				complexity += 8;
+			}
+		}
+		return complexity;
 	}
 
 	public Priority getPriority(ItemStack stack) {
@@ -194,17 +254,12 @@ public class ItemDrive extends Item {
 	// all this code should probably be refactored into some sort of general
 	// "NetworkContents" class at some point
 
-	public int getTypesUsed(ItemStack stack) {
-		if (!stack.hasTagCompound() || !stack.getTagCompound().hasKey("Data", NBT.TAG_LIST)) return 0;
-		return ItemStacks.getCompoundList(stack, "Data").tagCount();
-	}
-
 	public int getBitsUsed(ItemStack stack) {
 		if (!stack.hasTagCompound() || !stack.getTagCompound().hasKey("Data", NBT.TAG_LIST)) return 0;
 		NBTTagList list = ItemStacks.getCompoundList(stack, "Data");
 		int used = 0;
 		for (int i = 0; i < list.tagCount(); i++) {
-			used += getTypeAllocationBits(stack);
+			used += getTypeAllocationBits(stack, list.getCompoundTagAt(i).getCompoundTag("Prototype"));
 			used += list.getCompoundTagAt(i).getInteger("Count");
 		}
 		return used;
@@ -243,11 +298,12 @@ public class ItemDrive extends Item {
 
 	public int getBitsFreeFor(ItemStack drive, ItemStack item) {
 		if (getMaxBits(drive) == -1) return Integer.MAX_VALUE;
-		NBTTagCompound data = findDataForPrototype(drive, createPrototype(item));
+		NBTTagCompound prototype = createPrototype(item);
+		NBTTagCompound data = findDataForPrototype(drive, prototype);
 		if (data != null) {
 			return getBitsFree(drive);
-		} else if (getPartitioningMode(drive) == PartitioningMode.NONE && getTypesUsed(drive) < getMaxTypes(drive)) {
-			return Math.max(0, getBitsFree(drive) - getTypeAllocationBits(drive));
+		} else if (getPartitioningMode(drive) == PartitioningMode.NONE) {
+			return Math.max(0, getBitsFree(drive) - getTypeAllocationBits(drive, prototype));
 		}
 		return 0;
 	}

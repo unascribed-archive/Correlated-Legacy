@@ -41,6 +41,29 @@ public class CoPoWailaProvider implements IWailaDataProvider {
 			nbt.setInteger("EnergyPerTick", ((TileEntityNetworkMember) te).getEnergyConsumedPerTick());
 			nbt.setBoolean("HasController", ((TileEntityNetworkMember) te).hasStorage());
 		}
+		if (te instanceof TileEntityDriveBay) {
+			TileEntityDriveBay tedb = (TileEntityDriveBay)te;
+			int totalBytesUsed = 0;
+			int totalMaxBytes = 0;
+			int driveCount = 0;
+			for (int i = 0; i < 8; i++) {
+				if (tedb.hasDriveInSlot(i)) {
+					driveCount++;
+					ItemStack is = tedb.getDriveInSlot(i);
+					if (is.getItem() instanceof ItemDrive && is.getItemDamage() != 4) {
+						totalBytesUsed += ((ItemDrive)is.getItem()).getBitsUsed(is)/8;
+						totalMaxBytes += ((ItemDrive)is.getItem()).getMaxBits(is)/8;
+					}
+				}
+			}
+
+			int totalBytesPercent = (int)(((double)totalBytesUsed/(double)totalMaxBytes)*100);
+			
+			nbt.setInteger("DriveCount", driveCount);
+			nbt.setInteger("BytesUsed", totalBytesUsed);
+			nbt.setInteger("MaxBytes", totalMaxBytes);
+			nbt.setInteger("BytesPercent", totalBytesPercent);
+		}
 		return nbt;
 	}
 
@@ -79,31 +102,10 @@ public class CoPoWailaProvider implements IWailaDataProvider {
 			}
 		}
 		if (access.getTileEntity() instanceof TileEntityDriveBay) {
-			TileEntityDriveBay tedb = (TileEntityDriveBay)access.getTileEntity();
-			int totalBytesUsed = 0;
-			int totalMaxBytes = 0;
-			int totalTypesUsed = 0;
-			int totalMaxTypes = 0;
-			int driveCount = 0;
-			for (int i = 0; i < 8; i++) {
-				if (tedb.hasDriveInSlot(i)) {
-					driveCount++;
-					ItemStack is = tedb.getDriveInSlot(i);
-					if (is.getItem() instanceof ItemDrive && is.getItemDamage() != 4) {
-						totalBytesUsed += ((ItemDrive)is.getItem()).getBitsUsed(is)/8;
-						totalTypesUsed += ((ItemDrive)is.getItem()).getTypesUsed(is);
-						totalMaxBytes += ((ItemDrive)is.getItem()).getMaxBits(is)/8;
-						totalMaxTypes += ((ItemDrive)is.getItem()).getMaxTypes(is);
-					}
-				}
-			}
+			
 
-			int totalTypesPercent = (int)(((double)totalTypesUsed/(double)totalMaxTypes)*100);
-			int totalBytesPercent = (int)(((double)totalBytesUsed/(double)totalMaxBytes)*100);
-
-			body.add(I18n.format("tooltip.correlatedpotentialistics.drive_count", driveCount));
-			body.add(I18n.format("tooltip.correlatedpotentialistics.types_used", totalTypesUsed, totalMaxTypes, totalTypesPercent));
-			body.add(I18n.format("tooltip.correlatedpotentialistics.bytes_used", Numbers.humanReadableBytes(totalBytesUsed), Numbers.humanReadableBytes(totalMaxBytes), totalBytesPercent));
+			body.add(I18n.format("tooltip.correlatedpotentialistics.drive_count", nbt.getInteger("DriveCount")));
+			body.add(I18n.format("tooltip.correlatedpotentialistics.bytes_used", Numbers.humanReadableBytes(nbt.getInteger("BytesUsed")), Numbers.humanReadableBytes(nbt.getInteger("MaxBytes")), nbt.getInteger("BytesPercent")));
 		} else if (access.getTileEntity() instanceof TileEntityInterface) {
 			TileEntityInterface tei = (TileEntityInterface)access.getTileEntity();
 			EnumFacing side = access.getSide();
