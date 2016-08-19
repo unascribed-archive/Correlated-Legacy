@@ -90,7 +90,7 @@ public class RenderMemoryBay extends TileEntitySpecialRenderer<TileEntityMemoryB
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j, k);
 
 		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-		for (int i = 0; i < 8; i++) {
+		for (int i = 0; i < 12; i++) {
 			if (te.hasMemoryInSlot(i)) {
 				ItemStack memory = te.getMemoryInSlot(i);
 				if (memory.getItem() instanceof ItemMemory) {
@@ -108,12 +108,12 @@ public class RenderMemoryBay extends TileEntitySpecialRenderer<TileEntityMemoryB
 		GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
 		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-		for (int i = 0; i < 8; i++) {
+		for (int i = 0; i < 12; i++) {
 			if (te.hasMemoryInSlot(i)) {
 				ItemStack memory = te.getMemoryInSlot(i);
 				if (memory.getItem() instanceof ItemMemory) {
 					ItemMemory itemMemory = (ItemMemory)memory.getItem();
-					drawMemoryBox(itemMemory.getTierColor(memory), i, 0.5f, 0);
+					drawMemoryBox(itemMemory.getTierColor(memory), i, 0f, 0.5f);
 				}
 			}
 		}
@@ -193,11 +193,11 @@ public class RenderMemoryBay extends TileEntitySpecialRenderer<TileEntityMemoryB
 		float z = 0/16f;
 
 		float w = 4/16f;
-		float h = 2/16f;
+		float h = 1/16f;
 		float d = 1/16f;
 
-		int renderSlot = 7-slot;
-		y += (renderSlot/2)*(3/16f);
+		int renderSlot = 11-slot;
+		y += (renderSlot/2)*(2/16f);
 		x += (renderSlot%2)*(6/16f);
 
 		float antiBleed = 0.0001f;
@@ -208,11 +208,11 @@ public class RenderMemoryBay extends TileEntitySpecialRenderer<TileEntityMemoryB
 
 		{
 			// Right
-			float minU = u+(5/12f);
-			float maxU = u+(6/12f);
+			float minU = u+(5/6f);
+			float maxU = u+(6/6f);
 
-			float minV = v+(1/8f);
-			float maxV = v+(3/8f);
+			float minV = v+(1/6f);
+			float maxV = v+(2/6f);
 
 			minU += antiBleed;
 			maxU -= antiBleed;
@@ -226,11 +226,11 @@ public class RenderMemoryBay extends TileEntitySpecialRenderer<TileEntityMemoryB
 		}
 		{
 			// Front
-			float minU = u+(1/12f);
-			float maxU = u+(5/12f);
+			float minU = u+(1/6f);
+			float maxU = u+(5/6f);
 
-			float minV = v+(1/8f);
-			float maxV = v+(3/8f);
+			float minV = v+(1/6f);
+			float maxV = v+(2/6f);
 
 			minU += antiBleed;
 			maxU -= antiBleed;
@@ -244,11 +244,11 @@ public class RenderMemoryBay extends TileEntitySpecialRenderer<TileEntityMemoryB
 		}
 		{
 			// Left
-			float minU = u+(0/12f);
-			float maxU = u+(1/12f);
+			float minU = u+(0/6f);
+			float maxU = u+(1/6f);
 
-			float minV = v+(1/8f);
-			float maxV = v+(3/8f);
+			float minV = v+(1/6f);
+			float maxV = v+(2/6f);
 
 			minU += antiBleed;
 			maxU -= antiBleed;
@@ -262,11 +262,11 @@ public class RenderMemoryBay extends TileEntitySpecialRenderer<TileEntityMemoryB
 		}
 		{
 			// Top
-			float minU = u+(1/12f);
-			float maxU = u+(5/12f);
+			float minU = u+(1/6f);
+			float maxU = u+(5/6f);
 
-			float minV = v+(0/8f);
-			float maxV = v+(1/8f);
+			float minV = v+(0/6f);
+			float maxV = v+(1/6f);
 
 			minU += antiBleed;
 			maxU -= antiBleed;
@@ -280,11 +280,11 @@ public class RenderMemoryBay extends TileEntitySpecialRenderer<TileEntityMemoryB
 		}
 		{
 			// Bottom
-			float minU = u+(1/12f);
-			float maxU = u+(5/12f);
+			float minU = u+(1/6f);
+			float maxU = u+(5/6f);
 
-			float minV = v+(3/8f);
-			float maxV = v+(4/8f);
+			float minV = v+(2/6f);
+			float maxV = v+(3/6f);
 
 			minU += antiBleed;
 			maxU -= antiBleed;
