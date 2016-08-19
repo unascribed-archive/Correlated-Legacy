@@ -51,8 +51,8 @@ public class CoPoWailaProvider implements IWailaDataProvider {
 					driveCount++;
 					ItemStack is = tedb.getDriveInSlot(i);
 					if (is.getItem() instanceof ItemDrive && is.getItemDamage() != 4) {
-						totalBytesUsed += ((ItemDrive)is.getItem()).getBitsUsed(is)/8;
-						totalMaxBytes += ((ItemDrive)is.getItem()).getMaxBits(is)/8;
+						totalBytesUsed += ((ItemDrive)is.getItem()).getKilobitsUsed(is)/8;
+						totalMaxBytes += ((ItemDrive)is.getItem()).getMaxKilobits(is)/8;
 					}
 				}
 			}

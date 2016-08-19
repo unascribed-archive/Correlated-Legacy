@@ -747,7 +747,7 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 			if (getItemStackFromSlot(slot) != null) {
 				ItemStack drive = getItemStackFromSlot(slot);
 				if (drive.getItem() instanceof ItemDrive) {
-					accum += ((ItemDrive)drive.getItem()).getBitsFree(drive);
+					accum += ((ItemDrive)drive.getItem()).getKilobitsFree(drive);
 				}
 			}
 		}

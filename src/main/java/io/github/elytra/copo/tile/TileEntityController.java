@@ -15,6 +15,7 @@ import io.github.elytra.copo.block.BlockController;
 import io.github.elytra.copo.block.BlockController.State;
 import io.github.elytra.copo.helper.DriveComparator;
 import io.github.elytra.copo.item.ItemDrive;
+import io.github.elytra.copo.item.ItemMemory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -36,9 +37,12 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	private transient List<TileEntityInterface> interfaces = Lists.newArrayList();
 	private transient List<TileEntityWirelessReceiver> receivers = Lists.newArrayList();
 	private transient List<TileEntityDriveBay> driveBays = Lists.newArrayList();
+	private transient List<TileEntityMemoryBay> memoryBays = Lists.newArrayList();
 	private transient List<ItemStack> drives = Lists.newArrayList();
 	public int changeId = 0;
 	private boolean checkingInfiniteLoop = false;
+	
+	public long totalMemory = 0;
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
@@ -285,6 +289,23 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		}
 		Collections.sort(drives, new DriveComparator());
 	}
+	
+	public void updateMemoryCache() {
+		if (hasWorldObj() && worldObj.isRemote) return;
+		totalMemory = 0;
+		for (TileEntityMemoryBay temb : memoryBays) {
+			if (temb.isInvalid()) continue;
+			for (int i = 0; i < 12; i++) {
+				if (temb.hasMemoryInSlot(i)) {
+					ItemStack stack = temb.getMemoryInSlot(i);
+					if (stack.getItem() instanceof ItemMemory) {
+						totalMemory += ((ItemMemory)stack.getItem()).getMaxBits(stack);
+					}
+				}
+			}
+		}
+
+	}
 
 	public void updateConsumptionRate(int change) {
 		consumedPerTick += change;
@@ -371,7 +392,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		int accum = 0;
 		for (ItemStack drive : drives) {
 			if (drive != null && drive.getItem() instanceof ItemDrive) {
-				accum += ((ItemDrive)drive.getItem()).getBitsFree(drive);
+				accum += ((ItemDrive)drive.getItem()).getKilobitsFree(drive);
 			}
 		}
 		return accum;
@@ -450,5 +471,5 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	public int getChangeId() {
 		return changeId;
 	}
-	
+
 }

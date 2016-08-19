@@ -13,11 +13,13 @@ import com.google.common.collect.Lists;
 import io.github.elytra.copo.block.BlockController;
 import io.github.elytra.copo.block.BlockDriveBay;
 import io.github.elytra.copo.block.BlockInterface;
+import io.github.elytra.copo.block.BlockMemoryBay;
 import io.github.elytra.copo.block.BlockVT;
 import io.github.elytra.copo.block.BlockWirelessEndpoint;
 import io.github.elytra.copo.block.item.ItemBlockController;
 import io.github.elytra.copo.block.item.ItemBlockDriveBay;
 import io.github.elytra.copo.block.item.ItemBlockInterface;
+import io.github.elytra.copo.block.item.ItemBlockMemoryBay;
 import io.github.elytra.copo.block.item.ItemBlockVT;
 import io.github.elytra.copo.block.item.ItemBlockWirelessEndpoint;
 import io.github.elytra.copo.compat.WailaCompatibility;
@@ -26,6 +28,7 @@ import io.github.elytra.copo.entity.EntityThrownItem;
 import io.github.elytra.copo.item.ItemCoPoRecord;
 import io.github.elytra.copo.item.ItemDrive;
 import io.github.elytra.copo.item.ItemKeycard;
+import io.github.elytra.copo.item.ItemMemory;
 import io.github.elytra.copo.item.ItemMisc;
 import io.github.elytra.copo.item.ItemWeldthrower;
 import io.github.elytra.copo.item.ItemWirelessTerminal;
@@ -41,6 +44,7 @@ import io.github.elytra.copo.network.StartWeldthrowingMessage;
 import io.github.elytra.copo.tile.TileEntityController;
 import io.github.elytra.copo.tile.TileEntityDriveBay;
 import io.github.elytra.copo.tile.TileEntityInterface;
+import io.github.elytra.copo.tile.TileEntityMemoryBay;
 import io.github.elytra.copo.tile.TileEntityVT;
 import io.github.elytra.copo.tile.TileEntityWirelessReceiver;
 import io.github.elytra.copo.tile.TileEntityWirelessTransmitter;
@@ -89,12 +93,14 @@ public class CoPo {
 
 	public static BlockController controller;
 	public static BlockDriveBay drive_bay;
+	public static BlockMemoryBay memory_bay;
 	public static BlockVT vt;
 	public static BlockInterface iface;
 	public static BlockWirelessEndpoint wireless_endpoint;
 
 	public static ItemMisc misc;
 	public static ItemDrive drive;
+	public static ItemMemory memory;
 	public static ItemWirelessTerminal wireless_terminal;
 	public static ItemWeldthrower weldthrower;
 	public static ItemKeycard keycard;
@@ -130,6 +136,7 @@ public class CoPo {
 	
 	public int controllerRfUsage;
 	public int driveBayRfUsage;
+	public int memoryBayRfUsage;
 	public int terminalRfUsage;
 	public int interfaceRfUsage;
 	public int transmitterRfUsage;
@@ -153,10 +160,11 @@ public class CoPo {
 		
 		controllerRfUsage = config.getInt("controller", "PowerUsage", 32, 0, 640, "The RF/t used by the Controller.");
 		driveBayRfUsage = config.getInt("driveBay", "PowerUsage", 8, 0, 640, "The RF/t used by the Drive Bay.");
+		memoryBayRfUsage = config.getInt("memoryBay", "PowerUsage", 4, 0, 640, "The RF/t used by the Memory Bay.");
 		terminalRfUsage = config.getInt("terminal", "PowerUsage", 4, 0, 640, "The RF/t used by the Terminal.");
-		interfaceRfUsage = config.getInt("interface", "PowerUsage", 12, 0, 640, "The RF/t used by the Interface.");
-		transmitterRfUsage = config.getInt("transmitter", "PowerUsage", 24, 0, 640, "The RF/t used by the Wireless Transmitter.");
-		receiverRfUsage = config.getInt("receiver", "PowerUsage", 24, 0, 640, "The RF/t used by the Wireless Receiver.");
+		interfaceRfUsage = config.getInt("interface", "PowerUsage", 8, 0, 640, "The RF/t used by the Interface.");
+		transmitterRfUsage = config.getInt("transmitter", "PowerUsage", 16, 0, 640, "The RF/t used by the Wireless Transmitter.");
+		receiverRfUsage = config.getInt("receiver", "PowerUsage", 16, 0, 640, "The RF/t used by the Wireless Receiver.");
 		
 		driveRfUsagePow = config.getInt("drivePow", "PowerUsage", 2, 0, 8, "Drive power usage is (pow**tier)/div");
 		driveRfUsageDiv = config.getInt("driveDiv", "PowerUsage", 2, 0, 8, "Drive power usage is (pow**tier)/div");
@@ -224,12 +232,14 @@ public class CoPo {
 		
 		register(new BlockController().setHardness(2), ItemBlockController.class, "controller", 4);
 		register(new BlockDriveBay().setHardness(2), ItemBlockDriveBay.class, "drive_bay", 0);
+		register(new BlockMemoryBay().setHardness(2), ItemBlockMemoryBay.class, "memory_bay", 0);
 		register(new BlockVT().setHardness(2), ItemBlockVT.class, "vt", 0);
 		register(new BlockInterface().setHardness(2), ItemBlockInterface.class, "iface", 0);
 		register(new BlockWirelessEndpoint().setHardness(2), ItemBlockWirelessEndpoint.class, "wireless_endpoint", -4);
 
 		register(new ItemMisc(), "misc", -2);
 		register(new ItemDrive(), "drive", -1);
+		register(new ItemMemory(), "memory", -1);
 		register(new ItemWirelessTerminal(), "wireless_terminal", 0);
 		register(new ItemWeldthrower(), "weldthrower", 0);
 		register(new ItemKeycard(), "keycard", -2);
@@ -238,6 +248,7 @@ public class CoPo {
 
 		GameRegistry.registerTileEntity(TileEntityController.class, "correlatedpotentialistics:controller");
 		GameRegistry.registerTileEntity(TileEntityDriveBay.class, "correlatedpotentialistics:drive_bay");
+		GameRegistry.registerTileEntity(TileEntityMemoryBay.class, "correlatedpotentialistics:memory_bay");
 		GameRegistry.registerTileEntity(TileEntityVT.class, "correlatedpotentialistics:vt");
 		GameRegistry.registerTileEntity(TileEntityInterface.class, "correlatedpotentialistics:interface");
 		GameRegistry.registerTileEntity(TileEntityWirelessReceiver.class, "correlatedpotentialistics:wireless_receiver");

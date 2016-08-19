@@ -39,7 +39,7 @@ public class ItemMisc extends Item {
 		BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.putObject(this, (src, stack) -> {
 			if (stack.getMetadata() == 3) {
 				src.getWorld().playSound((EntityPlayer) null, src.getX(), src.getY(), src.getZ(), SoundEvents.ENTITY_ENDERPEARL_THROW, SoundCategory.NEUTRAL, 0.5F, 0.4F / (itemRand.nextFloat() * 0.4F + 0.8F));
-				EnumFacing facing = BlockDispenser.getFacing(src.getBlockMetadata());
+				EnumFacing facing = src.getBlockState().getValue(BlockDispenser.FACING);
 				EntityThrownItem e = new EntityThrownItem(src.getWorld(), src.getX()+facing.getFrontOffsetX(), src.getY()+facing.getFrontOffsetY(), src.getZ()+facing.getFrontOffsetZ());
 				ItemStack copy = stack.splitStack(1);
 				e.setStack(copy);
@@ -101,13 +101,13 @@ public class ItemMisc extends Item {
 			}
 
 			playerIn.addStat(StatList.getObjectUseStats(this));
-			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemStackIn);
+			return new ActionResult<>(EnumActionResult.SUCCESS, itemStackIn);
 		} else if (itemStackIn.getMetadata() == 7) {
 			if (playerIn.canEat(false)) {
 				playerIn.setActiveHand(hand);
-				return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemStackIn);
+				return new ActionResult<>(EnumActionResult.SUCCESS, itemStackIn);
 			} else {
-				return new ActionResult<ItemStack>(EnumActionResult.FAIL, itemStackIn);
+				return new ActionResult<>(EnumActionResult.FAIL, itemStackIn);
 			}
 		}
 		return super.onItemRightClick(itemStackIn, worldIn, playerIn, hand);

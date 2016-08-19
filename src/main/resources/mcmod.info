@@ -2,7 +2,7 @@
 {
   "modid": "correlatedpotentialistics",
   "name": "Correlated Potentialistics",
-  "description": "What would happen if you took the storage part of AE2 and made it it's own mod. Yes, the name is the result of running 'Applied Energistics' through a thesaurus.",
+  "description": "Digital storage.",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "https://unascribed.com",

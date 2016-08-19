@@ -20,7 +20,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
-import net.minecraft.nbt.NBTBase.NBTPrimitive;
+import net.minecraft.nbt.NBTPrimitive;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
@@ -56,20 +56,15 @@ public class ItemDrive extends Item {
 			0x76FF03, // Light Green A400
 			0x1DE9B6, // Teal A400
 			0xD500F9, // Purple A400
+			0x00B0FF, // Light Blue A400,
 	};
 	private final int[] tierSizes = {
 			1024 * 8,
 			4096 * 8,
 			16384 * 8,
 			65536 * 8,
-			-1
-	};
-	private final int[] tierAllocSizes = {
-			8 * 8,
-			16 * 8,
-			32 * 8,
-			64 * 8,
-			0
+			-1,
+			131072 * 8
 	};
 
 	public ItemDrive() {
@@ -92,7 +87,7 @@ public class ItemDrive extends Item {
 			b = ((int) (sin * 255f)) & 0xFF;
 			return r << 16 | g << 8 | b;
 		} else {
-			float usedBits = getBitsUsed(stack)/(float)getMaxBits(stack);
+			float usedBits = getKilobitsUsed(stack)/(float)getMaxKilobits(stack);
 			float hue = (1/3f)*(1-usedBits);
 			return Color.HSBtoRGB(hue, 1, dirty ? 1 : 0.65f);
 		}
@@ -116,12 +111,13 @@ public class ItemDrive extends Item {
 				i++;
 			}
 		} else {
-			int bytesUsed = getBitsUsed(stack) / 8;
-			int bytesMax = getMaxBits(stack) / 8;
+			int bytesUsed = (getKilobitsUsed(stack) / 8)*1024;
+			int bytesMax = (getMaxKilobits(stack) / 8)*1024;
 
 			int bytesPercent = (int) (((double) bytesUsed / (double) bytesMax) * 100);
 
-			tooltip.add(I18n.translateToLocalFormatted("tooltip.correlatedpotentialistics.bytes_used", Numbers.humanReadableBytes(bytesUsed), Numbers.humanReadableBytes(bytesMax), bytesPercent));
+			String max = Numbers.humanReadableBytes(bytesMax);
+			tooltip.add(I18n.translateToLocalFormatted("tooltip.correlatedpotentialistics.bytes_used", Numbers.humanReadableBytes(bytesUsed), max, bytesPercent));
 		}
 	}
 
@@ -130,6 +126,9 @@ public class ItemDrive extends Item {
 			return CoPo.inst.voidDriveUsage;
 		}
 		int dmg = stack.getItemDamage() + 1;
+		if (stack.getItemDamage() == 6) {
+			dmg = 8;
+		}
 		return ((int) Math.pow(CoPo.inst.driveRfUsagePow, dmg))/CoPo.inst.driveRfUsageDiv;
 	}
 
@@ -139,8 +138,9 @@ public class ItemDrive extends Item {
 	}
 
 	@Override
-	public String getUnlocalizedName(ItemStack stack) {
-		return super.getUnlocalizedName(stack) + "." + stack.getItemDamage();
+	public String getItemStackDisplayName(ItemStack stack) {
+		if (stack.getMetadata() == 4) return I18n.translateToLocal("item.correlatedpotentialistics.drive.void.name");
+		return I18n.translateToLocalFormatted("item.correlatedpotentialistics.drive.normal.name", Numbers.humanReadableBytes((getMaxKilobits(stack)/8)*1024));
 	}
 
 	@Override
@@ -150,12 +150,12 @@ public class ItemDrive extends Item {
 		}
 	}
 
-	public int getMaxBits(ItemStack stack) {
+	public int getMaxKilobits(ItemStack stack) {
 		return tierSizes[stack.getItemDamage() % tierSizes.length];
 	}
 
-	public int getTypeAllocationBits(ItemStack stack, NBTTagCompound prototype) {
-		return tierAllocSizes[stack.getItemDamage() % tierSizes.length] + getNBTComplexity(prototype == null ? null : prototype.getTag("tag"));
+	public int getTypeAllocationKilobits(ItemStack stack, NBTTagCompound prototype) {
+		return 32 + getNBTComplexity(prototype == null ? null : prototype.getTag("tag"));
 	}
 	
 	public static int getNBTComplexity(NBTBase base) {
@@ -254,20 +254,20 @@ public class ItemDrive extends Item {
 	// all this code should probably be refactored into some sort of general
 	// "NetworkContents" class at some point
 
-	public int getBitsUsed(ItemStack stack) {
+	public int getKilobitsUsed(ItemStack stack) {
 		if (!stack.hasTagCompound() || !stack.getTagCompound().hasKey("Data", NBT.TAG_LIST)) return 0;
 		NBTTagList list = ItemStacks.getCompoundList(stack, "Data");
 		int used = 0;
 		for (int i = 0; i < list.tagCount(); i++) {
-			used += getTypeAllocationBits(stack, list.getCompoundTagAt(i).getCompoundTag("Prototype"));
+			used += getTypeAllocationKilobits(stack, list.getCompoundTagAt(i).getCompoundTag("Prototype"));
 			used += list.getCompoundTagAt(i).getInteger("Count");
 		}
 		return used;
 	}
 
-	public int getBitsFree(ItemStack stack) {
-		if (getMaxBits(stack) == -1) return Integer.MAX_VALUE;
-		return getMaxBits(stack) - getBitsUsed(stack);
+	public int getKilobitsFree(ItemStack stack) {
+		if (getMaxKilobits(stack) == -1) return Integer.MAX_VALUE;
+		return getMaxKilobits(stack) - getKilobitsUsed(stack);
 	}
 
 	protected NBTTagCompound createPrototype(ItemStack item) {
@@ -296,14 +296,14 @@ public class ItemDrive extends Item {
 		return -1;
 	}
 
-	public int getBitsFreeFor(ItemStack drive, ItemStack item) {
-		if (getMaxBits(drive) == -1) return Integer.MAX_VALUE;
+	public int getKilobitsFreeFor(ItemStack drive, ItemStack item) {
+		if (getMaxKilobits(drive) == -1) return Integer.MAX_VALUE;
 		NBTTagCompound prototype = createPrototype(item);
 		NBTTagCompound data = findDataForPrototype(drive, prototype);
 		if (data != null) {
-			return getBitsFree(drive);
+			return getKilobitsFree(drive);
 		} else if (getPartitioningMode(drive) == PartitioningMode.NONE) {
-			return Math.max(0, getBitsFree(drive) - getTypeAllocationBits(drive, prototype));
+			return Math.max(0, getKilobitsFree(drive) - getTypeAllocationKilobits(drive, prototype));
 		}
 		return 0;
 	}
@@ -321,7 +321,7 @@ public class ItemDrive extends Item {
 	 * @return The item passed in
 	 */
 	public ItemStack addItem(ItemStack drive, ItemStack item) {
-		if (getMaxBits(drive) == -1) {
+		if (getMaxKilobits(drive) == -1) {
 			if (getPartitioningMode(drive) == PartitioningMode.NONE || findDataIndexForPrototype(drive, createPrototype(item)) != -1) {
 				item.stackSize = 0;
 				return null;
@@ -329,7 +329,7 @@ public class ItemDrive extends Item {
 				return item;
 			}
 		}
-		int bitsFree = getBitsFreeFor(drive, item);
+		int bitsFree = getKilobitsFreeFor(drive, item);
 		int amountTaken = Math.min(item.stackSize, bitsFree);
 		int current = getAmountStored(drive, item);
 		if (amountTaken > 0) {
@@ -359,7 +359,7 @@ public class ItemDrive extends Item {
 	 *            The maximum amount to extract
 	 */
 	public ItemStack removeItems(ItemStack drive, ItemStack stack, int amountWanted) {
-		if (getMaxBits(drive) == -1) return null;
+		if (getMaxKilobits(drive) == -1) return null;
 		int stored = getAmountStored(drive, stack);
 		int amountGiven = Math.min(amountWanted, stored);
 		if (amountGiven > 0) {
@@ -371,14 +371,14 @@ public class ItemDrive extends Item {
 	}
 
 	public int getAmountStored(ItemStack drive, ItemStack item) {
-		if (getMaxBits(drive) == -1) return 0;
+		if (getMaxKilobits(drive) == -1) return 0;
 		NBTTagCompound data = findDataForPrototype(drive, createPrototype(item));
 		if (data == null) return 0;
 		return data.getInteger("Count");
 	}
 
 	public void setAmountStored(ItemStack drive, ItemStack item, int amount) {
-		if (getMaxBits(drive) == -1) return;
+		if (getMaxKilobits(drive) == -1) return;
 		NBTTagCompound prototype = createPrototype(item);
 		NBTTagList list = ItemStacks.getCompoundList(drive, "Data");
 		int index = findDataIndexForPrototype(drive, prototype);
@@ -430,7 +430,7 @@ public class ItemDrive extends Item {
 	 * size and use them without copying.
 	 */
 	public List<ItemStack> getTypes(ItemStack drive) {
-		if (getMaxBits(drive) == -1) return Lists.newArrayList();
+		if (getMaxKilobits(drive) == -1) return Lists.newArrayList();
 		NBTTagList list = ItemStacks.getCompoundList(drive, "Data");
 		List<ItemStack> rtrn = Lists.newArrayList();
 		for (int i = 0; i < list.tagCount(); i++) {

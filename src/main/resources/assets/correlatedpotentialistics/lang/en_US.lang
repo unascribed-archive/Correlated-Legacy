@@ -6,6 +6,7 @@ container.correlatedpotentialistics.drive_bay.name=Drive Bay
 
 tile.correlatedpotentialistics.controller.name=Controller
 tile.correlatedpotentialistics.drive_bay.name=Drive Bay
+tile.correlatedpotentialistics.memory_bay.name=Memory Bay
 tile.correlatedpotentialistics.vt.name=Terminal
 tile.correlatedpotentialistics.iface.name=Interface
 tile.correlatedpotentialistics.wireless_receiver.name=Wireless Receiver
@@ -33,11 +34,11 @@ gui.correlatedpotentialistics.partition_mode.whitelist.0=Only items shown in thi
 gui.correlatedpotentialistics.partition_mode.whitelist.1=are allowed
 
 
-item.correlatedpotentialistics.drive.0.name=1KiB Drive
-item.correlatedpotentialistics.drive.1.name=4KiB Drive
-item.correlatedpotentialistics.drive.2.name=16KiB Drive
-item.correlatedpotentialistics.drive.3.name=64KiB Drive
-item.correlatedpotentialistics.drive.4.name=Void Drive
+item.correlatedpotentialistics.drive.normal.name=%s Drive
+item.correlatedpotentialistics.drive.void.name=Void Drive
+
+item.correlatedpotentialistics.memory.normal.name=%s Memory
+item.correlatedpotentialistics.memory.infinite.name=Wormhole Memory
 
 item.correlatedpotentialistics.misc.processor.name=Enderic Processor
 tooltip.correlatedpotentialistics.misc.processor.0=§5It seems to be part of something larger.

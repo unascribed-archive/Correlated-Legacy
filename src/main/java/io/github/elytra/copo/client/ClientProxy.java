@@ -30,6 +30,7 @@ import io.github.elytra.copo.client.render.entity.RenderAutomaton;
 import io.github.elytra.copo.client.render.entity.RenderThrownItem;
 import io.github.elytra.copo.client.render.tile.RenderController;
 import io.github.elytra.copo.client.render.tile.RenderDriveBay;
+import io.github.elytra.copo.client.render.tile.RenderMemoryBay;
 import io.github.elytra.copo.client.render.tile.RenderVT;
 import io.github.elytra.copo.client.render.tile.RenderWirelessReceiver;
 import io.github.elytra.copo.client.render.tile.RenderWirelessTransmitter;
@@ -37,9 +38,11 @@ import io.github.elytra.copo.entity.EntityAutomaton;
 import io.github.elytra.copo.entity.EntityThrownItem;
 import io.github.elytra.copo.item.ItemDrive;
 import io.github.elytra.copo.item.ItemKeycard;
+import io.github.elytra.copo.item.ItemMemory;
 import io.github.elytra.copo.item.ItemMisc;
 import io.github.elytra.copo.tile.TileEntityController;
 import io.github.elytra.copo.tile.TileEntityDriveBay;
+import io.github.elytra.copo.tile.TileEntityMemoryBay;
 import io.github.elytra.copo.tile.TileEntityVT;
 import io.github.elytra.copo.tile.TileEntityWirelessReceiver;
 import io.github.elytra.copo.tile.TileEntityWirelessTransmitter;
@@ -120,6 +123,7 @@ public class ClientProxy extends Proxy {
 	public void preInit() {
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityController.class, new RenderController());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityDriveBay.class, new RenderDriveBay());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityMemoryBay.class, new RenderMemoryBay());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityVT.class, new RenderVT());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityWirelessReceiver.class, new RenderWirelessReceiver());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityWirelessTransmitter.class, new RenderWirelessTransmitter());
@@ -143,6 +147,18 @@ public class ClientProxy extends Proxy {
 	}
 	@Override
 	public void postInit() {
+		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
+			@Override
+			public int getColorFromItemstack(ItemStack stack, int tintIndex) {
+				if (stack == null || !(stack.getItem() instanceof ItemMemory)) return -1;
+				ItemMemory id = (ItemMemory)stack.getItem();
+				if (tintIndex == 1) {
+					return id.getTierColor(stack);
+				}
+				return -1;
+			}
+			
+		}, CoPo.memory);
 		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
 			@Override
 			@SuppressWarnings("fallthrough")
