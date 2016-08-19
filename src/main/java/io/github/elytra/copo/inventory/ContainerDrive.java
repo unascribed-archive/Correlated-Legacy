@@ -109,7 +109,7 @@ public class ContainerDrive extends Container {
 		this.driveSlotId = driveSlotId;
 		ItemStack drive = playerInventory.getStackInSlot(driveSlotId);
 		this.player = player;
-		driveSlot = new SlotStatic(-2000, -8000, -8000, drive);
+		driveSlot = new SlotStatic(0, -8000, -8000, drive);
 		addSlotToContainer(driveSlot);
 
 		for (int i = 0; i < 64; i++) {
