@@ -434,7 +434,7 @@ public class ContainerVT extends Container {
 	}
 
 	private List<Integer> oldStackSizes = Lists.newArrayList();
-	public List<String> status = Lists.newArrayList("Ready.");
+	public List<String> status = Lists.newArrayList();
 
 	@Override
 	protected Slot addSlotToContainer(Slot slotIn) {

@@ -2,6 +2,7 @@ package io.github.elytra.copo.client.gui;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Random;
 
 import org.lwjgl.input.Keyboard;
 import com.google.common.base.Strings;
@@ -19,6 +20,13 @@ public class GuiVTLog extends GuiScreen {
 	public GuiVTLog(GuiVT guiVt, ContainerVT container) {
 		this.guiVt = guiVt;
 		this.container = container;
+		if (container.status.isEmpty()) {
+			if (rand.nextInt(65536) == 32768) {
+				container.status.add("Dis is one half.");
+			} else {
+				container.status.add("Ready.");
+			}
+		}
 	}
 	
 	@Override
@@ -115,6 +123,16 @@ public class GuiVTLog extends GuiScreen {
 			}
 		} else if (typedChar != 0 && IBMFontRenderer.canRender(typedChar)) {
 			command.append(typedChar);
+		}
+	}
+	
+	private Random rand = new Random(System.nanoTime());
+	
+	@Override
+	public void updateScreen() {
+		super.updateScreen();
+		if (rand.nextInt() == 5) {
+			container.status.add("Your free upgrade to Windows 10 is available!");
 		}
 	}
 	
