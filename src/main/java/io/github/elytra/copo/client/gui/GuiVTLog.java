@@ -61,6 +61,7 @@ public class GuiVTLog extends GuiScreen {
 					case "help":
 						container.status.add("help - print this help");
 						container.status.add("part - report disk space usage");
+						container.status.add("free - display memory usage statistics");
 						container.status.add("echo - display a line of text");
 						container.status.add("exit - exit the shell");
 						break;
@@ -71,7 +72,26 @@ public class GuiVTLog extends GuiScreen {
 						container.status.add(split.length >= 2 ? split[1] : "");
 						break;
 					case "part":
-						Minecraft.getMinecraft().playerController.sendEnchantPacket(container.windowId, 49);
+						Minecraft.getMinecraft().playerController.sendEnchantPacket(container.windowId, -22);
+						break;
+					case "free":
+						Minecraft.getMinecraft().playerController.sendEnchantPacket(container.windowId, -23);
+						break;
+					case "download":
+						if (split.length == 1 || Strings.isNullOrEmpty(split[1])) {
+							container.status.add("Download what?");
+						} else {
+							switch (split[1]) {
+								case "ram":
+								case "more ram":
+									container.status.add("fatal: cannot connect to downloadmoreram.com");
+									container.status.add("do you have an internet card?");
+									break;
+								default:
+									container.status.add("fatal: don't know how to download '"+split[1]+"'");
+									break;
+							}
+						}
 						break;
 					default:
 						container.status.add("Bad command or file name");

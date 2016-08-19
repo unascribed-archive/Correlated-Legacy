@@ -3,6 +3,7 @@ package io.github.elytra.copo.compat;
 import io.github.elytra.copo.block.BlockController;
 import io.github.elytra.copo.block.BlockDriveBay;
 import io.github.elytra.copo.block.BlockInterface;
+import io.github.elytra.copo.block.BlockMemoryBay;
 import io.github.elytra.copo.block.BlockVT;
 import io.github.elytra.copo.block.BlockWirelessEndpoint;
 import io.github.elytra.copo.tile.TileEntityNetworkMember;
@@ -17,6 +18,9 @@ public class WailaCompatibility {
 
 		ModuleRegistrar.instance().registerStackProvider(provider, BlockDriveBay.class);
 		ModuleRegistrar.instance().registerBodyProvider(provider, BlockDriveBay.class);
+		
+		ModuleRegistrar.instance().registerStackProvider(provider, BlockMemoryBay.class);
+		ModuleRegistrar.instance().registerBodyProvider(provider, BlockMemoryBay.class);
 
 		ModuleRegistrar.instance().registerStackProvider(provider, BlockVT.class);
 		ModuleRegistrar.instance().registerBodyProvider(provider, BlockVT.class);

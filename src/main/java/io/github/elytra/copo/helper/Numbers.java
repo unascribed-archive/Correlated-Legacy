@@ -8,7 +8,7 @@ public class Numbers {
 	public static final int GIBIBYTE = 1024*1024*1024;
 	public static final int MIBIBYTE = 1024*1024;
 	public static final int KIBIBYTE = 1024;
-	public static String humanReadableBytes(int bytes) {
+	public static String humanReadableBytes(long bytes) {
 		if (bytes == 1) return I18n.format("numbers.correlatedpotentialistics.byte");
 		if (bytes >= GIBIBYTE) {
 			return I18n.format("numbers.correlatedpotentialistics.gibibytes", bytes/GIBIBYTE);

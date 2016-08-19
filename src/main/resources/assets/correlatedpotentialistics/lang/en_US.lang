@@ -178,7 +178,8 @@ tooltip.correlatedpotentialistics.controller_error.multiple_controllers=The netw
 tooltip.correlatedpotentialistics.controller_error.network_too_big=The network is too big
 tooltip.correlatedpotentialistics.controller_error.too_much_power=The network takes too much power to run
 tooltip.correlatedpotentialistics.controller_error.infinite_loop=Wireless links are connected in an infinite loop
-tooltip.correlatedpotentialistics.controller_consumption_rate=Using %d RF/t total (max 320 RF/t)
+tooltip.correlatedpotentialistics.controller_error.out_of_memory=Out of memory
+tooltip.correlatedpotentialistics.controller_consumption_rate=Using %d RF/t total (max 640 RF/t)
 tooltip.correlatedpotentialistics.controller_energy_buffer=%d/%d RF
 tooltip.correlatedpotentialistics.member_consumption_rate=Using %d RF/t from controller
 tooltip.correlatedpotentialistics.side=Side: %s
@@ -198,9 +199,12 @@ direction.correlatedpotentialistics.south=South
 direction.correlatedpotentialistics.west=West
 
 tooltip.correlatedpotentialistics.drive_count=%d/8 drives
-tooltip.correlatedpotentialistics.types_used=%d of %d types used (%d%%)
-tooltip.correlatedpotentialistics.bytes_used=%d of %d used (%d%%)
+tooltip.correlatedpotentialistics.types_used=%s of %s types used (%d%%)
+tooltip.correlatedpotentialistics.bytes_used=%s of %s used (%d%%)
 tooltip.correlatedpotentialistics.rf_usage=Uses %d RF/t
+
+tooltip.correlatedpotentialistics.memory_count=%d/12 memory chips
+tooltip.correlatedpotentialistics.bytes_available=%s available
 
 tooltip.correlatedpotentialistics.void_drive.0=Deletes any items that are assigned to it
 tooltip.correlatedpotentialistics.void_drive.1=Partitioning this is a good idea

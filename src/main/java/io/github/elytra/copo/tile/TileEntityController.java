@@ -97,6 +97,15 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		} else {
 			energy.setEnergyStored(0);
 		}
+		if (getTotalUsedMemory() > totalMemory) {
+			error = true;
+			errorReason = "out_of_memory";
+		} else if ("out_of_memory".equals(errorReason)) {
+			error = false;
+			errorReason = null;
+			bootTicks = 0;
+			booting = true;
+		}
 		updateState();
 	}
 
@@ -142,9 +151,11 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			}
 		}
 
+		usedNetworkMemory = 0;
 		networkMembers = 0;
 		networkMemberLocations.clear();
 		driveBays.clear();
+		memoryBays.clear();
 		receivers.clear();
 		interfaces.clear();
 
@@ -159,7 +170,9 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			BlockPos pos = queue.remove(0);
 			seen.add(pos);
 			TileEntity te = getWorld().getTileEntity(pos);
+			usedNetworkMemory += 2;
 			if (te instanceof TileEntityNetworkMember) {
+				usedNetworkMemory += 6;
 				for (EnumFacing ef : EnumFacing.VALUES) {
 					BlockPos p = pos.offset(ef);
 					if (seen.contains(p)) continue;
@@ -184,6 +197,8 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 							interfaces.add((TileEntityInterface)te);
 						} else if (te instanceof TileEntityWirelessReceiver) {
 							receivers.add((TileEntityWirelessReceiver)te);
+						} else if (te instanceof TileEntityMemoryBay) {
+							memoryBays.add((TileEntityMemoryBay)te);
 						}
 						networkMemberLocations.add(pos);
 						consumedPerTick += ((TileEntityNetworkMember) te).getEnergyConsumedPerTick();
@@ -211,6 +226,8 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		}
 		this.consumedPerTick = consumedPerTick;
 		updateDrivesCache();
+		updateMemoryCache();
+		booting = false;
 		CoPo.log.debug("Found "+members.size()+" network members");
 	}
 	
@@ -297,7 +314,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	}
 	
 	public void updateMemoryCache() {
-		if (hasWorldObj() && worldObj.isRemote) return;
+		if (!hasWorldObj() || worldObj.isRemote) return;
 		totalMemory = 0;
 		for (TileEntityMemoryBay temb : memoryBays) {
 			if (temb.isInvalid()) continue;
@@ -310,14 +327,8 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 				}
 			}
 		}
-		if (getTotalUsedMemory() > totalMemory) {
-			error = true;
-			errorReason = "out_of_memory";
-		} else if ("out_of_memory".equals(errorReason)) {
-			error = false;
-			errorReason = null;
-			bootTicks = 0;
-		}
+		bootTicks = 0;
+		booting = true;
 	}
 
 	public void updateConsumptionRate(int change) {
@@ -335,6 +346,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 
 	@Override
 	public ItemStack addItemToNetwork(ItemStack stack) {
+		if (error) return stack;
 		if (stack == null) return null;
 		for (ItemStack drive : drives) {
 			// both these conditions should always be true, but might as well be safe
@@ -357,6 +369,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 
 	@Override
 	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount, boolean checkInterfaces) {
+		if (error) return null;
 		if (prototype == null) return null;
 		ItemStack stack = prototype.copy();
 		stack.stackSize = 0;
@@ -482,6 +495,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		}
 		if (networkMemberLocations.add(tenm.getPos())) {
 			networkMembers++;
+			usedNetworkMemory += 8;
 			if (networkMembers > 100) {
 				error = true;
 				errorReason = "network_too_big";

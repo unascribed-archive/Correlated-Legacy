@@ -12,10 +12,13 @@ import com.google.common.primitives.Ints;
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.IVT;
 import io.github.elytra.copo.IVT.UserPreferences;
+import io.github.elytra.copo.helper.Numbers;
 import io.github.elytra.copo.item.ItemDrive;
 import io.github.elytra.copo.network.AddStatusLineMessage;
 import io.github.elytra.copo.network.SetSearchQueryMessage;
 import io.github.elytra.copo.network.SetSlotSizeMessage;
+import io.github.elytra.copo.tile.TileEntityController;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Booleans;
@@ -348,6 +351,20 @@ public class ContainerVT extends Container {
 					cont.
 				}*/
 				break;
+				
+			case -23:
+				if (vt.getStorage() instanceof TileEntityController) {
+					TileEntityController cont = ((TileEntityController)vt.getStorage());
+					addStatusLine("total: "+Numbers.humanReadableBytes(cont.totalMemory/8));
+					addStatusLine("used: "+Numbers.humanReadableBytes(cont.getTotalUsedMemory()/8));
+					addStatusLine("free: "+Numbers.humanReadableBytes(cont.getBitsMemoryFree()/8));
+					addStatusLine("");
+					addStatusLine("network: "+Numbers.humanReadableBytes(cont.usedNetworkMemory/8));
+					addStatusLine("wireless: "+Numbers.humanReadableBytes(cont.usedWirelessMemory/8));
+					addStatusLine("types: "+Numbers.humanReadableBytes(cont.usedTypeMemory/8));
+					addStatusLine("");
+				}
+				break;
 
 			/*
 			 * -30 (inclusive) through -60 (inclusive) are for subclass use
@@ -379,7 +396,7 @@ public class ContainerVT extends Container {
 		ItemStack is = vt.getStorage().addItemToNetwork(stack);
 		int newBits = vt.getStorage().getKilobitsStorageFree();
 		int delta = oldBits-newBits;
-		String amt = delta < 8 ? delta == 1 ? "1 bit" : delta+" bits" : delta < 16 ? "1 byte" : (delta/8)+" bytes";
+		String amt = delta < 8 ? delta+" Kib" : (delta/8)+" KiB";
 		if (is == null) {
 			addStatusLine("Add "+initialStackSize+": OK, used "+amt);
 		} else if (is.stackSize < initialStackSize) {
@@ -409,7 +426,7 @@ public class ContainerVT extends Container {
 		ItemStack is = vt.getStorage().removeItemsFromNetwork(prototype, amount, true);
 		int newBits = vt.getStorage().getKilobitsStorageFree();
 		int delta = newBits-oldBits;
-		String amt = delta < 8 ? delta == 1 ? "1 bit" : delta+" bits" : delta < 16 ? "1 byte" : (delta/8)+" bytes";
+		String amt = delta < 8 ? delta+" Kib" : (delta/8)+" KiB";
 		if (is != null) {
 			addStatusLine("Remove "+is.stackSize+": OK, freed "+amt);
 		}

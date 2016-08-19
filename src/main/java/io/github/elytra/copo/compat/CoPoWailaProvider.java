@@ -7,9 +7,11 @@ import io.github.elytra.copo.block.BlockWirelessEndpoint;
 import io.github.elytra.copo.block.BlockWirelessEndpoint.Kind;
 import io.github.elytra.copo.helper.Numbers;
 import io.github.elytra.copo.item.ItemDrive;
+import io.github.elytra.copo.item.ItemMemory;
 import io.github.elytra.copo.tile.TileEntityController;
 import io.github.elytra.copo.tile.TileEntityDriveBay;
 import io.github.elytra.copo.tile.TileEntityInterface;
+import io.github.elytra.copo.tile.TileEntityMemoryBay;
 import io.github.elytra.copo.tile.TileEntityNetworkMember;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
@@ -64,6 +66,23 @@ public class CoPoWailaProvider implements IWailaDataProvider {
 			nbt.setInteger("MaxBytes", totalMaxBytes);
 			nbt.setInteger("BytesPercent", totalBytesPercent);
 		}
+		if (te instanceof TileEntityMemoryBay) {
+			TileEntityMemoryBay temb = (TileEntityMemoryBay)te;
+			int totalMaxBytes = 0;
+			int memoryCount = 0;
+			for (int i = 0; i < 12; i++) {
+				if (temb.hasMemoryInSlot(i)) {
+					memoryCount++;
+					ItemStack is = temb.getMemoryInSlot(i);
+					if (is.getItem() instanceof ItemMemory) {
+						totalMaxBytes += ((ItemMemory)is.getItem()).getMaxBits(is)/8;
+					}
+				}
+			}
+
+			nbt.setInteger("MemoryCount", memoryCount);
+			nbt.setInteger("MaxBytes", totalMaxBytes);
+		}
 		return nbt;
 	}
 
@@ -102,15 +121,16 @@ public class CoPoWailaProvider implements IWailaDataProvider {
 			}
 		}
 		if (access.getTileEntity() instanceof TileEntityDriveBay) {
-			
-
 			body.add(I18n.format("tooltip.correlatedpotentialistics.drive_count", nbt.getInteger("DriveCount")));
-			body.add(I18n.format("tooltip.correlatedpotentialistics.bytes_used", Numbers.humanReadableBytes(nbt.getInteger("BytesUsed")), Numbers.humanReadableBytes(nbt.getInteger("MaxBytes")), nbt.getInteger("BytesPercent")));
+			body.add(I18n.format("tooltip.correlatedpotentialistics.bytes_used", Numbers.humanReadableBytes(nbt.getInteger("BytesUsed")*1024), Numbers.humanReadableBytes(nbt.getInteger("MaxBytes")*1024), nbt.getInteger("BytesPercent")));
 		} else if (access.getTileEntity() instanceof TileEntityInterface) {
 			TileEntityInterface tei = (TileEntityInterface)access.getTileEntity();
 			EnumFacing side = access.getSide();
 			body.add(I18n.format("tooltip.correlatedpotentialistics.side", I18n.format("direction.correlatedpotentialistics."+side.getName())));
 			body.add(I18n.format("tooltip.correlatedpotentialistics.mode", I18n.format("tooltip.correlatedpotentialistics.iface.mode_"+tei.getModeForFace(side).getName())));
+		} else if (access.getTileEntity() instanceof TileEntityMemoryBay) {
+			body.add(I18n.format("tooltip.correlatedpotentialistics.memory_count", nbt.getInteger("MemoryCount")));
+			body.add(I18n.format("tooltip.correlatedpotentialistics.bytes_available", Numbers.humanReadableBytes(nbt.getInteger("MaxBytes"))));
 		}
 		return body;
 	}
