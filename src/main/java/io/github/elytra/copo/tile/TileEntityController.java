@@ -43,6 +43,10 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	private boolean checkingInfiniteLoop = false;
 	
 	public long totalMemory = 0;
+	
+	public long usedTypeMemory = 0;
+	public long usedWirelessMemory = 0;
+	public long usedNetworkMemory = 0;
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
@@ -304,7 +308,14 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 				}
 			}
 		}
-
+		if (getTotalUsedMemory() > totalMemory) {
+			error = true;
+			errorReason = "out_of_memory";
+		} else if ("out_of_memory".equals(errorReason)) {
+			error = false;
+			errorReason = null;
+			bootTicks = 0;
+		}
 	}
 
 	public void updateConsumptionRate(int change) {
@@ -388,7 +399,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	}
 	
 	@Override
-	public int getBitsFree() {
+	public int getKilobitsStorageFree() {
 		int accum = 0;
 		for (ItemStack drive : drives) {
 			if (drive != null && drive.getItem() instanceof ItemDrive) {
@@ -396,6 +407,14 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			}
 		}
 		return accum;
+	}
+	
+	public long getTotalUsedMemory() {
+		return usedTypeMemory+usedNetworkMemory+usedWirelessMemory;
+	}
+	
+	public long getBitsMemoryFree() {
+		return totalMemory-getTotalUsedMemory();
 	}
 
 	@Override
@@ -450,6 +469,12 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			if (!receivers.contains(tenm)) {
 				receivers.add((TileEntityWirelessReceiver)tenm);
 				checkInfiniteLoop();
+				changeId++;
+			}
+		} else if (tenm instanceof TileEntityMemoryBay) {
+			if (!memoryBays.contains(tenm)) {
+				memoryBays.add((TileEntityMemoryBay)tenm);
+				updateMemoryCache();
 				changeId++;
 			}
 		}

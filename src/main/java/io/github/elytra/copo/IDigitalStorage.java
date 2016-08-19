@@ -11,6 +11,6 @@ public interface IDigitalStorage {
 	ItemStack addItemToNetwork(ItemStack stack);
 	ItemStack removeItemsFromNetwork(ItemStack prototype, int amount, boolean b);
 	boolean isPowered();
-	int getBitsFree();
+	int getKilobitsStorageFree();
 
 }

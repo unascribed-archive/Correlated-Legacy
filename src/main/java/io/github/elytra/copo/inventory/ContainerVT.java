@@ -374,10 +374,10 @@ public class ContainerVT extends Container {
 
 	public ItemStack addItemToNetwork(ItemStack stack) {
 		if (player.worldObj.isRemote) return null;
-		int oldBits = vt.getStorage().getBitsFree();
+		int oldBits = vt.getStorage().getKilobitsStorageFree();
 		int initialStackSize = stack.stackSize;
 		ItemStack is = vt.getStorage().addItemToNetwork(stack);
-		int newBits = vt.getStorage().getBitsFree();
+		int newBits = vt.getStorage().getKilobitsStorageFree();
 		int delta = oldBits-newBits;
 		String amt = delta < 8 ? delta == 1 ? "1 bit" : delta+" bits" : delta < 16 ? "1 byte" : (delta/8)+" bytes";
 		if (is == null) {
@@ -405,9 +405,9 @@ public class ContainerVT extends Container {
 
 	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount) {
 		if (player.worldObj.isRemote) return null;
-		int oldBits = vt.getStorage().getBitsFree();
+		int oldBits = vt.getStorage().getKilobitsStorageFree();
 		ItemStack is = vt.getStorage().removeItemsFromNetwork(prototype, amount, true);
-		int newBits = vt.getStorage().getBitsFree();
+		int newBits = vt.getStorage().getKilobitsStorageFree();
 		int delta = newBits-oldBits;
 		String amt = delta < 8 ? delta == 1 ? "1 bit" : delta+" bits" : delta < 16 ? "1 byte" : (delta/8)+" bytes";
 		if (is != null) {

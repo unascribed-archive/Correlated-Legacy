@@ -321,7 +321,7 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 			setItemStackToSlot(EntityEquipmentSlot.CHEST, drives.get(1));
 		}
 		
-		if (getBitsFree() > 0 && rand.nextFloat() < 0.8f * difficulty.getClampedAdditionalDifficulty()) {
+		if (getKilobitsStorageFree() > 0 && rand.nextFloat() < 0.8f * difficulty.getClampedAdditionalDifficulty()) {
 			setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(Items.BOW));
 			addItemToNetwork(new ItemStack(Items.ARROW, rand.nextInt(192)+1));
 		} else if (rand.nextFloat() < 0.25f * difficulty.getClampedAdditionalDifficulty()) {
@@ -357,7 +357,7 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 			}
 		}
 		
-		if (getBitsFree() > 0) {
+		if (getKilobitsStorageFree() > 0) {
 			for (int i = 0; i < rand.nextInt(64); i++) {
 				switch (rand.nextInt(3)) {
 					case 0:
@@ -741,7 +741,7 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	}
 
 	@Override
-	public int getBitsFree() {
+	public int getKilobitsStorageFree() {
 		int accum = 0;
 		for (EntityEquipmentSlot slot : slots) {
 			if (getItemStackFromSlot(slot) != null) {
