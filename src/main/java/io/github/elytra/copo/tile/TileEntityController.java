@@ -218,7 +218,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		checkingInfiniteLoop = true;
 		for (TileEntityWirelessReceiver r : receivers) {
 			TileEntityController cont = r.getTransmitterController();
-			if (cont != null && cont.isLinkedTo(this)) {
+			if (cont != null && cont.isLinkedTo(this, 0)) {
 				error = true;
 				errorReason = "infinite_loop";
 				receivers.clear();
@@ -237,11 +237,13 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		return checkingInfiniteLoop;
 	}
 	
-	public boolean isLinkedTo(TileEntityController tec) {
+	public boolean isLinkedTo(TileEntityController tec, int depth) {
+		// bail out now in case our infinite loop checking is causing infinite recursion
+		if (depth > 50) return true;
 		if (tec.equals(this)) return true;
 		for (TileEntityWirelessReceiver r : receivers) {
 			TileEntityController cont = r.getTransmitterController();
-			if (cont != null && cont.isLinkedTo(tec)) {
+			if (cont != null && cont.isLinkedTo(tec, depth + 1)) {
 				return true;
 			}
 		}
