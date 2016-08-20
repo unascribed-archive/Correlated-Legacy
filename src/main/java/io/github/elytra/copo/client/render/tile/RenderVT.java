@@ -57,29 +57,18 @@ public class RenderVT extends TileEntitySpecialRenderer<TileEntityVT> {
 		GlStateManager.disableLighting();
 
 		TextureAtlasSprite tas = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("correlatedpotentialistics:blocks/vt");
-		float minTU = tas.getMinU();
-		float maxTU = tas.getMaxU();
-		float minTV = tas.getMinV();
-		float maxTV = tas.getMaxV();
-
-		float diffU = maxTU-minTU;
-		float diffV = maxTV-minTV;
-
-		float fx = 3/16f;
-		float fy = 4/16f;
-
-		float minU = (minTU+(diffU*fx));
-		float minV = (minTV+(diffV*fy));
-		float maxU = (maxTU-(diffU*fx));
-		float maxV = (maxTV-(diffV*fy));
+		float minU = tas.getMinU();
+		float maxU = tas.getMaxU();
+		float minV = tas.getMinV();
+		float maxV = tas.getMaxV();
 
 		Tessellator tess = Tessellator.getInstance();
 		VertexBuffer wr = tess.getBuffer();
 		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-		wr.pos(  fx,   fy, 0).tex(maxU, maxV).endVertex();
-		wr.pos(  fx, 1-fy, 0).tex(maxU, minV).endVertex();
-		wr.pos(1-fx, 1-fy, 0).tex(minU, minV).endVertex();
-		wr.pos(1-fx,   fy, 0).tex(minU, maxV).endVertex();
+		wr.pos(0, 0, 0).tex(maxU, maxV).endVertex();
+		wr.pos(0, 1, 0).tex(maxU, minV).endVertex();
+		wr.pos(1, 1, 0).tex(minU, minV).endVertex();
+		wr.pos(1, 0, 0).tex(minU, maxV).endVertex();
 		tess.draw();
 
 		GlStateManager.enableLighting();

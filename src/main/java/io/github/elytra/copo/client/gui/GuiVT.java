@@ -45,6 +45,13 @@ public class GuiVT extends GuiContainer {
 		this.container = container;
 		xSize = 256;
 		ySize = 222;
+		if (container.status.isEmpty()) {
+			if (Math.random() == 0.5) {
+				container.status.add("Dis is one half.");
+			} else {
+				container.status.add("Ready.");
+			}
+		}
 	}
 
 	protected ResourceLocation getBackground() {

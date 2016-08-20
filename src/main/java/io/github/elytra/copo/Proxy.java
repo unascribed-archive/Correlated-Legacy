@@ -28,4 +28,8 @@ public class Proxy {
 	public void smokeTick(EntityAutomaton entityAutomaton) {
 		
 	}
+
+	public int getColor(String group, int index) {
+		return 0;
+	}
 }

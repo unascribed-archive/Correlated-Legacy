@@ -51,13 +51,6 @@ public class RenderController extends TileEntitySpecialRenderer<TileEntityContro
 		float minV = tas.getMinV();
 		float maxV = tas.getMaxV();
 
-		float diffU = maxU-minU;
-		float diffV = maxV-minV;
-		minU += (diffU/8);
-		minV += (diffV/8);
-		maxU -= (diffU/8);
-		maxV -= (diffV/8);
-
 		GlStateManager.color(1, 1, 1);
 
 		Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
@@ -71,35 +64,35 @@ public class RenderController extends TileEntitySpecialRenderer<TileEntityContro
 		wr.setTranslation(x, y, z);
 		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 
-		wr.pos(0.125, 0.125, 1.001).tex(minU, minV).endVertex();
-		wr.pos(0.875, 0.125, 1.001).tex(maxU, minV).endVertex();
-		wr.pos(0.875, 0.875, 1.001).tex(maxU, maxV).endVertex();
-		wr.pos(0.125, 0.875, 1.001).tex(minU, maxV).endVertex();
+		wr.pos(0, 0, 1.001).tex(minU, minV).endVertex();
+		wr.pos(1, 0, 1.001).tex(maxU, minV).endVertex();
+		wr.pos(1, 1, 1.001).tex(maxU, maxV).endVertex();
+		wr.pos(0, 1, 1.001).tex(minU, maxV).endVertex();
 
-		wr.pos(0.125, 0.125, -0.001).tex(minU, minV).endVertex();
-		wr.pos(0.125, 0.875, -0.001).tex(minU, maxV).endVertex();
-		wr.pos(0.875, 0.875, -0.001).tex(maxU, maxV).endVertex();
-		wr.pos(0.875, 0.125, -0.001).tex(maxU, minV).endVertex();
+		wr.pos(0, 0, -0.001).tex(minU, minV).endVertex();
+		wr.pos(0, 1, -0.001).tex(minU, maxV).endVertex();
+		wr.pos(1, 1, -0.001).tex(maxU, maxV).endVertex();
+		wr.pos(1, 0, -0.001).tex(maxU, minV).endVertex();
 
-		wr.pos(0.125, -0.001, 0.125).tex(minU, minV).endVertex();
-		wr.pos(0.875, -0.001, 0.125).tex(maxU, minV).endVertex();
-		wr.pos(0.875, -0.001, 0.875).tex(maxU, maxV).endVertex();
-		wr.pos(0.125, -0.001, 0.875).tex(minU, maxV).endVertex();
+		wr.pos(0, -0.001, 0).tex(minU, minV).endVertex();
+		wr.pos(1, -0.001, 0).tex(maxU, minV).endVertex();
+		wr.pos(1, -0.001, 1).tex(maxU, maxV).endVertex();
+		wr.pos(0, -0.001, 1).tex(minU, maxV).endVertex();
 
-		wr.pos(0.125, 1.001, 0.875).tex(minU, maxV).endVertex();
-		wr.pos(0.875, 1.001, 0.875).tex(maxU, maxV).endVertex();
-		wr.pos(0.875, 1.001, 0.125).tex(maxU, minV).endVertex();
-		wr.pos(0.125, 1.001, 0.125).tex(minU, minV).endVertex();
+		wr.pos(0, 1.001, 1).tex(minU, maxV).endVertex();
+		wr.pos(1, 1.001, 1).tex(maxU, maxV).endVertex();
+		wr.pos(1, 1.001, 0).tex(maxU, minV).endVertex();
+		wr.pos(0, 1.001, 0).tex(minU, minV).endVertex();
 
-		wr.pos(1.001, 0.125, 0.125).tex(minU, minV).endVertex();
-		wr.pos(1.001, 0.875, 0.125).tex(maxU, minV).endVertex();
-		wr.pos(1.001, 0.875, 0.875).tex(maxU, maxV).endVertex();
-		wr.pos(1.001, 0.125, 0.875).tex(minU, maxV).endVertex();
+		wr.pos(1.001, 0, 0).tex(minU, minV).endVertex();
+		wr.pos(1.001, 1, 0).tex(maxU, minV).endVertex();
+		wr.pos(1.001, 1, 1).tex(maxU, maxV).endVertex();
+		wr.pos(1.001, 0, 1).tex(minU, maxV).endVertex();
 
-		wr.pos(-0.001, 0.125, 0.875).tex(minU, maxV).endVertex();
-		wr.pos(-0.001, 0.875, 0.875).tex(maxU, maxV).endVertex();
-		wr.pos(-0.001, 0.875, 0.125).tex(maxU, minV).endVertex();
-		wr.pos(-0.001, 0.125, 0.125).tex(minU, minV).endVertex();
+		wr.pos(-0.001, 0, 1).tex(minU, maxV).endVertex();
+		wr.pos(-0.001, 1, 1).tex(maxU, maxV).endVertex();
+		wr.pos(-0.001, 1, 0).tex(maxU, minV).endVertex();
+		wr.pos(-0.001, 0, 0).tex(minU, minV).endVertex();
 
 		tess.draw();
 		wr.setTranslation(0, 0, 0);

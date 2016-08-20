@@ -24,8 +24,20 @@
 		},
 		"inventory": {
 			"transform": "forge:default-block",
+			"model": "correlatedpotentialistics:double_cube",
 			"textures": {
-				"front": "correlatedpotentialistics:blocks/vt"
+				"north_base": "correlatedpotentialistics:blocks/top",
+				"east_base": "correlatedpotentialistics:blocks/top",
+				"south_base": "correlatedpotentialistics:blocks/top",
+				"west_base": "correlatedpotentialistics:blocks/top",
+				"up_base": "correlatedpotentialistics:blocks/top",
+				"down_base": "correlatedpotentialistics:blocks/top",
+				"north_overlay": "correlatedpotentialistics:blocks/vt",
+				"east_overlay": "correlatedpotentialistics:blocks/top",
+				"south_overlay": "correlatedpotentialistics:blocks/top",
+				"west_overlay": "correlatedpotentialistics:blocks/top",
+				"up_overlay": "correlatedpotentialistics:blocks/top",
+				"down_overlay": "correlatedpotentialistics:blocks/top"
 			}
 		}
 	}

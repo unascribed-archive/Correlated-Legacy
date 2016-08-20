@@ -6,10 +6,13 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -21,6 +24,9 @@ import javax.imageio.ImageIO;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.Proxy;
 import io.github.elytra.copo.client.gui.GuiAbortRetryFail;
@@ -61,6 +67,8 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.resources.IReloadableResourceManager;
+import net.minecraft.client.resources.IResource;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -96,6 +104,9 @@ public class ClientProxy extends Proxy {
 	private BitSet glitchJpeg;
 	private int jpegTexture = -1;
 	private Random rand = new Random();
+	
+	private Set<String> knownColorTypes = Sets.newHashSet("tier", "fullness", "other");
+	private Map<String, int[]> colors = Maps.newHashMap();
 	
 	private Future<BufferedImage> corruptionFuture;
 	private ExecutorService jpegCorruptor = Executors.newFixedThreadPool(1, (r) -> new Thread(r, "JPEG Corruption Thread"));
@@ -136,6 +147,25 @@ public class ClientProxy extends Proxy {
 		
 		MinecraftForge.EVENT_BUS.register(this);
 
+		((IReloadableResourceManager)Minecraft.getMinecraft().getResourceManager()).registerReloadListener((rm) -> {
+			colors.clear();
+			for (String s : knownColorTypes) {
+				CoPo.log.info("Loading {} colors", s);
+				try {
+					IResource res = rm.getResource(new ResourceLocation("correlatedpotentialistics", "textures/misc/"+s+"_colors.png"));
+					InputStream in = res.getInputStream();
+					BufferedImage img = ImageIO.read(in);
+					in.close();
+					int[] rgb = new int[img.getWidth()*img.getHeight()];
+					img.getRGB(0, 0, img.getWidth(), img.getHeight(), rgb, 0, img.getWidth());
+					colors.put(s, rgb);
+					CoPo.log.info("Successfully loaded {} colors", s);
+				} catch (IOException e) {
+					CoPo.log.info("Error while loading {} colors", s);
+				}
+			}
+		});
+		
 		int idx = 0;
 		for (String s : ItemMisc.items) {
 			ModelLoader.setCustomModelResourceLocation(CoPo.misc, idx++, new ModelResourceLocation(new ResourceLocation("correlatedpotentialistics", s), "inventory"));
@@ -144,6 +174,14 @@ public class ClientProxy extends Proxy {
 		for (String s : ItemKeycard.colors) {
 			ModelLoader.setCustomModelResourceLocation(CoPo.keycard, idx++, new ModelResourceLocation(new ResourceLocation("correlatedpotentialistics", "keycard_"+s), "inventory"));
 		}
+	}
+	@Override
+	public int getColor(String group, int index) {
+		if (index < 0) return -1;
+		if (!colors.containsKey(group)) return -1;
+		int[] rgb = colors.get(group);
+		if (rgb == null || index >= rgb.length) return -1;
+		return rgb[index] | 0xFF000000;
 	}
 	@Override
 	public void postInit() {
@@ -172,35 +210,40 @@ public class ClientProxy extends Proxy {
 				} else if (tintIndex == 3) {
 					switch (id.getPartitioningMode(stack)) {
 						case NONE:
-							return 0x00FFAA;
+							return getColor("other", 1);
 						case WHITELIST:
-							return 0xFFFFFF;
+							return getColor("other", 0);
+						//case BLACKLIST:
+						//	return getColor("other", 2);
 					}
 				} else if (tintIndex >= 4 && tintIndex <= 6) {
 					int uncolored;
 					if (stack.getItemDamage() == 4) {
-						uncolored = 0;
+						uncolored = getColor("other", 32);
 					} else {
-						uncolored = 0x555555;
+						uncolored = getColor("other", 48);
 					}
 
+					int red = getColor("other", 16);
+					int green = getColor("other", 17);
+					
 					int left = uncolored;
 					int middle = uncolored;
 					int right = uncolored;
 					switch (id.getPriority(stack)) {
 						case HIGHEST:
-							right = 0xFF0000;
+							right = red;
 						case HIGHER:
-							middle = 0xFF0000;
+							middle = red;
 						case HIGH:
-							left = 0xFF0000;
+							left = red;
 							break;
 						case LOWEST:
-							left = 0x00FF00;
+							left = green;
 						case LOWER:
-							middle = 0x00FF00;
+							middle = green;
 						case LOW:
-							right = 0x00FF00;
+							right = green;
 							break;
 						default:
 							break;

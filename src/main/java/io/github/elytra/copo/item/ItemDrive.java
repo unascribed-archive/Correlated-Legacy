@@ -1,6 +1,5 @@
 package io.github.elytra.copo.item;
 
-import java.awt.Color;
 import java.util.List;
 import java.util.Locale;
 
@@ -50,14 +49,6 @@ public class ItemDrive extends Item {
 		public final String lowerName = name().toLowerCase(Locale.ROOT);
 	}
 
-	private final int[] tierColors = {
-			0xFF1744, // Red A400
-			0xFF9100, // Orange A400
-			0x76FF03, // Light Green A400
-			0x1DE9B6, // Teal A400
-			0xD500F9, // Purple A400
-			0x00B0FF, // Light Blue A400,
-	};
 	private final int[] tierSizes = {
 			1024 * 8,
 			4096 * 8,
@@ -72,33 +63,40 @@ public class ItemDrive extends Item {
 	}
 
 	public int getFullnessColor(ItemStack stack) {
-		int r;
-		int g;
-		int b;
 		boolean dirty = stack.hasTagCompound() && stack.getTagCompound().getBoolean("Dirty") && itemRand.nextBoolean();
 		if (dirty && itemRand.nextInt(20) == 0) {
 			stack.getTagCompound().removeTag("Dirty");
 		}
+		int idx;
 		if (stack.getItemDamage() == 4) {
-			if (dirty) return 0xFF00FF;
-			float sin = (MathHelper.sin(ClientProxy.ticks / 20f) + 2.5f) / 5f;
-			r = ((int) (sin * 192f)) & 0xFF;
-			g = 0;
-			b = ((int) (sin * 255f)) & 0xFF;
-			return r << 16 | g << 8 | b;
+			int x = (int)(((MathHelper.sin(ClientProxy.ticks / 20f)+1) / 2f)*256);
+			idx = x;
+			if (!dirty) {
+				idx += 256;
+			}
 		} else {
+			idx = 512;
 			float usedBits = getKilobitsUsed(stack)/(float)getMaxKilobits(stack);
-			float hue = (1/3f)*(1-usedBits);
-			return Color.HSBtoRGB(hue, 1, dirty ? 1 : 0.65f);
+			int x = (int)(usedBits*256);
+			idx += x;
+			if (!dirty) {
+				idx += 256;
+			}
 		}
+		return CoPo.proxy.getColor("fullness", idx);
 	}
 
 	public int getTierColor(ItemStack stack) {
-		return tierColors[stack.getItemDamage() % tierColors.length];
+		if (stack.getMetadata() == 4) return CoPo.proxy.getColor("tier", 16);
+		int meta = stack.getMetadata();
+		if (meta > 4) {
+			meta--;
+		}
+		return CoPo.proxy.getColor("tier", meta);
 	}
 
 	public int getBaseColor(ItemStack stack) {
-		return stack.getItemDamage() == 4 ? 0x311B92 : 0x607D8B;
+		return stack.getItemDamage() == 4 ? CoPo.proxy.getColor("other", 33) : CoPo.proxy.getColor("other", 49);
 	}
 	
 	@Override
@@ -145,7 +143,7 @@ public class ItemDrive extends Item {
 
 	@Override
 	public void getSubItems(Item itemIn, CreativeTabs tab, List<ItemStack> subItems) {
-		for (int i = 0; i < tierColors.length; i++) {
+		for (int i = 0; i < tierSizes.length; i++) {
 			subItems.add(new ItemStack(itemIn, 1, i));
 		}
 	}

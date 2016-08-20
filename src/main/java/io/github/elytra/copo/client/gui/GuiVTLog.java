@@ -20,13 +20,6 @@ public class GuiVTLog extends GuiScreen {
 	public GuiVTLog(GuiVT guiVt, ContainerVT container) {
 		this.guiVt = guiVt;
 		this.container = container;
-		if (container.status.isEmpty()) {
-			if (rand.nextInt(65536) == 32768) {
-				container.status.add("Dis is one half.");
-			} else {
-				container.status.add("Ready.");
-			}
-		}
 	}
 	
 	@Override

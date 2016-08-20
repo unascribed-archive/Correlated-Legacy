@@ -28,26 +28,34 @@
 		},
 		"inventory0": {
 			"transform": "forge:default-block",
+			"model": "correlatedpotentialistics:double_cube_all",
 			"textures": {
-				"all": "correlatedpotentialistics:blocks/controller"
+				"base": "correlatedpotentialistics:blocks/top",
+				"overlay": "correlatedpotentialistics:blocks/controller"
 			}
 		},
 		"inventory1": {
 			"transform": "forge:default-block",
+			"model": "correlatedpotentialistics:double_cube_all",
 			"textures": {
-				"all": "correlatedpotentialistics:blocks/controller_off"
+				"base": "correlatedpotentialistics:blocks/top",
+				"overlay": "correlatedpotentialistics:blocks/controller_off"
 			}
 		},
 		"inventory2": {
 			"transform": "forge:default-block",
+			"model": "correlatedpotentialistics:double_cube_all",
 			"textures": {
-				"all": "correlatedpotentialistics:blocks/controller_error"
+				"base": "correlatedpotentialistics:blocks/top",
+				"overlay": "correlatedpotentialistics:blocks/controller_error"
 			}
 		},
 		"inventory3": {
 			"transform": "forge:default-block",
+			"model": "correlatedpotentialistics:double_cube_all",
 			"textures": {
-				"all": "correlatedpotentialistics:blocks/controller_booting"
+				"base": "correlatedpotentialistics:blocks/top",
+				"overlay": "correlatedpotentialistics:blocks/controller_booting"
 			}
 		}
 	}
