@@ -17,6 +17,10 @@ buildscript {
 	}
 }
 
+plugins {
+    id 'com.github.johnrengelman.shadow' version '1.2.3'
+}
+
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'maven'
@@ -48,16 +52,59 @@ repositories {
 		url = 'http://unascribed.com/maven/releases'
 	}
 	jcenter()
+	ivy {
+		artifactPattern "http://unascribed.com/jars/[organisation]/[module].[ext]"
+	}
 }
 
 configurations {
 	deploy
 }
 
+jar {
+	classifier = 'slim'
+}
+
+shadowJar {
+	classifier = ''
+	relocate 'javax.speech', 'io.github.elytra.copo.repackage.javax.speech'
+	relocate 'com.sun.speech', 'io.github.elytra.copo.repackage.com.sun.speech'
+	relocate 'de.dfki', 'io.github.elytra.copo.repackage.de.dfki'
+}
+
+reobf {
+	shadowJar { mappingType = 'SEARGE' }
+}
+
+tasks.build.dependsOn reobfShadowJar
+
+artifacts {
+	archives shadowJar
+}
+
 dependencies {
 	deploy 'org.apache.maven.wagon:wagon-ssh:2.10'
 	
 	compile fileTree(dir: 'libs', include: '*.jar')
+	
+	shadow 'net.sourceforge.freetts:freetts'
+	compile 'net.sourceforge.freetts:freetts'
+	
+	shadow 'net.sourceforge.freetts:en_us'
+	compile 'net.sourceforge.freetts:en_us'
+	
+	shadow 'net.sourceforge.freetts:cmu_us_kal'
+	compile 'net.sourceforge.freetts:cmu_us_kal'
+	
+	shadow 'net.sourceforge.freetts:cmu_us_kal'
+	compile 'net.sourceforge.freetts:cmu_us_kal'
+	
+	shadow 'net.sourceforge.freetts:cmulex'
+	compile 'net.sourceforge.freetts:cmulex'
+	
+	shadow 'net.sourceforge.freetts:cmudict04'
+	compile 'net.sourceforge.freetts:cmudict04'
+	
 }
 
 minecraft {
@@ -81,6 +128,14 @@ processResources {
 
 		// replace version and mcversion
 		expand 'version':project.version, 'mcversion':project.minecraft.version
+	}
+	
+	from(sourceSets.main.resources.srcDirs) {
+		include 'voices.txt'
+		
+		filter {
+			it.replace('com.sun.speech', 'io.github.elytra.copo.repackage.com.sun.speech')
+		}
 	}
 
 	// copy everything else, thats not the mcmod.info
