@@ -7,16 +7,24 @@ import java.util.Random;
 import org.lwjgl.input.Keyboard;
 import com.google.common.base.Strings;
 
+import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.client.ClientProxy;
 import io.github.elytra.copo.client.IBMFontRenderer;
 import io.github.elytra.copo.inventory.ContainerVT;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.GlStateManager.DestFactor;
+import net.minecraft.client.renderer.GlStateManager.SourceFactor;
+import net.minecraft.util.ResourceLocation;
 
 public class GuiVTLog extends GuiScreen {
 	private GuiVT guiVt;
 	public ContainerVT container;
 	private StringBuilder command = new StringBuilder();
+	private static final ResourceLocation terminal = new ResourceLocation("correlatedpotentialistics", "textures/gui/terminal.png");
+	private static final ResourceLocation terminal_overlay = new ResourceLocation("correlatedpotentialistics", "textures/gui/terminal_overlay.png");
+	
 	public GuiVTLog(GuiVT guiVt, ContainerVT container) {
 		this.guiVt = guiVt;
 		this.container = container;
@@ -25,24 +33,35 @@ public class GuiVTLog extends GuiScreen {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		drawDefaultBackground();
-		drawRect(4, 4, width-4, height-4, 0xFF28393f);
-		drawGradientRect(16, 16, width-16, height-16, 0xFF01926B, 0xFF006D4B);
-		drawRect(width-32, height-12, width-16, height-8, 0xFF00DBAD);
-		int lines = ((height-40)/8)-1;
-		int cols = (int)((width-40)/4.5);
-		int y = 20;
+		int xSize = 256;
+		int ySize = 144;
+		GlStateManager.pushMatrix();
+		GlStateManager.translate((width - xSize) / 2, (height - ySize) / 2, 0);
+		Minecraft.getMinecraft().getTextureManager().bindTexture(terminal);
+		drawTexturedModalRect(0, 0, 0, 0, 256, 144);
+		int lines = 13;
+		int cols = 48;
+		int y = 16;
 		for (int i = Math.max(0, container.status.size()-lines); i < container.status.size(); i++) {
 			String line = Strings.nullToEmpty(container.status.get(i));
 			if (line.length() > cols) {
 				line = line.substring(0, cols-3)+"...";
 			}
-			IBMFontRenderer.drawString(20, y, line, 0x00DBAD);
+			IBMFontRenderer.drawString(18, y, line, CoPo.proxy.getColor("other", 64));
 			y += 8;
 		}
 		if (command.length() > (cols-4)) {
 			command.setLength(cols-4);
 		}
-		IBMFontRenderer.drawString(20, y, "J:\\>"+command+(ClientProxy.ticks % 20 < 10 ? "_" : ""), 0x00DBAD);
+		IBMFontRenderer.drawString(18, y, "J:\\>"+command+(ClientProxy.ticks % 20 < 10 ? "_" : ""), CoPo.proxy.getColor("other", 64));
+		GlStateManager.enableBlend();
+		GlStateManager.disableAlpha();
+		GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+		Minecraft.getMinecraft().getTextureManager().bindTexture(terminal_overlay);
+		drawTexturedModalRect(0, 0, 0, 0, 256, 144);
+		GlStateManager.disableBlend();
+		GlStateManager.enableAlpha();
+		GlStateManager.popMatrix();
 	}
 	
 	@Override
