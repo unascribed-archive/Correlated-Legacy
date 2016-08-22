@@ -2,12 +2,13 @@ package io.github.elytra.copo;
 
 import javax.sound.sampled.AudioFormat;
 
-import com.google.common.primitives.Shorts;
 import com.sun.speech.freetts.Voice;
 import com.sun.speech.freetts.VoiceManager;
 import com.sun.speech.freetts.audio.AudioPlayer;
 import com.sun.speech.freetts.audio.JavaStreamingAudioPlayer;
 import com.sun.speech.freetts.en.us.cmu_us_kal.KevinVoiceDirectory;
+
+import io.github.elytra.copo.repackage.sonic.Sonic;
 
 public class HorribleTTS {
 	
@@ -24,22 +25,35 @@ public class HorribleTTS {
 		//AudioPlayer def = new SingleFileAudioPlayer("abomination", AudioFileFormat.Type.WAVE);
 		AudioPlayer def = new JavaStreamingAudioPlayer();
 		v.setAudioPlayer(new AudioPlayer() {
-			
+			private Sonic sonic;
 			@Override
 			public boolean write(byte[] arr, int ofs, int len) {
+				short[] samples = new short[len/2];
 				for (int i = ofs; i < ofs+len; i += 2) {
-					int sample = (arr[i] << 8) | arr[i+1];
-					
-					//sample += (Math.sin(getTime()/300f)+1)*10000;
-					
-					sample = Shorts.saturatedCast(sample);
-					
-					arr[i] = (byte)((sample >> 8) & 0xFF);
-					arr[i+1] = (byte)(sample & 0xFF);
+					int byte1 = arr[i]&0xFF;
+					int byte2 = arr[i+1]&0xFF;
+					short sample = (short)((byte1 << 8) | (byte2 << 0));
+					samples[i/2] = sample;
 				}
-				return def.write(arr, ofs, len);
+				sonic.writeShortToStream(samples, len/2);
+				byte[] processed = readFromSonic();
+				return def.write(processed, 0, processed.length);
 			}
 			
+			private byte[] readFromSonic() {
+				short[] samples = new short[sonic.samplesAvailable()];
+				int amt = sonic.readShortFromStream(samples, samples.length);
+				byte[] processed = new byte[samples.length*2];
+				int crushFactor = 12;
+				for (int i = 0; i < amt; i++) {
+					short sample = samples[i];
+					sample = (short) ((sample >>> crushFactor) << crushFactor);
+					processed[i*2] = (byte)((sample >>> 8) & 0xFF);
+					processed[(i*2)+1] = (byte)(sample & 0xFF);
+				}
+				return processed;
+			}
+
 			@Override
 			public boolean write(byte[] arr) {
 				return write(arr, 0, arr.length);
@@ -62,7 +76,9 @@ public class HorribleTTS {
 			
 			@Override
 			public void setAudioFormat(AudioFormat arg0) {
-				AudioFormat f = new AudioFormat(arg0.getSampleRate()*1.25f, arg0.getSampleSizeInBits(), arg0.getChannels(), true, arg0.isBigEndian());
+				AudioFormat f = new AudioFormat(arg0.getSampleRate(), arg0.getSampleSizeInBits(), arg0.getChannels(), true, arg0.isBigEndian());
+				sonic = new Sonic((int)f.getSampleRate(), f.getChannels());
+				//sonic.setPitch(6f);
 				def.setAudioFormat(f);
 			}
 			
@@ -103,6 +119,9 @@ public class HorribleTTS {
 			
 			@Override
 			public boolean end() {
+				sonic.flushStream();
+				byte[] processed = readFromSonic();
+				def.write(processed, 0, processed.length);
 				return def.end();
 			}
 			
@@ -126,7 +145,7 @@ public class HorribleTTS {
 				def.begin(arg0);
 			}
 		});
-		v.speak("This is the terrible abomination that I wound up with. Is it still intelligible? I can't tell because I've been messing with it for a while.");
+		v.speak("I might just go with a bitcrush instead of trying to pitch it up, I think it sucks enough");
 		v.deallocate();
 		v.getAudioPlayer().close();
 	}

@@ -166,6 +166,9 @@ public class ClientProxy extends Proxy {
 			}
 		});
 		
+		ModelLoader.setCustomModelResourceLocation(CoPo.floppy, 0, new ModelResourceLocation(new ResourceLocation("correlatedpotentialistics", "floppy_write_enabled"), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CoPo.floppy, 1, new ModelResourceLocation(new ResourceLocation("correlatedpotentialistics", "floppy_write_disabled"), "inventory"));
+		
 		int idx = 0;
 		for (String s : ItemMisc.items) {
 			ModelLoader.setCustomModelResourceLocation(CoPo.misc, idx++, new ModelResourceLocation(new ResourceLocation("correlatedpotentialistics", s), "inventory"));

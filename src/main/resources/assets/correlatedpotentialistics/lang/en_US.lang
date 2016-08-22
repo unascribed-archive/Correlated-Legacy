@@ -69,6 +69,7 @@ item.correlatedpotentialistics.wireless_terminal.name=Wireless Terminal
 item.correlatedpotentialistics.weldthrower.name=Weldthrower
 tooltip.correlatedpotentialistics.weldthrower.0=§5Wrench, welder, flamethrower.
 tooltip.correlatedpotentialistics.weldthrower.1=§5What more could you possibly want?
+item.correlatedpotentialistics.floppy.name=Floppy
 
 item.record.correlatedpotentialistics.danslarue.desc=xyce - dans la rue
 item.record.correlatedpotentialistics.jesuisbaguette.desc=xyce - je suis baguette
@@ -190,6 +191,8 @@ tooltip.correlatedpotentialistics.iface.mode_push=§fActive - §6Push
 tooltip.correlatedpotentialistics.iface.mode_pull=§fActive - §bPull
 tooltip.correlatedpotentialistics.iface.mode_none=§fPassive
 tooltip.correlatedpotentialistics.iface.mode_disabled=§8Disabled
+
+tooltip.correlatedpotentialistics.floppy.write_protected=Write-Protected
 
 direction.correlatedpotentialistics.up=Top
 direction.correlatedpotentialistics.down=Bottom

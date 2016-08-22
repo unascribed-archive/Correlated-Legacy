@@ -27,6 +27,7 @@ import io.github.elytra.copo.entity.EntityAutomaton;
 import io.github.elytra.copo.entity.EntityThrownItem;
 import io.github.elytra.copo.item.ItemCoPoRecord;
 import io.github.elytra.copo.item.ItemDrive;
+import io.github.elytra.copo.item.ItemFloppy;
 import io.github.elytra.copo.item.ItemKeycard;
 import io.github.elytra.copo.item.ItemMemory;
 import io.github.elytra.copo.item.ItemMisc;
@@ -101,6 +102,7 @@ public class CoPo {
 	public static ItemMisc misc;
 	public static ItemDrive drive;
 	public static ItemMemory memory;
+	public static ItemFloppy floppy;
 	public static ItemWirelessTerminal wireless_terminal;
 	public static ItemWeldthrower weldthrower;
 	public static ItemKeycard keycard;
@@ -240,6 +242,7 @@ public class CoPo {
 		register(new ItemMisc(), "misc", -2);
 		register(new ItemDrive(), "drive", -1);
 		register(new ItemMemory(), "memory", -1);
+		register(new ItemFloppy(), "floppy", -2);
 		register(new ItemWirelessTerminal(), "wireless_terminal", 0);
 		register(new ItemWeldthrower(), "weldthrower", 0);
 		register(new ItemKeycard(), "keycard", -2);
@@ -306,7 +309,7 @@ public class CoPo {
 			SoundEvent snd = new SoundEvent(loc);
 			GameRegistry.register(snd, loc);
 			ItemCoPoRecord item = new ItemCoPoRecord(basename, snd);
-			item.setRegistryName(basename+"_record");
+			item.setRegistryName("record_"+basename);
 			item.setUnlocalizedName("record");
 			item.setCreativeTab(creativeTab);
 			GameRegistry.register(item);
