@@ -31,9 +31,11 @@ import io.github.elytra.copo.item.ItemFloppy;
 import io.github.elytra.copo.item.ItemKeycard;
 import io.github.elytra.copo.item.ItemMemory;
 import io.github.elytra.copo.item.ItemMisc;
+import io.github.elytra.copo.item.ItemModule;
 import io.github.elytra.copo.item.ItemWeldthrower;
 import io.github.elytra.copo.item.ItemWirelessTerminal;
 import io.github.elytra.copo.network.AddStatusLineMessage;
+import io.github.elytra.copo.network.AutomatonSpeakMessage;
 import io.github.elytra.copo.network.CoPoGuiHandler;
 import io.github.elytra.copo.network.EnterDungeonMessage;
 import io.github.elytra.copo.network.LeaveDungeonMessage;
@@ -81,6 +83,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.oredict.RecipeSorter;
+import net.minecraftforge.oredict.RecipeSorter.Category;
 
 @Mod(modid="correlatedpotentialistics", name="Correlated Potentialistics", version="@VERSION@",
 	updateJSON="http://unascribed.com/update-check/correlated-potentialistics.json")
@@ -102,6 +106,7 @@ public class CoPo {
 	public static ItemMisc misc;
 	public static ItemDrive drive;
 	public static ItemMemory memory;
+	public static ItemModule module;
 	public static ItemFloppy floppy;
 	public static ItemWirelessTerminal wireless_terminal;
 	public static ItemWeldthrower weldthrower;
@@ -116,6 +121,8 @@ public class CoPo {
 	public static SoundEvent glitchtravel;
 	public static SoundEvent automaton_idle;
 	public static SoundEvent automaton_hurt;
+	public static SoundEvent drive_disassemble;
+	public static SoundEvent data_core_shatter;
 	
 	
 	public static List<ItemCoPoRecord> recordItems = Lists.newArrayList();
@@ -188,6 +195,7 @@ public class CoPo {
 		registerMessage(SetAutomatonNameMessage.class, Side.SERVER);
 		registerMessage(LeaveDungeonMessage.class, Side.SERVER);
 		registerMessage(AddStatusLineMessage.class, Side.CLIENT);
+		registerMessage(AutomatonSpeakMessage.class, Side.CLIENT);
 
 		EntityRegistry.registerModEntity(EntityThrownItem.class, "thrown_item", 0, this, 64, 10, true);
 		EntityRegistry.registerModEntity(EntityAutomaton.class, "automaton", 1, this, 64, 1, true);
@@ -205,6 +213,8 @@ public class CoPo {
 		registerSound("glitchtravel");
 		registerSound("automaton_hurt");
 		registerSound("automaton_idle");
+		registerSound("drive_disassemble");
+		registerSound("data_core_shatter");
 		
 		registerRecord("danslarue.xm");
 		registerRecord("jesuisbaguette.xm");
@@ -242,11 +252,13 @@ public class CoPo {
 		register(new ItemMisc(), "misc", -2);
 		register(new ItemDrive(), "drive", -1);
 		register(new ItemMemory(), "memory", -1);
+		register(new ItemModule(), "module", ItemModule.types.length);
 		register(new ItemFloppy(), "floppy", -2);
 		register(new ItemWirelessTerminal(), "wireless_terminal", 0);
 		register(new ItemWeldthrower(), "weldthrower", 0);
 		register(new ItemKeycard(), "keycard", -2);
 
+		RecipeSorter.register("correlatedpotentialistics:drive", DriveRecipe.class, Category.SHAPED, "after:minecraft:shaped");
 		CRecipes.register();
 
 		GameRegistry.registerTileEntity(TileEntityController.class, "correlatedpotentialistics:controller");

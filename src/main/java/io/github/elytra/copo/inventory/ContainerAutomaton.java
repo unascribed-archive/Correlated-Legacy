@@ -14,15 +14,19 @@ public class ContainerAutomaton extends ContainerVT {
 		super(playerInventory, player, automaton);
 		this.automaton = automaton;
 		this.player = player;
-		addSlotToContainer(new SlotEquipment(automaton, EntityEquipmentSlot.MAINHAND, 116, 21));
-		addSlotToContainer(new SlotEquipment(automaton, EntityEquipmentSlot.OFFHAND, 134, 21));
-		addSlotToContainer(new SlotEquipment(automaton, EntityEquipmentSlot.HEAD, 152, 21));
+		addSlotToContainer(new SlotEquipment(automaton, EntityEquipmentSlot.MAINHAND, 28, 25));
+		addSlotToContainer(new SlotEquipment(automaton, EntityEquipmentSlot.OFFHAND, 28, 43));
+		addSlotToContainer(new SlotEquipment(automaton, EntityEquipmentSlot.HEAD, 28, 7));
+		
+		for (int i = 0; i < 6; i++) {
+			addSlotToContainer(new SlotAutomatonModule(automaton, i, 6, 7+(i*18)));
+		}
 	}
 	
 
 	@Override
 	protected void initializeVTSize() {
-		startX = 8;
+		startX = 28;
 		startY = 44;
 		slotsAcross = 8;
 		slotsTall = 4;

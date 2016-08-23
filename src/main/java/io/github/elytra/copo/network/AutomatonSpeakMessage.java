@@ -27,6 +27,7 @@ public class AutomatonSpeakMessage implements IMessage, IMessageHandler<Automato
 	@Override
 	@SideOnly(Side.CLIENT)
 	public IMessage onMessage(AutomatonSpeakMessage message, MessageContext ctx) {
+		// this intentionally does not check if the entity is an Automaton and if it has the speech module
 		
 		return null;
 	}

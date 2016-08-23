@@ -41,6 +41,29 @@ public class IBMFontRenderer {
 	
 	public static final int DIM_WHITE = 0xFFA8A8A8;
 	
+	public static void drawStringInverseVideo(int x, int y, String str, int color) {
+		// this is not copied from vanilla, to be clear
+		// this is just black magic
+		GlStateManager.enableDepth();
+		
+			GlStateManager.depthMask(true);
+			GlStateManager.colorMask(false, false, false, false);
+			
+			GlStateManager.pushMatrix();
+				GlStateManager.translate(0, 0, 1);
+				drawString(x, y, str, 0);
+			GlStateManager.popMatrix();
+			
+			GlStateManager.depthMask(false);
+			GlStateManager.colorMask(true, true, true, true);
+			
+			GlStateManager.pushMatrix();
+				GlStateManager.scale(0.5f, 0.5f, 1);
+				Gui.drawRect(x*2, y*2, (x*2)+(str.length()*9), (y*2)+16, color);
+			GlStateManager.popMatrix();
+			
+		GlStateManager.disableDepth();
+	}
 	public static void drawString(int x, int y, String str, int color) {
 		Minecraft.getMinecraft().getTextureManager().bindTexture(BIOS);
 		x*=2;

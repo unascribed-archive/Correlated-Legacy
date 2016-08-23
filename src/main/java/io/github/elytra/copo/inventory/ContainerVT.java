@@ -405,7 +405,8 @@ public class ContainerVT extends Container {
 			int needed = ItemDrive.getNBTComplexity(stack.getTagCompound());
 			needed += 8*8;
 			needed += stack.stackSize;
-			addStatusLine("Add: Insufficient disk space. Need about "+needed+", only "+newBits+" available");
+			addStatusLine("Add: Insufficient disk space.");
+			addStatusLine("Need about "+needed+", only "+newBits+" available");
 		}
 		return is;
 	}
@@ -611,7 +612,11 @@ public class ContainerVT extends Container {
 						}
 					}
 				}
-				return getSlot(slotId).getStack();
+				if (slotId >= 0) {
+					return getSlot(slotId).getStack();
+				} else {
+					return null;
+				}
 			}
 			return super.slotClick(slotId, clickedButton, clickTypeIn, player);
 		}

@@ -1,7 +1,7 @@
 package io.github.elytra.copo.network;
 
 import io.github.elytra.copo.client.gui.GuiVT;
-import io.github.elytra.copo.client.gui.GuiVTLog;
+import io.github.elytra.copo.client.gui.shell.GuiVTShell;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -43,8 +43,8 @@ public class AddStatusLineMessage implements IMessage, IMessageHandler<AddStatus
 				if (vt.inventorySlots.windowId == message.windowId) {
 					vt.addLine(message.line);
 				}
-			} else if (open instanceof GuiVTLog) {
-				GuiVTLog vt = ((GuiVTLog)open);
+			} else if (open instanceof GuiVTShell) {
+				GuiVTShell vt = ((GuiVTShell)open);
 				if (vt.container.windowId == message.windowId) {
 					vt.addLine(message.line);
 				}

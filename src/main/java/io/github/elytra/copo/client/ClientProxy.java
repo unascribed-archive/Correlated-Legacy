@@ -46,6 +46,7 @@ import io.github.elytra.copo.item.ItemDrive;
 import io.github.elytra.copo.item.ItemKeycard;
 import io.github.elytra.copo.item.ItemMemory;
 import io.github.elytra.copo.item.ItemMisc;
+import io.github.elytra.copo.item.ItemModule;
 import io.github.elytra.copo.tile.TileEntityController;
 import io.github.elytra.copo.tile.TileEntityDriveBay;
 import io.github.elytra.copo.tile.TileEntityMemoryBay;
@@ -105,7 +106,7 @@ public class ClientProxy extends Proxy {
 	private int jpegTexture = -1;
 	private Random rand = new Random();
 	
-	private Set<String> knownColorTypes = Sets.newHashSet("tier", "fullness", "other");
+	private Set<String> knownColorTypes = Sets.newHashSet("tier", "fullness", "other", "pci");
 	private Map<String, int[]> colors = Maps.newHashMap();
 	
 	private Future<BufferedImage> corruptionFuture;
@@ -188,6 +189,18 @@ public class ClientProxy extends Proxy {
 	}
 	@Override
 	public void postInit() {
+		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
+			@Override
+			public int getColorFromItemstack(ItemStack stack, int tintIndex) {
+				if (stack == null || !(stack.getItem() instanceof ItemModule)) return -1;
+				ItemModule id = (ItemModule)stack.getItem();
+				if (tintIndex == 1) {
+					return id.getTypeColor(stack);
+				}
+				return -1;
+			}
+			
+		}, CoPo.module);
 		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
 			@Override
 			public int getColorFromItemstack(ItemStack stack, int tintIndex) {

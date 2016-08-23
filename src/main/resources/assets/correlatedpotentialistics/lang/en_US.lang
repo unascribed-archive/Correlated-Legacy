@@ -53,6 +53,7 @@ item.correlatedpotentialistics.misc.unstable_pearl.name=Unstable Pearl
 tooltip.correlatedpotentialistics.misc.unstable_pearl.0=§5What did you do?
 item.correlatedpotentialistics.misc.unfinished_organic_circuit.name=Unfinished Organic Circuit
 tooltip.correlatedpotentialistics.misc.unfinished_organic_circuit.0=§5Technically edible technology.
+item.correlatedpotentialistics.misc.data_core.name=Data Core
 
 item.correlatedpotentialistics.keycard_amber.name=Amber Keycard
 item.correlatedpotentialistics.keycard_black.name=Onyx Keycard
@@ -70,6 +71,8 @@ item.correlatedpotentialistics.weldthrower.name=Weldthrower
 tooltip.correlatedpotentialistics.weldthrower.0=§5Wrench, welder, flamethrower.
 tooltip.correlatedpotentialistics.weldthrower.1=§5What more could you possibly want?
 item.correlatedpotentialistics.floppy.name=Floppy
+item.correlatedpotentialistics.module.speech.name=Speech Module
+item.correlatedpotentialistics.module.antigrav.name=Anti-Gravity Module
 
 item.record.correlatedpotentialistics.danslarue.desc=xyce - dans la rue
 item.record.correlatedpotentialistics.jesuisbaguette.desc=xyce - je suis baguette
@@ -202,9 +205,9 @@ direction.correlatedpotentialistics.south=South
 direction.correlatedpotentialistics.west=West
 
 tooltip.correlatedpotentialistics.drive_count=%d/8 drives
-tooltip.correlatedpotentialistics.types_used=%s of %s types used (%d%%)
 tooltip.correlatedpotentialistics.bytes_used=%s of %s used (%d%%)
 tooltip.correlatedpotentialistics.rf_usage=Uses %d RF/t
+tooltip.correlatedpotentialistics.bytes_contained=Contains %s of data
 
 tooltip.correlatedpotentialistics.memory_count=%d/12 memory chips
 tooltip.correlatedpotentialistics.bytes_available=%s available
@@ -216,6 +219,8 @@ subtitles.correlatedpotentialistics.weldthrow=Weldthrower weldthrows
 subtitles.correlatedpotentialistics.convert=Pearl converts
 subtitles.correlatedpotentialistics.automaton_hurt=Automaton squeals
 subtitles.correlatedpotentialistics.automaton_idle=Automaton chirps
+subtitles.correlatedpotentialistics.drive_disassemble=Drive falls apart
+subtitles.correlatedpotentialistics.data_core_shatter=Data core shatters
 
 death.attack.correlatedpotentialistics.weld=%s was welded by %s
 death.attack.correlatedpotentialistics.weld.item=%s was welded by %s using %s

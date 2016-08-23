@@ -69,7 +69,7 @@ public class ItemDrive extends Item {
 		}
 		int idx;
 		if (stack.getItemDamage() == 4) {
-			int x = (int)(((MathHelper.sin(ClientProxy.ticks / 20f)+1) / 2f)*256);
+			int x = (int)(((MathHelper.sin(ClientProxy.ticks / 20f)+1) / 2f)*255);
 			idx = x;
 			if (!dirty) {
 				idx += 256;
@@ -77,7 +77,7 @@ public class ItemDrive extends Item {
 		} else {
 			idx = 512;
 			float usedBits = getKilobitsUsed(stack)/(float)getMaxKilobits(stack);
-			int x = (int)(usedBits*256);
+			int x = (int)(usedBits*255f);
 			idx += x;
 			if (!dirty) {
 				idx += 256;
@@ -245,15 +245,37 @@ public class ItemDrive extends Item {
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
-		playerIn.openGui(CoPo.inst, 1, worldIn, playerIn.inventory.currentItem, 0, 0);
-		return ActionResult.newResult(EnumActionResult.SUCCESS, itemStackIn);
+		if (playerIn.isSneaking()) {
+			playerIn.playSound(CoPo.drive_disassemble, 0.4f, 0.875f+(itemRand.nextFloat()/4));
+			NBTTagList ingredients = ItemStacks.getCompoundList(itemStackIn, "Ingredients");
+			if (!worldIn.isRemote) {
+				for (int i = 0; i < ingredients.tagCount(); i++) {
+					ItemStack is = ItemStack.loadItemStackFromNBT(ingredients.getCompoundTagAt(i));
+					if (is.getItem() == CoPo.misc && (is.getMetadata() == 3 || is.getMetadata() == 8)) continue;
+					playerIn.entityDropItem(is, 0.5f);
+				}
+			}
+			if (!ItemStacks.getCompoundList(itemStackIn, "Data").hasNoTags()) {
+				ItemStack dataCore = new ItemStack(CoPo.misc, 1, 8);
+				dataCore.setTagCompound(itemStackIn.getTagCompound().copy());
+				return ActionResult.newResult(EnumActionResult.SUCCESS, dataCore);
+			} else {
+				return ActionResult.newResult(EnumActionResult.SUCCESS, new ItemStack(CoPo.misc, 1, 3));
+			}
+		} else {
+			playerIn.openGui(CoPo.inst, 1, worldIn, playerIn.inventory.currentItem, 0, 0);
+			return ActionResult.newResult(EnumActionResult.SUCCESS, itemStackIn);
+		}
 	}
 
 	// all this code should probably be refactored into some sort of general
 	// "NetworkContents" class at some point
 
 	public int getKilobitsUsed(ItemStack stack) {
-		if (!stack.hasTagCompound() || !stack.getTagCompound().hasKey("Data", NBT.TAG_LIST)) return 0;
+		if (!stack.hasTagCompound()) return 0;
+		if (!stack.getTagCompound().hasKey("Data", NBT.TAG_LIST) || ItemStacks.getCompoundList(stack, "Data").hasNoTags()) {
+			return stack.getTagCompound().getInteger("UsedBits");
+		}
 		NBTTagList list = ItemStacks.getCompoundList(stack, "Data");
 		int used = 0;
 		for (int i = 0; i < list.tagCount(); i++) {

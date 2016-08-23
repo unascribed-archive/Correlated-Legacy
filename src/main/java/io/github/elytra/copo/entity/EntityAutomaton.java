@@ -1,5 +1,6 @@
 package io.github.elytra.copo.entity;
 
+import java.util.AbstractList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -8,7 +9,6 @@ import javax.annotation.Nullable;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import io.github.elytra.copo.CoPo;
@@ -19,6 +19,7 @@ import io.github.elytra.copo.entity.ai.EntityAIAutomatonFollowOwner;
 import io.github.elytra.copo.entity.ai.EntityAIAutomatonOwnerHurtByTarget;
 import io.github.elytra.copo.entity.ai.EntityAIAutomatonOwnerHurtTarget;
 import io.github.elytra.copo.item.ItemDrive;
+import io.github.elytra.copo.item.ItemModule;
 import io.github.elytra.copo.item.ItemDrive.Priority;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
@@ -84,6 +85,12 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	private static final DataParameter<Optional<UUID>> OWNER_UNIQUE_ID = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.OPTIONAL_UNIQUE_ID);
 	private static final DataParameter<Byte> STATUS = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.BYTE);
 	private static final DataParameter<Byte> FOLLOW_DISTANCE = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.BYTE);
+	private static final DataParameter<Optional<ItemStack>> MODULE1 = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.OPTIONAL_ITEM_STACK);
+	private static final DataParameter<Optional<ItemStack>> MODULE2 = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.OPTIONAL_ITEM_STACK);
+	private static final DataParameter<Optional<ItemStack>> MODULE3 = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.OPTIONAL_ITEM_STACK);
+	private static final DataParameter<Optional<ItemStack>> MODULE4 = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.OPTIONAL_ITEM_STACK);
+	private static final DataParameter<Optional<ItemStack>> MODULE5 = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.OPTIONAL_ITEM_STACK);
+	private static final DataParameter<Optional<ItemStack>> MODULE6 = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.OPTIONAL_ITEM_STACK);
 	
 	private final TObjectIntMap<UUID> favor = new TObjectIntHashMap<>();
 	
@@ -195,6 +202,12 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 		dataManager.register(OWNER_UNIQUE_ID, Optional.absent());
 		dataManager.register(STATUS, (byte)0);
 		dataManager.register(FOLLOW_DISTANCE, (byte)3);
+		dataManager.register(MODULE1, Optional.absent());
+		dataManager.register(MODULE2, Optional.absent());
+		dataManager.register(MODULE3, Optional.absent());
+		dataManager.register(MODULE4, Optional.absent());
+		dataManager.register(MODULE5, Optional.absent());
+		dataManager.register(MODULE6, Optional.absent());
 	}
 	
 	@Override
@@ -391,7 +404,77 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	}
 	
 	public boolean isMuted() {
-		return dataManager.get(MUTED);
+		return hasModule("speech") || dataManager.get(MUTED);
+	}
+	
+	public boolean hasModule(String module) {
+		for (ItemStack is : getModules()) {
+			if (is != null && is.getItem() instanceof ItemModule) {
+				if (module.equals(((ItemModule)is.getItem()).getType(is))) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public ItemStack getModule(int slot) {
+		if (slot < 0 || slot >= 6) throw new IndexOutOfBoundsException(slot+" not within 0-5");
+		switch (slot) {
+			case 0:
+				return dataManager.get(MODULE1).orNull();
+			case 1:
+				return dataManager.get(MODULE2).orNull();
+			case 2:
+				return dataManager.get(MODULE3).orNull();
+			case 3:
+				return dataManager.get(MODULE4).orNull();
+			case 4:
+				return dataManager.get(MODULE5).orNull();
+			case 5:
+				return dataManager.get(MODULE6).orNull();
+		}
+		return null;
+	}
+	
+	public void setModule(int slot, ItemStack stack) {
+		if (slot < 0 || slot >= 6) throw new IndexOutOfBoundsException(slot+" not within 0-5");
+		switch (slot) {
+			case 0:
+				dataManager.set(MODULE1, Optional.fromNullable(stack));
+				break;
+			case 1:
+				dataManager.set(MODULE2, Optional.fromNullable(stack));
+				break;
+			case 2:
+				dataManager.set(MODULE3, Optional.fromNullable(stack));
+				break;
+			case 3:
+				dataManager.set(MODULE4, Optional.fromNullable(stack));
+				break;
+			case 4:
+				dataManager.set(MODULE5, Optional.fromNullable(stack));
+				break;
+			case 5:
+				dataManager.set(MODULE6, Optional.fromNullable(stack));
+				break;
+		}
+	}
+	
+	public Iterable<ItemStack> getModules() {
+		return new AbstractList<ItemStack>() {
+
+			@Override
+			public ItemStack get(int index) {
+				return getModule(index);
+			}
+
+			@Override
+			public int size() {
+				return 6;
+			}
+			
+		};
 	}
 	
 	public void setFollowDistance(int distance) {

@@ -4,6 +4,7 @@ import java.util.List;
 
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.entity.EntityThrownItem;
+import io.github.elytra.copo.helper.Numbers;
 import net.minecraft.block.BlockDispenser;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
@@ -32,7 +33,8 @@ public class ItemMisc extends Item {
 			"lumtorch",
 			"weldthrower_fuel",
 			"unstable_pearl",
-			"unfinished_organic_circuit"
+			"unfinished_organic_circuit",
+			"data_core"
 		};
 
 	public ItemMisc() {
@@ -69,6 +71,11 @@ public class ItemMisc extends Item {
 			tooltip.add(I18n.translateToLocal("tooltip.correlatedpotentialistics.misc." + getItemName(stack) + "." + i));
 			i++;
 		}
+		if (stack.getMetadata() == 8) {
+			int bytesUsed = (CoPo.drive.getKilobitsUsed(stack) / 8)*1024;
+
+			tooltip.add(I18n.translateToLocalFormatted("tooltip.correlatedpotentialistics.bytes_contained", Numbers.humanReadableBytes(bytesUsed)));
+		}
 	}
 
 	private String getItemName(ItemStack stack) {
@@ -84,7 +91,7 @@ public class ItemMisc extends Item {
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
-		if (!(playerIn instanceof FakePlayer) && playerIn.dimension != CoPo.limboDimId && (itemStackIn.getMetadata() == 3 || itemStackIn.getMetadata() == 6)) {
+		if (!(playerIn instanceof FakePlayer) && playerIn.dimension != CoPo.limboDimId && (itemStackIn.getMetadata() == 3 || itemStackIn.getMetadata() == 6 || itemStackIn.getMetadata() == 8)) {
 			if (!playerIn.capabilities.isCreativeMode) {
 				--itemStackIn.stackSize;
 			}

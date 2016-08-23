@@ -22,7 +22,7 @@ public class HorribleTTS {
 	public static void main(String[] args) throws Exception {
 		System.setProperty("freetts.voices", KevinVoiceDirectory.class.getName());
 		Voice v = createVoice();
-		//AudioPlayer def = new SingleFileAudioPlayer("abomination", AudioFileFormat.Type.WAVE);
+		//AudioPlayer def = new SingleFileAudioPlayer("tts", AudioFileFormat.Type.WAVE);
 		AudioPlayer def = new JavaStreamingAudioPlayer();
 		v.setAudioPlayer(new AudioPlayer() {
 			private Sonic sonic;
@@ -145,7 +145,7 @@ public class HorribleTTS {
 				def.begin(arg0);
 			}
 		});
-		v.speak("I might just go with a bitcrush instead of trying to pitch it up, I think it sucks enough");
+		v.speak("This is a test of Automaton text to speech");
 		v.deallocate();
 		v.getAudioPlayer().close();
 	}

@@ -12,6 +12,7 @@ import io.github.elytra.copo.inventory.ContainerAutomaton;
 import io.github.elytra.copo.network.SetAutomatonNameMessage;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.gui.GuiPageButtonList.GuiResponder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.GlStateManager.DestFactor;
@@ -29,7 +30,7 @@ public class GuiAutomaton extends GuiVT implements GuiResponder {
 	public GuiAutomaton(ContainerAutomaton inventorySlotsIn) {
 		super(inventorySlotsIn);
 		this.container = inventorySlotsIn;
-		xSize = 176;
+		xSize = 196;
 		ySize = 222;
 	}
 
@@ -38,18 +39,22 @@ public class GuiAutomaton extends GuiVT implements GuiResponder {
 		int x = (width - xSize) / 2;
 		int y = (height - ySize) / 2;
 		
-		int btnX = x+(114-AutomatonStatus.VALUES.length*12);
+		int btnX = x+(190-AutomatonStatus.VALUES.length*12);
 		for (AutomatonStatus s : AutomatonStatus.VALUES) {
-			GuiButtonExt btn = new GuiButtonExt((-s.ordinal())-30, btnX, y+31, 10, 10, "");
+			GuiButtonExt btn = new GuiButtonExt((-s.ordinal())-30, btnX, y+34, 10, 10, "");
 			if (s == AutomatonStatus.EXEC) {
 				btn.enabled = false;
 			}
 			buttonList.add(btn);
 			btnX += 12;
 		}
-		buttonList.add(new GuiButtonExt(-60, x+7, y+31, 10, 10, ""));
-		buttonList.add(new GuiButtonExt(-59, x+19, y+31, 10, 10, ""));
-		name = new GuiTextField(-55, fontRendererObj, x+6, y+5, 164, 10);
+		GuiButtonExt mute = new GuiButtonExt(-60, x+83, y+34, 10, 10, "");
+		if (container.automaton.hasModule("speech")) {
+			mute.enabled = false;
+		}
+		buttonList.add(mute);
+		buttonList.add(new GuiButtonExt(-59, x+95, y+34, 10, 10, ""));
+		name = new GuiTextField(-55, fontRendererObj, x+83, y+5, 106, 10);
 		name.setText(container.automaton.getName());
 		name.setGuiResponder(this);
 		super.initGui();
@@ -57,7 +62,7 @@ public class GuiAutomaton extends GuiVT implements GuiResponder {
 	
 	@Override
 	protected int getXOffset() {
-		return -80;
+		return -60;
 	}
 	
 	@Override
@@ -67,7 +72,7 @@ public class GuiAutomaton extends GuiVT implements GuiResponder {
 	
 	@Override
 	protected int getScrollTrackX() {
-		return 156;
+		return 176;
 	}
 	
 	@Override
@@ -98,26 +103,32 @@ public class GuiAutomaton extends GuiVT implements GuiResponder {
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		GlStateManager.pushMatrix();
-		GlStateManager.translate((width - xSize) / 2, (height - ySize) / 2, 0);
+		int x = (width - xSize) / 2;
+		int y = (height - ySize) / 2;
+		GlStateManager.translate(x, y, 0);
 		mc.getTextureManager().bindTexture(background);
-		drawTexturedModalRect(0, 0, 0, 0, 176, 222);
+		drawTexturedModalRect(0, 0, 0, 0, 196, 222);
 		GlStateManager.popMatrix();
+		int ofsX = 63;
+		int ofsY = 35;
+		GuiInventory.drawEntityOnScreen(x + ofsX, y + ofsY, 30, (float)(x + ofsX) - mouseX, (float)(y + 5) - mouseY, container.automaton);
+		buttonList.get(AutomatonStatus.VALUES.length).enabled = !container.automaton.hasModule("speech");
 	}
 	
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 		mc.getTextureManager().bindTexture(background);
-		int btnX = (117-AutomatonStatus.VALUES.length*12);
+		int btnX = (193-AutomatonStatus.VALUES.length*12);
 		for (AutomatonStatus s : AutomatonStatus.VALUES) {
 			GlStateManager.color(1, 1, 1);
-			drawTexturedModalRect(btnX, 34, 176, s.ordinal()*4, 4, 4);
+			drawTexturedModalRect(btnX, 37, 244, s.ordinal()*4, 4, 4);
 			if (container.automaton.getStatus() == s) {
-				drawTexturedModalRect(btnX-3, 31, 246, 246, 10, 10);
+				drawTexturedModalRect(btnX-3, 34, 246, 246, 10, 10);
 			}
 			btnX += 12;
 		}
-		drawTexturedModalRect(10, 34, 180, container.automaton.isMuted() ? 4 : 0, 4, 4);
-		drawTexturedModalRect(22, 34, 184, container.automaton.getFollowDistance()*4, 4, 4);
+		drawTexturedModalRect(86, 37, 248, container.automaton.isMuted() ? 4 : 0, 4, 4);
+		drawTexturedModalRect(98, 37, 252, container.automaton.getFollowDistance()*4, 4, 4);
 		int x = (width - xSize) / 2;
 		int y = (height - ySize) / 2;
 		GlStateManager.pushMatrix();
@@ -129,11 +140,11 @@ public class GuiAutomaton extends GuiVT implements GuiResponder {
 		GlStateManager.color(1, 1, 1);
 		mc.getTextureManager().bindTexture(background);
 		int w = (int)(104*(container.automaton.getHealth()/container.automaton.getMaxHealth()));
-		drawTexturedModalRect(8, 18, 0, 222, w, 9);
+		drawTexturedModalRect(84, 21, 0, 222, w, 9);
 		GlStateManager.enableBlend();
 		GlStateManager.blendFunc(SourceFactor.ZERO, DestFactor.SRC_COLOR);
 		int t = (int) (ClientProxy.ticks);
-		drawTexturedModalRect(8, 18, t, 231, w, 9);
+		drawTexturedModalRect(84, 21, t, 231, w, 9);
 		GlStateManager.disableBlend();
 		for (AutomatonStatus s : AutomatonStatus.VALUES) {
 			if (buttonList.get(s.ordinal()).isMouseOver()) {

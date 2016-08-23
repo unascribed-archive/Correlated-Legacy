@@ -103,9 +103,10 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 		}
 		tess.draw();
 
-		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
-
-		GlStateManager.disableLighting();
+		if (lit) {
+			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
+			GlStateManager.disableLighting();
+		}
 		GlStateManager.enableBlend();
 		GlStateManager.disableAlpha();
 		GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -116,7 +117,7 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 				ItemStack drive = te.getDriveInSlot(i);
 				if (drive.getItem() instanceof ItemDrive) {
 					ItemDrive itemDrive = (ItemDrive)drive.getItem();
-					drawDriveBox(lit ? itemDrive.getFullnessColor(drive) : 0x222222, i, 0, 0.5f);
+					drawDriveBox(lit ? itemDrive.getFullnessColor(drive) : CoPo.proxy.getColor("other", 48), i, 0, 0.5f);
 				}
 			}
 		}

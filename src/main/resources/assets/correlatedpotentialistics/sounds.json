@@ -49,5 +49,19 @@
 			"correlatedpotentialistics:automaton/idle2"
 		],
 		"subtitle": "subtitles.correlatedpotentialistics.automaton_idle"
+	},
+	"drive_disassemble": {
+		"category": "player",
+		"sounds": [
+			"correlatedpotentialistics:drive_disassemble"
+		],
+		"subtitle": "subtitles.correlatedpotentialistics.drive_disassemble"
+	},
+	"data_core_shatter": {
+		"category": "player",
+		"sounds": [
+			"correlatedpotentialistics:data_core_shatter"
+		],
+		"subtitle": "subtitles.correlatedpotentialistics.data_core_shatter"
 	}
 }

@@ -4,6 +4,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
@@ -15,49 +16,65 @@ public class CRecipes {
 		ItemStack drivePlatterMetallic = new ItemStack(CoPo.misc, 1, 2);
 		ItemStack luminousPearl = new ItemStack(CoPo.misc, 1, 3);
 		ItemStack luminousTorch = new ItemStack(CoPo.misc, 1, 4);
+		ItemStack dataCore = new ItemStack(CoPo.misc, 1, 8);
 
-		// 1KiB Drive
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CoPo.drive, 1, 0),
+		String luminousPearlOrDataCore = "correlatedpotentialistics:INTERNAL_luminousPearlOrDataCore";
+		
+		OreDictionary.registerOre(luminousPearlOrDataCore, luminousPearl);
+		OreDictionary.registerOre(luminousPearlOrDataCore, dataCore);
+		
+		// 1MiB Drive
+		GameRegistry.addRecipe(new DriveRecipe(new ItemStack(CoPo.drive, 1, 0),
 				"III",
 				"IOI",
 				"IoI",
 				'I', "ingotIron",
-				'O', luminousPearl,
+				'O', luminousPearlOrDataCore,
 				'o', drivePlatterCeramic
 				));
 
-		// 4KiB Drive
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CoPo.drive, 1, 1),
+		// 4MiB Drive
+		GameRegistry.addRecipe(new DriveRecipe(new ItemStack(CoPo.drive, 1, 1),
 				"III",
 				"oOo",
 				"IoI",
 				'I', "ingotIron",
-				'O', luminousPearl,
+				'O', luminousPearlOrDataCore,
 				'o', drivePlatterCeramic
 				));
 
-		// 16KiB Drive
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CoPo.drive, 1, 2),
+		// 16MiB Drive
+		GameRegistry.addRecipe(new DriveRecipe(new ItemStack(CoPo.drive, 1, 2),
 				"III",
 				"dOd",
 				"IoI",
 				'I', "ingotIron",
 				'd', "gemDiamond",
-				'O', luminousPearl,
+				'O', luminousPearlOrDataCore,
 				'o', drivePlatterMetallic
 				));
-		// 64KiB Drive
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CoPo.drive, 1, 3),
-				"doO",
-				"odo",
-				"Ood",
+		// 64MiB Drive
+		GameRegistry.addRecipe(new DriveRecipe(new ItemStack(CoPo.drive, 1, 3),
+				"doI",
+				"oOo",
+				"Iod",
 				'd', "gemDiamond",
-				'O', luminousPearl,
+				'O', luminousPearlOrDataCore,
+				'o', drivePlatterMetallic,
+				'I', "ingotIron"
+				));
+		// 128MiB Drive
+		GameRegistry.addRecipe(new DriveRecipe(new ItemStack(CoPo.drive, 1, 5),
+				"doo",
+				"oOo",
+				"ood",
+				'd', "blockDiamond",
+				'O', luminousPearlOrDataCore,
 				'o', drivePlatterMetallic
 				));
 
 		// Void Drive
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CoPo.drive, 1, 4),
+		GameRegistry.addRecipe(new DriveRecipe(new ItemStack(CoPo.drive, 1, 4),
 				"###",
 				"#O#",
 				"###",

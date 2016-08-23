@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.client.IBMFontRenderer;
+import io.github.elytra.copo.client.gui.shell.GuiVTShell;
 import io.github.elytra.copo.helper.Numbers;
 import io.github.elytra.copo.inventory.ContainerVT;
 import io.github.elytra.copo.inventory.ContainerVT.CraftingAmount;
@@ -77,17 +78,19 @@ public class GuiVT extends GuiContainer {
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 		fontRendererObj.drawString(getTitle(), 8, 6, 0x404040);
-		String lastLine = Strings.nullToEmpty(container.status.get(container.status.size()-1));
-		if (lastLine.length() > 32) {
-			lastLine = lastLine.substring(0, 32)+"...";
+		if (!(this instanceof GuiAutomaton)) {
+			String lastLine = Strings.nullToEmpty(container.status.get(container.status.size()-1));
+			if (lastLine.length() > 32) {
+				lastLine = lastLine.substring(0, 32)+"...";
+			}
+			int left = 68+container.playerInventoryOffsetX;
+			int top = 90+container.playerInventoryOffsetY;
+			int right = 162+68+container.playerInventoryOffsetX;
+			int bottom = 11+89+container.playerInventoryOffsetY;
+			
+			drawRect(left, top, right, bottom, 0xFF006D4B);
+			IBMFontRenderer.drawString(left+2, top+1, lastLine, 0x00DBAD);
 		}
-		int left = 68+container.playerInventoryOffsetX;
-		int top = 90+container.playerInventoryOffsetY;
-		int right = 162+68+container.playerInventoryOffsetX;
-		int bottom = 11+89+container.playerInventoryOffsetY;
-		
-		drawRect(left, top, right, bottom, 0xFF006D4B);
-		IBMFontRenderer.drawString(left+2, top+1, lastLine, 0x00DBAD);
 		
 		GlStateManager.pushMatrix();
 		GlStateManager.disableDepth();
@@ -310,10 +313,10 @@ public class GuiVT extends GuiContainer {
 		int top = 90+container.playerInventoryOffsetY;
 		int right = 162+68+container.playerInventoryOffsetX;
 		int bottom = 11+89+container.playerInventoryOffsetY;
-		if (mouseButton == 0
+		if (!(this instanceof GuiAutomaton) && mouseButton == 0
 				&& mouseX >= x+left && mouseX <= x+right
 				&& mouseY >= y+top && mouseY <= y+bottom) {
-			Minecraft.getMinecraft().displayGuiScreen(new GuiVTLog(this, container));
+			Minecraft.getMinecraft().displayGuiScreen(new GuiVTShell(this, container));
 		}
 		
 		int width = 12;

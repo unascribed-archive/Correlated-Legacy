@@ -46,7 +46,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 					ItemStack is = ItemStack.loadItemStackFromNBT(drive);
 					if (hasWorldObj() && worldObj.isRemote) {
 						ItemStacks.ensureHasTag(is);
-						is.setTagCompound((NBTTagCompound)is.getTagCompound().copy());
+						is.setTagCompound(is.getTagCompound().copy());
 						is.getTagCompound().setBoolean("Dirty", true);
 					}
 					drives[i] = is;
@@ -74,8 +74,10 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 		nbt.setInteger("z", getPos().getZ());
 		for (int i = 0; i < drives.length; i++) {
 			ItemStack drive = drives[i];
-			if (drive == null) continue;
+			if (drive == null || !(drive.getItem() instanceof ItemDrive)) continue;
+			ItemDrive id = ((ItemDrive)drive.getItem());
 			ItemStack prototype = drive.copy();
+			ItemStacks.ensureHasTag(prototype).getTagCompound().setInteger("UsedBits", id.getKilobitsUsed(drive));
 			ItemStacks.ensureHasTag(prototype).getTagCompound().removeTag("Data");
 			nbt.setTag("Drive"+i, prototype.serializeNBT());
 		}
@@ -84,11 +86,12 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 	
 	@Override
 	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
-		if (pkt.getNbtCompound().getBoolean("JustBlink")) {
-			int slot = pkt.getNbtCompound().getInteger("Blink");
+		if (pkt.getNbtCompound().getBoolean("UpdateUsedBits")) {
+			int slot = pkt.getNbtCompound().getInteger("Slot");
 			ItemStack stack = drives[slot];
 			if (stack != null) {
 				ItemStacks.ensureHasTag(stack).getTagCompound().setBoolean("Dirty", true);
+				ItemStacks.ensureHasTag(stack).getTagCompound().setInteger("UsedBits", pkt.getNbtCompound().getInteger("UsedBits"));
 			}
 		} else {
 			for (int i = 0; i < drives.length; i++) {
@@ -133,8 +136,12 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 
 	public void blinkDriveInSlot(int slot) {
 		NBTTagCompound nbt = new NBTTagCompound();
-		nbt.setBoolean("JustBlink", true);
-		nbt.setInteger("Blink", slot);
+		nbt.setBoolean("UpdateUsedBits", true);
+		ItemStack drive = drives[slot];
+		if (drive == null || !(drive.getItem() instanceof ItemDrive)) return;
+		ItemDrive id = ((ItemDrive)drive.getItem());
+		nbt.setInteger("Slot", slot);
+		nbt.setInteger("UsedBits", id.getKilobitsUsed(drive));
 		sendUpdatePacket(nbt);
 	}
 	
@@ -142,8 +149,9 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 		drives[slot] = drive;
 		if (hasWorldObj() && !worldObj.isRemote && worldObj instanceof WorldServer) {
 			NBTTagCompound nbt = new NBTTagCompound();
-			if (drive != null) {
+			if (drive != null && drive.getItem() instanceof ItemDrive) {
 				ItemStack prototype = drive.copy();
+				ItemStacks.ensureHasTag(prototype).getTagCompound().setInteger("UsedBits", ((ItemDrive)drive.getItem()).getKilobitsUsed(drive));
 				ItemStacks.ensureHasTag(prototype).getTagCompound().removeTag("Data");
 				nbt.setTag("Drive"+slot, prototype.serializeNBT());
 			} else {
