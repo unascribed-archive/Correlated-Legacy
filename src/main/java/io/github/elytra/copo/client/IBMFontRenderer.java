@@ -19,7 +19,7 @@ public class IBMFontRenderer {
 			+ "ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒ"
 			+ "áíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐"
 			+ "└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀"
-			+ "αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\u00a0";
+			+ "αβΓπΣσμτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\u00a0";
 	
 	// Common substitutes as seen at https://en.wikipedia.org/wiki/Code_page_437#Notes
 	private static final Map<Character, Character> substitutes = ImmutableMap.<Character, Character>builder()
@@ -74,7 +74,7 @@ public class IBMFontRenderer {
 		for (int i = 0; i < str.length(); i++) {
 			char c = str.charAt(i);
 			if (substitutes.containsKey(c)) {
-				c = substitutes.get(c);
+				//c = substitutes.get(c);
 			}
 			int pos = CP437.indexOf(c);
 			if (pos == -1) continue;

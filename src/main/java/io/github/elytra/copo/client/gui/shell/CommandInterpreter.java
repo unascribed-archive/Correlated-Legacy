@@ -94,6 +94,16 @@ public class CommandInterpreter extends Program {
 					case "ide":
 						parent.program = new AutomatonProgrammer(parent);
 						break;
+					case "437":
+						parent.container.status.add("\0☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼");
+						parent.container.status.add(" !\"#$%&'()*+,-./0123456789:;<=>?");
+						parent.container.status.add("@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_");
+						parent.container.status.add("`abcdefghijklmnopqrstuvwxyz{|}~⌂");
+						parent.container.status.add("ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒ");
+						parent.container.status.add("áíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐");
+						parent.container.status.add("└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀");
+						parent.container.status.add("αβΓπΣσμτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\u00a0");
+						break;
 					default:
 						parent.container.status.add("Bad command or file name");
 						break;

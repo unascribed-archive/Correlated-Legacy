@@ -25,6 +25,7 @@ import io.github.elytra.copo.block.item.ItemBlockWirelessEndpoint;
 import io.github.elytra.copo.compat.WailaCompatibility;
 import io.github.elytra.copo.entity.EntityAutomaton;
 import io.github.elytra.copo.entity.EntityThrownItem;
+import io.github.elytra.copo.entity.automaton.Opcode;
 import io.github.elytra.copo.item.ItemCoPoRecord;
 import io.github.elytra.copo.item.ItemDrive;
 import io.github.elytra.copo.item.ItemFloppy;
@@ -268,6 +269,9 @@ public class CoPo {
 		GameRegistry.registerTileEntity(TileEntityInterface.class, "correlatedpotentialistics:interface");
 		GameRegistry.registerTileEntity(TileEntityWirelessReceiver.class, "correlatedpotentialistics:wireless_receiver");
 		GameRegistry.registerTileEntity(TileEntityWirelessTransmitter.class, "correlatedpotentialistics:wireless_transmitter");
+		
+		Opcode.init();
+		
 		if (Loader.isModLoaded("Waila")) {
 			WailaCompatibility.init();
 		}
