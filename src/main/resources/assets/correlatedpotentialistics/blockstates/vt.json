@@ -10,6 +10,7 @@
 	},
 	"variants": {
 		"lit": {"true":{},"false":{}},
+		"floppy": {"true":{},"false":{}},
 		"facing": {
 			"north": {},
 			"east": {

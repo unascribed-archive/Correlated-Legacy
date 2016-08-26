@@ -14,27 +14,6 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
 public class ContainerDrive extends Container {
-	public class SlotStatic extends SlotFake {
-		public SlotStatic(int index, int xPosition, int yPosition, ItemStack stack) {
-			super(index, xPosition, yPosition);
-			super.putStack(stack);
-		}
-
-		@Override
-		public void putStack(ItemStack stack) {
-			if (player.worldObj.isRemote) {
-				super.putStack(stack);
-			}
-		}
-
-		@Override
-		public ItemStack decrStackSize(int amount) {
-			return null;
-		}
-
-		@Override
-		public void onSlotChanged() {}
-	}
 	public class SlotFake extends Slot {
 		public SlotFake(int index, int xPosition, int yPosition) {
 			super(null, index, xPosition, yPosition);

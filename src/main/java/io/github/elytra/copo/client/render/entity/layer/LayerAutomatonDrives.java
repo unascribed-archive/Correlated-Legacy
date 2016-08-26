@@ -2,6 +2,7 @@ package io.github.elytra.copo.client.render.entity.layer;
 
 import org.lwjgl.opengl.GL11;
 
+import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.client.render.tile.RenderDriveBay;
 import io.github.elytra.copo.entity.EntityAutomaton;
 import io.github.elytra.copo.item.ItemDrive;
@@ -54,15 +55,16 @@ public class LayerAutomatonDrives implements LayerRenderer<EntityAutomaton> {
 				ItemStack drive = ent.getItemStackFromSlot(slot);
 				if (drive.getItem() instanceof ItemDrive) {
 					ItemDrive itemDrive = (ItemDrive)drive.getItem();
-					RenderDriveBay.drawDriveBox(itemDrive.getBaseColor(drive), slot == EntityEquipmentSlot.CHEST ? 0 : 2, 0, 0);
+					RenderDriveBay.pbr.render(itemDrive.getBaseColor(drive), slot == EntityEquipmentSlot.CHEST ? 0 : 2, 0, 0);
 				}
 			}
 		}
 		tess.draw();
 
-		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
-
-		GlStateManager.disableLighting();
+		if (lit) {
+			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
+			GlStateManager.disableLighting();
+		}
 		GlStateManager.enableBlend();
 		GlStateManager.disableAlpha();
 		GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -73,7 +75,7 @@ public class LayerAutomatonDrives implements LayerRenderer<EntityAutomaton> {
 				ItemStack drive = ent.getItemStackFromSlot(slot);
 				if (drive.getItem() instanceof ItemDrive) {
 					ItemDrive itemDrive = (ItemDrive)drive.getItem();
-					RenderDriveBay.drawDriveBox(lit ? itemDrive.getFullnessColor(drive) : 0x222222, slot == EntityEquipmentSlot.CHEST ? 0 : 2, 0, 0.5f);
+					RenderDriveBay.pbr.render(lit ? itemDrive.getFullnessColor(drive) : CoPo.proxy.getColor("other", 48), slot == EntityEquipmentSlot.CHEST ? 0 : 2, 0, 0.5f);
 				}
 			}
 		}
@@ -85,7 +87,7 @@ public class LayerAutomatonDrives implements LayerRenderer<EntityAutomaton> {
 				ItemStack drive = ent.getItemStackFromSlot(slot);
 				if (drive.getItem() instanceof ItemDrive) {
 					ItemDrive itemDrive = (ItemDrive)drive.getItem();
-					RenderDriveBay.drawDriveBox(itemDrive.getTierColor(drive), slot == EntityEquipmentSlot.CHEST ? 0 : 2, 0.5f, 0);
+					RenderDriveBay.pbr.render(itemDrive.getTierColor(drive), slot == EntityEquipmentSlot.CHEST ? 0 : 2, 0.5f, 0);
 				}
 			}
 		}

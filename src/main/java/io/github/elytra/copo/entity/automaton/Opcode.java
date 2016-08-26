@@ -1,20 +1,35 @@
 package io.github.elytra.copo.entity.automaton;
 
-import java.nio.ByteBuffer;
+import java.util.Locale;
 import java.util.Map;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 
+import io.github.elytra.copo.BiConsumer;
+import io.github.elytra.copo.IntFunction;
 import io.github.elytra.copo.entity.EntityAutomaton;
+import io.netty.buffer.ByteBuf;
 
 public abstract class Opcode {
 	public enum ArgumentSpec {
-		INTEGER('I'),
-		POINTER('↑');
+		INTEGER('I', Integer::decode, ByteBuf::writeInt, 4),
+		// TODO parse pointer mnemonics
+		POINTER('↑', Integer::decode, ByteBuf::writeInt, 4),
+		;
 		public final String hint;
-		private ArgumentSpec(char hint) {
+		public final Function<String, ?> parser;
+		public final BiConsumer<ByteBuf, Object> writer;
+		public final IntFunction<Object> sizer;
+		private <T> ArgumentSpec(char hint, Function<String, T> parser, BiConsumer<ByteBuf, T> writer, int size) {
+			this(hint, parser, writer, o -> size);
+		}
+		private <T> ArgumentSpec(char hint, Function<String, T> parser, BiConsumer<ByteBuf, T> writer, IntFunction<T> sizer) {
 			this.hint = Character.toString(hint);
+			this.parser = parser;
+			this.writer = (BiConsumer<ByteBuf, Object>)writer;
+			this.sizer = (IntFunction<Object>)sizer;
 		}
 	}
 	
@@ -29,6 +44,19 @@ public abstract class Opcode {
 	
 	public static Opcode byMnemonic(String mnemonic) {
 		return byMnemonic.get(mnemonic);
+	}
+	
+	public static Opcode lookup(String str) {
+		if (str.charAt(0) == 'x') {
+			try {
+				int i = Integer.parseInt(str.substring(1), 16);
+				return byBytecode(i);
+			} catch (NumberFormatException e) {
+				return null;
+			}
+		} else {
+			return byMnemonic(str.toUpperCase(Locale.ROOT));
+		}
 	}
 	
 	protected static void register(Opcode oc) {
@@ -79,11 +107,12 @@ public abstract class Opcode {
 	public final ImmutableList<ArgumentSpec> getArgumentSpec() {
 		return args;
 	}
-	public abstract void execute(EntityAutomaton context, ByteBuffer arguments);
+	public abstract void execute(EntityAutomaton context, ByteBuf arguments);
 	
 	public static void init() {
 		register(new OpcodeNOP());
 		register(new OpcodeTST());
+		register(new OpcodeHLT());
 	}
 	
 }

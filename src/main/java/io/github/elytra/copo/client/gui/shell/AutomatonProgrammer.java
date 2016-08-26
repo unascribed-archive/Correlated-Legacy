@@ -1,7 +1,6 @@
 package io.github.elytra.copo.client.gui.shell;
 
 import java.util.List;
-import java.util.Locale;
 
 import org.lwjgl.input.Keyboard;
 
@@ -10,8 +9,13 @@ import com.google.common.collect.Lists;
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.client.IBMFontRenderer;
 import io.github.elytra.copo.entity.automaton.Opcode;
+import io.github.elytra.copo.item.ItemFloppy;
+import io.github.elytra.copo.network.SaveProgramMessage;
+import io.netty.buffer.Unpooled;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.util.Constants.NBT;
 
 public class AutomatonProgrammer extends Program {
 	private boolean dirty = false;
@@ -26,71 +30,152 @@ public class AutomatonProgrammer extends Program {
 	private int totalCols;
 	private int totalRows;
 	
+	private int scrollOffset;
+	
 	private String status;
 	private int statusTicks;
 	
+	private String cutOpcode;
+	private List<String> cutArguments;
+	
+	private int xOffset = 1;
+	
+	private boolean confirmExit;
+	
 	public AutomatonProgrammer(GuiVTShell parent) {
 		super(parent);
+		if (parent.container.floppySlot != null) {
+			ItemStack floppy = parent.container.floppySlot.getStack();
+			if (floppy != null) {
+				if (floppy.hasTagCompound() && floppy.getTagCompound().hasKey("SourceCode", NBT.TAG_BYTE_ARRAY)) {
+					byte[] bys = floppy.getTagCompound().getByteArray("SourceCode");
+					SaveProgramMessage msg = new SaveProgramMessage();
+					msg.fromBytes(Unpooled.wrappedBuffer(bys));
+					opcodes = msg.opcodes;
+					arguments = msg.arguments;
+				}
+				if (floppy.getItem() instanceof ItemFloppy) {
+					if (((ItemFloppy)floppy.getItem()).isWriteProtected(floppy)) {
+						status = "Warning: Floppy is write protected";
+						statusTicks = 0;
+					}
+				}
+			} else {
+				status = "Warning: No floppy in drive";
+				statusTicks = 0;
+			}
+		}
 	}
 
 	@Override
 	public void render(int rows, int cols) {
-		totalRows = rows;
-		totalCols = cols;
-		if (dirty) {
-			drawStringInverseVideo(cols-1, 0, "○");
-		} else {
-			drawStringInverseVideo(cols-1, 0, " ");
+		if (status != null && (status.contains("Save OK") || status.contains("compile OK"))) {
+			dirty = false;
 		}
+		if (confirmExit && !dirty) {
+			parent.program = new CommandInterpreter(parent);
+			return;
+		}
+		float div = (cursorRow/(float)opcodes.size());
+		int scrollKnobY = (int)(div*rows);
+		scrollKnobY = Math.min(rows-1, Math.max(0, scrollKnobY));
+		drawStringInverseVideoAbsolute(cols-1, scrollKnobY, dirty ? "○" : " ");
 		
-		drawStringInverseVideo(0, rows-1, "^O");
-		drawString(3, rows-1, "Save");
-		
-		drawStringInverseVideo(8, rows-1, "^X");
-		drawString(11, rows-1, "Exit");
-		
-		drawStringInverseVideo(16, rows-1, "^Y");
-		drawString(19, rows-1, "Prev");
-		
-		drawStringInverseVideo(24, rows-1, "^V");
-		drawString(27, rows-1, "Next");
-		
-		drawStringInverseVideo(32, rows-1, "^K");
-		drawString(35, rows-1, "Kill");
-		
-		drawStringInverseVideo(40, rows-1, "^U");
-		drawString(43, rows-1, "UnKill");
-		rows--;
+		if (confirmExit) {
+			drawStringInverseVideoAbsolute(0, rows-2, Strings.padEnd("Save? (ANSWERING \"No\" WILL DESTROY CHANGES)", cols, ' '));
+			drawStringInverseVideoAbsolute(0, rows-1, " Y");
+			drawStringAbsolute(3, rows-1, "Yes");
+			drawStringInverseVideoAbsolute(7, rows-1, " N");
+			drawStringAbsolute(10, rows-1, "No");
+			drawStringInverseVideoAbsolute(13, rows-1, "^C");
+			drawStringAbsolute(16, rows-1, "Cancel");
+			rows -= 2;
+		} else {
+			drawStringInverseVideoAbsolute(0, rows-1, "^O");
+			drawStringAbsolute(3, rows-1, "Save");
+			
+			drawStringInverseVideoAbsolute(8, rows-1, "^X");
+			drawStringAbsolute(11, rows-1, "Exit");
+			
+			drawStringInverseVideoAbsolute(16, rows-1, "^Y");
+			drawStringAbsolute(19, rows-1, "Prev");
+			
+			drawStringInverseVideoAbsolute(24, rows-1, "^V");
+			drawStringAbsolute(27, rows-1, "Next");
+			
+			drawStringInverseVideoAbsolute(32, rows-1, "^K");
+			drawStringAbsolute(35, rows-1, "Cut");
+			
+			drawStringInverseVideoAbsolute(39, rows-1, "^U");
+			drawStringAbsolute(42, rows-1, "UnCut");
+			rows--;
+		}
 		
 		if (status != null) {
 			rows--;
-			drawStringInverseVideo(((cols-(status.length()+4))/2), rows, "[ "+status+" ]");
+			drawStringInverseVideoAbsolute(((cols-(status.length()+4))/2), rows, "[ "+status+" ]");
+		}
+		
+		cols -= 2;
+		
+		totalRows = rows;
+		totalCols = cols;
+		
+		int cursorRowScrolled = cursorRow-scrollOffset;
+		if (cursorRowScrolled >= rows) {
+			scrollOffset++;
+		} else if (cursorRowScrolled < 0) {
+			scrollOffset--;
+		}
+		
+		if (scrollOffset > opcodes.size()) {
+			scrollOffset = opcodes.size();
+		} else if (scrollOffset < 0) {
+			scrollOffset = 0;
+		}
+		if (cursorRow > opcodes.size()) {
+			cursorRow = opcodes.size();
+		} else if (cursorRow < 0) {
+			cursorRow = 0;
+		}
+		
+		int oldXOffset = xOffset;
+		xOffset = Integer.toString(opcodes.size()).length()+1;
+		
+		if (oldXOffset != xOffset) {
+			int change = xOffset-oldXOffset;
+			cursorCol += change;
+		}
+		
+		for (int i = 0; i < Math.min(opcodes.size()-scrollOffset, rows); i++) {
+			String str = Integer.toString((scrollOffset+i)+1);
+			drawStringAbsolute(xOffset-(str.length()+1), i, str);
 		}
 		
 		if (cursorField == 0) {
-			if (cursorCol == 0) {
-				cursorCol = 1;
+			if (cursorCol <= xOffset) {
+				cursorCol = xOffset+1;
 			}
-			if (cursorCol >= 4) {
+			if (cursorCol >= xOffset+4) {
 				if (cursorRow < opcodes.size()) {
-					Opcode oc = lookupOpcode(opcodes.get(cursorRow));
+					Opcode oc = Opcode.lookup(opcodes.get(cursorRow));
 					if (oc == null || !oc.getArgumentSpec().isEmpty()) {
 						cursorField = 1;
-						cursorCol = 6;
+						cursorCol = xOffset+6;
 					} else {
-						cursorCol = 3;
+						cursorCol = xOffset+3;
 					}
 				} else {
-					cursorCol = 3;
+					cursorCol = xOffset+3;
 				}
 			}
 		} else {
-			if (cursorCol == 5 || cursorRow >= arguments.size()) {
+			if (cursorCol == xOffset+5 || cursorRow >= arguments.size()) {
 				cursorField = 0;
-				cursorCol = 3;
+				cursorCol = xOffset+3;
 			} else if (cursorRow < arguments.size()) {
 				List<String> args = arguments.get(cursorRow);
-				int x = 5;
+				int x = xOffset+5;
 				int i = 0;
 				for (String s : args) {
 					x++;
@@ -117,10 +202,10 @@ public class AutomatonProgrammer extends Program {
 		int y = 0;
 		for (int idx = 0; idx <= opcodes.size(); idx++) {
 			String s = idx >= opcodes.size() ? "   " : opcodes.get(idx);
-			Opcode oc = lookupOpcode(s);
+			Opcode oc = Opcode.lookup(s);
 			if (cursorRow == y && cursorField == 0) {
-				for (int x = 0; x < 5; x++) {
-					int i = x-1;
+				for (int x = xOffset; x < xOffset+5; x++) {
+					int i = (x-1)-xOffset;
 					String c;
 					if (i < 0) {
 						c = oc == null ? s.startsWith("x") ? "?" : "‼" : " ";
@@ -136,17 +221,17 @@ public class AutomatonProgrammer extends Program {
 					}
 				}
 			} else {
-				drawString(1, y, s);
+				drawString(xOffset+1, y, s);
 				if (oc == null && idx < opcodes.size()) {
-					drawString(0, y, s.startsWith("x") ? "?" : "‼");
+					drawString(xOffset, y, s.startsWith("x") ? "?" : "‼");
 				}
 			}
 			y++;
 		}
 		y = 0;
 		for (List<String> li : arguments) {
-			Opcode oc = lookupOpcode(opcodes.get(y));
-			int x = 5;
+			Opcode oc = Opcode.lookup(opcodes.get(y));
+			int x = xOffset+5;
 			int i = 0;
 			for (int idx = 0; idx < (oc == null ? li.size()+1 : oc.getArgumentSpec().size()); idx++) {
 				String s = idx >= li.size() ? " " : li.get(idx);
@@ -195,35 +280,48 @@ public class AutomatonProgrammer extends Program {
 		
 	}
 
-	private Opcode lookupOpcode(String str) {
-		if (str.charAt(0) == 'x') {
-			try {
-				int i = Integer.parseInt(str.substring(1), 16);
-				return Opcode.byBytecode(i);
-			} catch (NumberFormatException e) {
-				return null;
-			}
-		} else {
-			return Opcode.byMnemonic(str.toUpperCase(Locale.ROOT));
-		}
-	}
-
 	private void drawStringInverseVideo(int x, int y, String str) {
+		if (y < scrollOffset) return;
+		y -= scrollOffset;
+		if (y >= totalRows) return;
+		drawStringInverseVideoAbsolute(x, y, str);
+	}
+	
+	private void drawString(int x, int y, String str) {
+		if (y < scrollOffset) return;
+		y -= scrollOffset;
+		if (y >= totalRows) return;
+		drawStringAbsolute(x, y, str);
+	}
+	
+	private void drawStringInverseVideoAbsolute(int x, int y, String str) {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x*4.5f, y*8f, 0);
 		IBMFontRenderer.drawStringInverseVideo(0, 0, str, CoPo.proxy.getColor("other", 64));
 		GlStateManager.popMatrix();
 	}
 	
-	private void drawString(int x, int y, String str) {
+	private void drawStringAbsolute(int x, int y, String str) {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x*4.5f, y*8f, 0);
 		IBMFontRenderer.drawString(0, 0, str, CoPo.proxy.getColor("other", 64));
 		GlStateManager.popMatrix();
 	}
-
+	
 	@Override
 	public void keyTyped(char typedChar, int keyCode) {
+		if (confirmExit) {
+			if (keyCode == Keyboard.KEY_Y) {
+				status = "Saving...";
+				statusTicks = -1;
+				CoPo.inst.network.sendToServer(new SaveProgramMessage(opcodes, arguments));
+			} else if (keyCode == Keyboard.KEY_N) {
+				parent.program = new CommandInterpreter(parent);
+			} else if (GuiScreen.isCtrlKeyDown() && keyCode == Keyboard.KEY_C) {
+				confirmExit = false;
+			}
+			return;
+		}
 		if (keyCode == Keyboard.KEY_UP) {
 			if (cursorRow > 0) {
 				cursorRow--;
@@ -231,9 +329,13 @@ public class AutomatonProgrammer extends Program {
 		} else if (keyCode == Keyboard.KEY_DOWN) {
 			if (cursorRow < opcodes.size()) {
 				cursorRow++;
+				if (cursorRow == opcodes.size()) {
+					cursorCol = xOffset+1;
+					cursorField = 0;
+				}
 			}
 		} else if (keyCode == Keyboard.KEY_LEFT) {
-			if (cursorCol > 0) {
+			if (cursorCol > xOffset) {
 				cursorCol--;
 			}
 		} else if (keyCode == Keyboard.KEY_RIGHT) {
@@ -243,17 +345,29 @@ public class AutomatonProgrammer extends Program {
 		} else if (GuiScreen.isCtrlKeyDown()) {
 			if (keyCode == Keyboard.KEY_K) {
 				if (cursorRow < opcodes.size()) {
-					// TODO buffer
-					opcodes.remove(cursorRow);
-					arguments.remove(cursorRow);
+					cutOpcode = opcodes.remove(cursorRow);
+					cutArguments = arguments.remove(cursorRow);
 				}
+			} else if (keyCode == Keyboard.KEY_U) {
+				opcodes.add(cursorRow, cutOpcode);
+				arguments.add(cursorRow, cutArguments);
+				cursorRow++;
 			} else if (keyCode == Keyboard.KEY_X) {
 				if (dirty) {
-					status = "There are unsaved changes. Really exit?";
-					statusTicks = 0;
+					confirmExit = true;
 				} else {
 					parent.program = new CommandInterpreter(parent);
 				}
+			} else if (keyCode == Keyboard.KEY_V) {
+				scrollOffset += totalRows;
+				cursorRow += totalRows;
+			} else if (keyCode == Keyboard.KEY_Y) {
+				scrollOffset -= totalRows;
+				cursorRow -= totalRows;
+			} else if (keyCode == Keyboard.KEY_O) {
+				status = "Saving...";
+				statusTicks = -1;
+				CoPo.inst.network.sendToServer(new SaveProgramMessage(opcodes, arguments));
 			}
 		} else if (cursorField == 0) {
 			if (Character.isAlphabetic(typedChar) || Character.isDigit(typedChar) || keyCode == Keyboard.KEY_BACK) {
@@ -262,17 +376,17 @@ public class AutomatonProgrammer extends Program {
 				}
 				if (cursorRow >= opcodes.size()) {
 					char c;
-					if (cursorCol == 1 && keyCode == Keyboard.KEY_X) {
+					if (cursorCol == xOffset+1 && keyCode == Keyboard.KEY_X) {
 						c = 'x';
 					} else {
 						c = Character.toUpperCase(typedChar);
 					}
-					opcodes.add(Strings.padEnd(Strings.padStart(Character.toString(c), cursorCol-1, ' '), 3, ' '));
+					opcodes.add(Strings.padEnd(Strings.padStart(Character.toString(c), (cursorCol-1)-xOffset, ' '), 3, ' '));
 					arguments.add(Lists.newArrayList());
 					cursorCol++;
 					dirty = true;
 				} else {
-					int pos = cursorCol - 1;
+					int pos = (cursorCol-1)-xOffset;
 					if (pos >= 0 && pos < 3) {
 						StringBuilder str = new StringBuilder(opcodes.get(cursorRow));
 						char c;
@@ -294,8 +408,8 @@ public class AutomatonProgrammer extends Program {
 		} else if (Character.isAlphabetic(typedChar) || Character.isDigit(typedChar) || keyCode == Keyboard.KEY_BACK) {
 			if (cursorRow < arguments.size() && cursorRow < opcodes.size()) {
 				List<String> args = arguments.get(cursorRow);
-				Opcode oc = lookupOpcode(opcodes.get(cursorRow));
-				int x = 5;
+				Opcode oc = Opcode.lookup(opcodes.get(cursorRow));
+				int x = xOffset+5;
 				int i = 0;
 				for (String s : args) {
 					x++;
@@ -343,6 +457,7 @@ public class AutomatonProgrammer extends Program {
 					} else {
 						args.set(i, str.toString());
 					}
+					dirty = true;
 					if (keyCode != Keyboard.KEY_BACK) {
 						cursorCol++;
 					}
@@ -365,6 +480,11 @@ public class AutomatonProgrammer extends Program {
 				statusTicks = -1;
 			}
 		}
+	}
+
+	public void setStatus(String line) {
+		status = line;
+		statusTicks = 0;
 	}
 
 }

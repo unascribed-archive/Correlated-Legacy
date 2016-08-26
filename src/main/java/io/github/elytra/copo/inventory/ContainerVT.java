@@ -18,6 +18,7 @@ import io.github.elytra.copo.network.AddStatusLineMessage;
 import io.github.elytra.copo.network.SetSearchQueryMessage;
 import io.github.elytra.copo.network.SetSlotSizeMessage;
 import io.github.elytra.copo.tile.TileEntityController;
+import io.github.elytra.copo.tile.TileEntityVT;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -193,6 +194,8 @@ public class ContainerVT extends Container {
 		}
 
 	}
+	
+	public Slot floppySlot;
 
 	public ContainerVT(IInventory playerInventory, EntityPlayer player, IVT vt) {
 		this.player = player;
@@ -212,6 +215,19 @@ public class ContainerVT extends Container {
 
 		if (vt.supportsDumpSlot()) {
 			addSlotToContainer(new Slot(vt.getDumpSlotInventory(), 0, 25, 161));
+		}
+		if (vt instanceof TileEntityVT) {
+			TileEntityVT te = ((TileEntityVT)vt);
+			addSlotToContainer(floppySlot = new Slot(te, 1, -8000, -8000) {
+				@Override
+				public boolean canBeHovered() {
+					return false;
+				}
+				@Override
+				public boolean canTakeStack(EntityPlayer playerIn) {
+					return false;
+				}
+			});
 		}
 		
 		for (int i = 0; i < slotsTall; ++i) {

@@ -4,6 +4,7 @@ import org.lwjgl.opengl.GL11;
 
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.block.BlockDriveBay;
+import io.github.elytra.copo.client.render.ProtrudingBoxRenderer;
 import io.github.elytra.copo.item.ItemDrive;
 import io.github.elytra.copo.tile.TileEntityDriveBay;
 import net.minecraft.block.state.IBlockState;
@@ -47,6 +48,24 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 		@Override protected void readEntityFromNBT(NBTTagCompound tagCompund) { }
 		@Override protected void entityInit() { }
 	};
+	public static final ProtrudingBoxRenderer pbr = new ProtrudingBoxRenderer()
+			.slotCount(8)
+			.columns(2)
+			
+			.width(4)
+			.height(2)
+			.depth(1)
+			
+			.textureWidth(12)
+			.textureHeight(8)
+			
+			.x(3)
+			.y(2)
+			.z(0)
+			
+			.xPadding(2)
+			.yPadding(1);
+	
 	@Override
 	public void renderTileEntityAt(TileEntityDriveBay te, double x, double y, double z, float partialTicks, int destroyStage) {
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
@@ -97,7 +116,7 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 				ItemStack drive = te.getDriveInSlot(i);
 				if (drive.getItem() instanceof ItemDrive) {
 					ItemDrive itemDrive = (ItemDrive)drive.getItem();
-					drawDriveBox(itemDrive.getBaseColor(drive), i, 0, 0);
+					pbr.render(itemDrive.getBaseColor(drive), i, 0, 0);
 				}
 			}
 		}
@@ -117,7 +136,7 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 				ItemStack drive = te.getDriveInSlot(i);
 				if (drive.getItem() instanceof ItemDrive) {
 					ItemDrive itemDrive = (ItemDrive)drive.getItem();
-					drawDriveBox(lit ? itemDrive.getFullnessColor(drive) : CoPo.proxy.getColor("other", 48), i, 0, 0.5f);
+					pbr.render(lit ? itemDrive.getFullnessColor(drive) : CoPo.proxy.getColor("other", 48), i, 0, 0.5f);
 				}
 			}
 		}
@@ -129,7 +148,7 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 				ItemStack drive = te.getDriveInSlot(i);
 				if (drive.getItem() instanceof ItemDrive) {
 					ItemDrive itemDrive = (ItemDrive)drive.getItem();
-					drawDriveBox(itemDrive.getTierColor(drive), i, 0.5f, 0);
+					pbr.render(itemDrive.getTierColor(drive), i, 0.5f, 0);
 				}
 			}
 		}
@@ -197,121 +216,6 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 			}
 		}
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, oldX, oldY);
-	}
-	public static void drawDriveBox(int color, int slot, float u, float v) {
-		int r = (color >> 16) & 0xFF;
-		int g = (color >> 8) & 0xFF;
-		int b = color & 0xFF;
-		int a = 255;
-
-		float x = 3/16f;
-		float y = 2/16f;
-		float z = 0/16f;
-
-		float w = 4/16f;
-		float h = 2/16f;
-		float d = 1/16f;
-
-		int renderSlot = 7-slot;
-		y += (renderSlot/2)*(3/16f);
-		x += (renderSlot%2)*(6/16f);
-
-		float antiBleed = 0.0001f;
-		float m = 0.001f; // meld
-
-		Tessellator tess = Tessellator.getInstance();
-		VertexBuffer wr = tess.getBuffer();
-
-		{
-			// Right
-			float minU = u+(5/12f);
-			float maxU = u+(6/12f);
-
-			float minV = v+(1/8f);
-			float maxV = v+(3/8f);
-
-			minU += antiBleed;
-			maxU -= antiBleed;
-			minV += antiBleed;
-			maxV -= antiBleed;
-
-			wr.pos(x  , y  , z+m).tex(minU, maxV).color(r, g, b, a).normal(-1, 0, 0).endVertex();
-			wr.pos(x  , y+h, z+m).tex(minU, minV).color(r, g, b, a).normal(-1, 0, 0).endVertex();
-			wr.pos(x  , y+h, z-d).tex(maxU, minV).color(r, g, b, a).normal(-1, 0, 0).endVertex();
-			wr.pos(x  , y  , z-d).tex(maxU, maxV).color(r, g, b, a).normal(-1, 0, 0).endVertex();
-		}
-		{
-			// Front
-			float minU = u+(1/12f);
-			float maxU = u+(5/12f);
-
-			float minV = v+(1/8f);
-			float maxV = v+(3/8f);
-
-			minU += antiBleed;
-			maxU -= antiBleed;
-			minV += antiBleed;
-			maxV -= antiBleed;
-
-			wr.pos(x  , y  , z-d).tex(maxU, maxV).color(r, g, b, a).normal(0, 0, -1).endVertex();
-			wr.pos(x  , y+h, z-d).tex(maxU, minV).color(r, g, b, a).normal(0, 0, -1).endVertex();
-			wr.pos(x+w, y+h, z-d).tex(minU, minV).color(r, g, b, a).normal(0, 0, -1).endVertex();
-			wr.pos(x+w, y  , z-d).tex(minU, maxV).color(r, g, b, a).normal(0, 0, -1).endVertex();
-		}
-		{
-			// Left
-			float minU = u+(0/12f);
-			float maxU = u+(1/12f);
-
-			float minV = v+(1/8f);
-			float maxV = v+(3/8f);
-
-			minU += antiBleed;
-			maxU -= antiBleed;
-			minV += antiBleed;
-			maxV -= antiBleed;
-
-			wr.pos(x+w, y  , z-d).tex(maxU, maxV).color(r, g, b, a).normal(1, 0, 0).endVertex();
-			wr.pos(x+w, y+h, z-d).tex(maxU, minV).color(r, g, b, a).normal(1, 0, 0).endVertex();
-			wr.pos(x+w, y+h, z+m).tex(minU, minV).color(r, g, b, a).normal(1, 0, 0).endVertex();
-			wr.pos(x+w, y  , z+m).tex(minU, maxV).color(r, g, b, a).normal(1, 0, 0).endVertex();
-		}
-		{
-			// Top
-			float minU = u+(1/12f);
-			float maxU = u+(5/12f);
-
-			float minV = v+(0/8f);
-			float maxV = v+(1/8f);
-
-			minU += antiBleed;
-			maxU -= antiBleed;
-			minV += antiBleed;
-			maxV -= antiBleed;
-
-			wr.pos(x+w, y+h, z+m).tex(minU, minV).color(r, g, b, a).normal(0, 1, 0).endVertex();
-			wr.pos(x+w, y+h, z-d).tex(minU, maxV).color(r, g, b, a).normal(0, 1, 0).endVertex();
-			wr.pos(x  , y+h, z-d).tex(maxU, maxV).color(r, g, b, a).normal(0, 1, 0).endVertex();
-			wr.pos(x  , y+h, z+m).tex(maxU, minV).color(r, g, b, a).normal(0, 1, 0).endVertex();
-		}
-		{
-			// Bottom
-			float minU = u+(1/12f);
-			float maxU = u+(5/12f);
-
-			float minV = v+(3/8f);
-			float maxV = v+(4/8f);
-
-			minU += antiBleed;
-			maxU -= antiBleed;
-			minV += antiBleed;
-			maxV -= antiBleed;
-
-			wr.pos(x  , y  , z+m).tex(maxU, minV).color(r, g, b, a).normal(0, 1, 0).endVertex();
-			wr.pos(x  , y  , z-d).tex(maxU, maxV).color(r, g, b, a).normal(0, 1, 0).endVertex();
-			wr.pos(x+w, y  , z-d).tex(minU, maxV).color(r, g, b, a).normal(0, 1, 0).endVertex();
-			wr.pos(x+w, y  , z+m).tex(minU, minV).color(r, g, b, a).normal(0, 1, 0).endVertex();
-		}
 	}
 
 }

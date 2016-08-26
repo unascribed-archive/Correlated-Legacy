@@ -14,7 +14,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -113,12 +112,8 @@ public class BlockDriveBay extends Block {
 				} else {
 					if (inHand != null && inHand.getItem() instanceof ItemDrive) {
 						if (!world.isRemote) {
-							tedb.setDriveInSlot(slot, inHand);
-							if (hand == EnumHand.MAIN_HAND) {
-								player.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, null);
-							} else {
-								player.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, null);
-							}
+							tedb.setDriveInSlot(slot, inHand.copy());
+							inHand.stackSize = 0;
 						}
 						return true;
 					}

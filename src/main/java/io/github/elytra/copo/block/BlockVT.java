@@ -2,6 +2,7 @@ package io.github.elytra.copo.block;
 
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.helper.Blocks;
+import io.github.elytra.copo.item.ItemFloppy;
 import io.github.elytra.copo.tile.TileEntityNetworkMember;
 import io.github.elytra.copo.tile.TileEntityVT;
 import net.minecraft.block.Block;
@@ -12,6 +13,7 @@ import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -25,6 +27,7 @@ import net.minecraft.world.World;
 public class BlockVT extends Block {
 	public static final IProperty<EnumFacing> facing = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
 	public static final PropertyBool lit = PropertyBool.create("lit");
+	public static final PropertyBool floppy = PropertyBool.create("floppy");
 	
 	public BlockVT() {
 		super(Material.IRON);
@@ -42,20 +45,22 @@ public class BlockVT extends Block {
 
 	@Override
 	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, facing, lit);
+		return new BlockStateContainer(this, facing, lit, floppy);
 	}
 	
 	@Override
 	public int getMetaFromState(IBlockState state) {
 		return (state.getValue(facing).getHorizontalIndex() & 0b0011)
-				| (state.getValue(lit) ? 0b0100 : 0);
+				| (state.getValue(lit) ? 0b0100 : 0)
+				| (state.getValue(floppy) ? 0b1000 : 0);
 	}
 
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
 		return getDefaultState()
 				.withProperty(facing, EnumFacing.getHorizontal(meta&0b0011))
-				.withProperty(lit, (meta&0b0100) != 0);
+				.withProperty(lit, (meta&0b0100) != 0)
+				.withProperty(floppy, (meta&0b1000) != 0);
 	}
 
 	@Override
@@ -79,11 +84,47 @@ public class BlockVT extends Block {
 		}
 		if (!player.isSneaking()) {
 			TileEntity te = world.getTileEntity(pos);
-			if (te instanceof TileEntityNetworkMember) {
-				TileEntityNetworkMember tenm = (TileEntityNetworkMember)te;
-				if (tenm.hasStorage()) {
+			if (te instanceof TileEntityVT) {
+				TileEntityVT vt = (TileEntityVT)te;
+				if (side == state.getValue(facing)) {
+					float x;
+					float y = 1-hitY;
+					switch (side) {
+						case NORTH:
+							x = 1-hitX;
+							break;
+						case EAST:
+							x = 1-hitZ;
+							break;
+						case SOUTH:
+							x = hitX;
+							break;
+						case WEST:
+							x = hitZ;
+							break;
+						default:
+							x = 0;
+					}
+					if (withinRegion(x, y, 5, 13)) {
+						if (heldItem != null && heldItem.getItem() instanceof ItemFloppy) {
+							vt.setInventorySlotContents(1, heldItem.copy());
+							heldItem.stackSize = 0;
+							return true;
+						} else if (vt.getStackInSlot(1) != null) {
+							if (!world.isRemote) {
+								EntityItem ent = new EntityItem(world, pos.getX()+hitX+(side.getFrontOffsetX()*0.2),
+										pos.getY()+hitY+(side.getFrontOffsetY()*0.2), pos.getZ()+hitZ+(side.getFrontOffsetZ()*0.2));
+								ent.setEntityItemStack(vt.removeStackFromSlot(1));
+								ent.setNoPickupDelay();
+								world.spawnEntityInWorld(ent);
+							}
+							return true;
+						}
+					}
+				}
+				if (vt.hasStorage()) {
 					if (!world.isRemote) {
-						switch (world.getBlockState(tenm.getStorage().getPos()).getValue(BlockController.state)) {
+						switch (world.getBlockState(vt.getStorage().getPos()).getValue(BlockController.state)) {
 							case BOOTING:
 								player.addChatMessage(new TextComponentTranslation("msg.correlatedpotentialistics.vt_booting"));
 								break;
@@ -110,6 +151,11 @@ public class BlockVT extends Block {
 			return true;
 		}
 		return super.onBlockActivated(world, pos, state, player, hand, heldItem, side, hitX, hitY, hitZ);
+	}
+	
+	private boolean withinRegion(float x, float y, int regionX, int regionY) {
+		return x >= (regionX/16f) && x <= ((regionX+6)/16f)
+				&& y >= (regionY/16f) && y <= ((regionY+1)/16f);
 	}
 
 }

@@ -1,8 +1,7 @@
 package io.github.elytra.copo.entity.automaton;
 
-import java.nio.ByteBuffer;
-
 import io.github.elytra.copo.entity.EntityAutomaton;
+import io.netty.buffer.ByteBuf;
 
 public class OpcodeNOP extends Opcode {
 
@@ -11,6 +10,6 @@ public class OpcodeNOP extends Opcode {
 	}
 
 	@Override
-	public void execute(EntityAutomaton context, ByteBuffer arguments) {}
+	public void execute(EntityAutomaton context, ByteBuf arguments) {}
 
 }

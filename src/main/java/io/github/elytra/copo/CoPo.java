@@ -40,7 +40,9 @@ import io.github.elytra.copo.network.AutomatonSpeakMessage;
 import io.github.elytra.copo.network.CoPoGuiHandler;
 import io.github.elytra.copo.network.EnterDungeonMessage;
 import io.github.elytra.copo.network.LeaveDungeonMessage;
+import io.github.elytra.copo.network.SaveProgramMessage;
 import io.github.elytra.copo.network.SetAutomatonNameMessage;
+import io.github.elytra.copo.network.SetEditorStatusMessage;
 import io.github.elytra.copo.network.SetGlitchingStateMessage;
 import io.github.elytra.copo.network.SetSearchQueryMessage;
 import io.github.elytra.copo.network.SetSlotSizeMessage;
@@ -197,6 +199,8 @@ public class CoPo {
 		registerMessage(LeaveDungeonMessage.class, Side.SERVER);
 		registerMessage(AddStatusLineMessage.class, Side.CLIENT);
 		registerMessage(AutomatonSpeakMessage.class, Side.CLIENT);
+		registerMessage(SetEditorStatusMessage.class, Side.CLIENT);
+		registerMessage(SaveProgramMessage.class, Side.SERVER);
 
 		EntityRegistry.registerModEntity(EntityThrownItem.class, "thrown_item", 0, this, 64, 10, true);
 		EntityRegistry.registerModEntity(EntityAutomaton.class, "automaton", 1, this, 64, 1, true);
@@ -283,8 +287,9 @@ public class CoPo {
 	
 	private int discriminator = 0;
 	
-	private <T extends IMessage & IMessageHandler<T, IMessage>> void registerMessage(Class<T> msg, Side side) {
-		network.registerMessage(msg, msg, discriminator++, side);
+	private <T extends IMessage & IMessageHandler<T, ?>> void registerMessage(Class<T> msg, Side side) {
+		// I hate generics sometimes
+		network.registerMessage((Class)msg, (Class)msg, discriminator++, side);
 	}
 
 	@EventHandler

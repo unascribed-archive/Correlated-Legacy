@@ -13,14 +13,18 @@ import io.github.elytra.copo.item.ItemDrive;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.IInventoryChangedListener;
+import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.util.Constants.NBT;
 
-public class TileEntityVT extends TileEntityNetworkMember implements ITickable, IInventory, IVT {
+public class TileEntityVT extends TileEntityNetworkMember implements ITickable, IInventory, IVT, ISidedInventory {
 	private Map<UUID, UserPreferences> preferences = Maps.newHashMap();
 
 	@Override
@@ -35,21 +39,25 @@ public class TileEntityVT extends TileEntityNetworkMember implements ITickable, 
 					lit = false;
 				}
 				if (lit != state.getValue(BlockVT.lit)) {
-					getWorld().setBlockState(getPos(), state.withProperty(BlockVT.lit, lit));
+					getWorld().setBlockState(getPos(), state = state.withProperty(BlockVT.lit, lit));
 				}
+			}
+			boolean floppy = getStackInSlot(1) != null;
+			if (floppy != state.getValue(BlockVT.floppy)) {
+				getWorld().setBlockState(getPos(), state.withProperty(BlockVT.floppy, floppy));
 			}
 			
 			if (hasStorage()) {
 				TileEntityController controller = getStorage();
-				if (controller.isPowered() && !controller.error && !controller.booting && dumpDrive != null) {
-					if (dumpDrive.getItem() instanceof ItemDrive) {
-						ItemDrive id = (ItemDrive)dumpDrive.getItem();
-						List<ItemStack> prototypes = id.getPrototypes(dumpDrive);
+				if (controller.isPowered() && !controller.error && !controller.booting && getDumpDrive() != null) {
+					if (getDumpDrive().getItem() instanceof ItemDrive) {
+						ItemDrive id = (ItemDrive)getDumpDrive().getItem();
+						List<ItemStack> prototypes = id.getPrototypes(getDumpDrive());
 						int moved = 0;
 						while (moved < 100) {
 							if (prototypes.isEmpty()) break;
 							ItemStack prototype = prototypes.get(0);
-							ItemStack split = id.removeItems(dumpDrive, prototype, prototype.getMaxStackSize());
+							ItemStack split = id.removeItems(getDumpDrive(), prototype, prototype.getMaxStackSize());
 							if (split.stackSize == 0) {
 								prototypes.remove(0);
 								continue;
@@ -60,7 +68,7 @@ public class TileEntityVT extends TileEntityNetworkMember implements ITickable, 
 								// no more room for this item in the network, skip it this tick
 								prototypes.remove(0);
 								moved -= split.stackSize;
-								id.addItem(dumpDrive, split);
+								id.addItem(getDumpDrive(), split);
 							}
 						}
 					}
@@ -99,20 +107,21 @@ public class TileEntityVT extends TileEntityNetworkMember implements ITickable, 
 			prefs.appendTag(data);
 		}
 		compound.setTag("Preferences", prefs);
-		if (dumpDrive != null) {
-			compound.setTag("DumpDrive", dumpDrive.writeToNBT(new NBTTagCompound()));
+		NBTTagList invList = new NBTTagList();
+		for (int i = 0; i < inv.getSizeInventory(); i++) {
+			ItemStack is = getStackInSlot(i);
+			if (is == null) continue;
+			NBTTagCompound tag = is.writeToNBT(new NBTTagCompound());
+			tag.setInteger("Slot", i);
+			invList.appendTag(tag);
 		}
+		compound.setTag("Inventory", invList);
 		return compound;
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
-		if (compound.hasKey("DumpDrive", NBT.TAG_COMPOUND)) {
-			dumpDrive = ItemStack.loadItemStackFromNBT(compound.getCompoundTag("DumpDrive"));
-		} else {
-			dumpDrive = null;
-		}
 		NBTTagList prefs = compound.getTagList("Preferences", NBT.TAG_COMPOUND);
 		for (int i = 0; i < prefs.tagCount(); i++) {
 			UserPreferences pref = new UserPreferences();
@@ -120,98 +129,141 @@ public class TileEntityVT extends TileEntityNetworkMember implements ITickable, 
 			pref.readFromNBT(data);
 			preferences.put(new UUID(data.getLong("UUIDMost"), data.getLong("UUIDLeast")), pref);
 		}
+		inv.clear();
+		NBTTagList invList = compound.getTagList("Inventory", NBT.TAG_COMPOUND);
+		for (int i = 0; i < invList.tagCount(); i++) {
+			NBTTagCompound tag = invList.getCompoundTagAt(i);
+			ItemStack is = ItemStack.loadItemStackFromNBT(tag);
+			int slot = tag.getInteger("Slot");
+			setInventorySlotContents(slot, is);
+		}
 	}
 
-	private ItemStack dumpDrive;
+	public ItemStack getDumpDrive() {
+		return getStackInSlot(0);
+	}
 	
-	@Override
-	public String getName() {
-		return "container.vt";
+	private InventoryBasic inv = new InventoryBasic("container.vt", false, 2);
+
+	public void addInventoryChangeListener(IInventoryChangedListener listener) {
+		inv.addInventoryChangeListener(listener);
 	}
 
-	@Override
-	public boolean hasCustomName() {
-		return false;
-	}
-
-	@Override
-	public ITextComponent getDisplayName() {
-		return null;
-	}
-
-	@Override
-	public int getSizeInventory() {
-		return 1;
+	public void removeInventoryChangeListener(IInventoryChangedListener listener) {
+		inv.removeInventoryChangeListener(listener);
 	}
 
 	@Override
 	public ItemStack getStackInSlot(int index) {
-		if (index != 0) throw new IndexOutOfBoundsException();
-		return dumpDrive;
+		return inv.getStackInSlot(index);
 	}
 
 	@Override
 	public ItemStack decrStackSize(int index, int count) {
-		if (index != 0) throw new IndexOutOfBoundsException();
-		return dumpDrive.splitStack(count);
+		return inv.decrStackSize(index, count);
+	}
+
+	public ItemStack addItem(ItemStack stack) {
+		return inv.addItem(stack);
 	}
 
 	@Override
 	public ItemStack removeStackFromSlot(int index) {
-		if (index != 0) throw new IndexOutOfBoundsException();
-		ItemStack swp = dumpDrive;
-		dumpDrive = null;
-		return swp;
+		return inv.removeStackFromSlot(index);
 	}
 
 	@Override
 	public void setInventorySlotContents(int index, ItemStack stack) {
-		if (index != 0) throw new IndexOutOfBoundsException();
-		dumpDrive = stack;
+		inv.setInventorySlotContents(index, stack);
+	}
+
+	@Override
+	public int getSizeInventory() {
+		return inv.getSizeInventory();
+	}
+
+	@Override
+	public String getName() {
+		return inv.getName();
+	}
+
+	@Override
+	public boolean hasCustomName() {
+		return inv.hasCustomName();
+	}
+
+	public void setCustomName(String inventoryTitleIn) {
+		inv.setCustomName(inventoryTitleIn);
+	}
+
+	@Override
+	public ITextComponent getDisplayName() {
+		return inv.getDisplayName();
 	}
 
 	@Override
 	public int getInventoryStackLimit() {
-		return 1;
+		return inv.getInventoryStackLimit();
+	}
+
+	@Override
+	public void markDirty() {
+		inv.markDirty();
 	}
 
 	@Override
 	public boolean isUseableByPlayer(EntityPlayer player) {
-		return true;
+		return inv.isUseableByPlayer(player);
 	}
 
 	@Override
 	public void openInventory(EntityPlayer player) {
+		inv.openInventory(player);
 	}
 
 	@Override
 	public void closeInventory(EntityPlayer player) {
+		inv.closeInventory(player);
 	}
 
 	@Override
 	public boolean isItemValidForSlot(int index, ItemStack stack) {
-		if (index != 0) throw new IndexOutOfBoundsException();
-		return stack != null && stack.getItem() instanceof ItemDrive;
+		return inv.isItemValidForSlot(index, stack);
 	}
 
 	@Override
 	public int getField(int id) {
-		return 0;
+		return inv.getField(id);
 	}
 
 	@Override
 	public void setField(int id, int value) {
-		
+		inv.setField(id, value);
 	}
 
 	@Override
 	public int getFieldCount() {
-		return 0;
+		return inv.getFieldCount();
 	}
 
 	@Override
 	public void clear() {
-		dumpDrive = null;
+		inv.clear();
+	}
+
+	@Override
+	public int[] getSlotsForFace(EnumFacing side) {
+		return new int[0];
+	}
+
+	@Override
+	public boolean canInsertItem(int index, ItemStack itemStackIn, EnumFacing direction) {
+		return false;
+	}
+
+	@Override
+	public boolean canExtractItem(int index, ItemStack stack, EnumFacing direction) {
+		return false;
 	}
 
 	@Override
@@ -228,10 +280,12 @@ public class TileEntityVT extends TileEntityNetworkMember implements ITickable, 
 	public boolean canContinueInteracting(EntityPlayer player) {
 		return true;
 	}
-	
+
 	@Override
 	public void markUnderlyingStorageDirty() {
 		markDirty();
 	}
+	
+	
 
 }

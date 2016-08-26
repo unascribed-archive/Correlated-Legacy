@@ -4,6 +4,7 @@ import org.lwjgl.opengl.GL11;
 
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.block.BlockMemoryBay;
+import io.github.elytra.copo.client.render.ProtrudingBoxRenderer;
 import io.github.elytra.copo.item.ItemMemory;
 import io.github.elytra.copo.tile.TileEntityMemoryBay;
 import net.minecraft.block.state.IBlockState;
@@ -47,6 +48,23 @@ public class RenderMemoryBay extends TileEntitySpecialRenderer<TileEntityMemoryB
 		@Override protected void readEntityFromNBT(NBTTagCompound tagCompund) { }
 		@Override protected void entityInit() { }
 	};
+	public static final ProtrudingBoxRenderer pbr = new ProtrudingBoxRenderer()
+			.slotCount(12)
+			.columns(2)
+			
+			.width(4)
+			.height(1)
+			.depth(1)
+			
+			.textureWidth(6)
+			.textureHeight(6)
+			
+			.x(3)
+			.y(2)
+			.z(0)
+			
+			.xPadding(2)
+			.yPadding(1);
 	@Override
 	public void renderTileEntityAt(TileEntityMemoryBay te, double x, double y, double z, float partialTicks, int destroyStage) {
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
@@ -94,7 +112,7 @@ public class RenderMemoryBay extends TileEntitySpecialRenderer<TileEntityMemoryB
 			if (te.hasMemoryInSlot(i)) {
 				ItemStack memory = te.getMemoryInSlot(i);
 				if (memory.getItem() instanceof ItemMemory) {
-					drawMemoryBox(-1, i, 0, 0);
+					pbr.render(-1, i, 0, 0);
 				}
 			}
 		}
@@ -113,7 +131,7 @@ public class RenderMemoryBay extends TileEntitySpecialRenderer<TileEntityMemoryB
 				ItemStack memory = te.getMemoryInSlot(i);
 				if (memory.getItem() instanceof ItemMemory) {
 					ItemMemory itemMemory = (ItemMemory)memory.getItem();
-					drawMemoryBox(itemMemory.getTierColor(memory), i, 0f, 0.5f);
+					pbr.render(itemMemory.getTierColor(memory), i, 0f, 0.5f);
 				}
 			}
 		}
@@ -181,121 +199,6 @@ public class RenderMemoryBay extends TileEntitySpecialRenderer<TileEntityMemoryB
 			}
 		}
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, oldX, oldY);
-	}
-	public static void drawMemoryBox(int color, int slot, float u, float v) {
-		int r = (color >> 16) & 0xFF;
-		int g = (color >> 8) & 0xFF;
-		int b = color & 0xFF;
-		int a = 255;
-
-		float x = 3/16f;
-		float y = 2/16f;
-		float z = 0/16f;
-
-		float w = 4/16f;
-		float h = 1/16f;
-		float d = 1/16f;
-
-		int renderSlot = 11-slot;
-		y += (renderSlot/2)*(2/16f);
-		x += (renderSlot%2)*(6/16f);
-
-		float antiBleed = 0.0001f;
-		float m = 0.001f; // meld
-
-		Tessellator tess = Tessellator.getInstance();
-		VertexBuffer wr = tess.getBuffer();
-
-		{
-			// Right
-			float minU = u+(5/6f);
-			float maxU = u+(6/6f);
-
-			float minV = v+(1/6f);
-			float maxV = v+(2/6f);
-
-			minU += antiBleed;
-			maxU -= antiBleed;
-			minV += antiBleed;
-			maxV -= antiBleed;
-
-			wr.pos(x  , y  , z+m).tex(minU, maxV).color(r, g, b, a).normal(-1, 0, 0).endVertex();
-			wr.pos(x  , y+h, z+m).tex(minU, minV).color(r, g, b, a).normal(-1, 0, 0).endVertex();
-			wr.pos(x  , y+h, z-d).tex(maxU, minV).color(r, g, b, a).normal(-1, 0, 0).endVertex();
-			wr.pos(x  , y  , z-d).tex(maxU, maxV).color(r, g, b, a).normal(-1, 0, 0).endVertex();
-		}
-		{
-			// Front
-			float minU = u+(1/6f);
-			float maxU = u+(5/6f);
-
-			float minV = v+(1/6f);
-			float maxV = v+(2/6f);
-
-			minU += antiBleed;
-			maxU -= antiBleed;
-			minV += antiBleed;
-			maxV -= antiBleed;
-
-			wr.pos(x  , y  , z-d).tex(maxU, maxV).color(r, g, b, a).normal(0, 0, -1).endVertex();
-			wr.pos(x  , y+h, z-d).tex(maxU, minV).color(r, g, b, a).normal(0, 0, -1).endVertex();
-			wr.pos(x+w, y+h, z-d).tex(minU, minV).color(r, g, b, a).normal(0, 0, -1).endVertex();
-			wr.pos(x+w, y  , z-d).tex(minU, maxV).color(r, g, b, a).normal(0, 0, -1).endVertex();
-		}
-		{
-			// Left
-			float minU = u+(0/6f);
-			float maxU = u+(1/6f);
-
-			float minV = v+(1/6f);
-			float maxV = v+(2/6f);
-
-			minU += antiBleed;
-			maxU -= antiBleed;
-			minV += antiBleed;
-			maxV -= antiBleed;
-
-			wr.pos(x+w, y  , z-d).tex(maxU, maxV).color(r, g, b, a).normal(1, 0, 0).endVertex();
-			wr.pos(x+w, y+h, z-d).tex(maxU, minV).color(r, g, b, a).normal(1, 0, 0).endVertex();
-			wr.pos(x+w, y+h, z+m).tex(minU, minV).color(r, g, b, a).normal(1, 0, 0).endVertex();
-			wr.pos(x+w, y  , z+m).tex(minU, maxV).color(r, g, b, a).normal(1, 0, 0).endVertex();
-		}
-		{
-			// Top
-			float minU = u+(1/6f);
-			float maxU = u+(5/6f);
-
-			float minV = v+(0/6f);
-			float maxV = v+(1/6f);
-
-			minU += antiBleed;
-			maxU -= antiBleed;
-			minV += antiBleed;
-			maxV -= antiBleed;
-
-			wr.pos(x+w, y+h, z+m).tex(minU, minV).color(r, g, b, a).normal(0, 1, 0).endVertex();
-			wr.pos(x+w, y+h, z-d).tex(minU, maxV).color(r, g, b, a).normal(0, 1, 0).endVertex();
-			wr.pos(x  , y+h, z-d).tex(maxU, maxV).color(r, g, b, a).normal(0, 1, 0).endVertex();
-			wr.pos(x  , y+h, z+m).tex(maxU, minV).color(r, g, b, a).normal(0, 1, 0).endVertex();
-		}
-		{
-			// Bottom
-			float minU = u+(1/6f);
-			float maxU = u+(5/6f);
-
-			float minV = v+(2/6f);
-			float maxV = v+(3/6f);
-
-			minU += antiBleed;
-			maxU -= antiBleed;
-			minV += antiBleed;
-			maxV -= antiBleed;
-
-			wr.pos(x  , y  , z+m).tex(maxU, minV).color(r, g, b, a).normal(0, 1, 0).endVertex();
-			wr.pos(x  , y  , z-d).tex(maxU, maxV).color(r, g, b, a).normal(0, 1, 0).endVertex();
-			wr.pos(x+w, y  , z-d).tex(minU, maxV).color(r, g, b, a).normal(0, 1, 0).endVertex();
-			wr.pos(x+w, y  , z+m).tex(minU, minV).color(r, g, b, a).normal(0, 1, 0).endVertex();
-		}
 	}
 
 }
