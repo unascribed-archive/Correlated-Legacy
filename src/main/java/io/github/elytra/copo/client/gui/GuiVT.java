@@ -7,7 +7,6 @@ import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.client.IBMFontRenderer;
 import io.github.elytra.copo.client.gui.shell.GuiVTShell;
 import io.github.elytra.copo.helper.Numbers;
@@ -16,7 +15,7 @@ import io.github.elytra.copo.inventory.ContainerVT.CraftingAmount;
 import io.github.elytra.copo.inventory.ContainerVT.CraftingTarget;
 import io.github.elytra.copo.inventory.ContainerVT.SlotVirtual;
 import io.github.elytra.copo.inventory.ContainerVT.SortMode;
-import io.github.elytra.copo.network.SetSearchQueryMessage;
+import io.github.elytra.copo.network.SetSearchQueryServerMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
@@ -275,7 +274,7 @@ public class GuiVT extends GuiContainer {
 		}
 		ticksSinceLastQueryChange++;
 		if (ticksSinceLastQueryChange == 4) {
-			CoPo.inst.network.sendToServer(new SetSearchQueryMessage(container.windowId, lastSearchQuery));
+			new SetSearchQueryServerMessage(container.windowId, lastSearchQuery).sendToServer();
 		}
 	}
 

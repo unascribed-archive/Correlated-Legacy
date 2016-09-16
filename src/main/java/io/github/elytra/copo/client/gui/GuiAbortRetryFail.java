@@ -2,7 +2,6 @@ package io.github.elytra.copo.client.gui;
 
 import java.io.IOException;
 
-import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.client.IBMFontRenderer;
 import io.github.elytra.copo.network.LeaveDungeonMessage;
 import net.minecraft.client.gui.GuiGameOver;
@@ -59,7 +58,7 @@ public class GuiAbortRetryFail extends GuiGameOver {
 				this.mc.thePlayer.respawnPlayer();
 				this.mc.displayGuiScreen((GuiScreen) null);
 			} else if (typedChar == 'a' || typedChar == 'A') {
-				CoPo.inst.network.sendToServer(new LeaveDungeonMessage());
+				new LeaveDungeonMessage().sendToServer();
 				this.mc.thePlayer.respawnPlayer();
 				this.mc.displayGuiScreen((GuiScreen) null);
 			}

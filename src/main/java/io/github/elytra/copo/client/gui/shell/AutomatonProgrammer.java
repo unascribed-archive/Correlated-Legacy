@@ -11,10 +11,12 @@ import io.github.elytra.copo.client.IBMFontRenderer;
 import io.github.elytra.copo.entity.automaton.Opcode;
 import io.github.elytra.copo.item.ItemFloppy;
 import io.github.elytra.copo.network.SaveProgramMessage;
-import io.netty.buffer.Unpooled;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraftforge.common.util.Constants.NBT;
 
 public class AutomatonProgrammer extends Program {
@@ -47,12 +49,19 @@ public class AutomatonProgrammer extends Program {
 		if (parent.container.floppySlot != null) {
 			ItemStack floppy = parent.container.floppySlot.getStack();
 			if (floppy != null) {
-				if (floppy.hasTagCompound() && floppy.getTagCompound().hasKey("SourceCode", NBT.TAG_BYTE_ARRAY)) {
-					byte[] bys = floppy.getTagCompound().getByteArray("SourceCode");
-					SaveProgramMessage msg = new SaveProgramMessage();
-					msg.fromBytes(Unpooled.wrappedBuffer(bys));
-					opcodes = msg.opcodes;
-					arguments = msg.arguments;
+				if (floppy.hasTagCompound() && floppy.getTagCompound().hasKey("SourceCode", NBT.TAG_LIST)) {
+					NBTTagList src = floppy.getTagCompound().getTagList("SourceCode", NBT.TAG_COMPOUND);
+					System.out.println(src);
+					for (int i = 0; i < src.tagCount(); i++) {
+						NBTTagCompound tag = src.getCompoundTagAt(i);
+						opcodes.add(tag.getString("Opcode"));
+						List<String> argsList = Lists.newArrayList();
+						NBTTagList args = tag.getTagList("Arguments", NBT.TAG_STRING);
+						for (int j = 0; j < args.tagCount(); j++) {
+							argsList.add(((NBTTagString)args.get(j)).getString());
+						}
+						arguments.add(argsList);
+					}
 				}
 				if (floppy.getItem() instanceof ItemFloppy) {
 					if (((ItemFloppy)floppy.getItem()).isWriteProtected(floppy)) {
@@ -314,7 +323,7 @@ public class AutomatonProgrammer extends Program {
 			if (keyCode == Keyboard.KEY_Y) {
 				status = "Saving...";
 				statusTicks = -1;
-				CoPo.inst.network.sendToServer(new SaveProgramMessage(opcodes, arguments));
+				new SaveProgramMessage(opcodes, arguments).sendToServer();
 			} else if (keyCode == Keyboard.KEY_N) {
 				parent.program = new CommandInterpreter(parent);
 			} else if (GuiScreen.isCtrlKeyDown() && keyCode == Keyboard.KEY_C) {
@@ -348,10 +357,12 @@ public class AutomatonProgrammer extends Program {
 					cutOpcode = opcodes.remove(cursorRow);
 					cutArguments = arguments.remove(cursorRow);
 				}
+				dirty = true;
 			} else if (keyCode == Keyboard.KEY_U) {
 				opcodes.add(cursorRow, cutOpcode);
 				arguments.add(cursorRow, cutArguments);
 				cursorRow++;
+				dirty = true;
 			} else if (keyCode == Keyboard.KEY_X) {
 				if (dirty) {
 					confirmExit = true;
@@ -367,7 +378,7 @@ public class AutomatonProgrammer extends Program {
 			} else if (keyCode == Keyboard.KEY_O) {
 				status = "Saving...";
 				statusTicks = -1;
-				CoPo.inst.network.sendToServer(new SaveProgramMessage(opcodes, arguments));
+				new SaveProgramMessage(opcodes, arguments).sendToServer();
 			}
 		} else if (cursorField == 0) {
 			if (Character.isAlphabetic(typedChar) || Character.isDigit(typedChar) || keyCode == Keyboard.KEY_BACK) {

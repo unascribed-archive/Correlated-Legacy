@@ -189,7 +189,7 @@ public class LimboProvider extends WorldProvider {
 			int dZ = (int)Math.floor((player.posZ/Dungeon.NODE_SIZE)/Dungeon.DUNGEON_SIZE);
 			if (dX != en.getValue().x || dZ != en.getValue().y) {
 				// mess with them a bit
-				CoPo.inst.network.sendTo(new SetGlitchingStateMessage(GlitchState.CORRUPTING), player);
+				new SetGlitchingStateMessage(GlitchState.CORRUPTING).sendTo(player);;
 				en.getKey().attackEntityFrom(constraint_violation, 75000);
 				en.getKey().setDead(); // just in case
 			}

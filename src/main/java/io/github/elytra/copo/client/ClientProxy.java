@@ -23,6 +23,7 @@ import javax.imageio.ImageIO;
 
 import org.lwjgl.opengl.GL11;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -58,14 +59,23 @@ import net.minecraft.client.audio.Sound;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundList;
 import net.minecraft.client.audio.Sound.Type;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.GlStateManager.DestFactor;
+import net.minecraft.client.renderer.GlStateManager.SourceFactor;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.color.IItemColor;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.IReloadableResourceManager;
@@ -73,13 +83,17 @@ import net.minecraft.client.resources.IResource;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ScreenShotHelper;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.event.sound.PlaySoundEvent;
 import net.minecraftforge.client.event.sound.SoundLoadEvent;
@@ -473,10 +487,15 @@ public class ClientProxy extends Proxy {
 			GlStateManager.enableDepth();
 		}
 	}
+	
+	
 	@SubscribeEvent
 	public void onStitch(TextureStitchEvent.Pre e) {
 		e.getMap().registerSprite(new ResourceLocation("correlatedpotentialistics", "blocks/wireless_endpoint_error"));
 		e.getMap().registerSprite(new ResourceLocation("correlatedpotentialistics", "blocks/wireless_endpoint_linked"));
+		e.getMap().registerSprite(new ResourceLocation("correlatedpotentialistics", "items/wireless_vt_glow"));
+		e.getMap().registerSprite(new ResourceLocation("correlatedpotentialistics", "items/doc_tablet_glow"));
+		e.getMap().registerSprite(new ResourceLocation("correlatedpotentialistics", "items/keycard_glow"));
 	}
 	@SubscribeEvent
 	public void onSoundLoad(SoundLoadEvent e) {
@@ -497,5 +516,152 @@ public class ClientProxy extends Proxy {
 				ex.printStackTrace();
 			}
 		}
+	}
+	
+	@SubscribeEvent
+	public void onRenderHand(RenderSpecificHandEvent e) {
+		if (e.getItemStack() != null) {
+			Item item = e.getItemStack().getItem();
+			if (item != CoPo.wireless_terminal
+					&& item != CoPo.drive
+					&& item != CoPo.memory
+					&& item != CoPo.keycard) return;
+			Minecraft mc = Minecraft.getMinecraft();
+			
+			AbstractClientPlayer p = mc.thePlayer;
+			EnumHand hand = e.getHand();
+			ItemRenderer ir = mc.getItemRenderer();
+			
+			boolean isMain = (hand == EnumHand.MAIN_HAND);
+			EnumHandSide handSide = isMain ? p.getPrimaryHand() : p.getPrimaryHand().opposite();
+			
+			float prevEquippedProgress;
+			float equippedProgress;
+			
+			if (isMain) {
+				prevEquippedProgress = ir.prevEquippedProgressMainHand;
+				equippedProgress = ir.equippedProgressMainHand;
+			} else {
+				prevEquippedProgress = ir.prevEquippedProgressOffHand;
+				equippedProgress = ir.equippedProgressOffHand;
+			}
+			
+			float partialTicks = e.getPartialTicks();
+			
+			float swingProgress = p.getSwingProgress(partialTicks);
+			EnumHand swingingHand = Objects.firstNonNull(p.swingingHand, EnumHand.MAIN_HAND);
+			
+			float interpPitch = p.prevRotationPitch + (p.rotationPitch - p.prevRotationPitch) * partialTicks;
+			float interpYaw = p.prevRotationYaw + (p.rotationYaw - p.prevRotationYaw) * partialTicks;
+			
+			float swing = swingingHand == hand ? swingProgress : 0.0F;
+			float equip = 1.0F - (prevEquippedProgress + (equippedProgress - prevEquippedProgress) * partialTicks);
+			
+			ir.rotateArroundXAndY(interpPitch, interpYaw);
+			ir.setLightmap();
+			ir.rotateArm(partialTicks);
+			GlStateManager.enableRescaleNormal();
+
+			ir.renderItemInFirstPerson(p, partialTicks, interpPitch, hand, swing, e.getItemStack(), equip);
+			
+			TransformType transform = (handSide == EnumHandSide.RIGHT ? TransformType.FIRST_PERSON_RIGHT_HAND : TransformType.FIRST_PERSON_LEFT_HAND);
+			
+			IBakedModel model = mc.getRenderItem().getItemModelWithOverrides(e.getItemStack(), mc.theWorld, p);
+			
+			GlStateManager.pushMatrix();
+				float f = -0.4F * MathHelper.sin(MathHelper.sqrt_float(swing) * (float) Math.PI);
+				float f1 = 0.2F * MathHelper.sin(MathHelper.sqrt_float(swing) * ((float) Math.PI * 2F));
+				float f2 = -0.2F * MathHelper.sin(swing * (float) Math.PI);
+				int i = isMain ? 1 : -1;
+				GlStateManager.translate(i * f, f1, f2);
+				ir.transformSideFirstPerson(handSide, equip);
+				ir.transformFirstPerson(handSide, swing);
+				ForgeHooksClient.handleCameraTransforms(model, transform, handSide == EnumHandSide.LEFT);
+				GlStateManager.disableCull();
+				GlStateManager.translate(-0.5f, 0.5f, 0.03225f);
+				GlStateManager.scale(1, -1, 1);
+				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
+				GL11.glDisable(GL11.GL_LIGHTING);
+				GlStateManager.enableBlend();
+				GlStateManager.disableAlpha();
+				GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+				if (item == CoPo.wireless_terminal) {
+					drawSprite(mc.getTextureMapBlocks().getAtlasSprite("correlatedpotentialistics:items/wireless_vt_glow"));
+				} else if (item == CoPo.drive) {
+					TextureAtlasSprite fullness = mc.getTextureMapBlocks().getAtlasSprite("correlatedpotentialistics:items/drive_fullness_light");
+					TextureAtlasSprite tier = mc.getTextureMapBlocks().getAtlasSprite("correlatedpotentialistics:items/drive_tier_light");
+					TextureAtlasSprite partition = mc.getTextureMapBlocks().getAtlasSprite("correlatedpotentialistics:items/drive_partition_light");
+					TextureAtlasSprite priority_left = mc.getTextureMapBlocks().getAtlasSprite("correlatedpotentialistics:items/drive_priority_light_left");
+					TextureAtlasSprite priority_mid = mc.getTextureMapBlocks().getAtlasSprite("correlatedpotentialistics:items/drive_priority_light_middle");
+					TextureAtlasSprite priority_right = mc.getTextureMapBlocks().getAtlasSprite("correlatedpotentialistics:items/drive_priority_light_right");
+					
+					int uncolored;
+					if (e.getItemStack().getItemDamage() == 4) {
+						uncolored = getColor("other", 32);
+					} else {
+						uncolored = getColor("other", 48);
+					}
+					
+					int priorityLeftColor = mc.getItemColors().getColorFromItemstack(e.getItemStack(), 4);
+					int priorityMidColor = mc.getItemColors().getColorFromItemstack(e.getItemStack(), 5);
+					int priorityRightColor = mc.getItemColors().getColorFromItemstack(e.getItemStack(), 6);
+					
+					color(mc.getItemColors().getColorFromItemstack(e.getItemStack(), 1));
+					drawSprite(fullness);
+					
+					color(mc.getItemColors().getColorFromItemstack(e.getItemStack(), 2));
+					drawSprite(tier);
+					
+					color(mc.getItemColors().getColorFromItemstack(e.getItemStack(), 3));
+					drawSprite(partition);
+					
+					if (priorityLeftColor != uncolored) {
+						color(priorityLeftColor);
+						drawSprite(priority_left);
+					}
+					if (priorityMidColor != uncolored) {
+						color(priorityMidColor);
+						drawSprite(priority_mid);
+					}
+					if (priorityRightColor != uncolored) {
+						color(priorityRightColor);
+						drawSprite(priority_right);
+					}
+				} else if (item == CoPo.memory) {
+					TextureAtlasSprite tier = mc.getTextureMapBlocks().getAtlasSprite("correlatedpotentialistics:items/ram_tier_light");
+					color(mc.getItemColors().getColorFromItemstack(e.getItemStack(), 1));
+					drawSprite(tier);
+				} else if (item == CoPo.keycard) {
+					drawSprite(mc.getTextureMapBlocks().getAtlasSprite("correlatedpotentialistics:items/keycard_glow"));
+				}
+				GL11.glEnable(GL11.GL_LIGHTING);
+				GlStateManager.enableLighting();
+				GlStateManager.disableBlend();
+				GlStateManager.enableAlpha();
+				ir.setLightmap();
+				GlStateManager.enableCull();
+			GlStateManager.popMatrix();
+			
+			GlStateManager.disableRescaleNormal();
+			RenderHelper.disableStandardItemLighting();
+			
+		}
+	}
+	private void color(int packed) {
+		GlStateManager.color(((packed >> 16) & 0xFF)/255f, ((packed >> 8) & 0xFF)/255f, (packed&0xFF)/255f);
+	}
+	public void drawSprite(TextureAtlasSprite tas) {
+		float minU = tas.getMinU();
+		float minV = tas.getMinV();
+		float maxU = tas.getMaxU();
+		float maxV = tas.getMaxV();
+		Tessellator tess = Tessellator.getInstance();
+		VertexBuffer vb = tess.getBuffer();
+		vb.begin(GL11.GL_QUAD_STRIP, DefaultVertexFormats.POSITION_TEX);
+		vb.pos(0, 0, 0).tex(minU, minV).endVertex();
+		vb.pos(1, 0, 0).tex(maxU, minV).endVertex();
+		vb.pos(0, 1, 0).tex(minU, maxV).endVertex();
+		vb.pos(1, 1, 0).tex(maxU, maxV).endVertex();
+		tess.draw();
 	}
 }

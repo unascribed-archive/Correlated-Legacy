@@ -42,23 +42,30 @@ public class IBMFontRenderer {
 	public static final int DIM_WHITE = 0xFFA8A8A8;
 	
 	public static void drawStringInverseVideo(int x, int y, String str, int color) {
-		// this is not copied from vanilla, to be clear
-		// this is just black magic
+		// this is kind of magic, so I'll explain it for anyone who happens to
+		// be reading this that is curious
 		GlStateManager.enableDepth();
 		
+			// enable depth writes
 			GlStateManager.depthMask(true);
+			// disable color writes
 			GlStateManager.colorMask(false, false, false, false);
 			
 			GlStateManager.pushMatrix();
+				// draw the text with a high depth value into the depth buffer
 				GlStateManager.translate(0, 0, 1);
 				drawString(x, y, str, 0);
 			GlStateManager.popMatrix();
 			
+			// disable depth writes
 			GlStateManager.depthMask(false);
+			// enable color writes
 			GlStateManager.colorMask(true, true, true, true);
 			
 			GlStateManager.pushMatrix();
 				GlStateManager.scale(0.5f, 0.5f, 1);
+				// due to depth test, the parts of the rectangle that are
+				// "behind" our invisible text will not be rendered 
 				Gui.drawRect(x*2, y*2, (x*2)+(str.length()*9), (y*2)+16, color);
 			GlStateManager.popMatrix();
 			
@@ -74,7 +81,7 @@ public class IBMFontRenderer {
 		for (int i = 0; i < str.length(); i++) {
 			char c = str.charAt(i);
 			if (substitutes.containsKey(c)) {
-				//c = substitutes.get(c);
+				c = substitutes.get(c);
 			}
 			int pos = CP437.indexOf(c);
 			if (pos == -1) continue;

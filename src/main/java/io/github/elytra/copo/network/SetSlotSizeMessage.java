@@ -1,57 +1,49 @@
 package io.github.elytra.copo.network;
 
-import io.netty.buffer.ByteBuf;
+import io.github.elytra.concrete.Message;
+import io.github.elytra.concrete.NetworkContext;
+import io.github.elytra.concrete.annotation.field.MarshalledAs;
+import io.github.elytra.concrete.annotation.type.ReceivedOn;
+import io.github.elytra.copo.CoPo;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class SetSlotSizeMessage implements IMessage, IMessageHandler<SetSlotSizeMessage, IMessage> {
+@ReceivedOn(Side.CLIENT)
+public class SetSlotSizeMessage extends Message {
+	@MarshalledAs("i32")
 	public int windowId;
+	@MarshalledAs("i32")
 	public int slot;
+	@MarshalledAs("i32")
 	public int slotSize;
 
-	public SetSlotSizeMessage() {}
+	public SetSlotSizeMessage(NetworkContext ctx) {
+		super(ctx);
+	}
 	public SetSlotSizeMessage(int windowId, int slot, int slotSize) {
+		super(CoPo.inst.network);
 		this.windowId = windowId;
 		this.slot = slot;
 		this.slotSize = slotSize;
 	}
 
 	@Override
-	public void fromBytes(ByteBuf buf) {
-		windowId = buf.readInt();
-		slot = buf.readInt();
-		slotSize = buf.readInt();
-	}
-
-	@Override
-	public void toBytes(ByteBuf buf) {
-		buf.writeInt(windowId);
-		buf.writeInt(slot);
-		buf.writeInt(slotSize);
-	}
-
-	@Override
 	@SideOnly(Side.CLIENT)
-	public IMessage onMessage(SetSlotSizeMessage message, MessageContext ctx) {
-		Minecraft.getMinecraft().addScheduledTask(() -> {
-			Container c = Minecraft.getMinecraft().thePlayer.openContainer;
-			if (c.windowId == message.windowId) {
-				Slot slot = c.getSlot(message.slot);
-				ItemStack stack = slot.getStack();
-				if (stack != null) {
-					stack.stackSize = message.slotSize;
-				}
-				slot.putStack(stack);
+	protected void handle(EntityPlayer sender) {
+		Container c = Minecraft.getMinecraft().thePlayer.openContainer;
+		if (c.windowId == windowId) {
+			Slot s = c.getSlot(slot);
+			ItemStack stack = s.getStack();
+			if (stack != null) {
+				stack.stackSize = slotSize;
 			}
-		});
-		return null;
+			s.putStack(stack);
+		}
 	}
 
 }

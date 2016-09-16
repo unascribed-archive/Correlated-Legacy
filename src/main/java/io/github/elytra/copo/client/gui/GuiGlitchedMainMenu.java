@@ -37,7 +37,7 @@ public class GuiGlitchedMainMenu extends GuiScreen {
 			this.drawTexturedModalRect(j + 155 + glitch, k + i*stripeSize, 0, 45+i*stripeSize, 155, stripeSize);
 		}
 		if (ClientProxy.glitchTicks >= 80) {
-			CoPo.inst.network.sendToServer(new EnterDungeonMessage());
+			new EnterDungeonMessage().sendToServer();
 			Minecraft.getMinecraft().displayGuiScreen(null);
 			ClientProxy.glitchTicks = -1;
 		}

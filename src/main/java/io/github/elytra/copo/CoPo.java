@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
+import io.github.elytra.concrete.NetworkContext;
 import io.github.elytra.copo.block.BlockController;
 import io.github.elytra.copo.block.BlockDriveBay;
 import io.github.elytra.copo.block.BlockInterface;
@@ -44,7 +45,8 @@ import io.github.elytra.copo.network.SaveProgramMessage;
 import io.github.elytra.copo.network.SetAutomatonNameMessage;
 import io.github.elytra.copo.network.SetEditorStatusMessage;
 import io.github.elytra.copo.network.SetGlitchingStateMessage;
-import io.github.elytra.copo.network.SetSearchQueryMessage;
+import io.github.elytra.copo.network.SetSearchQueryClientMessage;
+import io.github.elytra.copo.network.SetSearchQueryServerMessage;
 import io.github.elytra.copo.network.SetSlotSizeMessage;
 import io.github.elytra.copo.network.StartWeldthrowingMessage;
 import io.github.elytra.copo.tile.TileEntityController;
@@ -80,12 +82,8 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.RecipeSorter.Category;
 
@@ -141,7 +139,7 @@ public class CoPo {
 	public static int limboDimId;
 	public static DimensionType limbo;
 
-	public SimpleNetworkWrapper network;
+	public NetworkContext network;
 	
 	public boolean easyProcessors;
 	public double defaultWirelessRange;
@@ -187,20 +185,19 @@ public class CoPo {
 		
 		config.save();
 		
-		// for some reason plugin message channels have a maximum length of 20 characters
-		network = NetworkRegistry.INSTANCE.newSimpleChannel("CrelatedPtntialstics");
-		registerMessage(SetSearchQueryMessage.class, Side.SERVER);
-		registerMessage(SetSearchQueryMessage.class, Side.CLIENT);
-		registerMessage(SetSlotSizeMessage.class, Side.CLIENT);
-		registerMessage(StartWeldthrowingMessage.class, Side.CLIENT);
-		registerMessage(SetGlitchingStateMessage.class, Side.CLIENT);
-		registerMessage(EnterDungeonMessage.class, Side.SERVER);
-		registerMessage(SetAutomatonNameMessage.class, Side.SERVER);
-		registerMessage(LeaveDungeonMessage.class, Side.SERVER);
-		registerMessage(AddStatusLineMessage.class, Side.CLIENT);
-		registerMessage(AutomatonSpeakMessage.class, Side.CLIENT);
-		registerMessage(SetEditorStatusMessage.class, Side.CLIENT);
-		registerMessage(SaveProgramMessage.class, Side.SERVER);
+		network = NetworkContext.forChannel("Correlated");
+		network.register(SetSearchQueryClientMessage.class);
+		network.register(SetSearchQueryServerMessage.class);
+		network.register(SetSlotSizeMessage.class);
+		network.register(StartWeldthrowingMessage.class);
+		network.register(SetGlitchingStateMessage.class);
+		network.register(EnterDungeonMessage.class);
+		network.register(SetAutomatonNameMessage.class);
+		network.register(LeaveDungeonMessage.class);
+		network.register(AddStatusLineMessage.class);
+		network.register(AutomatonSpeakMessage.class);
+		network.register(SetEditorStatusMessage.class);
+		network.register(SaveProgramMessage.class);
 
 		EntityRegistry.registerModEntity(EntityThrownItem.class, "thrown_item", 0, this, 64, 10, true);
 		EntityRegistry.registerModEntity(EntityAutomaton.class, "automaton", 1, this, 64, 1, true);
@@ -282,14 +279,6 @@ public class CoPo {
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, new CoPoGuiHandler());
 		MinecraftForge.EVENT_BUS.register(this);
 		proxy.preInit();
-		
-	}
-	
-	private int discriminator = 0;
-	
-	private <T extends IMessage & IMessageHandler<T, ?>> void registerMessage(Class<T> msg, Side side) {
-		// I hate generics sometimes
-		network.registerMessage((Class)msg, (Class)msg, discriminator++, side);
 	}
 
 	@EventHandler

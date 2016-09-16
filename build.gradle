@@ -63,6 +63,11 @@ configurations {
 
 jar {
 	classifier = 'slim'
+	manifest {
+		attributes (
+			'FMLAT': 'copo_at.cfg'
+		)
+	}
 }
 
 shadowJar {
@@ -70,6 +75,7 @@ shadowJar {
 	relocate 'javax.speech', 'io.github.elytra.copo.repackage.javax.speech'
 	relocate 'com.sun.speech', 'io.github.elytra.copo.repackage.com.sun.speech'
 	relocate 'de.dfki', 'io.github.elytra.copo.repackage.de.dfki'
+	relocate 'io.github.elytra.concrete', 'io.github.elytra.copo.repackage.io.github.elytra.concrete'
 }
 
 reobf {
@@ -104,6 +110,9 @@ dependencies {
 	
 	shadow 'net.sourceforge.freetts:cmudict04'
 	compile 'net.sourceforge.freetts:cmudict04'
+	
+	shadow 'io.github.elytra:concrete:0.0.1'
+	compile 'io.github.elytra:concrete:0.0.1'
 	
 }
 

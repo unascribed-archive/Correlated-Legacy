@@ -75,7 +75,7 @@ public class EntityThrownItem extends EntityEnderPearl {
 							DungeonPlayer player = new DungeonPlayer(p.getGameProfile(), p.inventory.getFirstEmptyStack(), oldEntity);
 							int dim = CoPo.limboDimId;
 							if (net.minecraftforge.common.ForgeHooks.onTravelToDimension(p, dim)) {
-								CoPo.inst.network.sendTo(new SetGlitchingStateMessage(GlitchState.CORRUPTING), p);
+								new SetGlitchingStateMessage(GlitchState.CORRUPTING).sendTo(p);
 								WorldServer dest = p.mcServer.worldServerForDimension(dim);
 								if (dest.provider instanceof LimboProvider) {
 									((LimboProvider)dest.provider).addEnteringPlayer(player);

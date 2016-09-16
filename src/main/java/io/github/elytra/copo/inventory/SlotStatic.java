@@ -22,7 +22,7 @@ public class SlotStatic extends Slot {
 	@Override
 	public void putStack(ItemStack stack) {
 		if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
-			super.putStack(stack);
+			this.stack = stack;
 		}
 	}
 

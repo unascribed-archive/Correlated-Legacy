@@ -15,7 +15,7 @@ import io.github.elytra.copo.IVT.UserPreferences;
 import io.github.elytra.copo.helper.Numbers;
 import io.github.elytra.copo.item.ItemDrive;
 import io.github.elytra.copo.network.AddStatusLineMessage;
-import io.github.elytra.copo.network.SetSearchQueryMessage;
+import io.github.elytra.copo.network.SetSearchQueryClientMessage;
 import io.github.elytra.copo.network.SetSlotSizeMessage;
 import io.github.elytra.copo.tile.TileEntityController;
 import io.github.elytra.copo.tile.TileEntityVT;
@@ -371,13 +371,13 @@ public class ContainerVT extends Container {
 			case -23:
 				if (vt.getStorage() instanceof TileEntityController) {
 					TileEntityController cont = ((TileEntityController)vt.getStorage());
-					addStatusLine("total: "+Numbers.humanReadableBytes(cont.totalMemory/8));
+					addStatusLine("total: "+Numbers.humanReadableBytes(cont.getMaxMemory()/8));
 					addStatusLine("used: "+Numbers.humanReadableBytes(cont.getTotalUsedMemory()/8));
 					addStatusLine("free: "+Numbers.humanReadableBytes(cont.getBitsMemoryFree()/8));
 					addStatusLine("");
-					addStatusLine("network: "+Numbers.humanReadableBytes(cont.usedNetworkMemory/8));
-					addStatusLine("wireless: "+Numbers.humanReadableBytes(cont.usedWirelessMemory/8));
-					addStatusLine("types: "+Numbers.humanReadableBytes(cont.usedTypeMemory/8));
+					addStatusLine("network: "+Numbers.humanReadableBytes(cont.getUsedNetworkMemory()/8));
+					addStatusLine("wireless: "+Numbers.humanReadableBytes(cont.getUsedWirelessMemory()/8));
+					addStatusLine("types: "+Numbers.humanReadableBytes(cont.getUsedTypeMemory()/8));
 					addStatusLine("");
 				}
 				break;
@@ -432,7 +432,7 @@ public class ContainerVT extends Container {
 		for (IContainerListener ic : listeners) {
 			if (ic instanceof EntityPlayerMP) {
 				EntityPlayerMP p = (EntityPlayerMP)ic;
-				CoPo.inst.network.sendTo(new AddStatusLineMessage(windowId, line), p);
+				new AddStatusLineMessage(windowId, line).sendTo(p);
 			}
 		}
 	}
@@ -476,7 +476,7 @@ public class ContainerVT extends Container {
 						if (ic instanceof EntityPlayerMP) {
 							EntityPlayerMP p = (EntityPlayerMP)ic;
 							if (cur > 127) {
-								CoPo.inst.network.sendTo(new SetSlotSizeMessage(windowId, i, cur), p);
+								new SetSlotSizeMessage(windowId, i, cur).sendTo(p);
 							}
 						}
 					}
@@ -504,7 +504,7 @@ public class ContainerVT extends Container {
 		listener.sendProgressBarUpdate(this, 3, craftingTarget.ordinal());
 		listener.sendProgressBarUpdate(this, 4, craftingAmount.ordinal());
 		if (listener instanceof EntityPlayerMP) {
-			CoPo.inst.network.sendTo(new SetSearchQueryMessage(windowId, searchQuery), (EntityPlayerMP)listener);
+			new SetSearchQueryClientMessage(windowId, searchQuery).sendTo((EntityPlayerMP)listener);
 		}
 	}
 

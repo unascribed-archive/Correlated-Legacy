@@ -12,10 +12,8 @@ import io.github.elytra.copo.network.StartWeldthrowingMessage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.Packet;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EnumActionResult;
@@ -27,7 +25,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
@@ -62,14 +59,7 @@ public class ItemWeldthrower extends Item {
 			if (!world.isRemote && !weldthrowing.containsKey(player) && (player.capabilities.isCreativeMode || player.inventory.clearMatchingItems(CoPo.misc, 5, 1, null) > 0)) {
 				world.playSound(null, player.posX, player.posY, player.posZ, CoPo.weldthrow, SoundCategory.PLAYERS, 0.4f, 1f);
 				weldthrowing.put(player, new MutableInt());
-				if (world instanceof WorldServer && player instanceof EntityPlayerMP) {
-					WorldServer srv = (WorldServer)world;
-					StartWeldthrowingMessage msg = new StartWeldthrowingMessage();
-					msg.entityId = player.getEntityId();
-					Packet<?> p = CoPo.inst.network.getPacketFrom(msg);
-					((EntityPlayerMP)player).connection.sendPacket(p);
-					srv.getEntityTracker().sendToAllTrackingEntity(player, p);
-				}
+				new StartWeldthrowingMessage(player.getEntityId()).sendToAllWatching(player);;
 				return ActionResult.newResult(EnumActionResult.SUCCESS, itemStack);
 			}
 		}

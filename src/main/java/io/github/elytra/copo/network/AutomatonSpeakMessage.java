@@ -1,35 +1,32 @@
 package io.github.elytra.copo.network;
 
-import io.netty.buffer.ByteBuf;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import io.github.elytra.concrete.Message;
+import io.github.elytra.concrete.NetworkContext;
+import io.github.elytra.concrete.annotation.field.MarshalledAs;
+import io.github.elytra.concrete.annotation.type.ReceivedOn;
+import io.github.elytra.copo.CoPo;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class AutomatonSpeakMessage implements IMessage, IMessageHandler<AutomatonSpeakMessage, IMessage> {
+@ReceivedOn(Side.CLIENT)
+public class AutomatonSpeakMessage extends Message {
+	@MarshalledAs("i32")
 	public int entityId;
 	public String line;
+
+	public AutomatonSpeakMessage(NetworkContext ctx) {
+		super(ctx);
+	}
+	public AutomatonSpeakMessage(int entityId, String line) {
+		super(CoPo.inst.network);
+		this.entityId = entityId;
+		this.line = line;
+	}
 	
 	@Override
-	public void fromBytes(ByteBuf buf) {
-		entityId = buf.readInt();
-		line = ByteBufUtils.readUTF8String(buf);
-	}
-
-	@Override
-	public void toBytes(ByteBuf buf) {
-		buf.writeInt(entityId);
-		ByteBufUtils.writeUTF8String(buf, line);
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public IMessage onMessage(AutomatonSpeakMessage message, MessageContext ctx) {
-		// this intentionally does not check if the entity is an Automaton and if it has the speech module
+	protected void handle(EntityPlayer sender) {
+		// TODO Auto-generated method stub
 		
-		return null;
 	}
 
 }
