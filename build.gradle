@@ -111,8 +111,8 @@ dependencies {
 	shadow 'net.sourceforge.freetts:cmudict04'
 	compile 'net.sourceforge.freetts:cmudict04'
 	
-	shadow 'io.github.elytra:concrete:0.0.1'
-	compile 'io.github.elytra:concrete:0.0.1'
+	shadow 'io.github.elytra:concrete:0.0.2'
+	compile 'io.github.elytra:concrete:0.0.2'
 	
 }
 

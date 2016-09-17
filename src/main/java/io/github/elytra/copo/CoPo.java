@@ -41,6 +41,7 @@ import io.github.elytra.copo.network.AutomatonSpeakMessage;
 import io.github.elytra.copo.network.CoPoGuiHandler;
 import io.github.elytra.copo.network.EnterDungeonMessage;
 import io.github.elytra.copo.network.LeaveDungeonMessage;
+import io.github.elytra.copo.network.RecipeTransferMessage;
 import io.github.elytra.copo.network.SaveProgramMessage;
 import io.github.elytra.copo.network.SetAutomatonNameMessage;
 import io.github.elytra.copo.network.SetEditorStatusMessage;
@@ -198,6 +199,7 @@ public class CoPo {
 		network.register(AutomatonSpeakMessage.class);
 		network.register(SetEditorStatusMessage.class);
 		network.register(SaveProgramMessage.class);
+		network.register(RecipeTransferMessage.class);
 
 		EntityRegistry.registerModEntity(EntityThrownItem.class, "thrown_item", 0, this, 64, 10, true);
 		EntityRegistry.registerModEntity(EntityAutomaton.class, "automaton", 1, this, 64, 1, true);
