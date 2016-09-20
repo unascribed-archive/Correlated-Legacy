@@ -134,7 +134,8 @@ public class GuiDrive extends GuiContainer {
 		if (partition.isMouseOver()) {
 			List<String> li = Lists.newArrayList(
 					I18n.format("gui.correlatedpotentialistics.partition_mode"),
-					"\u00A77"+I18n.format("gui.correlatedpotentialistics.partition_mode."+part.lowerName)
+					"\u00A79"+I18n.format("gui.correlatedpotentialistics.partition_mode."+part.lowerName),
+					"\u00A77"+I18n.format("gui.correlatedpotentialistics.partition_mode."+part.lowerName+".desc")
 					);
 			drawHoveringText(li, mouseX, mouseY);
 		}

@@ -26,13 +26,11 @@ gui.correlatedpotentialistics.priority.lowest=Lowest (-3)
 
 gui.correlatedpotentialistics.partition_mode=Partitioning Mode
 gui.correlatedpotentialistics.partition_mode.none=Not Partitioned
-gui.correlatedpotentialistics.partition_mode.none.0=Any items are allowed
+gui.correlatedpotentialistics.partition_mode.none.desc=Any items are allowed
 gui.correlatedpotentialistics.partition_mode.blacklist=Partitioned (Blacklist)
-gui.correlatedpotentialistics.partition_mode.blacklist.0=Only items not shown in
-gui.correlatedpotentialistics.partition_mode.blacklist.1=this gui are allowed
+gui.correlatedpotentialistics.partition_mode.blacklist.desc=Only items not shown in this gui are allowed
 gui.correlatedpotentialistics.partition_mode.whitelist=Partitioned (Whitelist)
-gui.correlatedpotentialistics.partition_mode.whitelist.0=Only items shown in this gui
-gui.correlatedpotentialistics.partition_mode.whitelist.1=are allowed
+gui.correlatedpotentialistics.partition_mode.whitelist.desc=Only items shown in this gui are allowed
 
 
 item.correlatedpotentialistics.drive.normal.name=%s Drive
@@ -55,10 +53,8 @@ tooltip.correlatedpotentialistics.misc.unstable_pearl.0=§5What did you do?
 item.correlatedpotentialistics.misc.unfinished_organic_circuit.name=Unfinished Organic Circuit
 tooltip.correlatedpotentialistics.misc.unfinished_organic_circuit.0=§5Technically edible technology.
 item.correlatedpotentialistics.misc.data_core.name=Data Core
-tooltip.correlatedpotentialistics.misc.data_core.0=Right-click to throw and drop contents
-tooltip.correlatedpotentialistics.misc.data_core.1=on the ground with a 5 hour despawn time,
-tooltip.correlatedpotentialistics.misc.data_core.2=or use in place of a Luminous Pearl while
-tooltip.correlatedpotentialistics.misc.data_core.3=crafting a drive to re-use
+tooltip.correlatedpotentialistics.misc.data_core.0=Right-click to throw and drop contents on the ground with a 5 hour despawn time, or use in place of a Luminous Pearl while crafting a drive to re-use
+tooltip.correlatedpotentialistics.misc.data_core.1=
 
 item.correlatedpotentialistics.keycard_amber.name=Amber Keycard
 item.correlatedpotentialistics.keycard_black.name=Onyx Keycard
