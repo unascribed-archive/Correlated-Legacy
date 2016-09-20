@@ -82,6 +82,26 @@ public class CRecipes {
 				'#', Blocks.OBSIDIAN
 				));
 
+		
+		// 1KiB Memory
+		GameRegistry.addRecipe(new DriveRecipe(new ItemStack(CoPo.memory, 1, 0),
+				"iii",
+				"gOg",
+				'O', luminousPearl,
+				'i', "ingotIron",
+				'g', "ingotGold"
+				));
+		
+		// 4KiB Memory
+		GameRegistry.addRecipe(new DriveRecipe(new ItemStack(CoPo.memory, 1, 1),
+				"iii",
+				"dOd",
+				'O', luminousPearl,
+				'i', "ingotIron",
+				'd', "gemDiamond"
+				));
+		
+		
 
 		// Enderic Processor
 		if (CoPo.inst.easyProcessors) {
@@ -137,6 +157,16 @@ public class CRecipes {
 				"iii",
 				'i', "ingotIron",
 				'p', processor
+				));
+		
+		// Memory Bay
+		GameRegistry.addRecipe(new ShapedOreRecipe(CoPo.memory_bay,
+				"iii",
+				"gpg",
+				"iii",
+				'i', "ingotIron",
+				'p', processor,
+				'g', "nuggetGold"
 				));
 
 		// Controller
@@ -202,9 +232,9 @@ public class CRecipes {
 		// Wireless Terminal
 		GameRegistry.addRecipe(new ShapedOreRecipe(CoPo.wireless_terminal,
 				"r",
-				"v",
+				"t",
 				'r', new ItemStack(CoPo.wireless_endpoint, 1, 0),
-				'v', CoPo.terminal
+				't', CoPo.terminal
 				));
 		
 		// Weldthrower Fuel

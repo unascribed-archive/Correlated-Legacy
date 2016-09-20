@@ -22,20 +22,15 @@ gui.correlatedpotentialistics.priority.lowest=最低(-3)
 
 gui.correlatedpotentialistics.partition_mode=隔离模式
 gui.correlatedpotentialistics.partition_mode.none=未开启隔离模式
-gui.correlatedpotentialistics.partition_mode.none.0=允许任何物品
+gui.correlatedpotentialistics.partition_mode.none.desc=允许任何物品
 gui.correlatedpotentialistics.partition_mode.blacklist=黑名单隔离模式
-gui.correlatedpotentialistics.partition_mode.blacklist.0=仅允许未出现
-gui.correlatedpotentialistics.partition_mode.blacklist.1=在列表中的物品
+gui.correlatedpotentialistics.partition_mode.blacklist.desc=仅允许未出现在列表中的物品
 gui.correlatedpotentialistics.partition_mode.whitelist=白名单隔离模式
-gui.correlatedpotentialistics.partition_mode.whitelist.0=仅允许出现在
-gui.correlatedpotentialistics.partition_mode.whitelist.1=列表中的物品
+gui.correlatedpotentialistics.partition_mode.whitelist.desc=仅允许出现在列表中的物品
 
 
-item.correlatedpotentialistics.drive.0.name=1KiB磁盘驱动器
-item.correlatedpotentialistics.drive.1.name=4KiB磁盘驱动器
-item.correlatedpotentialistics.drive.2.name=16KiB磁盘驱动器
-item.correlatedpotentialistics.drive.3.name=64KiB磁盘驱动器
-item.correlatedpotentialistics.drive.4.name=虚空磁盘驱动器
+item.correlatedpotentialistics.drive.normal.name=%s磁盘驱动器
+item.correlatedpotentialistics.drive.void.name=虚空磁盘驱动器
 
 item.correlatedpotentialistics.misc.0.name=末影处理器
 tooltip.correlatedpotentialistics.misc.0.0=§5看上去是某个大家伙的一部分。
@@ -112,7 +107,7 @@ tooltip.correlatedpotentialistics.controller_error.multiple_controllers=网络�
 tooltip.correlatedpotentialistics.controller_error.network_too_big=网络规模过大
 tooltip.correlatedpotentialistics.controller_error.too_much_power=网络中能量水平过高
 tooltip.correlatedpotentialistics.controller_error.infinite_loop=无线连接陷入死循环
-tooltip.correlatedpotentialistics.controller_consumption_rate=当前总能耗%d RF/t(最高320 RF/t)
+tooltip.correlatedpotentialistics.controller_consumption_rate=当前总能耗%d RF/t(最高640 RF/t)
 tooltip.correlatedpotentialistics.controller_energy_buffer=%d/%d RF
 tooltip.correlatedpotentialistics.member_consumption_rate=控制器提供能耗：%d RF/t
 tooltip.correlatedpotentialistics.side=方向：%s

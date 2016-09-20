@@ -22,8 +22,8 @@ Welcome to the unfinished 2.x branch of CoPo! Targets for the release of 2.0.0:
     * [x] Add memory bay
       * [x] Soft reboot the network when memory is changed
     * [x] Increase drive size to MiBs so memory can be KiBs
-    * [ ] Memory crafting recipe
-    * [ ] Memory bay crafting recipe
+    * [x] Memory crafting recipe
+    * [x] Memory bay crafting recipe
   * [x] Migration system
     * [x] Data Cores
     * [x] Detect old storage systems
