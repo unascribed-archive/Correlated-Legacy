@@ -5,7 +5,7 @@ import io.github.elytra.concrete.NetworkContext;
 import io.github.elytra.concrete.annotation.field.MarshalledAs;
 import io.github.elytra.concrete.annotation.type.ReceivedOn;
 import io.github.elytra.copo.CoPo;
-import io.github.elytra.copo.inventory.ContainerVT;
+import io.github.elytra.copo.inventory.ContainerTerminal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
@@ -29,8 +29,8 @@ public class SetSearchQueryServerMessage extends Message {
 	@Override
 	protected void handle(EntityPlayer sender) {
 		Container c = ((EntityPlayerMP)sender).openContainer;
-		if (c instanceof ContainerVT && c.windowId == windowId) {
-			((ContainerVT)c).updateSearchQuery(query);
+		if (c instanceof ContainerTerminal && c.windowId == windowId) {
+			((ContainerTerminal)c).updateSearchQuery(query);
 		}
 	}
 

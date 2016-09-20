@@ -6,8 +6,8 @@ import org.lwjgl.opengl.GL11;
 
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.client.ClientProxy;
-import io.github.elytra.copo.client.gui.GuiVT;
-import io.github.elytra.copo.inventory.ContainerVT;
+import io.github.elytra.copo.client.gui.GuiTerminal;
+import io.github.elytra.copo.inventory.ContainerTerminal;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
@@ -16,15 +16,15 @@ import net.minecraft.client.renderer.GlStateManager.DestFactor;
 import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.util.ResourceLocation;
 
-public class GuiVTShell extends GuiScreen {
-	public GuiVT guiVt;
-	public ContainerVT container;
-	private static final ResourceLocation terminal = new ResourceLocation("correlatedpotentialistics", "textures/gui/terminal.png");
-	private static final ResourceLocation terminal_overlay = new ResourceLocation("correlatedpotentialistics", "textures/gui/terminal_overlay.png");
+public class GuiTerminalShell extends GuiScreen {
+	public GuiTerminal guiTerminal;
+	public ContainerTerminal container;
+	private static final ResourceLocation terminal = new ResourceLocation("correlatedpotentialistics", "textures/gui/shell.png");
+	private static final ResourceLocation terminal_overlay = new ResourceLocation("correlatedpotentialistics", "textures/gui/shell_overlay.png");
 	public Program program = new CommandInterpreter(this);
 	
-	public GuiVTShell(GuiVT guiVt, ContainerVT container) {
-		this.guiVt = guiVt;
+	public GuiTerminalShell(GuiTerminal guiTerminal, ContainerTerminal container) {
+		this.guiTerminal = guiTerminal;
 		this.container = container;
 	}
 	

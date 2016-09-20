@@ -17,13 +17,13 @@ import io.github.elytra.copo.block.BlockDriveBay;
 import io.github.elytra.copo.block.BlockImporterChest;
 import io.github.elytra.copo.block.BlockInterface;
 import io.github.elytra.copo.block.BlockMemoryBay;
-import io.github.elytra.copo.block.BlockVT;
+import io.github.elytra.copo.block.BlockTerminal;
 import io.github.elytra.copo.block.BlockWirelessEndpoint;
 import io.github.elytra.copo.block.item.ItemBlockController;
 import io.github.elytra.copo.block.item.ItemBlockDriveBay;
 import io.github.elytra.copo.block.item.ItemBlockInterface;
 import io.github.elytra.copo.block.item.ItemBlockMemoryBay;
-import io.github.elytra.copo.block.item.ItemBlockVT;
+import io.github.elytra.copo.block.item.ItemBlockTerminal;
 import io.github.elytra.copo.block.item.ItemBlockWirelessEndpoint;
 import io.github.elytra.copo.compat.WailaCompatibility;
 import io.github.elytra.copo.entity.EntityAutomaton;
@@ -58,7 +58,8 @@ import io.github.elytra.copo.tile.TileEntityImporterChest;
 import io.github.elytra.copo.tile.TileEntityInterface;
 import io.github.elytra.copo.tile.TileEntityMemoryBay;
 import io.github.elytra.copo.tile.TileEntityNetworkImporter;
-import io.github.elytra.copo.tile.TileEntityVT;
+import io.github.elytra.copo.tile.TileEntityTerminal;
+import io.github.elytra.copo.tile.TileEntityVTImporter;
 import io.github.elytra.copo.tile.TileEntityWirelessReceiver;
 import io.github.elytra.copo.tile.TileEntityWirelessTransmitter;
 import io.github.elytra.copo.world.LimboProvider;
@@ -82,13 +83,16 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
+import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent.MissingMapping;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.common.registry.GameRegistry.Type;
 import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.RecipeSorter.Category;
 
@@ -105,7 +109,7 @@ public class CoPo {
 	public static BlockController controller;
 	public static BlockDriveBay drive_bay;
 	public static BlockMemoryBay memory_bay;
-	public static BlockVT vt;
+	public static BlockTerminal terminal;
 	public static BlockInterface iface;
 	public static BlockWirelessEndpoint wireless_endpoint;
 	public static BlockImporterChest importer_chest;
@@ -307,7 +311,7 @@ public class CoPo {
 		register(new BlockController().setHardness(2), ItemBlockController.class, "controller", 4);
 		register(new BlockDriveBay().setHardness(2), ItemBlockDriveBay.class, "drive_bay", 0);
 		register(new BlockMemoryBay().setHardness(2), ItemBlockMemoryBay.class, "memory_bay", 0);
-		register(new BlockVT().setHardness(2), ItemBlockVT.class, "vt", 0);
+		register(new BlockTerminal().setHardness(2), ItemBlockTerminal.class, "terminal", 0);
 		register(new BlockInterface().setHardness(2), ItemBlockInterface.class, "iface", 0);
 		register(new BlockWirelessEndpoint().setHardness(2), ItemBlockWirelessEndpoint.class, "wireless_endpoint", -4);
 		register(new BlockImporterChest().setHardness(2), null, "importer_chest", 0);
@@ -324,15 +328,17 @@ public class CoPo {
 		RecipeSorter.register("correlatedpotentialistics:drive", DriveRecipe.class, Category.SHAPED, "after:minecraft:shaped");
 		CRecipes.register();
 
-		GameRegistry.registerTileEntity(TileEntityNetworkImporter.class, "correlatedpotentialistics:controller");
 		GameRegistry.registerTileEntity(TileEntityController.class, "correlatedpotentialistics:controller_new");
 		GameRegistry.registerTileEntity(TileEntityDriveBay.class, "correlatedpotentialistics:drive_bay");
 		GameRegistry.registerTileEntity(TileEntityMemoryBay.class, "correlatedpotentialistics:memory_bay");
-		GameRegistry.registerTileEntity(TileEntityVT.class, "correlatedpotentialistics:vt");
+		GameRegistry.registerTileEntity(TileEntityTerminal.class, "correlatedpotentialistics:terminal");
 		GameRegistry.registerTileEntity(TileEntityInterface.class, "correlatedpotentialistics:interface");
 		GameRegistry.registerTileEntity(TileEntityWirelessReceiver.class, "correlatedpotentialistics:wireless_receiver");
 		GameRegistry.registerTileEntity(TileEntityWirelessTransmitter.class, "correlatedpotentialistics:wireless_transmitter");
 		GameRegistry.registerTileEntity(TileEntityImporterChest.class, "correlatedpotentialistics:importer_chest");
+		
+		GameRegistry.registerTileEntity(TileEntityNetworkImporter.class, "correlatedpotentialistics:controller");
+		GameRegistry.registerTileEntity(TileEntityVTImporter.class, "correlatedpotentialistics:vt");
 		
 		Opcode.init();
 		
@@ -347,6 +353,19 @@ public class CoPo {
 	@EventHandler
 	public void onPostInit(FMLPostInitializationEvent e) {
 		proxy.postInit();
+	}
+	
+	@EventHandler
+	public void onMissingMappings(FMLMissingMappingsEvent e) {
+		for (MissingMapping mm : e.get()) {
+			if (mm.resourceLocation.getResourcePath().equals("vt")) {
+				if (mm.type == Type.BLOCK) {
+					mm.remap(terminal);
+				} else {
+					mm.remap(Item.getItemFromBlock(terminal));
+				}
+			}
+		}
 	}
 	
 	@SubscribeEvent

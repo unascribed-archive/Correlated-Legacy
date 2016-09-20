@@ -5,7 +5,7 @@ import io.github.elytra.concrete.NetworkContext;
 import io.github.elytra.concrete.annotation.field.MarshalledAs;
 import io.github.elytra.concrete.annotation.type.ReceivedOn;
 import io.github.elytra.copo.CoPo;
-import io.github.elytra.copo.client.gui.GuiVT;
+import io.github.elytra.copo.client.gui.GuiTerminal;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
@@ -31,10 +31,10 @@ public class SetSearchQueryClientMessage extends Message {
 	@SideOnly(Side.CLIENT)
 	protected void handle(EntityPlayer sender) {
 		GuiScreen open = Minecraft.getMinecraft().currentScreen;
-		if (open instanceof GuiVT) {
-			GuiVT vt = ((GuiVT)open);
-			if (vt.inventorySlots.windowId == windowId) {
-				vt.updateSearchQuery(query);
+		if (open instanceof GuiTerminal) {
+			GuiTerminal terminal = ((GuiTerminal)open);
+			if (terminal.inventorySlots.windowId == windowId) {
+				terminal.updateSearchQuery(query);
 			}
 		}
 	}

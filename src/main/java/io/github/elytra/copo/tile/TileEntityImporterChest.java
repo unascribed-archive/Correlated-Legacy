@@ -7,8 +7,8 @@ import com.google.common.collect.Lists;
 
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.IDigitalStorage;
-import io.github.elytra.copo.IVT;
-import io.github.elytra.copo.inventory.ContainerVT.SortMode;
+import io.github.elytra.copo.ITerminal;
+import io.github.elytra.copo.inventory.ContainerTerminal.SortMode;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
@@ -22,7 +22,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class TileEntityImporterChest extends TileEntity implements IInventory, ISidedInventory, IDigitalStorage, ITickable, IVT {
+public class TileEntityImporterChest extends TileEntity implements IInventory, ISidedInventory, IDigitalStorage, ITickable, ITerminal {
 	private List<ItemStack> storage = Lists.newArrayList();
 	private int changeId;
 	

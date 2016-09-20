@@ -8,13 +8,13 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import io.github.elytra.copo.client.IBMFontRenderer;
-import io.github.elytra.copo.client.gui.shell.GuiVTShell;
+import io.github.elytra.copo.client.gui.shell.GuiTerminalShell;
 import io.github.elytra.copo.helper.Numbers;
-import io.github.elytra.copo.inventory.ContainerVT;
-import io.github.elytra.copo.inventory.ContainerVT.CraftingAmount;
-import io.github.elytra.copo.inventory.ContainerVT.CraftingTarget;
-import io.github.elytra.copo.inventory.ContainerVT.SlotVirtual;
-import io.github.elytra.copo.inventory.ContainerVT.SortMode;
+import io.github.elytra.copo.inventory.ContainerTerminal;
+import io.github.elytra.copo.inventory.ContainerTerminal.CraftingAmount;
+import io.github.elytra.copo.inventory.ContainerTerminal.CraftingTarget;
+import io.github.elytra.copo.inventory.ContainerTerminal.SlotVirtual;
+import io.github.elytra.copo.inventory.ContainerTerminal.SortMode;
 import io.github.elytra.copo.network.SetSearchQueryServerMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -26,10 +26,10 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
 
-public class GuiVT extends GuiContainer {
-	private static final ResourceLocation background = new ResourceLocation("correlatedpotentialistics", "textures/gui/container/vt.png");
+public class GuiTerminal extends GuiContainer {
+	private static final ResourceLocation background = new ResourceLocation("correlatedpotentialistics", "textures/gui/container/terminal.png");
 
-	private ContainerVT container;
+	private ContainerTerminal container;
 	private GuiTextField searchField = new GuiTextField(0, Minecraft.getMinecraft().fontRendererObj, 0, 0, 85, 8);
 	private String lastSearchQuery = "";
 	private GuiButtonExt sortDirection;
@@ -38,7 +38,7 @@ public class GuiVT extends GuiContainer {
 	private GuiButtonExt craftingAmount;
 	private GuiButtonExt clearGrid;
 	
-	public GuiVT(ContainerVT container) {
+	public GuiTerminal(ContainerTerminal container) {
 		super(container);
 		searchField.setEnableBackgroundDrawing(false);
 		searchField.setTextColor(-1);
@@ -72,14 +72,14 @@ public class GuiVT extends GuiContainer {
 		GlStateManager.translate((width - xSize) / 2, (height - ySize) / 2, 0);
 		mc.getTextureManager().bindTexture(getBackground());
 		drawTexturedModalRect(0, 0, 0, 0, 256, 222);
-		if (container.vt.supportsDumpSlot()) {
+		if (container.terminal.supportsDumpSlot()) {
 			drawTexturedModalRect(17, 153, 200, 224, 32, 32);
 		}
 		GlStateManager.popMatrix();
 	}
 	
 	protected String getTitle() {
-		return I18n.format("gui.correlatedpotentialistics.vt");
+		return I18n.format("gui.correlatedpotentialistics.terminal");
 	}
 
 	@Override
@@ -330,7 +330,7 @@ public class GuiVT extends GuiContainer {
 		if (hasStatusLine() && mouseButton == 0
 				&& mouseX >= x+left && mouseX <= x+right
 				&& mouseY >= y+top && mouseY <= y+bottom) {
-			Minecraft.getMinecraft().displayGuiScreen(new GuiVTShell(this, container));
+			Minecraft.getMinecraft().displayGuiScreen(new GuiTerminalShell(this, container));
 		}
 		
 		int width = 12;

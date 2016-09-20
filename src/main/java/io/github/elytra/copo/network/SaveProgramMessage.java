@@ -13,9 +13,9 @@ import io.github.elytra.copo.entity.automaton.Instruction;
 import io.github.elytra.copo.entity.automaton.Opcode;
 import io.github.elytra.copo.entity.automaton.Opcode.ArgumentSpec;
 import io.github.elytra.copo.helper.ItemStacks;
-import io.github.elytra.copo.inventory.ContainerVT;
+import io.github.elytra.copo.inventory.ContainerTerminal;
 import io.github.elytra.copo.item.ItemFloppy;
-import io.github.elytra.copo.tile.TileEntityVT;
+import io.github.elytra.copo.tile.TileEntityTerminal;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.entity.player.EntityPlayer;
@@ -47,10 +47,10 @@ public class SaveProgramMessage extends Message {
 	protected void handle(EntityPlayer sender) {
 		EntityPlayerMP p = (EntityPlayerMP)sender;
 		Container c = p.openContainer;
-		if (!(c instanceof ContainerVT)) return;
+		if (!(c instanceof ContainerTerminal)) return;
 		int wi = p.currentWindowId;
-		TileEntityVT vt = ((TileEntityVT)((ContainerVT)c).vt);
-		ItemStack floppy = vt.getStackInSlot(1);
+		TileEntityTerminal tet = ((TileEntityTerminal)((ContainerTerminal)c).terminal);
+		ItemStack floppy = tet.getStackInSlot(1);
 		if (floppy != null && floppy.getItem() instanceof ItemFloppy) {
 			ItemFloppy item = (ItemFloppy)floppy.getItem();
 			if (item.isWriteProtected(floppy)) {

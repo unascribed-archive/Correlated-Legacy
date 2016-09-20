@@ -7,14 +7,14 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
-public class WirelessTerminalVT implements IVT {
+public class WirelessTerminal implements ITerminal {
 	private World world;
 	private EntityPlayer player;
 	private ItemWirelessTerminal iwt;
 	private ItemStack stack;
 	private UserPreferences prefs = new UserPreferences();
 	
-	public WirelessTerminalVT(World world, EntityPlayer player, ItemWirelessTerminal iwt, ItemStack stack) {
+	public WirelessTerminal(World world, EntityPlayer player, ItemWirelessTerminal iwt, ItemStack stack) {
 		this.world = world;
 		this.player = player;
 		this.iwt = iwt;

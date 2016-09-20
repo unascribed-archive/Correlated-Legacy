@@ -6,7 +6,7 @@ import io.github.elytra.concrete.annotation.field.MarshalledAs;
 import io.github.elytra.concrete.annotation.type.ReceivedOn;
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.client.gui.shell.AutomatonProgrammer;
-import io.github.elytra.copo.client.gui.shell.GuiVTShell;
+import io.github.elytra.copo.client.gui.shell.GuiTerminalShell;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
@@ -32,10 +32,10 @@ public class SetEditorStatusMessage extends Message {
 	@SideOnly(Side.CLIENT)
 	protected void handle(EntityPlayer sender) {
 		GuiScreen open = Minecraft.getMinecraft().currentScreen;
-		if (open instanceof GuiVTShell) {
-			GuiVTShell vt = ((GuiVTShell)open);
-			if (vt.container.windowId == windowId && vt.program instanceof AutomatonProgrammer) {
-				((AutomatonProgrammer)vt.program).setStatus(line);
+		if (open instanceof GuiTerminalShell) {
+			GuiTerminalShell shell = ((GuiTerminalShell)open);
+			if (shell.container.windowId == windowId && shell.program instanceof AutomatonProgrammer) {
+				((AutomatonProgrammer)shell.program).setStatus(line);
 			}
 			}
 	}

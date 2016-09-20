@@ -11,43 +11,25 @@ import com.google.common.collect.Sets;
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.block.BlockDriveBay;
 import io.github.elytra.copo.block.BlockImporterChest;
-import io.github.elytra.copo.block.BlockVT;
+import io.github.elytra.copo.block.BlockTerminal;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 
-public class TileEntityNetworkImporter extends TileEntity implements ITickable {
-	private NBTTagCompound capturedNbt;
-	private int ticks = 0;
+public class TileEntityNetworkImporter extends TileEntityImporter {
 	
-	@Override
-	public void readFromNBT(NBTTagCompound compound) {
-		super.readFromNBT(compound);
-		capturedNbt = compound;
+	public TileEntityNetworkImporter() {
+		super(2);
 	}
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.merge(capturedNbt);
-		return super.writeToNBT(compound);
-	}
-	
-	@Override
-	public void update() {
-		if (!hasWorldObj()) return;
-		if (worldObj.isRemote) return;
-		ticks++;
-		if (ticks <= 2) return;
-		
+	protected void doImport() {
 		if (!CoPo.inst.importNetworks) {
 			CoPo.log.warn("Skipping import of old network at {}, {}, {}, this may cause glitches!", getPos().getX(), getPos().getY(), getPos().getZ());
-			TileEntityController tec = new TileEntityController();
-			tec.readFromNBT(capturedNbt);
-			worldObj.setTileEntity(getPos(), tec);
+			substitute(new TileEntityController(), true);
 			return;
 		}
 		
@@ -128,9 +110,9 @@ public class TileEntityNetworkImporter extends TileEntity implements ITickable {
 						blockRefunds.add(new ItemStack(CoPo.drive_bay));
 						directions.add(worldObj.getBlockState(pos).getValue(BlockDriveBay.FACING));
 						delete.add(pos);
-					} else if (te instanceof TileEntityVT) {
-						blockRefunds.add(new ItemStack(CoPo.vt));
-						directions.add(worldObj.getBlockState(pos).getValue(BlockVT.FACING));
+					} else if (te instanceof TileEntityTerminal) {
+						blockRefunds.add(new ItemStack(CoPo.terminal));
+						directions.add(worldObj.getBlockState(pos).getValue(BlockTerminal.FACING));
 						delete.add(pos);
 					} else if (te instanceof TileEntityWirelessReceiver) {
 						blockRefunds.add(new ItemStack(CoPo.wireless_endpoint, 1, 0));
@@ -152,9 +134,7 @@ public class TileEntityNetworkImporter extends TileEntity implements ITickable {
 						delete.add(pos);
 					} else if (te instanceof TileEntityMemoryBay) {
 						CoPo.log.info("Aborting import. Found a memory bay, which is indicative of a new network");
-						TileEntityController tec = new TileEntityController();
-						tec.readFromNBT(capturedNbt);
-						worldObj.setTileEntity(getPos(), tec);
+						substitute(new TileEntityController(), true);
 						return;
 					}
 				}
@@ -198,8 +178,7 @@ public class TileEntityNetworkImporter extends TileEntity implements ITickable {
 			}
 		}
 		CoPo.log.info("Sucessfully imported old network at {}, {}, {}, refunding {} items", getPos().getX(), getPos().getY(), getPos().getZ(), sum);
-		worldObj.setBlockState(getPos(), CoPo.importer_chest.getDefaultState().withProperty(BlockImporterChest.FACING, facing));
-		worldObj.setTileEntity(getPos(), chest);
+		substitute(CoPo.importer_chest.getDefaultState().withProperty(BlockImporterChest.FACING, facing), chest, false);
 	}
 
 	private ItemStack toCore(ItemStack is) {

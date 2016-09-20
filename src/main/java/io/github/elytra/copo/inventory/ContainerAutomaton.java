@@ -6,7 +6,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.IInventory;
 
-public class ContainerAutomaton extends ContainerVT {
+public class ContainerAutomaton extends ContainerTerminal {
 	public EntityAutomaton automaton;
 	public EntityPlayer player;
 	
@@ -25,7 +25,7 @@ public class ContainerAutomaton extends ContainerVT {
 	
 
 	@Override
-	protected void initializeVTSize() {
+	protected void initializeTerminalSize() {
 		startX = 28;
 		startY = 44;
 		slotsAcross = 8;

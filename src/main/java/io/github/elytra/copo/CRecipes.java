@@ -150,7 +150,7 @@ public class CRecipes {
 				));
 
 		// Terminal
-		GameRegistry.addRecipe(new ShapedOreRecipe(CoPo.vt,
+		GameRegistry.addRecipe(new ShapedOreRecipe(CoPo.terminal,
 				"iii",
 				"ooo",
 				"ipi",
@@ -204,7 +204,7 @@ public class CRecipes {
 				"r",
 				"v",
 				'r', new ItemStack(CoPo.wireless_endpoint, 1, 0),
-				'v', CoPo.vt
+				'v', CoPo.terminal
 				));
 		
 		// Weldthrower Fuel

@@ -1,23 +1,23 @@
 package io.github.elytra.copo.network;
 
 import io.github.elytra.copo.CoPo;
-import io.github.elytra.copo.WirelessTerminalVT;
+import io.github.elytra.copo.WirelessTerminal;
 import io.github.elytra.copo.client.gui.GuiAutomaton;
 import io.github.elytra.copo.client.gui.GuiDrive;
 import io.github.elytra.copo.client.gui.GuiImporterChest;
 import io.github.elytra.copo.client.gui.GuiInterface;
-import io.github.elytra.copo.client.gui.GuiVT;
+import io.github.elytra.copo.client.gui.GuiTerminal;
 import io.github.elytra.copo.entity.EntityAutomaton;
 import io.github.elytra.copo.inventory.ContainerAutomaton;
 import io.github.elytra.copo.inventory.ContainerDrive;
 import io.github.elytra.copo.inventory.ContainerImporterChest;
 import io.github.elytra.copo.inventory.ContainerInterface;
-import io.github.elytra.copo.inventory.ContainerVT;
+import io.github.elytra.copo.inventory.ContainerTerminal;
 import io.github.elytra.copo.item.ItemDrive;
 import io.github.elytra.copo.item.ItemWirelessTerminal;
 import io.github.elytra.copo.tile.TileEntityImporterChest;
 import io.github.elytra.copo.tile.TileEntityInterface;
-import io.github.elytra.copo.tile.TileEntityVT;
+import io.github.elytra.copo.tile.TileEntityTerminal;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -33,10 +33,10 @@ public class CoPoGuiHandler implements IGuiHandler {
 		switch (id) {
 			case 0: {
 				TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
-				if (te instanceof TileEntityVT) {
-					return new ContainerVT(player.inventory, player, (TileEntityVT)te);
+				if (te instanceof TileEntityTerminal) {
+					return new ContainerTerminal(player.inventory, player, (TileEntityTerminal)te);
 				} else {
-					CoPo.log.warn("Expected TileEntityVT at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
+					CoPo.log.warn("Expected TileEntityTerminal at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
 					break;
 				}
 			}
@@ -61,7 +61,7 @@ public class CoPoGuiHandler implements IGuiHandler {
 			case 3: {
 				ItemStack terminal = player.inventory.getStackInSlot(x);
 				if (terminal != null && terminal.getItem() instanceof ItemWirelessTerminal) {
-					return new ContainerVT(player.inventory, player, new WirelessTerminalVT(world, player, (ItemWirelessTerminal)terminal.getItem(), terminal));
+					return new ContainerTerminal(player.inventory, player, new WirelessTerminal(world, player, (ItemWirelessTerminal)terminal.getItem(), terminal));
 				} else {
 					CoPo.log.warn("Expected a wireless terminal, got {} instead", terminal);
 					break;
@@ -94,10 +94,10 @@ public class CoPoGuiHandler implements IGuiHandler {
 		switch (id) {
 			case 0: {
 				TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
-				if (te instanceof TileEntityVT) {
-					return new GuiVT(new ContainerVT(player.inventory, player, (TileEntityVT)te));
+				if (te instanceof TileEntityTerminal) {
+					return new GuiTerminal(new ContainerTerminal(player.inventory, player, (TileEntityTerminal)te));
 				} else {
-					CoPo.log.warn("Expected TileEntityVT at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
+					CoPo.log.warn("Expected TileEntityTerminal at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
 					break;
 				}
 			}
@@ -122,7 +122,7 @@ public class CoPoGuiHandler implements IGuiHandler {
 			case 3: {
 				ItemStack terminal = player.inventory.getStackInSlot(x);
 				if (terminal != null && terminal.getItem() instanceof ItemWirelessTerminal) {
-					return new GuiVT(new ContainerVT(player.inventory, player, new WirelessTerminalVT(world, player, (ItemWirelessTerminal)terminal.getItem(), terminal)));
+					return new GuiTerminal(new ContainerTerminal(player.inventory, player, new WirelessTerminal(world, player, (ItemWirelessTerminal)terminal.getItem(), terminal)));
 				} else {
 					CoPo.log.warn("Expected a wireless terminal, got {} instead", terminal);
 					break;

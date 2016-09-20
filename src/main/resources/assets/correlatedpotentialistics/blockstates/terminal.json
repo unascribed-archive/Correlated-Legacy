@@ -5,7 +5,7 @@
 		"textures": {
 			"top": "correlatedpotentialistics:blocks/top",
 			"side": "correlatedpotentialistics:blocks/side",
-			"front": "correlatedpotentialistics:blocks/vt_dead"
+			"front": "correlatedpotentialistics:blocks/terminal"
 		}
 	},
 	"variants": {
@@ -27,13 +27,13 @@
 			"transform": "forge:default-block",
 			"model": "correlatedpotentialistics:double_cube",
 			"textures": {
-				"north_base": "correlatedpotentialistics:blocks/top",
+				"north_base": "correlatedpotentialistics:blocks/terminal",
 				"east_base": "correlatedpotentialistics:blocks/top",
 				"south_base": "correlatedpotentialistics:blocks/top",
 				"west_base": "correlatedpotentialistics:blocks/top",
 				"up_base": "correlatedpotentialistics:blocks/top",
 				"down_base": "correlatedpotentialistics:blocks/top",
-				"north_overlay": "correlatedpotentialistics:blocks/vt",
+				"north_overlay": "correlatedpotentialistics:blocks/terminal_glow",
 				"east_overlay": "correlatedpotentialistics:blocks/top",
 				"south_overlay": "correlatedpotentialistics:blocks/top",
 				"west_overlay": "correlatedpotentialistics:blocks/top",

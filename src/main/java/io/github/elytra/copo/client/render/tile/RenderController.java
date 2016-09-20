@@ -37,8 +37,7 @@ public class RenderController extends TileEntitySpecialRenderer<TileEntityContro
 				tex = "correlatedpotentialistics:blocks/controller_error";
 				break;
 			case OFF:
-				tex = "correlatedpotentialistics:blocks/controller_off";
-				break;
+				return;
 			case POWERED:
 				tex = "correlatedpotentialistics:blocks/controller";
 				break;

@@ -7,7 +7,7 @@ import io.github.elytra.concrete.NetworkContext;
 import io.github.elytra.concrete.annotation.field.MarshalledAs;
 import io.github.elytra.concrete.annotation.type.ReceivedOn;
 import io.github.elytra.copo.CoPo;
-import io.github.elytra.copo.inventory.ContainerVT;
+import io.github.elytra.copo.inventory.ContainerTerminal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
@@ -32,9 +32,9 @@ public class RecipeTransferMessage extends Message {
 	
 	@Override
 	protected void handle(EntityPlayer sender) {
-		if (sender.openContainer instanceof ContainerVT && sender.openContainer.windowId == windowId) {
-			ContainerVT vt = ((ContainerVT)sender.openContainer);
-			if (vt.hasCraftingMatrix) {
+		if (sender.openContainer instanceof ContainerTerminal && sender.openContainer.windowId == windowId) {
+			ContainerTerminal terminal = ((ContainerTerminal)sender.openContainer);
+			if (terminal.hasCraftingMatrix) {
 				boolean anyFailed = false;
 				ItemStack[] matrixResult = new ItemStack[9];
 				for (int i = 0; i < 9; i++) {
@@ -42,7 +42,7 @@ public class RecipeTransferMessage extends Message {
 					if (possibilities.isEmpty()) continue;
 					ItemStack res = null;
 					for (ItemStack is : possibilities) {
-						res = vt.removeItemsFromNetwork(is, 1);
+						res = terminal.removeItemsFromNetwork(is, 1);
 						if (res != null) break;
 					}
 					if (res != null) {
@@ -55,20 +55,20 @@ public class RecipeTransferMessage extends Message {
 				if (anyFailed) {
 					for (ItemStack is : matrixResult) {
 						if (is != null) {
-							vt.addItemToNetwork(is);
+							terminal.addItemToNetwork(is);
 						}
 					}
 				} else {
 					for (int i = 0; i < 9; i++) {
-						ItemStack cur = vt.craftMatrix.getStackInSlot(i);
+						ItemStack cur = terminal.craftMatrix.getStackInSlot(i);
 						if (cur != null) {
-							cur = vt.addItemToNetwork(cur);
+							cur = terminal.addItemToNetwork(cur);
 							if (cur != null) {
 								sender.entityDropItem(cur, 0.5f);
 								cur = null;
 							}
 						}
-						vt.craftMatrix.setInventorySlotContents(i, matrixResult[i]);
+						terminal.craftMatrix.setInventorySlotContents(i, matrixResult[i]);
 					}
 				}
 			}

@@ -5,7 +5,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import io.github.elytra.copo.CoPo;
-import io.github.elytra.copo.inventory.ContainerVT;
+import io.github.elytra.copo.inventory.ContainerTerminal;
 import io.github.elytra.copo.network.RecipeTransferMessage;
 import mezz.jei.api.BlankModPlugin;
 import mezz.jei.api.IModRegistry;
@@ -24,7 +24,7 @@ public class CoPoJEIPlugin extends BlankModPlugin {
 
 	@Override
 	public void register(IModRegistry registry) {
-		registry.addRecipeCategoryCraftingItem(new ItemStack(CoPo.vt), VanillaRecipeCategoryUid.CRAFTING);
+		registry.addRecipeCategoryCraftingItem(new ItemStack(CoPo.terminal), VanillaRecipeCategoryUid.CRAFTING);
 		registry.getRecipeTransferRegistry().addRecipeTransferHandler(new IRecipeTransferHandler() {
 			
 			@Override
@@ -51,7 +51,7 @@ public class CoPoJEIPlugin extends BlankModPlugin {
 			
 			@Override
 			public Class<? extends Container> getContainerClass() {
-				return ContainerVT.class;
+				return ContainerTerminal.class;
 			}
 		});
 	}

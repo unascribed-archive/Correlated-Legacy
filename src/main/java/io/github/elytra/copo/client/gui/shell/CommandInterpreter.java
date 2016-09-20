@@ -15,7 +15,7 @@ import net.minecraft.client.gui.GuiScreen;
 
 public class CommandInterpreter extends Program {
 	private StringBuilder command = new StringBuilder();
-	public CommandInterpreter(GuiVTShell parent) {
+	public CommandInterpreter(GuiTerminalShell parent) {
 		super(parent);
 	}
 	
@@ -44,7 +44,7 @@ public class CommandInterpreter extends Program {
 	@Override
 	public void keyTyped(char typedChar, int keyCode) {
 		if (keyCode == Keyboard.KEY_ESCAPE) {
-			Minecraft.getMinecraft().displayGuiScreen(parent.guiVt);
+			Minecraft.getMinecraft().displayGuiScreen(parent.guiTerminal);
 		} else if (keyCode == Keyboard.KEY_RETURN) {
 			parent.container.status.add("J:\\>"+command);
 			String cmd = command.toString();
@@ -64,7 +64,7 @@ public class CommandInterpreter extends Program {
 						parent.container.status.add("ide - write programs for automatons");
 						break;
 					case "exit":
-						Minecraft.getMinecraft().displayGuiScreen(parent.guiVt);
+						Minecraft.getMinecraft().displayGuiScreen(parent.guiTerminal);
 						break;
 					case "echo":
 						parent.container.status.add(split.length >= 2 ? split[1] : "");
@@ -121,7 +121,7 @@ public class CommandInterpreter extends Program {
 					command.setLength(0);
 					break;
 				case Keyboard.KEY_D:
-					Minecraft.getMinecraft().displayGuiScreen(parent.guiVt);
+					Minecraft.getMinecraft().displayGuiScreen(parent.guiTerminal);
 					break;
 			}
 		} else if (typedChar != 0 && IBMFontRenderer.canRender(typedChar)) {

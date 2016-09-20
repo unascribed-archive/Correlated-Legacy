@@ -3,9 +3,9 @@ package io.github.elytra.copo.client.render.tile;
 import org.lwjgl.opengl.GL11;
 
 import io.github.elytra.copo.CoPo;
-import io.github.elytra.copo.block.BlockVT;
+import io.github.elytra.copo.block.BlockTerminal;
 import io.github.elytra.copo.client.render.ProtrudingBoxRenderer;
-import io.github.elytra.copo.tile.TileEntityVT;
+import io.github.elytra.copo.tile.TileEntityTerminal;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -19,7 +19,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 
-public class RenderVT extends TileEntitySpecialRenderer<TileEntityVT> {
+public class RenderTerminal extends TileEntitySpecialRenderer<TileEntityTerminal> {
 
 	private static final ResourceLocation FLOPPY = new ResourceLocation("correlatedpotentialistics", "textures/misc/floppy.png");
 	public static final ProtrudingBoxRenderer pbr = new ProtrudingBoxRenderer()
@@ -38,14 +38,14 @@ public class RenderVT extends TileEntitySpecialRenderer<TileEntityVT> {
 			.z(0);
 	
 	@Override
-	public void renderTileEntityAt(TileEntityVT te, double x, double y, double z, float partialTicks, int destroyStage) {
+	public void renderTileEntityAt(TileEntityTerminal te, double x, double y, double z, float partialTicks, int destroyStage) {
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
-		if (bs.getBlock() != CoPo.vt) return;
+		if (bs.getBlock() != CoPo.terminal) return;
 
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);
 
-		EnumFacing facing = bs.getValue(BlockVT.FACING);
+		EnumFacing facing = bs.getValue(BlockTerminal.FACING);
 		switch (facing) {
 			case NORTH:
 				break;
@@ -73,12 +73,12 @@ public class RenderVT extends TileEntitySpecialRenderer<TileEntityVT> {
 		
 		float lastX = OpenGlHelper.lastBrightnessX;
 		float lastY = OpenGlHelper.lastBrightnessY;
-		if (bs.getValue(BlockVT.LIT)) {
+		if (bs.getValue(BlockTerminal.LIT)) {
 			Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
 			GlStateManager.disableLighting();
 	
-			TextureAtlasSprite tas = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("correlatedpotentialistics:blocks/vt");
+			TextureAtlasSprite tas = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("correlatedpotentialistics:blocks/terminal_glow");
 			float minU = tas.getMinU();
 			float maxU = tas.getMaxU();
 			float minV = tas.getMinV();
@@ -100,7 +100,7 @@ public class RenderVT extends TileEntitySpecialRenderer<TileEntityVT> {
 		int k = light / 65536;
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j, k);
 		
-		if (bs.getValue(BlockVT.FLOPPY)) {
+		if (bs.getValue(BlockTerminal.FLOPPY)) {
 			Minecraft.getMinecraft().getTextureManager().bindTexture(FLOPPY);
 			wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 			pbr.render(-1, 0, 0, 0);

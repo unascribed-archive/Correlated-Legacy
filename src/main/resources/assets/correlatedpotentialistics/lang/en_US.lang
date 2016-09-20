@@ -7,12 +7,12 @@ container.correlatedpotentialistics.drive_bay.name=Drive Bay
 tile.correlatedpotentialistics.controller.name=Controller
 tile.correlatedpotentialistics.drive_bay.name=Drive Bay
 tile.correlatedpotentialistics.memory_bay.name=Memory Bay
-tile.correlatedpotentialistics.vt.name=Terminal
+tile.correlatedpotentialistics.terminal.name=Terminal
 tile.correlatedpotentialistics.iface.name=Interface
 tile.correlatedpotentialistics.wireless_receiver.name=Wireless Receiver
 tile.correlatedpotentialistics.wireless_transmitter.name=Wireless Transmitter
 
-gui.correlatedpotentialistics.vt=Terminal
+gui.correlatedpotentialistics.terminal=Terminal
 gui.correlatedpotentialistics.importer_chest=Disassembled Old Network
 
 gui.correlatedpotentialistics.priority=Priority
@@ -145,10 +145,10 @@ tooltip.correlatedpotentialistics.automaton.followDistance.2=Far
 tooltip.correlatedpotentialistics.automaton.followDistance.3=Distant
 
 
-msg.correlatedpotentialistics.vt_no_controller=Cannot find a Controller to communicate with.
-msg.correlatedpotentialistics.vt_no_power=The unlit screen resists all attempts at interaction. Maybe you should power the network?
-msg.correlatedpotentialistics.vt_error=There is a fatal error preventing access to the network.
-msg.correlatedpotentialistics.vt_booting=The network is still starting up.
+msg.correlatedpotentialistics.terminal_no_controller=Cannot find a Controller to communicate with.
+msg.correlatedpotentialistics.terminal_no_power=The unlit screen resists all attempts at interaction. Maybe you should power the network?
+msg.correlatedpotentialistics.terminal_error=There is a fatal error preventing access to the network.
+msg.correlatedpotentialistics.terminal_booting=The network is still starting up.
 
 msg.correlatedpotentialistics.receiver_unlinked=This receiver does not have a linked transmitter. Right-click on a transmitter to link this receiver.
 msg.correlatedpotentialistics.receiver_linked=Receiver linked.

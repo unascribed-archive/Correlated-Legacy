@@ -21,7 +21,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
 import net.minecraftforge.fml.client.config.GuiUtils;
 
-public class GuiAutomaton extends GuiVT implements GuiResponder {
+public class GuiAutomaton extends GuiTerminal implements GuiResponder {
 	private static final ResourceLocation background = new ResourceLocation("correlatedpotentialistics", "textures/gui/container/automaton.png");
 	private ContainerAutomaton container;
 	private GuiTextField name;

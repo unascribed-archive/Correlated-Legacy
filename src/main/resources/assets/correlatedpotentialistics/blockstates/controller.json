@@ -7,7 +7,7 @@
 		"state": {
 			"off": {
 				"textures": {
-					"all": "correlatedpotentialistics:blocks/top"
+					"all": "correlatedpotentialistics:blocks/controller_off"
 				}
 			},
 			"powered": {

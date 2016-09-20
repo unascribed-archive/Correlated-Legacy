@@ -4,7 +4,7 @@ import io.github.elytra.copo.inventory.ContainerImporterChest;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 
-public class GuiImporterChest extends GuiVT {
+public class GuiImporterChest extends GuiTerminal {
 	private static final ResourceLocation BACKGROUND = new ResourceLocation("correlatedpotentialistics", "textures/gui/container/importer_chest.png");
 	
 	public GuiImporterChest(ContainerImporterChest container) {

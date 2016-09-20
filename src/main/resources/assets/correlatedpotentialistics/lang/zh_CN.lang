@@ -4,12 +4,12 @@ container.correlatedpotentialistics.drive_bay.name=磁盘存储柜
 
 tile.correlatedpotentialistics.controller.name=控制器
 tile.correlatedpotentialistics.drive_bay.name=磁盘存储柜
-tile.correlatedpotentialistics.vt.name=终端
+tile.correlatedpotentialistics.terminal.name=终端
 tile.correlatedpotentialistics.iface.name=访问接口
 tile.correlatedpotentialistics.wireless_receiver.name=无线信号接收仪
 tile.correlatedpotentialistics.wireless_transmitter.name=无线信号发射仪
 
-gui.correlatedpotentialistics.vt=终端
+gui.correlatedpotentialistics.terminal=终端
 
 gui.correlatedpotentialistics.priority=优先级
 gui.correlatedpotentialistics.priority.highest=最高(3)
@@ -75,10 +75,10 @@ tooltip.correlatedpotentialistics.crafting.only_shift_click=(仅在按住Shift�
 tooltip.correlatedpotentialistics.clear_crafting_grid=清空合成网格
 
 
-msg.correlatedpotentialistics.vt_no_controller=找不到可连接的控制器。
-msg.correlatedpotentialistics.vt_no_power=不论你怎么弄，屏幕就是不亮。也许你忘记接电源了？
-msg.correlatedpotentialistics.vt_error=在访问网络时发生错误，访问已被阻断。
-msg.correlatedpotentialistics.vt_booting=网络依旧在启动中。
+msg.correlatedpotentialistics.terminal_no_controller=找不到可连接的控制器。
+msg.correlatedpotentialistics.terminal_no_power=不论你怎么弄，屏幕就是不亮。也许你忘记接电源了？
+msg.correlatedpotentialistics.terminal_error=在访问网络时发生错误，访问已被阻断。
+msg.correlatedpotentialistics.terminal_booting=网络依旧在启动中。
 
 msg.correlatedpotentialistics.receiver_unlinked=接收仪未与发射仪配对。右击发射仪以完成配对。
 msg.correlatedpotentialistics.receiver_linked=接收仪已配对。

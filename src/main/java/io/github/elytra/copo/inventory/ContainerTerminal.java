@@ -10,15 +10,15 @@ import java.util.Locale;
 import com.google.common.primitives.Ints;
 
 import io.github.elytra.copo.CoPo;
-import io.github.elytra.copo.IVT;
-import io.github.elytra.copo.IVT.UserPreferences;
+import io.github.elytra.copo.ITerminal;
+import io.github.elytra.copo.ITerminal.UserPreferences;
 import io.github.elytra.copo.helper.Numbers;
 import io.github.elytra.copo.item.ItemDrive;
 import io.github.elytra.copo.network.AddStatusLineMessage;
 import io.github.elytra.copo.network.SetSearchQueryClientMessage;
 import io.github.elytra.copo.network.SetSlotSizeMessage;
 import io.github.elytra.copo.tile.TileEntityController;
-import io.github.elytra.copo.tile.TileEntityVT;
+import io.github.elytra.copo.tile.TileEntityTerminal;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -40,7 +40,7 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.world.World;
 
 // Yes, this class is a huge hardcoded mess and I'm sorry.
-public class ContainerVT extends Container {
+public class ContainerTerminal extends Container {
 	public enum SortMode {
 		QUANTITY((a, b) -> {
 			int quantityComp = Ints.compare(a.stackSize, b.stackSize);
@@ -99,7 +99,7 @@ public class ContainerVT extends Container {
 		}
 	}
 
-	public IVT vt;
+	public ITerminal terminal;
 	private World world;
 	private EntityPlayer player;
 	private int scrollOffset;
@@ -197,27 +197,27 @@ public class ContainerVT extends Container {
 	
 	public Slot floppySlot;
 
-	public ContainerVT(IInventory playerInventory, EntityPlayer player, IVT vt) {
+	public ContainerTerminal(IInventory playerInventory, EntityPlayer player, ITerminal terminal) {
 		this.player = player;
 		this.world = player.worldObj;
-		this.vt = vt;
-		initializeVTSize();
+		this.terminal = terminal;
+		initializeTerminalSize();
 		int x = startX;
 		int y = startY;
 
 		if (!player.worldObj.isRemote) {
-			UserPreferences prefs = vt.getPreferences(player);
+			UserPreferences prefs = terminal.getPreferences(player);
 			sortMode = prefs.sortMode;
 			sortAscending = prefs.sortAscending;
 			searchQuery = prefs.lastSearchQuery;
 			craftingTarget = prefs.craftingTarget;
 		}
 
-		if (vt.supportsDumpSlot()) {
-			addSlotToContainer(new Slot(vt.getDumpSlotInventory(), 0, 25, 161));
+		if (terminal.supportsDumpSlot()) {
+			addSlotToContainer(new Slot(terminal.getDumpSlotInventory(), 0, 25, 161));
 		}
-		if (vt instanceof TileEntityVT) {
-			TileEntityVT te = ((TileEntityVT)vt);
+		if (terminal instanceof TileEntityTerminal) {
+			TileEntityTerminal te = ((TileEntityTerminal)terminal);
 			addSlotToContainer(floppySlot = new Slot(te, 1, -8000, -8000) {
 				@Override
 				public boolean canBeHovered() {
@@ -262,7 +262,7 @@ public class ContainerVT extends Container {
 	/**
 	 * If overridden, <b>do not call super</b>.
 	 */
-	protected void initializeVTSize() {
+	protected void initializeTerminalSize() {
 		slotsTall = 6;
 		slotsAcross = 9;
 		startX = 69;
@@ -274,8 +274,8 @@ public class ContainerVT extends Container {
 
 	public void updateSlots() {
 		if (world.isRemote) return;
-		lastChangeId = vt.getStorage().getChangeId();
-		List<ItemStack> typesAll = vt.getStorage().getTypes();
+		lastChangeId = terminal.getStorage().getChangeId();
+		List<ItemStack> typesAll = terminal.getStorage().getTypes();
 		if (!searchQuery.isEmpty()) {
 			Iterator<ItemStack> itr = typesAll.iterator();
 			while (itr.hasNext()) {
@@ -369,8 +369,8 @@ public class ContainerVT extends Container {
 				break;
 				
 			case -23:
-				if (vt.getStorage() instanceof TileEntityController) {
-					TileEntityController cont = ((TileEntityController)vt.getStorage());
+				if (terminal.getStorage() instanceof TileEntityController) {
+					TileEntityController cont = ((TileEntityController)terminal.getStorage());
 					addStatusLine("total: "+Numbers.humanReadableBytes(cont.getMaxMemory()/8));
 					addStatusLine("used: "+Numbers.humanReadableBytes(cont.getTotalUsedMemory()/8));
 					addStatusLine("free: "+Numbers.humanReadableBytes(cont.getBitsMemoryFree()/8));
@@ -407,10 +407,10 @@ public class ContainerVT extends Container {
 
 	public ItemStack addItemToNetwork(ItemStack stack) {
 		if (player.worldObj.isRemote) return null;
-		int oldBits = vt.getStorage().getKilobitsStorageFree();
+		int oldBits = terminal.getStorage().getKilobitsStorageFree();
 		int initialStackSize = stack.stackSize;
-		ItemStack is = vt.getStorage().addItemToNetwork(stack);
-		int newBits = vt.getStorage().getKilobitsStorageFree();
+		ItemStack is = terminal.getStorage().addItemToNetwork(stack);
+		int newBits = terminal.getStorage().getKilobitsStorageFree();
 		int delta = oldBits-newBits;
 		String amt = delta < 8 ? delta+" Kib" : (delta/8)+" KiB";
 		if (is == null) {
@@ -439,9 +439,9 @@ public class ContainerVT extends Container {
 
 	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount) {
 		if (player.worldObj.isRemote) return null;
-		int oldBits = vt.getStorage().getKilobitsStorageFree();
-		ItemStack is = vt.getStorage().removeItemsFromNetwork(prototype, amount, true);
-		int newBits = vt.getStorage().getKilobitsStorageFree();
+		int oldBits = terminal.getStorage().getKilobitsStorageFree();
+		ItemStack is = terminal.getStorage().removeItemsFromNetwork(prototype, amount, true);
+		int newBits = terminal.getStorage().getKilobitsStorageFree();
 		int delta = newBits-oldBits;
 		String amt = delta < 8 ? delta+" Kib" : (delta/8)+" KiB";
 		if (is != null) {
@@ -488,11 +488,11 @@ public class ContainerVT extends Container {
 	@Override
 	public boolean canInteractWith(EntityPlayer player) {
 		if (!world.isRemote) {
-			if (vt.hasStorage() && vt.getStorage().getChangeId() != lastChangeId) {
+			if (terminal.hasStorage() && terminal.getStorage().getChangeId() != lastChangeId) {
 				updateSlots();
 			}
 		}
-		return player == this.player && vt.hasStorage() && vt.getStorage().isPowered() && vt.canContinueInteracting(player);
+		return player == this.player && terminal.hasStorage() && terminal.getStorage().isPowered() && terminal.canContinueInteracting(player);
 	}
 
 	@Override
@@ -655,12 +655,12 @@ public class ContainerVT extends Container {
 				}
 			}
 		}
-		UserPreferences prefs = vt.getPreferences(player);
+		UserPreferences prefs = terminal.getPreferences(player);
 		prefs.sortMode = sortMode;
 		prefs.sortAscending = sortAscending;
 		prefs.craftingTarget = craftingTarget;
 		prefs.lastSearchQuery = searchQuery;
-		vt.markUnderlyingStorageDirty();
+		terminal.markUnderlyingStorageDirty();
 	}
 
 	@Override

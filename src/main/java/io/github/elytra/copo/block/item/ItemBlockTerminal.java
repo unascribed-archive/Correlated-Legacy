@@ -9,9 +9,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 
-public class ItemBlockVT extends ItemBlock {
+public class ItemBlockTerminal extends ItemBlock {
 
-	public ItemBlockVT(Block block) {
+	public ItemBlockTerminal(Block block) {
 		super(block);
 	}
 

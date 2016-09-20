@@ -44,7 +44,7 @@ public class AutomatonProgrammer extends Program {
 	
 	private boolean confirmExit;
 	
-	public AutomatonProgrammer(GuiVTShell parent) {
+	public AutomatonProgrammer(GuiTerminalShell parent) {
 		super(parent);
 		if (parent.container.floppySlot != null) {
 			ItemStack floppy = parent.container.floppySlot.getStack();

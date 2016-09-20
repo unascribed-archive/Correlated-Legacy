@@ -5,7 +5,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
-public class ContainerImporterChest extends ContainerVT {
+public class ContainerImporterChest extends ContainerTerminal {
 	private TileEntityImporterChest teic;
 	
 	public ContainerImporterChest(IInventory playerInventory, EntityPlayer player, TileEntityImporterChest teic) {
@@ -15,7 +15,7 @@ public class ContainerImporterChest extends ContainerVT {
 	}
 	
 	@Override
-	protected void initializeVTSize() {
+	protected void initializeTerminalSize() {
 		startX = 8;
 		startY = 0;
 		slotsAcross = 9;

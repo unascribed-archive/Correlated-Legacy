@@ -7,8 +7,8 @@ import java.util.UUID;
 import com.google.common.collect.Maps;
 
 import io.github.elytra.copo.CoPo;
-import io.github.elytra.copo.IVT;
-import io.github.elytra.copo.block.BlockVT;
+import io.github.elytra.copo.ITerminal;
+import io.github.elytra.copo.block.BlockTerminal;
 import io.github.elytra.copo.item.ItemDrive;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -24,27 +24,27 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.util.Constants.NBT;
 
-public class TileEntityVT extends TileEntityNetworkMember implements ITickable, IInventory, IVT, ISidedInventory {
+public class TileEntityTerminal extends TileEntityNetworkMember implements ITickable, IInventory, ITerminal, ISidedInventory {
 	private Map<UUID, UserPreferences> preferences = Maps.newHashMap();
 
 	@Override
 	public void update() {
 		if (hasWorldObj() && !worldObj.isRemote) {
 			IBlockState state = getWorld().getBlockState(getPos());
-			if (state.getBlock() == CoPo.vt) {
+			if (state.getBlock() == CoPo.terminal) {
 				boolean lit;
 				if (hasStorage() && getStorage().isPowered()) {
 					lit = true;
 				} else {
 					lit = false;
 				}
-				if (lit != state.getValue(BlockVT.LIT)) {
-					getWorld().setBlockState(getPos(), state = state.withProperty(BlockVT.LIT, lit));
+				if (lit != state.getValue(BlockTerminal.LIT)) {
+					getWorld().setBlockState(getPos(), state = state.withProperty(BlockTerminal.LIT, lit));
 				}
 			}
 			boolean floppy = getStackInSlot(1) != null;
-			if (floppy != state.getValue(BlockVT.FLOPPY)) {
-				getWorld().setBlockState(getPos(), state.withProperty(BlockVT.FLOPPY, floppy));
+			if (floppy != state.getValue(BlockTerminal.FLOPPY)) {
+				getWorld().setBlockState(getPos(), state.withProperty(BlockTerminal.FLOPPY, floppy));
 			}
 			
 			if (hasStorage()) {
@@ -143,7 +143,7 @@ public class TileEntityVT extends TileEntityNetworkMember implements ITickable, 
 		return getStackInSlot(0);
 	}
 	
-	private InventoryBasic inv = new InventoryBasic("container.vt", false, 2);
+	private InventoryBasic inv = new InventoryBasic("gui.correlatedpotentialistics.terminal", false, 2);
 
 	public void addInventoryChangeListener(IInventoryChangedListener listener) {
 		inv.addInventoryChangeListener(listener);

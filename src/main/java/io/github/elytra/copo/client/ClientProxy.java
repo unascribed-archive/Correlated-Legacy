@@ -39,7 +39,7 @@ import io.github.elytra.copo.client.render.tile.RenderController;
 import io.github.elytra.copo.client.render.tile.RenderDriveBay;
 import io.github.elytra.copo.client.render.tile.RenderImporterChest;
 import io.github.elytra.copo.client.render.tile.RenderMemoryBay;
-import io.github.elytra.copo.client.render.tile.RenderVT;
+import io.github.elytra.copo.client.render.tile.RenderTerminal;
 import io.github.elytra.copo.client.render.tile.RenderWirelessReceiver;
 import io.github.elytra.copo.client.render.tile.RenderWirelessTransmitter;
 import io.github.elytra.copo.entity.EntityAutomaton;
@@ -53,7 +53,7 @@ import io.github.elytra.copo.tile.TileEntityController;
 import io.github.elytra.copo.tile.TileEntityDriveBay;
 import io.github.elytra.copo.tile.TileEntityImporterChest;
 import io.github.elytra.copo.tile.TileEntityMemoryBay;
-import io.github.elytra.copo.tile.TileEntityVT;
+import io.github.elytra.copo.tile.TileEntityTerminal;
 import io.github.elytra.copo.tile.TileEntityWirelessReceiver;
 import io.github.elytra.copo.tile.TileEntityWirelessTransmitter;
 import net.minecraft.client.Minecraft;
@@ -152,7 +152,7 @@ public class ClientProxy extends Proxy {
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityController.class, new RenderController());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityDriveBay.class, new RenderDriveBay());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityMemoryBay.class, new RenderMemoryBay());
-		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityVT.class, new RenderVT());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTerminal.class, new RenderTerminal());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityWirelessReceiver.class, new RenderWirelessReceiver());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityWirelessTransmitter.class, new RenderWirelessTransmitter());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityImporterChest.class, new RenderImporterChest());
@@ -168,7 +168,6 @@ public class ClientProxy extends Proxy {
 		((IReloadableResourceManager)Minecraft.getMinecraft().getResourceManager()).registerReloadListener((rm) -> {
 			colors.clear();
 			for (String s : knownColorTypes) {
-				CoPo.log.info("Loading {} colors", s);
 				try {
 					IResource res = rm.getResource(new ResourceLocation("correlatedpotentialistics", "textures/misc/"+s+"_colors.png"));
 					InputStream in = res.getInputStream();
@@ -496,7 +495,7 @@ public class ClientProxy extends Proxy {
 	public void onStitch(TextureStitchEvent.Pre e) {
 		e.getMap().registerSprite(new ResourceLocation("correlatedpotentialistics", "blocks/wireless_endpoint_error"));
 		e.getMap().registerSprite(new ResourceLocation("correlatedpotentialistics", "blocks/wireless_endpoint_linked"));
-		e.getMap().registerSprite(new ResourceLocation("correlatedpotentialistics", "items/wireless_vt_glow"));
+		e.getMap().registerSprite(new ResourceLocation("correlatedpotentialistics", "items/wireless_terminal_glow"));
 		e.getMap().registerSprite(new ResourceLocation("correlatedpotentialistics", "items/doc_tablet_glow"));
 		e.getMap().registerSprite(new ResourceLocation("correlatedpotentialistics", "items/keycard_glow"));
 	}
@@ -589,7 +588,7 @@ public class ClientProxy extends Proxy {
 				GlStateManager.disableAlpha();
 				GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
 				if (item == CoPo.wireless_terminal) {
-					drawSprite(mc.getTextureMapBlocks().getAtlasSprite("correlatedpotentialistics:items/wireless_vt_glow"));
+					drawSprite(mc.getTextureMapBlocks().getAtlasSprite("correlatedpotentialistics:items/wireless_terminal_glow"));
 				} else if (item == CoPo.drive) {
 					TextureAtlasSprite fullness = mc.getTextureMapBlocks().getAtlasSprite("correlatedpotentialistics:items/drive_fullness_light");
 					TextureAtlasSprite tier = mc.getTextureMapBlocks().getAtlasSprite("correlatedpotentialistics:items/drive_tier_light");

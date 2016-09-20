@@ -1,8 +1,8 @@
 package io.github.elytra.copo.client.gui.shell;
 
 public abstract class Program {
-	protected GuiVTShell parent;
-	public Program(GuiVTShell parent) {
+	protected GuiTerminalShell parent;
+	public Program(GuiTerminalShell parent) {
 		this.parent = parent;
 	}
 	public abstract void render(int rows, int cols);

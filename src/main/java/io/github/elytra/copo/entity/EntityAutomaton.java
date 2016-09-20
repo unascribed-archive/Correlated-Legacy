@@ -13,7 +13,7 @@ import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.IDigitalStorage;
-import io.github.elytra.copo.IVT;
+import io.github.elytra.copo.ITerminal;
 import io.github.elytra.copo.entity.ai.EntityAIAutomatonAttackRangedBow;
 import io.github.elytra.copo.entity.ai.EntityAIAutomatonFollowOwner;
 import io.github.elytra.copo.entity.ai.EntityAIAutomatonOwnerHurtByTarget;
@@ -67,7 +67,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants.NBT;
 
-public class EntityAutomaton extends EntityCreature implements IEntityOwnable, IVT, IDigitalStorage {
+public class EntityAutomaton extends EntityCreature implements IEntityOwnable, ITerminal, IDigitalStorage {
 	public enum AutomatonStatus {
 		WANDER,
 		ATTACK,

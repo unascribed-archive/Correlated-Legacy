@@ -3,13 +3,13 @@ package io.github.elytra.copo;
 import com.google.common.base.Enums;
 import com.google.common.base.Strings;
 
-import io.github.elytra.copo.inventory.ContainerVT.CraftingTarget;
-import io.github.elytra.copo.inventory.ContainerVT.SortMode;
+import io.github.elytra.copo.inventory.ContainerTerminal.CraftingTarget;
+import io.github.elytra.copo.inventory.ContainerTerminal.SortMode;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.nbt.NBTTagCompound;
 
-public interface IVT {
+public interface ITerminal {
 
 	public static class UserPreferences {
 		public SortMode sortMode = SortMode.QUANTITY;

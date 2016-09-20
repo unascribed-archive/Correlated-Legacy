@@ -4,7 +4,7 @@ import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.helper.Blocks;
 import io.github.elytra.copo.item.ItemFloppy;
 import io.github.elytra.copo.tile.TileEntityNetworkMember;
-import io.github.elytra.copo.tile.TileEntityVT;
+import io.github.elytra.copo.tile.TileEntityTerminal;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.material.Material;
@@ -26,12 +26,12 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-public class BlockVT extends Block {
+public class BlockTerminal extends Block {
 	public static final PropertyDirection FACING = BlockHorizontal.FACING;
 	public static final PropertyBool LIT = PropertyBool.create("lit");
 	public static final PropertyBool FLOPPY = PropertyBool.create("floppy");
 	
-	public BlockVT() {
+	public BlockTerminal() {
 		super(Material.IRON);
 	}
 
@@ -42,7 +42,7 @@ public class BlockVT extends Block {
 
 	@Override
 	public TileEntity createTileEntity(World world, IBlockState state) {
-		return new TileEntityVT();
+		return new TileEntityTerminal();
 	}
 
 	@Override
@@ -86,8 +86,8 @@ public class BlockVT extends Block {
 		}
 		if (!player.isSneaking()) {
 			TileEntity te = world.getTileEntity(pos);
-			if (te instanceof TileEntityVT) {
-				TileEntityVT vt = (TileEntityVT)te;
+			if (te instanceof TileEntityTerminal) {
+				TileEntityTerminal tet = (TileEntityTerminal)te;
 				if (side == state.getValue(FACING)) {
 					float x;
 					float y = 1-hitY;
@@ -109,14 +109,14 @@ public class BlockVT extends Block {
 					}
 					if (withinRegion(x, y, 5, 13)) {
 						if (heldItem != null && heldItem.getItem() instanceof ItemFloppy) {
-							vt.setInventorySlotContents(1, heldItem.copy());
+							tet.setInventorySlotContents(1, heldItem.copy());
 							heldItem.stackSize = 0;
 							return true;
-						} else if (vt.getStackInSlot(1) != null) {
+						} else if (tet.getStackInSlot(1) != null) {
 							if (!world.isRemote) {
 								EntityItem ent = new EntityItem(world, pos.getX()+hitX+(side.getFrontOffsetX()*0.2),
 										pos.getY()+hitY+(side.getFrontOffsetY()*0.2), pos.getZ()+hitZ+(side.getFrontOffsetZ()*0.2));
-								ent.setEntityItemStack(vt.removeStackFromSlot(1));
+								ent.setEntityItemStack(tet.removeStackFromSlot(1));
 								ent.setNoPickupDelay();
 								world.spawnEntityInWorld(ent);
 							}
@@ -124,17 +124,17 @@ public class BlockVT extends Block {
 						}
 					}
 				}
-				if (vt.hasStorage()) {
+				if (tet.hasStorage()) {
 					if (!world.isRemote) {
-						switch (world.getBlockState(vt.getStorage().getPos()).getValue(BlockController.state)) {
+						switch (world.getBlockState(tet.getStorage().getPos()).getValue(BlockController.state)) {
 							case BOOTING:
-								player.addChatMessage(new TextComponentTranslation("msg.correlatedpotentialistics.vt_booting"));
+								player.addChatMessage(new TextComponentTranslation("msg.correlatedpotentialistics.terminal_booting"));
 								break;
 							case ERROR:
-								player.addChatMessage(new TextComponentTranslation("msg.correlatedpotentialistics.vt_error"));
+								player.addChatMessage(new TextComponentTranslation("msg.correlatedpotentialistics.terminal_error"));
 								break;
 							case OFF:
-								player.addChatMessage(new TextComponentTranslation("msg.correlatedpotentialistics.vt_no_power"));
+								player.addChatMessage(new TextComponentTranslation("msg.correlatedpotentialistics.terminal_no_power"));
 								break;
 							case POWERED:
 								player.openGui(CoPo.inst, 0, world, pos.getX(), pos.getY(), pos.getZ());
@@ -148,7 +148,7 @@ public class BlockVT extends Block {
 				}
 			}
 			if (!world.isRemote) {
-				player.addChatMessage(new TextComponentTranslation("msg.correlatedpotentialistics.vt_no_controller"));
+				player.addChatMessage(new TextComponentTranslation("msg.correlatedpotentialistics.terminal_no_controller"));
 			}
 			return true;
 		}
