@@ -22,12 +22,12 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class BlockInterface extends Block implements ITweakable {
-	public static final IProperty<FaceMode> top = PropertyEnum.create("top", FaceMode.class);
-	public static final IProperty<FaceMode> bottom = PropertyEnum.create("bottom", FaceMode.class);
-	public static final IProperty<FaceMode> north = PropertyEnum.create("north", FaceMode.class);
-	public static final IProperty<FaceMode> east = PropertyEnum.create("east", FaceMode.class);
-	public static final IProperty<FaceMode> south = PropertyEnum.create("south", FaceMode.class);
-	public static final IProperty<FaceMode> west = PropertyEnum.create("west", FaceMode.class);
+	public static final IProperty<FaceMode> TOP = PropertyEnum.create("top", FaceMode.class);
+	public static final IProperty<FaceMode> BOTTOM = PropertyEnum.create("bottom", FaceMode.class);
+	public static final IProperty<FaceMode> NORTH = PropertyEnum.create("north", FaceMode.class);
+	public static final IProperty<FaceMode> EAST = PropertyEnum.create("east", FaceMode.class);
+	public static final IProperty<FaceMode> SOUTH = PropertyEnum.create("south", FaceMode.class);
+	public static final IProperty<FaceMode> WEST = PropertyEnum.create("west", FaceMode.class);
 
 	public BlockInterface() {
 		super(Material.IRON);
@@ -35,7 +35,7 @@ public class BlockInterface extends Block implements ITweakable {
 
 	@Override
 	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, top, bottom, north, east, south, west);
+		return new BlockStateContainer(this, TOP, BOTTOM, NORTH, EAST, SOUTH, WEST);
 	}
 
 	@Override
@@ -53,12 +53,12 @@ public class BlockInterface extends Block implements ITweakable {
 		TileEntity te = world.getTileEntity(pos);
 		if (te instanceof TileEntityInterface) {
 			TileEntityInterface tei = (TileEntityInterface)te;
-			state = state.withProperty(top, tei.getModeForFace(EnumFacing.UP));
-			state = state.withProperty(bottom, tei.getModeForFace(EnumFacing.DOWN));
-			state = state.withProperty(north, tei.getModeForFace(EnumFacing.NORTH));
-			state = state.withProperty(east, tei.getModeForFace(EnumFacing.EAST));
-			state = state.withProperty(south, tei.getModeForFace(EnumFacing.SOUTH));
-			state = state.withProperty(west, tei.getModeForFace(EnumFacing.WEST));
+			state = state.withProperty(TOP, tei.getModeForFace(EnumFacing.UP));
+			state = state.withProperty(BOTTOM, tei.getModeForFace(EnumFacing.DOWN));
+			state = state.withProperty(NORTH, tei.getModeForFace(EnumFacing.NORTH));
+			state = state.withProperty(EAST, tei.getModeForFace(EnumFacing.EAST));
+			state = state.withProperty(SOUTH, tei.getModeForFace(EnumFacing.SOUTH));
+			state = state.withProperty(WEST, tei.getModeForFace(EnumFacing.WEST));
 		}
 		return super.getActualState(state, world, pos);
 	}

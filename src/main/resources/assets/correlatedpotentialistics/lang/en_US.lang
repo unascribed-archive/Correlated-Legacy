@@ -13,6 +13,7 @@ tile.correlatedpotentialistics.wireless_receiver.name=Wireless Receiver
 tile.correlatedpotentialistics.wireless_transmitter.name=Wireless Transmitter
 
 gui.correlatedpotentialistics.vt=Terminal
+gui.correlatedpotentialistics.importer_chest=Disassembled Old Network
 
 gui.correlatedpotentialistics.priority=Priority
 gui.correlatedpotentialistics.priority.highest=Highest (3)
@@ -54,6 +55,10 @@ tooltip.correlatedpotentialistics.misc.unstable_pearl.0=§5What did you do?
 item.correlatedpotentialistics.misc.unfinished_organic_circuit.name=Unfinished Organic Circuit
 tooltip.correlatedpotentialistics.misc.unfinished_organic_circuit.0=§5Technically edible technology.
 item.correlatedpotentialistics.misc.data_core.name=Data Core
+tooltip.correlatedpotentialistics.misc.data_core.0=Right-click to throw and drop contents
+tooltip.correlatedpotentialistics.misc.data_core.1=on the ground with a 5 hour despawn time,
+tooltip.correlatedpotentialistics.misc.data_core.2=or use in place of a Luminous Pearl while
+tooltip.correlatedpotentialistics.misc.data_core.3=crafting a drive to re-use
 
 item.correlatedpotentialistics.keycard_amber.name=Amber Keycard
 item.correlatedpotentialistics.keycard_black.name=Onyx Keycard

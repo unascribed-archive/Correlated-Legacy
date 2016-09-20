@@ -17,13 +17,20 @@ Welcome to the unfinished 2.x branch of CoPo! Targets for the release of 2.0.0:
   * [x] Unstable Pearl
 * [ ] Rework storage math
   * [x] Memory
-  * [x] Bigger drives
-  * [ ] Migration system
-    * [ ] Detect old storage systems
-    * [ ] Demolish old storage systems
-      * [ ] Put chest in place of Controller
-      * [ ] Convert old drives to Data Cores
-      * [ ] Refund resources
+    * [x] Allocate memory based on complexity of types (example: a backpack allocates as much memory as all the items within it would, as does a Data Core or Drive)
+    * [x] Remove the concept of types from drives
+    * [x] Add memory bay
+      * [x] Soft reboot the network when memory is changed
+    * [x] Increase drive size to MiBs so memory can be KiBs
+    * [ ] Memory crafting recipe
+    * [ ] Memory bay crafting recipe
+  * [x] Migration system
+    * [x] Data Cores
+    * [x] Detect old storage systems
+    * [x] Demolish old storage systems
+      * [x] Put chest in place of Controller (made a special scrollable chest instead, for overly large networks to import properly)
+      * [x] Convert old drives to Data Cores
+      * [x] Refund resources
       * [ ] Write apology message for inclusion in chest
   * [x] `free` command
   * [ ] `part` command

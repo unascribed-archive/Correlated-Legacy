@@ -13,9 +13,6 @@ public class ItemMemory extends Item {
 	private final int[] tierSizes = {
 			1024 * 8,
 			4096 * 8,
-			16384 * 8,
-			65536 * 8,
-			131072 * 8
 	};
 
 	public ItemMemory() {

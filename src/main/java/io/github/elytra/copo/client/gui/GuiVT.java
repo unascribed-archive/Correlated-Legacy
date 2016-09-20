@@ -54,6 +54,14 @@ public class GuiVT extends GuiContainer {
 		}
 	}
 
+	protected boolean hasStatusLine() {
+		return true;
+	}
+	
+	protected boolean hasSearchAndSort() {
+		return true;
+	}
+	
 	protected ResourceLocation getBackground() {
 		return background;
 	}
@@ -77,7 +85,7 @@ public class GuiVT extends GuiContainer {
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 		fontRendererObj.drawString(getTitle(), 8, 6, 0x404040);
-		if (!(this instanceof GuiAutomaton)) {
+		if (hasStatusLine()) {
 			String lastLine = Strings.nullToEmpty(container.status.get(container.status.size()-1));
 			if (lastLine.length() > 32) {
 				lastLine = lastLine.substring(0, 32)+"...";
@@ -126,39 +134,42 @@ public class GuiVT extends GuiContainer {
 			drawTexturedModalRect(craftingTarget.xPosition+2, craftingTarget.yPosition+2, container.craftingTarget.ordinal()*8, 232, 8, 8);
 			drawTexturedModalRect(craftingAmount.xPosition+2, craftingAmount.yPosition+2, container.craftingAmount.ordinal()*8, 240, 8, 8);			
 		}
-		drawTexturedModalRect(sortDirection.xPosition+2, sortDirection.yPosition+2, container.sortAscending ? 0 : 8, 248, 8, 8);
-		drawTexturedModalRect(sortMode.xPosition+2, sortMode.yPosition+2, 16+(container.sortMode.ordinal()*8), 248, 8, 8);
-		searchField.drawTextBox();
-		if (sortMode.isMouseOver()) {
-			drawHoveringText(Lists.newArrayList(
-					I18n.format("tooltip.correlatedpotentialistics.sortmode"),
-					"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.sortmode."+container.sortMode.lowerName)
-				), mouseX, mouseY);
-		}
-		if (sortDirection.isMouseOver()) {
-			String str = (container.sortAscending ? "ascending" : "descending");
-			drawHoveringText(Lists.newArrayList(
-					I18n.format("tooltip.correlatedpotentialistics.sortdirection"),
-					"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.sortdirection."+str)
-				), mouseX, mouseY);
-		}
-		if (container.hasCraftingMatrix) {
-			if (craftingAmount.isMouseOver()) {
+		
+		if (hasSearchAndSort()) {
+			drawTexturedModalRect(sortDirection.xPosition+2, sortDirection.yPosition+2, container.sortAscending ? 0 : 8, 248, 8, 8);
+			drawTexturedModalRect(sortMode.xPosition+2, sortMode.yPosition+2, 16+(container.sortMode.ordinal()*8), 248, 8, 8);
+			searchField.drawTextBox();
+			if (sortMode.isMouseOver()) {
 				drawHoveringText(Lists.newArrayList(
-						I18n.format("tooltip.correlatedpotentialistics.crafting_amount"),
-						"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.crafting.only_shift_click"),
-						"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.crafting_amount."+container.craftingAmount.lowerName)
+						I18n.format("tooltip.correlatedpotentialistics.sortmode"),
+						"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.sortmode."+container.sortMode.lowerName)
 					), mouseX, mouseY);
 			}
-			if (craftingTarget.isMouseOver()) {
+			if (sortDirection.isMouseOver()) {
+				String str = (container.sortAscending ? "ascending" : "descending");
 				drawHoveringText(Lists.newArrayList(
-						I18n.format("tooltip.correlatedpotentialistics.crafting_target"),
-						"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.crafting.only_shift_click"),
-						"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.crafting_target."+container.craftingTarget.lowerName)
+						I18n.format("tooltip.correlatedpotentialistics.sortdirection"),
+						"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.sortdirection."+str)
 					), mouseX, mouseY);
 			}
-			if (clearGrid.isMouseOver()) {
-				drawHoveringText(Lists.newArrayList(I18n.format("tooltip.correlatedpotentialistics.clear_crafting_grid")), mouseX, mouseY);
+			if (container.hasCraftingMatrix) {
+				if (craftingAmount.isMouseOver()) {
+					drawHoveringText(Lists.newArrayList(
+							I18n.format("tooltip.correlatedpotentialistics.crafting_amount"),
+							"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.crafting.only_shift_click"),
+							"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.crafting_amount."+container.craftingAmount.lowerName)
+						), mouseX, mouseY);
+				}
+				if (craftingTarget.isMouseOver()) {
+					drawHoveringText(Lists.newArrayList(
+							I18n.format("tooltip.correlatedpotentialistics.crafting_target"),
+							"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.crafting.only_shift_click"),
+							"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.crafting_target."+container.craftingTarget.lowerName)
+						), mouseX, mouseY);
+				}
+				if (clearGrid.isMouseOver()) {
+					drawHoveringText(Lists.newArrayList(I18n.format("tooltip.correlatedpotentialistics.clear_crafting_grid")), mouseX, mouseY);
+				}
 			}
 		}
 		GlStateManager.popMatrix();
@@ -176,10 +187,12 @@ public class GuiVT extends GuiContainer {
 		x += getXOffset();
 		int y = (height - ySize) / 2;
 		y += getYOffset();
-		searchField.xPosition = x+143;
-		searchField.yPosition = y+6;
-		buttonList.add(sortDirection = new GuiButtonExt(0, x+236, y+4, 12, 12, ""));
-		buttonList.add(sortMode = new GuiButtonExt(1, x+128, y+4, 12, 12, ""));
+		if (hasSearchAndSort()) {
+			searchField.xPosition = x+143;
+			searchField.yPosition = y+6;
+			buttonList.add(sortDirection = new GuiButtonExt(0, x+236, y+4, 12, 12, ""));
+			buttonList.add(sortMode = new GuiButtonExt(1, x+128, y+4, 12, 12, ""));
+		}
 		if (container.hasCraftingMatrix) {
 			buttonList.add(craftingAmount = new GuiButtonExt(2, x+51, y+99, 12, 12, ""));
 			buttonList.add(craftingTarget = new GuiButtonExt(3, x+51, y+113, 12, 12, ""));
@@ -263,18 +276,20 @@ public class GuiVT extends GuiContainer {
 		} else {
 			scrollKnobY = 6;
 		}
-		searchField.updateCursorCounter();
-		if (!Objects.equal(searchField.getText(), lastSearchQuery)) {
-			lastSearchQuery = searchField.getText();
-			ticksSinceLastQueryChange = 0;
-			if (scrollKnobY != 6) {
-				scrollKnobY = 6;
-				mc.playerController.sendEnchantPacket(container.windowId, 0);
+		if (hasSearchAndSort()) {
+			searchField.updateCursorCounter();
+			if (!Objects.equal(searchField.getText(), lastSearchQuery)) {
+				lastSearchQuery = searchField.getText();
+				ticksSinceLastQueryChange = 0;
+				if (scrollKnobY != 6) {
+					scrollKnobY = 6;
+					mc.playerController.sendEnchantPacket(container.windowId, 0);
+				}
 			}
-		}
-		ticksSinceLastQueryChange++;
-		if (ticksSinceLastQueryChange == 4) {
-			new SetSearchQueryServerMessage(container.windowId, lastSearchQuery).sendToServer();
+			ticksSinceLastQueryChange++;
+			if (ticksSinceLastQueryChange == 4) {
+				new SetSearchQueryServerMessage(container.windowId, lastSearchQuery).sendToServer();
+			}
 		}
 	}
 
@@ -312,7 +327,7 @@ public class GuiVT extends GuiContainer {
 		int top = 90+container.playerInventoryOffsetY;
 		int right = 162+68+container.playerInventoryOffsetX;
 		int bottom = 11+89+container.playerInventoryOffsetY;
-		if (!(this instanceof GuiAutomaton) && mouseButton == 0
+		if (hasStatusLine() && mouseButton == 0
 				&& mouseX >= x+left && mouseX <= x+right
 				&& mouseY >= y+top && mouseY <= y+bottom) {
 			Minecraft.getMinecraft().displayGuiScreen(new GuiVTShell(this, container));
@@ -330,12 +345,14 @@ public class GuiVT extends GuiContainer {
 			mouseClickMove(mouseX, mouseY, mouseButton, 0);
 			return;
 		}
-		if (mouseButton == 1
-				&& mouseX >= searchField.xPosition && mouseX <= searchField.xPosition+searchField.width
-				&& mouseY >= searchField.yPosition && mouseY <= searchField.yPosition+searchField.height) {
-			searchField.setText("");
+		if (hasSearchAndSort()) {
+			if (mouseButton == 1
+					&& mouseX >= searchField.xPosition && mouseX <= searchField.xPosition+searchField.width
+					&& mouseY >= searchField.yPosition && mouseY <= searchField.yPosition+searchField.height) {
+				searchField.setText("");
+			}
+			searchField.mouseClicked(mouseX, mouseY, mouseButton);
 		}
-		searchField.mouseClicked(mouseX, mouseY, mouseButton);
 		super.mouseClicked(mouseX, mouseY, mouseButton);
 	}
 
@@ -361,7 +378,9 @@ public class GuiVT extends GuiContainer {
 
 	public void updateSearchQuery(String query) {
 		lastSearchQuery = query;
-		searchField.setText(query);
+		if (hasSearchAndSort()) {
+			searchField.setText(query);
+		}
 	}
 
 	public void addLine(String line) {

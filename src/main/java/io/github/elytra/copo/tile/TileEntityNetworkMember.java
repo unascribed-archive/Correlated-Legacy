@@ -50,7 +50,9 @@ public abstract class TileEntityNetworkMember extends TileEntity {
 				controller = (TileEntityController)te;
 			} else {
 				controllerPos = null;
-				CoPo.log.warn("The network member at {}, {}, {} failed to find its controller", getPos().getX(), getPos().getY(), getPos().getZ());
+				if (!(te instanceof TileEntityNetworkImporter)) {
+					CoPo.log.warn("The network member at {}, {}, {} failed to find its controller", getPos().getX(), getPos().getY(), getPos().getZ());
+				}
 			}
 		}
 		return controller;

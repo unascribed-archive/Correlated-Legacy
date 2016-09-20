@@ -6,8 +6,8 @@ import io.github.elytra.copo.item.ItemFloppy;
 import io.github.elytra.copo.tile.TileEntityNetworkMember;
 import io.github.elytra.copo.tile.TileEntityVT;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockStateContainer;
@@ -19,15 +19,17 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class BlockVT extends Block {
-	public static final IProperty<EnumFacing> facing = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
-	public static final PropertyBool lit = PropertyBool.create("lit");
-	public static final PropertyBool floppy = PropertyBool.create("floppy");
+	public static final PropertyDirection FACING = BlockHorizontal.FACING;
+	public static final PropertyBool LIT = PropertyBool.create("lit");
+	public static final PropertyBool FLOPPY = PropertyBool.create("floppy");
 	
 	public BlockVT() {
 		super(Material.IRON);
@@ -45,28 +47,28 @@ public class BlockVT extends Block {
 
 	@Override
 	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, facing, lit, floppy);
+		return new BlockStateContainer(this, FACING, LIT, FLOPPY);
 	}
 	
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		return (state.getValue(facing).getHorizontalIndex() & 0b0011)
-				| (state.getValue(lit) ? 0b0100 : 0)
-				| (state.getValue(floppy) ? 0b1000 : 0);
+		return (state.getValue(FACING).getHorizontalIndex() & 0b0011)
+				| (state.getValue(LIT) ? 0b0100 : 0)
+				| (state.getValue(FLOPPY) ? 0b1000 : 0);
 	}
 
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
 		return getDefaultState()
-				.withProperty(facing, EnumFacing.getHorizontal(meta&0b0011))
-				.withProperty(lit, (meta&0b0100) != 0)
-				.withProperty(floppy, (meta&0b1000) != 0);
+				.withProperty(FACING, EnumFacing.getHorizontal(meta&0b0011))
+				.withProperty(LIT, (meta&0b0100) != 0)
+				.withProperty(FLOPPY, (meta&0b1000) != 0);
 	}
 
 	@Override
 	public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facingIn, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
 		return this.getDefaultState()
-				.withProperty(facing, placer.getHorizontalFacing().getOpposite());
+				.withProperty(FACING, placer.getHorizontalFacing().getOpposite());
 	}
 
 	@Override
@@ -86,7 +88,7 @@ public class BlockVT extends Block {
 			TileEntity te = world.getTileEntity(pos);
 			if (te instanceof TileEntityVT) {
 				TileEntityVT vt = (TileEntityVT)te;
-				if (side == state.getValue(facing)) {
+				if (side == state.getValue(FACING)) {
 					float x;
 					float y = 1-hitY;
 					switch (side) {
@@ -156,6 +158,16 @@ public class BlockVT extends Block {
 	private boolean withinRegion(float x, float y, int regionX, int regionY) {
 		return x >= (regionX/16f) && x <= ((regionX+6)/16f)
 				&& y >= (regionY/16f) && y <= ((regionY+1)/16f);
+	}
+	
+	@Override
+	public IBlockState withRotation(IBlockState state, Rotation rot) {
+		return state.withProperty(FACING, rot.rotate(state.getValue(FACING)));
+	}
+
+	@Override
+	public IBlockState withMirror(IBlockState state, Mirror mirrorIn) {
+		return state.withRotation(mirrorIn.toRotation(state.getValue(FACING)));
 	}
 
 }

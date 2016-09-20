@@ -2,6 +2,7 @@ package io.github.elytra.copo;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
@@ -13,6 +14,7 @@ import com.google.common.collect.Lists;
 import io.github.elytra.concrete.NetworkContext;
 import io.github.elytra.copo.block.BlockController;
 import io.github.elytra.copo.block.BlockDriveBay;
+import io.github.elytra.copo.block.BlockImporterChest;
 import io.github.elytra.copo.block.BlockInterface;
 import io.github.elytra.copo.block.BlockMemoryBay;
 import io.github.elytra.copo.block.BlockVT;
@@ -52,8 +54,10 @@ import io.github.elytra.copo.network.SetSlotSizeMessage;
 import io.github.elytra.copo.network.StartWeldthrowingMessage;
 import io.github.elytra.copo.tile.TileEntityController;
 import io.github.elytra.copo.tile.TileEntityDriveBay;
+import io.github.elytra.copo.tile.TileEntityImporterChest;
 import io.github.elytra.copo.tile.TileEntityInterface;
 import io.github.elytra.copo.tile.TileEntityMemoryBay;
+import io.github.elytra.copo.tile.TileEntityNetworkImporter;
 import io.github.elytra.copo.tile.TileEntityVT;
 import io.github.elytra.copo.tile.TileEntityWirelessReceiver;
 import io.github.elytra.copo.tile.TileEntityWirelessTransmitter;
@@ -104,6 +108,7 @@ public class CoPo {
 	public static BlockVT vt;
 	public static BlockInterface iface;
 	public static BlockWirelessEndpoint wireless_endpoint;
+	public static BlockImporterChest importer_chest;
 
 	public static ItemMisc misc;
 	public static ItemDrive drive;
@@ -159,6 +164,12 @@ public class CoPo {
 	public int voidDriveUsage;
 	
 	public boolean weldthrowerHurts;
+	
+	public boolean refundContent;
+	public boolean refundBlocks;
+	public boolean refundDriveComponents;
+	public boolean importNetworks;
+	
 
 	@EventHandler
 	public void onPreInit(FMLPreInitializationEvent e) {
@@ -166,6 +177,7 @@ public class CoPo {
 
 		Configuration config = new Configuration(e.getSuggestedConfigurationFile());
 		easyProcessors = config.getBoolean("easyProcessors", "Crafting", false, "If true, processors can be crafted without finding one in a dungeon.");
+		
 		defaultWirelessRange = config.getFloat("defaultWirelessRange", "Balance", 64, 1, 65536, "The default radius of wireless transmitters, in blocks.");
 		weldthrowerHurts = config.getBoolean("weldthrowerHurts", "Balance", true, "If enabled, the Weldthrower will damage mobs and set them on fire.");
 		
@@ -183,6 +195,52 @@ public class CoPo {
 		voidDriveUsage = config.getInt("voidDrive", "PowerUsage", 4, 0, 640, "The RF/t used by the Void Drive.");
 		
 		limboDimId = config.getInt("limboDimId", "IDs", -31, -256, 256, "The dimension ID for the glitch dungeon.");
+		
+		String importModeStr = config.getString("mode", "Import", "refund_all",
+				"The mode for the old network importer, which will run on any 1.x networks loaded with CoPo 2.x. Possible values are:\n"
+				+ "refund_all: Refund components, convert drives into Data Cores, and refund Interface contents. [default]\n"
+				+ "refund_some: Convert drives into Data Cores and refund Interface contents, but do not refund drive crafting ingredients. Useful if you used MineTweaker to change the recipes. Blocks will still be refunded.\n"
+				+ "refund_content: Convert drives into Data Cores and refund Interface contents, but do not refund anything else.\n"
+				+ "destroy: Outright delete the network, and all items that were contained in it. If you use this option, PLEASE state it prominently on your modpack page, and warn people.\n"
+				+ "leave: Leave the network alone. May result in glitchy drives holding more data than they should be able to, crashes, and general strangeness. Not recommended.");
+		switch (importModeStr.toLowerCase(Locale.ROOT).trim()) {
+			default:
+				log.warn("Import mode set to unknown value {}, assuming refund_all", importModeStr);
+			case "refund_all": {
+				refundContent = true;
+				refundBlocks = true;
+				refundDriveComponents = true;
+				importNetworks = true;
+				break;
+			}
+			case "refund_some": {
+				refundContent = true;
+				refundBlocks = true;
+				refundDriveComponents = false;
+				importNetworks = true;
+				break;
+			}
+			case "refund_content": {
+				refundContent = true;
+				refundBlocks = false;
+				refundDriveComponents = false;
+				importNetworks = true;
+				break;
+			}
+			case "destroy": {
+				log.warn("Network importer mode is set to DESTROY. Old CoPo 1.x networks WILL BE LOST FOREVER.");
+				refundContent = false;
+				refundBlocks = false;
+				refundDriveComponents = false;
+				importNetworks = true;
+				break;
+			}
+			case "leave": {
+				importNetworks = false;
+				break;
+			}
+		}
+		
 		
 		config.save();
 		
@@ -252,6 +310,7 @@ public class CoPo {
 		register(new BlockVT().setHardness(2), ItemBlockVT.class, "vt", 0);
 		register(new BlockInterface().setHardness(2), ItemBlockInterface.class, "iface", 0);
 		register(new BlockWirelessEndpoint().setHardness(2), ItemBlockWirelessEndpoint.class, "wireless_endpoint", -4);
+		register(new BlockImporterChest().setHardness(2), null, "importer_chest", 0);
 
 		register(new ItemMisc(), "misc", -2);
 		register(new ItemDrive(), "drive", -1);
@@ -265,13 +324,15 @@ public class CoPo {
 		RecipeSorter.register("correlatedpotentialistics:drive", DriveRecipe.class, Category.SHAPED, "after:minecraft:shaped");
 		CRecipes.register();
 
-		GameRegistry.registerTileEntity(TileEntityController.class, "correlatedpotentialistics:controller");
+		GameRegistry.registerTileEntity(TileEntityNetworkImporter.class, "correlatedpotentialistics:controller");
+		GameRegistry.registerTileEntity(TileEntityController.class, "correlatedpotentialistics:controller_new");
 		GameRegistry.registerTileEntity(TileEntityDriveBay.class, "correlatedpotentialistics:drive_bay");
 		GameRegistry.registerTileEntity(TileEntityMemoryBay.class, "correlatedpotentialistics:memory_bay");
 		GameRegistry.registerTileEntity(TileEntityVT.class, "correlatedpotentialistics:vt");
 		GameRegistry.registerTileEntity(TileEntityInterface.class, "correlatedpotentialistics:interface");
 		GameRegistry.registerTileEntity(TileEntityWirelessReceiver.class, "correlatedpotentialistics:wireless_receiver");
 		GameRegistry.registerTileEntity(TileEntityWirelessTransmitter.class, "correlatedpotentialistics:wireless_transmitter");
+		GameRegistry.registerTileEntity(TileEntityImporterChest.class, "correlatedpotentialistics:importer_chest");
 		
 		Opcode.init();
 		
@@ -350,14 +411,16 @@ public class CoPo {
 		block.setCreativeTab(creativeTab);
 		block.setRegistryName(name);
 		GameRegistry.register(block);
-		try {
-			ItemBlock ib = item.getConstructor(Block.class).newInstance(block);
-			ib.setRegistryName(name);
-			GameRegistry.register(ib);
-		} catch (Exception e1) {
-			Throwables.propagate(e1);
+		if (item != null) {
+			try {
+				ItemBlock ib = item.getConstructor(Block.class).newInstance(block);
+				ib.setRegistryName(name);
+				GameRegistry.register(ib);
+			} catch (Exception e1) {
+				Throwables.propagate(e1);
+			}
+			proxy.registerItemModel(Item.getItemFromBlock(block), itemVariants);
 		}
-		proxy.registerItemModel(Item.getItemFromBlock(block), itemVariants);
 		try {
 			this.getClass().getField(name).set(this, block);
 		} catch (Exception e) {

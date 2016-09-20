@@ -85,6 +85,11 @@ public class GuiAutomaton extends GuiVT implements GuiResponder {
 	}
 	
 	@Override
+	protected boolean hasStatusLine() {
+		return false;
+	}
+	
+	@Override
 	public void updateScreen() {
 		super.updateScreen();
 		name.updateCursorCounter();

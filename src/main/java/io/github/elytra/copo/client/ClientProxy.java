@@ -37,6 +37,7 @@ import io.github.elytra.copo.client.render.entity.RenderAutomaton;
 import io.github.elytra.copo.client.render.entity.RenderThrownItem;
 import io.github.elytra.copo.client.render.tile.RenderController;
 import io.github.elytra.copo.client.render.tile.RenderDriveBay;
+import io.github.elytra.copo.client.render.tile.RenderImporterChest;
 import io.github.elytra.copo.client.render.tile.RenderMemoryBay;
 import io.github.elytra.copo.client.render.tile.RenderVT;
 import io.github.elytra.copo.client.render.tile.RenderWirelessReceiver;
@@ -50,6 +51,7 @@ import io.github.elytra.copo.item.ItemMisc;
 import io.github.elytra.copo.item.ItemModule;
 import io.github.elytra.copo.tile.TileEntityController;
 import io.github.elytra.copo.tile.TileEntityDriveBay;
+import io.github.elytra.copo.tile.TileEntityImporterChest;
 import io.github.elytra.copo.tile.TileEntityMemoryBay;
 import io.github.elytra.copo.tile.TileEntityVT;
 import io.github.elytra.copo.tile.TileEntityWirelessReceiver;
@@ -153,6 +155,7 @@ public class ClientProxy extends Proxy {
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityVT.class, new RenderVT());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityWirelessReceiver.class, new RenderWirelessReceiver());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityWirelessTransmitter.class, new RenderWirelessTransmitter());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityImporterChest.class, new RenderImporterChest());
 		
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CoPo.wireless_endpoint), 0, TileEntityWirelessReceiver.class);
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CoPo.wireless_endpoint), 1, TileEntityWirelessTransmitter.class);

@@ -73,7 +73,7 @@ public class RenderMemoryBay extends TileEntitySpecialRenderer<TileEntityMemoryB
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);
 
-		EnumFacing facing = te.getWorld().getBlockState(te.getPos()).getValue(BlockMemoryBay.facing);
+		EnumFacing facing = te.getWorld().getBlockState(te.getPos()).getValue(BlockMemoryBay.FACING);
 		switch (facing) {
 			case NORTH:
 				break;

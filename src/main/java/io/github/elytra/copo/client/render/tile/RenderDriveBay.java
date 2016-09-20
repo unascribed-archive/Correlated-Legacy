@@ -71,12 +71,12 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
 		if (bs.getBlock() != CoPo.drive_bay) return;
 
-		boolean lit = bs.getValue(BlockDriveBay.lit);
+		boolean lit = bs.getValue(BlockDriveBay.LIT);
 		
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);
 
-		EnumFacing facing = te.getWorld().getBlockState(te.getPos()).getValue(BlockDriveBay.facing);
+		EnumFacing facing = te.getWorld().getBlockState(te.getPos()).getValue(BlockDriveBay.FACING);
 		switch (facing) {
 			case NORTH:
 				break;

@@ -45,7 +45,7 @@ public class RenderVT extends TileEntitySpecialRenderer<TileEntityVT> {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);
 
-		EnumFacing facing = bs.getValue(BlockVT.facing);
+		EnumFacing facing = bs.getValue(BlockVT.FACING);
 		switch (facing) {
 			case NORTH:
 				break;
@@ -73,7 +73,7 @@ public class RenderVT extends TileEntitySpecialRenderer<TileEntityVT> {
 		
 		float lastX = OpenGlHelper.lastBrightnessX;
 		float lastY = OpenGlHelper.lastBrightnessY;
-		if (bs.getValue(BlockVT.lit)) {
+		if (bs.getValue(BlockVT.LIT)) {
 			Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
 			GlStateManager.disableLighting();
@@ -100,7 +100,7 @@ public class RenderVT extends TileEntitySpecialRenderer<TileEntityVT> {
 		int k = light / 65536;
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j, k);
 		
-		if (bs.getValue(BlockVT.floppy)) {
+		if (bs.getValue(BlockVT.FLOPPY)) {
 			Minecraft.getMinecraft().getTextureManager().bindTexture(FLOPPY);
 			wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 			pbr.render(-1, 0, 0, 0);

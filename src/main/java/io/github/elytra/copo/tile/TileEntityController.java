@@ -342,15 +342,10 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		prototypes.clear();
 		for (TileEntityDriveBay tedb : driveBays) {
 			if (tedb.isInvalid()) continue;
-			for (int i = 0; i < 8; i++) {
-				if (tedb.hasDriveInSlot(i)) {
-					ItemStack is = tedb.getDriveInSlot(i);
-					if (is.getItem() instanceof ItemDrive) {
-						ItemDrive id = (ItemDrive)is.getItem();
-						drives.add(is);
-						prototypes.addAll(id.getPrototypes(is));
-					}
-				}
+			for (ItemStack is : tedb) {
+				drives.add(is);
+				ItemDrive id = (ItemDrive)is.getItem();
+				prototypes.addAll(id.getPrototypes(is));
 			}
 		}
 		Collections.sort(drives, new DriveComparator());

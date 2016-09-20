@@ -1,6 +1,9 @@
 package io.github.elytra.copo.tile;
 
+import java.util.Iterator;
+
 import com.google.common.base.Predicates;
+import com.google.common.collect.Iterators;
 
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.block.BlockDriveBay;
@@ -15,8 +18,9 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
+import scala.actors.threadpool.Arrays;
 
-public class TileEntityDriveBay extends TileEntityNetworkMember implements ITickable {
+public class TileEntityDriveBay extends TileEntityNetworkMember implements ITickable, Iterable<ItemStack> {
 
 	private ItemStack[] drives = new ItemStack[8];
 	private int consumedPerTick = CoPo.inst.driveBayRfUsage;
@@ -127,8 +131,8 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 				} else {
 					lit = false;
 				}
-				if (lit != state.getValue(BlockDriveBay.lit)) {
-					getWorld().setBlockState(getPos(), state.withProperty(BlockDriveBay.lit, lit));
+				if (lit != state.getValue(BlockDriveBay.LIT)) {
+					getWorld().setBlockState(getPos(), state.withProperty(BlockDriveBay.LIT, lit));
 				}
 			}
 		}
@@ -194,6 +198,21 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 
 	public boolean hasDriveInSlot(int slot) {
 		return drives[slot] != null;
+	}
+
+	@Override
+	public Iterator<ItemStack> iterator() {
+		return Iterators.filter(Iterators.forArray(drives), (is) -> is != null && is.getItem() instanceof ItemDrive);
+	}
+
+	public void clear() {
+		Arrays.fill(drives, null);
+		NBTTagCompound nbt = new NBTTagCompound();
+		for (int i = 0; i < drives.length; i++) {
+			nbt.setTag("Drive"+i, new NBTTagCompound());
+		}
+		sendUpdatePacket(nbt); 
+		onDriveChange();
 	}
 
 }

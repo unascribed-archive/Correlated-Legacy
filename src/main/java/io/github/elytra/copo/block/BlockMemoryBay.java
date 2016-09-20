@@ -5,8 +5,8 @@ import io.github.elytra.copo.item.ItemMemory;
 import io.github.elytra.copo.tile.TileEntityMemoryBay;
 import io.github.elytra.copo.tile.TileEntityNetworkMember;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockStateContainer;
@@ -19,12 +19,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class BlockMemoryBay extends Block {
-	public static final IProperty<EnumFacing> facing = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
+	public static final PropertyDirection FACING = BlockHorizontal.FACING;
 	public static final PropertyBool lit = PropertyBool.create("lit");
 	
 	public BlockMemoryBay() {
@@ -43,26 +45,26 @@ public class BlockMemoryBay extends Block {
 
 	@Override
 	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, facing, lit);
+		return new BlockStateContainer(this, FACING, lit);
 	}
 	
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		return (state.getValue(facing).getHorizontalIndex() & 0b0011)
+		return (state.getValue(FACING).getHorizontalIndex() & 0b0011)
 				| (state.getValue(lit) ? 0b0100 : 0);
 	}
 
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
 		return getDefaultState()
-				.withProperty(facing, EnumFacing.getHorizontal(meta&0b0011))
+				.withProperty(FACING, EnumFacing.getHorizontal(meta&0b0011))
 				.withProperty(lit, (meta&0b0100) != 0);
 	}
 
 	@Override
 	public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facingIn, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
 		return this.getDefaultState()
-				.withProperty(facing, placer.getHorizontalFacing().getOpposite());
+				.withProperty(FACING, placer.getHorizontalFacing().getOpposite());
 	}
 
 	@Override
@@ -129,7 +131,7 @@ public class BlockMemoryBay extends Block {
 	}
 
 	public int getLookedAtSlot(IBlockState state, EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (side != state.getValue(facing)) return -1;
+		if (side != state.getValue(FACING)) return -1;
 		float x;
 		float y = 1-hitY;
 		switch (side) {
@@ -180,5 +182,15 @@ public class BlockMemoryBay extends Block {
 	private boolean withinRegion(float x, float y, int regionX, int regionY) {
 		return x >= (regionX/16f) && x <= ((regionX+4)/16f)
 				&& y >= (regionY/16f) && y <= ((regionY+1)/16f);
+	}
+	
+	@Override
+	public IBlockState withRotation(IBlockState state, Rotation rot) {
+		return state.withProperty(FACING, rot.rotate(state.getValue(FACING)));
+	}
+
+	@Override
+	public IBlockState withMirror(IBlockState state, Mirror mirrorIn) {
+		return state.withRotation(mirrorIn.toRotation(state.getValue(FACING)));
 	}
 }

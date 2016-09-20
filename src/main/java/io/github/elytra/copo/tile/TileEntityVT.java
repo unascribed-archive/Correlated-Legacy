@@ -38,13 +38,13 @@ public class TileEntityVT extends TileEntityNetworkMember implements ITickable, 
 				} else {
 					lit = false;
 				}
-				if (lit != state.getValue(BlockVT.lit)) {
-					getWorld().setBlockState(getPos(), state = state.withProperty(BlockVT.lit, lit));
+				if (lit != state.getValue(BlockVT.LIT)) {
+					getWorld().setBlockState(getPos(), state = state.withProperty(BlockVT.LIT, lit));
 				}
 			}
 			boolean floppy = getStackInSlot(1) != null;
-			if (floppy != state.getValue(BlockVT.floppy)) {
-				getWorld().setBlockState(getPos(), state.withProperty(BlockVT.floppy, floppy));
+			if (floppy != state.getValue(BlockVT.FLOPPY)) {
+				getWorld().setBlockState(getPos(), state.withProperty(BlockVT.FLOPPY, floppy));
 			}
 			
 			if (hasStorage()) {

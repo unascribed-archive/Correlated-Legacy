@@ -4,15 +4,18 @@ import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.WirelessTerminalVT;
 import io.github.elytra.copo.client.gui.GuiAutomaton;
 import io.github.elytra.copo.client.gui.GuiDrive;
+import io.github.elytra.copo.client.gui.GuiImporterChest;
 import io.github.elytra.copo.client.gui.GuiInterface;
 import io.github.elytra.copo.client.gui.GuiVT;
 import io.github.elytra.copo.entity.EntityAutomaton;
 import io.github.elytra.copo.inventory.ContainerAutomaton;
 import io.github.elytra.copo.inventory.ContainerDrive;
+import io.github.elytra.copo.inventory.ContainerImporterChest;
 import io.github.elytra.copo.inventory.ContainerInterface;
 import io.github.elytra.copo.inventory.ContainerVT;
 import io.github.elytra.copo.item.ItemDrive;
 import io.github.elytra.copo.item.ItemWirelessTerminal;
+import io.github.elytra.copo.tile.TileEntityImporterChest;
 import io.github.elytra.copo.tile.TileEntityInterface;
 import io.github.elytra.copo.tile.TileEntityVT;
 import net.minecraft.entity.Entity;
@@ -73,6 +76,15 @@ public class CoPoGuiHandler implements IGuiHandler {
 					break;
 				}
 			}
+			case 5: {
+				TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
+				if (te instanceof TileEntityImporterChest) {
+					return new ContainerImporterChest(player.inventory, player, (TileEntityImporterChest)te);
+				} else {
+					CoPo.log.warn("Expected TileEntityImporterChest at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
+					break;
+				}
+			}
 		}
 		return null;
 	}
@@ -122,6 +134,15 @@ public class CoPoGuiHandler implements IGuiHandler {
 					return new GuiAutomaton(new ContainerAutomaton(player.inventory, player, (EntityAutomaton)ent));
 				} else {
 					CoPo.log.warn("Expected an Automaton, got {} instead", ent == null ? "null" : ent.getClass());
+					break;
+				}
+			}
+			case 5: {
+				TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
+				if (te instanceof TileEntityImporterChest) {
+					return new GuiImporterChest(new ContainerImporterChest(player.inventory, player, (TileEntityImporterChest)te));
+				} else {
+					CoPo.log.warn("Expected TileEntityImporterChest at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
 					break;
 				}
 			}
