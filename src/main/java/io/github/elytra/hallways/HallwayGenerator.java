@@ -12,7 +12,7 @@ import io.github.elytra.hallways.DungeonTile.TileType;
  */
 public class HallwayGenerator {
 	
-	static Random generatorRandom = new Random();
+	private static Random defaultRandom = new Random();
 	
 	public static void main(String... args) {
 		
@@ -54,12 +54,20 @@ public class HallwayGenerator {
 	}
 	
 	public static int generateInto(VectorField<DungeonTile> field, DungeonTile hallTemplate, DungeonTile roomTemplate, DungeonTile startRoom, DungeonTile goal) {
+		return generateInto(defaultRandom, field, hallTemplate, roomTemplate, startRoom, goal);
+	}
+	
+	public static int generateInto(long seed, VectorField<DungeonTile> field, DungeonTile hallTemplate, DungeonTile roomTemplate, DungeonTile startRoom, DungeonTile goal) {
+		return generateInto(new Random(seed), field, hallTemplate, roomTemplate, startRoom, goal);
+	}
+	
+	public static int generateInto(Random rand, VectorField<DungeonTile> field, DungeonTile hallTemplate, DungeonTile roomTemplate, DungeonTile startRoom, DungeonTile goal) {
 		int complexity = 1; //Freebie because of initial room
 		
 		Vec2i curNode = new Vec2i(10,10);
 		Cardinal curDirection = Cardinal.NORTH;
 		
-		Vec2i initialRoom = genRoom(field, curNode.x, curNode.y, 2, 5, startRoom, 5);
+		Vec2i initialRoom = genRoom(rand, field, curNode.x, curNode.y, 2, 5, startRoom, 5);
 		if (initialRoom!=null) {
 			curDirection = Cardinal.fromTo(curNode, initialRoom).cw().cw(); //ensure that halls facing directly outwards add complexity
 			curNode = initialRoom;
@@ -67,15 +75,15 @@ public class HallwayGenerator {
 		
 		for(int i=0; i<120; i++) {
 			
-			if (generatorRandom.nextInt(8)==0) {
-				Vec2i deadEnd = genHall(field, curNode.x, curNode.y, 2, 8, hallTemplate, roomTemplate, 5);
+			if (rand.nextInt(8)==0) {
+				Vec2i deadEnd = genHall(rand, field, curNode.x, curNode.y, 2, 8, hallTemplate, roomTemplate, 5);
 				if (deadEnd!=null) {
 					complexity+= 2; //Branches are worth double complexity
-					genHall(field, deadEnd.x, deadEnd.y, 2, 8, hallTemplate, roomTemplate, 5);
+					genHall(rand, field, deadEnd.x, deadEnd.y, 2, 8, hallTemplate, roomTemplate, 5);
 				}
 			}
 			
-			Vec2i next = genHall(field, curNode.x, curNode.y, 2, 6, hallTemplate, roomTemplate, 5);
+			Vec2i next = genHall(rand, field, curNode.x, curNode.y, 2, 6, hallTemplate, roomTemplate, 5);
 			if (next!=null) {
 				Cardinal newDirection = Cardinal.fromTo(curNode, next);
 				if (newDirection!=curDirection) complexity++;
@@ -93,7 +101,7 @@ public class HallwayGenerator {
 				curNode = next;
 				
 				field.put(curNode.x, curNode.y, null);
-				next = genRoom(field, curNode.x, curNode.y, 2, 5, roomTemplate, 5);
+				next = genRoom(rand, field, curNode.x, curNode.y, 2, 5, roomTemplate, 5);
 				if (next!=null) {
 					curDirection = Cardinal.fromTo(curNode, next).cw().cw();
 					curNode = next;
@@ -117,7 +125,7 @@ public class HallwayGenerator {
 		}
 		
 		field.put(curNode.x, curNode.y, goal);
-		genRoom(field, curNode.x, curNode.y, 2, 5, goal, 5);
+		genRoom(rand, field, curNode.x, curNode.y, 2, 5, goal, 5);
 		
 		//System.out.println("Complexity: "+complexity+" pieces");
 		return complexity;
@@ -126,7 +134,7 @@ public class HallwayGenerator {
 
 	
 	
-	public static Vec2i spitball(VectorField<DungeonTile> dungeon, int x, int y, int minLength, int maxLength, final DungeonTile hall, final DungeonTile node) {
+	public static Vec2i spitball(Random rand, VectorField<DungeonTile> dungeon, int x, int y, int minLength, int maxLength, final DungeonTile hall, final DungeonTile node) {
 		
 		int x1 = x;
 		int y1 = y;
@@ -134,9 +142,9 @@ public class HallwayGenerator {
 		int y2 = y;
 		int deltaLength = maxLength-minLength;
 		
-		int dir = generatorRandom.nextInt(4);
+		int dir = rand.nextInt(4);
 		Cardinal flow = Cardinal.NORTH;
-		int len = generatorRandom.nextInt(deltaLength)+minLength;
+		int len = rand.nextInt(deltaLength)+minLength;
 		
 		switch(dir) {
 		case 0: //+X
@@ -189,7 +197,7 @@ public class HallwayGenerator {
 	}
 	
 	/** Turn a 1-square node into a room **/
-	public static Vec2i spitballRoom(VectorField<DungeonTile> dungeon, int x, int y, int minSize, int maxSize, final DungeonTile material) {
+	public static Vec2i spitballRoom(Random rand, VectorField<DungeonTile> dungeon, int x, int y, int minSize, int maxSize, final DungeonTile material) {
 		//this is an interesting problem: We're trying to create a rectangle with the given coordinates on its border.
 		//We're going to project the box out in a direction, then slide it along the opposite axis before finally committing to a hit test.
 		
@@ -200,16 +208,16 @@ public class HallwayGenerator {
 		int x2 = x;
 		int y2 = y;
 		
-		int len = generatorRandom.nextInt(sizeDelta) + minSize;
+		int len = rand.nextInt(sizeDelta) + minSize;
 		int breadth = len - (len/4); if (breadth<minSize) breadth=minSize;
-		if (generatorRandom.nextBoolean()) {
+		if (rand.nextBoolean()) {
 			int tmp = len;
 			len = breadth;
 			breadth = tmp;
 		}
 		int halfBreadth = breadth/2;
 		
-		int dir = generatorRandom.nextInt(4);
+		int dir = rand.nextInt(4);
 		switch(dir) {
 		case 0: //+X
 			//x1++;
@@ -264,7 +272,7 @@ public class HallwayGenerator {
 		
 		//We've pasted in the rectangle, now we project out to a side
 		Vec2i result = new Vec2i(x,y);
-		int dir2 = generatorRandom.nextInt(3);
+		int dir2 = rand.nextInt(3);
 		if (dir2>=dir) dir2++; //anything but the side we already picked
 		switch(dir2) {
 		case 0: //-X
@@ -285,17 +293,17 @@ public class HallwayGenerator {
 		return result;
 	}
 	
-	public static Vec2i genRoom(VectorField<DungeonTile> dungeon, int x, int y, int minSize, int maxSize, final DungeonTile material, int tries) {
+	public static Vec2i genRoom(Random rand, VectorField<DungeonTile> dungeon, int x, int y, int minSize, int maxSize, final DungeonTile material, int tries) {
 		for(int i=0; i<tries; i++) {
-			Vec2i result = spitballRoom(dungeon, x, y, minSize, maxSize, material);
+			Vec2i result = spitballRoom(rand, dungeon, x, y, minSize, maxSize, material);
 			if (result!=null) return result;
 		}
 		return null;
 	}
 	
-	public static Vec2i genHall(VectorField<DungeonTile> dungeon, int x, int y, int minLength, int maxLength, final DungeonTile hall, final DungeonTile node, int tries) {
+	public static Vec2i genHall(Random rand, VectorField<DungeonTile> dungeon, int x, int y, int minLength, int maxLength, final DungeonTile hall, final DungeonTile node, int tries) {
 		for(int i=0; i<tries; i++) {
-			Vec2i result = spitball(dungeon, x, y, minLength, maxLength, hall, node);
+			Vec2i result = spitball(rand, dungeon, x, y, minLength, maxLength, hall, node);
 			if (result!=null) return result;
 		}
 		return null;

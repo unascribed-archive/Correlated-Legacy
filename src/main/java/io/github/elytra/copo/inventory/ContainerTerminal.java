@@ -10,13 +10,13 @@ import java.util.Locale;
 import com.google.common.primitives.Ints;
 
 import io.github.elytra.copo.CoPo;
-import io.github.elytra.copo.ITerminal;
-import io.github.elytra.copo.ITerminal.UserPreferences;
 import io.github.elytra.copo.helper.Numbers;
 import io.github.elytra.copo.item.ItemDrive;
 import io.github.elytra.copo.network.AddStatusLineMessage;
 import io.github.elytra.copo.network.SetSearchQueryClientMessage;
 import io.github.elytra.copo.network.SetSlotSizeMessage;
+import io.github.elytra.copo.storage.ITerminal;
+import io.github.elytra.copo.storage.ITerminal.UserPreferences;
 import io.github.elytra.copo.tile.TileEntityController;
 import io.github.elytra.copo.tile.TileEntityTerminal;
 

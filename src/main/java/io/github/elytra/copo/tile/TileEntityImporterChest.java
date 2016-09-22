@@ -6,9 +6,9 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import io.github.elytra.copo.CoPo;
-import io.github.elytra.copo.IDigitalStorage;
-import io.github.elytra.copo.ITerminal;
 import io.github.elytra.copo.inventory.ContainerTerminal.SortMode;
+import io.github.elytra.copo.storage.IDigitalStorage;
+import io.github.elytra.copo.storage.ITerminal;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;

@@ -184,9 +184,9 @@ tooltip.correlatedpotentialistics.controller_error.network_too_big=The network i
 tooltip.correlatedpotentialistics.controller_error.too_much_power=The network takes too much power to run
 tooltip.correlatedpotentialistics.controller_error.infinite_loop=Wireless links are connected in an infinite loop
 tooltip.correlatedpotentialistics.controller_error.out_of_memory=Out of memory
-tooltip.correlatedpotentialistics.controller_consumption_rate=Using %d RF/t total (max 640 RF/t)
-tooltip.correlatedpotentialistics.controller_energy_buffer=%d/%d RF
-tooltip.correlatedpotentialistics.member_consumption_rate=Using %d RF/t from controller
+tooltip.correlatedpotentialistics.controller_consumption_rate=Using %d Dk/t total (max 640 Dk/t)
+tooltip.correlatedpotentialistics.controller_energy_buffer=%d/%d Dk
+tooltip.correlatedpotentialistics.member_consumption_rate=Using %d Dk/t from controller
 tooltip.correlatedpotentialistics.side=Side: %s
 tooltip.correlatedpotentialistics.mode=Mode: %s
 tooltip.correlatedpotentialistics.no_controller=No Controller
@@ -207,7 +207,7 @@ direction.correlatedpotentialistics.west=West
 
 tooltip.correlatedpotentialistics.drive_count=%d/8 drives
 tooltip.correlatedpotentialistics.bytes_used=%s of %s used (%d%%)
-tooltip.correlatedpotentialistics.rf_usage=Uses %d RF/t
+tooltip.correlatedpotentialistics.rf_usage=Uses %d Dk/t
 tooltip.correlatedpotentialistics.bytes_contained=Contains %s of data
 
 tooltip.correlatedpotentialistics.memory_count=%d/12 memory chips

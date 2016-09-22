@@ -5,10 +5,10 @@ import java.util.Locale;
 
 import com.google.common.collect.Lists;
 
-import io.github.elytra.copo.client.ClientProxy;
 import io.github.elytra.copo.entity.EntityAutomaton.AutomatonStatus;
 import io.github.elytra.copo.inventory.ContainerAutomaton;
 import io.github.elytra.copo.network.SetAutomatonNameMessage;
+import io.github.elytra.copo.proxy.ClientProxy;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiInventory;

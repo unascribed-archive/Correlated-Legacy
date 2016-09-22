@@ -12,6 +12,7 @@ import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.block.BlockDriveBay;
 import io.github.elytra.copo.block.BlockImporterChest;
 import io.github.elytra.copo.block.BlockTerminal;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -128,6 +129,7 @@ public class TileEntityNetworkImporter extends TileEntityImporter {
 								contentRefunds.add(is);
 							}
 						}
+						blockRefunds.add(new ItemStack(CoPo.iface));
 						delete.add(pos);
 					} else if (te instanceof TileEntityController || te instanceof TileEntityNetworkImporter) {
 						blockRefunds.add(new ItemStack(CoPo.controller));
@@ -143,6 +145,11 @@ public class TileEntityNetworkImporter extends TileEntityImporter {
 		for (BlockPos d : delete) {
 			worldObj.removeTileEntity(d);
 			worldObj.setBlockToAir(d);
+		}
+		if (justDelete) {
+			CoPo.log.info("Sucessfully deleted old network at {}, {}, {}", getPos().getX(), getPos().getY(), getPos().getZ());
+			substitute(Blocks.AIR.getDefaultState(), null, false);
+			return;
 		}
 		TileEntityImporterChest chest = new TileEntityImporterChest();
 		EnumFacing facing = EnumFacing.NORTH;

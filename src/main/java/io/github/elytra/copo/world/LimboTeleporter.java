@@ -11,7 +11,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Teleporter;
-import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 
 public class LimboTeleporter extends Teleporter {
@@ -38,24 +37,39 @@ public class LimboTeleporter extends Teleporter {
 	
 	@Override
 	public void placeInPortal(Entity entityIn, float rotationYaw) {
-		Vec2i freeSpot = grid.findFreeSpot();
-		Stopwatch sw = Stopwatch.createUnstarted();
-		sw.start();
-		scribe.erase(freeSpot);
-		sw.stop();
-		CoPo.log.info("Freed space at {} in {}", freeSpot, sw);
-		sw.reset();
-		sw.start();
-		Dungeon d = new Dungeon();
-		d.generateNewPlan();
-		grid.set(freeSpot, d);
-		sw.stop();
-		CoPo.log.info("Generated new dungeon at {} in {}", freeSpot, sw);
-		sw.reset();
-		sw.start();
-		scribe.write(d);
-		sw.stop();
-		CoPo.log.info("Scribed new dungeon at {} in {}", freeSpot, sw);
+		LimboProvider provider = ((LimboProvider)world.provider);
+		EntityPlayerMP player = ((EntityPlayerMP)entityIn);
+		DungeonPlayer dp = provider.popEntering(player.getGameProfile().getId());
+		CoPoWorldData data = CoPo.getDataFor(world.getMinecraftServer().worldServerForDimension(0));
+		data.getPlayerRespawnData().put(dp.getProfile().getId(), dp.getOldPlayer());
+		data.markDirty();
+		
+		Dungeon d = grid.getBySeed(dp.getSeed());
+		if (d == null) {
+			Vec2i freeSpot = grid.findFreeSpot();
+			
+			Stopwatch sw = Stopwatch.createUnstarted();
+			sw.start();
+			scribe.erase(freeSpot);
+			sw.stop();
+			CoPo.log.info("Freed space at {} in {}", freeSpot, sw);
+			sw.reset();
+			
+			sw.start();
+			d = new Dungeon();
+			d.generateNewPlan();
+			grid.set(freeSpot, d);
+			sw.stop();
+			CoPo.log.info("Generated new dungeon at {} in {}", freeSpot, sw);
+			sw.reset();
+			
+			sw.start();
+			scribe.write(d);
+			sw.stop();
+			CoPo.log.info("Scribed new dungeon at {} in {}", freeSpot, sw);
+		} else {
+			CoPo.log.info("Reusing existing dungeon at {}, {}", d.x, d.z);
+		}
 		Vec2f entrance = d.findEntranceTile();
 		int x = (d.x*Dungeon.NODE_SIZE)*Dungeon.DUNGEON_SIZE;
 		int z = (d.z*Dungeon.NODE_SIZE)*Dungeon.DUNGEON_SIZE;
@@ -63,25 +77,13 @@ public class LimboTeleporter extends Teleporter {
 		z += (entrance.y*Dungeon.NODE_SIZE);
 		x += (Dungeon.NODE_SIZE/2);
 		z += (Dungeon.NODE_SIZE/2);
+		
 		int y = 51;
 		BlockPos pos = new BlockPos(x, y-1, z);
 		if (world.isAirBlock(pos)) {
 			world.setBlockState(pos, Blocks.STONE.getDefaultState());
 		}
-		WorldProvider provider = world.provider;
-		if (entityIn instanceof EntityPlayerMP) {
-			EntityPlayerMP player = ((EntityPlayerMP)entityIn);
-			if (provider instanceof LimboProvider) {
-				DungeonPlayer dp = ((LimboProvider)provider).popEntering(player.getGameProfile().getId());
-				CoPoWorldData data = CoPo.getDataFor(world.getMinecraftServer().worldServerForDimension(0));
-				data.getPlayerRespawnData().put(dp.getProfile().getId(), dp.getOldPlayer());
-				data.markDirty();
-				//d.addPlayer(dp);
-			}
-			((EntityPlayerMP) entityIn).connection.setPlayerLocation(x+0.5, y, z+0.5, rotationYaw, entityIn.rotationPitch);
-		} else {
-			entityIn.setLocationAndAngles(x+0.5, y, z+0.5, rotationYaw, entityIn.rotationPitch);
-		}
+		((EntityPlayerMP) entityIn).connection.setPlayerLocation(x+0.5, y, z+0.5, rotationYaw, entityIn.rotationPitch);
 	}
 	
 }

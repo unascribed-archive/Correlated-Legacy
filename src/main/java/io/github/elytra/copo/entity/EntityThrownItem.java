@@ -8,6 +8,7 @@ import io.github.elytra.copo.network.SetGlitchingStateMessage;
 import io.github.elytra.copo.network.SetGlitchingStateMessage.GlitchState;
 import io.github.elytra.copo.world.DungeonPlayer;
 import io.github.elytra.copo.world.LimboProvider;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityEnderPearl;
 import net.minecraft.entity.item.EntityItem;
@@ -23,7 +24,9 @@ import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 
@@ -73,6 +76,16 @@ public class EntityThrownItem extends EntityEnderPearl {
 						p.mcServer.addScheduledTask(() -> {
 							NBTTagCompound oldEntity = p.writeToNBT(new NBTTagCompound());
 							DungeonPlayer player = new DungeonPlayer(p.getGameProfile(), p.inventory.getFirstEmptyStack(), oldEntity);
+							long hashCode = 1;
+							long prime = 59;
+							Vec3i radius = new Vec3i(2, 2, 2);
+							for (BlockPos bp : BlockPos.getAllInBoxMutable(getPosition().subtract(radius), getPosition().add(radius))) {
+								IBlockState state = worldObj.getBlockState(bp);
+								hashCode = (hashCode * prime) + state.getBlock().getRegistryName().hashCode();
+								hashCode = (hashCode * prime) + state.getBlock().getMetaFromState(state);
+							}
+							CoPo.log.debug("Dungeon seed is {}", hashCode);
+							player.setSeed(hashCode);
 							int dim = CoPo.limboDimId;
 							if (net.minecraftforge.common.ForgeHooks.onTravelToDimension(p, dim)) {
 								new SetGlitchingStateMessage(GlitchState.CORRUPTING).sendTo(p);

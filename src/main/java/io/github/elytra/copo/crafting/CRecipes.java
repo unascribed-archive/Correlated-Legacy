@@ -1,5 +1,6 @@
-package io.github.elytra.copo;
+package io.github.elytra.copo.crafting;
 
+import io.github.elytra.copo.CoPo;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;

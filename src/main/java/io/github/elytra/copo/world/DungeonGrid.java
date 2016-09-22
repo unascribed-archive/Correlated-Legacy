@@ -3,7 +3,9 @@ package io.github.elytra.copo.world;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
-
+import gnu.trove.map.TLongObjectMap;
+import gnu.trove.map.hash.TLongObjectHashMap;
+import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.math.Vec2i;
 import io.github.elytra.hallways.Cardinal;
 import net.minecraft.nbt.NBTTagCompound;
@@ -15,6 +17,7 @@ import net.minecraftforge.common.util.Constants.NBT;
 
 public class DungeonGrid implements INBTSerializable<NBTTagCompound> {
 	private Map<Vec2i, Dungeon> dungeons = Maps.newHashMap();
+	private TLongObjectMap<Dungeon> dungeonsBySeed = new TLongObjectHashMap<>();
 	
 	public DungeonGrid() {}
 
@@ -49,6 +52,10 @@ public class DungeonGrid implements INBTSerializable<NBTTagCompound> {
 	
 	public void set(int x, int z, Dungeon d) {
 		dungeons.put(new Vec2i(x, z), d);
+		if (dungeonsBySeed.containsKey(d.getSeed()) && d != dungeonsBySeed.get(d.getSeed())) {
+			CoPo.log.warn("Adding second dungeon with the same seed (orig: {}, new: {})", dungeonsBySeed.get(d.getSeed()), d);
+		}
+		dungeonsBySeed.put(d.getSeed(), d);
 		d.x = x;
 		d.z = z;
 	}
@@ -86,6 +93,10 @@ public class DungeonGrid implements INBTSerializable<NBTTagCompound> {
 			i++;
 		}
 	}
+	
+	public Dungeon getBySeed(long seed) {
+		return dungeonsBySeed.get(seed);
+	}
 
 	@Override
 	public NBTTagCompound serializeNBT() {
@@ -110,6 +121,7 @@ public class DungeonGrid implements INBTSerializable<NBTTagCompound> {
 			Dungeon d = new Dungeon();
 			d.deserializeNBT(entry);
 			dungeons.put(new Vec2i(entry.getInteger("X"), entry.getInteger("Z")), d);
+			dungeonsBySeed.put(d.getSeed(), d);
 		}
 	}
 

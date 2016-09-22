@@ -1,4 +1,4 @@
-package io.github.elytra.copo;
+package io.github.elytra.copo.proxy;
 
 import io.github.elytra.copo.entity.EntityAutomaton;
 import net.minecraft.entity.player.EntityPlayer;

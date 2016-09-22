@@ -1,7 +1,6 @@
 package io.github.elytra.copo.network;
 
 import io.github.elytra.copo.CoPo;
-import io.github.elytra.copo.WirelessTerminal;
 import io.github.elytra.copo.client.gui.GuiAutomaton;
 import io.github.elytra.copo.client.gui.GuiDrive;
 import io.github.elytra.copo.client.gui.GuiImporterChest;
@@ -15,6 +14,7 @@ import io.github.elytra.copo.inventory.ContainerInterface;
 import io.github.elytra.copo.inventory.ContainerTerminal;
 import io.github.elytra.copo.item.ItemDrive;
 import io.github.elytra.copo.item.ItemWirelessTerminal;
+import io.github.elytra.copo.storage.WirelessTerminal;
 import io.github.elytra.copo.tile.TileEntityImporterChest;
 import io.github.elytra.copo.tile.TileEntityInterface;
 import io.github.elytra.copo.tile.TileEntityTerminal;

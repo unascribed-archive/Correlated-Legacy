@@ -9,33 +9,40 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
+import com.google.common.primitives.Ints;
 
-import cofh.api.energy.EnergyStorage;
 import cofh.api.energy.IEnergyReceiver;
 import gnu.trove.set.hash.TCustomHashSet;
 import gnu.trove.strategy.HashingStrategy;
 import io.github.elytra.copo.CoPo;
-import io.github.elytra.copo.IDigitalStorage;
 import io.github.elytra.copo.block.BlockController;
 import io.github.elytra.copo.block.BlockController.State;
 import io.github.elytra.copo.helper.DriveComparator;
 import io.github.elytra.copo.item.ItemDrive;
 import io.github.elytra.copo.item.ItemMemory;
+import io.github.elytra.copo.storage.IDigitalStorage;
+import net.darkhax.tesla.api.ITeslaConsumer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fml.common.Optional;
 
-public class TileEntityController extends TileEntityNetworkMember implements IEnergyReceiver, ITickable, IDigitalStorage {
-	public static final int POWER_CAP = 640;
+@Optional.Interface(iface="cofh.api.energy.IEnergyReceiver",modid="CoFHAPI|energy")
+public class TileEntityController extends TileEntityNetworkMember implements IEnergyReceiver, ITickable, IDigitalStorage, IEnergyStorage {
+	public static final long POWER_CAP = 640;
+	// 5 seconds of full power
+	public static final long ENERGY_CAPACITY = (POWER_CAP*20)*5;
 	
-	private EnergyStorage energy = new EnergyStorage(POWER_CAP*100, POWER_CAP+1);
 	public boolean error = false;
 	public boolean booting = true;
 	public String errorReason;
-	private int consumedPerTick = 32;
+	private long consumedPerTick = 32;
 	public int bootTicks = 0;
 	private int networkMembers = 0;
 	private transient Set<BlockPos> networkMemberLocations = Sets.newHashSet();
@@ -50,7 +57,10 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	private boolean checkingInfiniteLoop = false;
 	
 	private long maxMemory = 0;
-
+	
+	// Measured in Danks, also accepts RF and CapabilityEnergy
+	private long energy;
+	
 	public TileEntityController() {
 		prototypes = new TCustomHashSet<>(new HashingStrategy<ItemStack>() {
 			private static final long serialVersionUID = 7782704091709458883L;
@@ -58,6 +68,10 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			@Override
 			public int computeHashCode(ItemStack is) {
 				// intentionally excludes quantity
+				
+				// excludes capabilities, due to there being no good way to get
+				// a capability hashcode - it'll have to collide and get
+				// resolved in equals. oh well.
 				if (is == null) return 0;
 				int res = 1;
 				if (is.hasTagCompound()) {
@@ -89,24 +103,15 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
-		energy.readFromNBT(compound);
+		energy = compound.getLong("Energy");
+		if (energy > ENERGY_CAPACITY) energy = ENERGY_CAPACITY;
 	}
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
-		energy.writeToNBT(compound);
+		compound.setLong("Energy", energy);
 		return compound;
-	}
-
-	@Override
-	public int getEnergyStored(EnumFacing from) {
-		return energy.getEnergyStored();
-	}
-
-	@Override
-	public int getMaxEnergyStored(EnumFacing from) {
-		return energy.getMaxEnergyStored();
 	}
 
 	@Override
@@ -130,10 +135,10 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			scanNetwork();
 		}
 		if (isPowered()) {
-			energy.modifyEnergyStored(-getEnergyConsumedPerTick());
+			modifyEnergyStored(-getEnergyConsumedPerTick());
 			bootTicks++;
 		} else {
-			energy.setEnergyStored(0);
+			energy = 0;
 		}
 		if (getTotalUsedMemory() > maxMemory) {
 			error = true;
@@ -148,15 +153,8 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	}
 
 	@Override
-	public int getEnergyConsumedPerTick() {
+	public long getEnergyConsumedPerTick() {
 		return consumedPerTick;
-	}
-
-	@Override
-	public int receiveEnergy(EnumFacing from, int maxReceive, boolean simulate) {
-		int rtrn = energy.receiveEnergy(maxReceive, simulate);
-		updateState();
-		return rtrn;
 	}
 
 	@Override
@@ -332,7 +330,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	
 	@Override
 	public boolean isPowered() {
-		return energy.getEnergyStored() >= getEnergyConsumedPerTick();
+		return energy >= getEnergyConsumedPerTick();
 	}
 
 	/** assumes the network cache is also up to date, if it's not, call scanNetwork */
@@ -369,7 +367,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		booting = true;
 	}
 
-	public void updateConsumptionRate(int change) {
+	public void updateConsumptionRate(long change) {
 		consumedPerTick += change;
 		if (consumedPerTick > POWER_CAP) {
 			error = true;
@@ -586,6 +584,113 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	@Override
 	public int getChangeId() {
 		return changeId;
+	}
+	
+	
+	
+	public void modifyEnergyStored(long energy) {
+		this.energy += energy;
+		if (this.energy > ENERGY_CAPACITY) {
+			this.energy = ENERGY_CAPACITY;
+		} else if (this.energy < 0) {
+			this.energy = 0;
+		}
+	}
+	
+	public long receiveEnergy(long maxReceive, boolean simulate) {
+		long energyReceived = Math.min(ENERGY_CAPACITY - energy,
+				Math.min(POWER_CAP+1, maxReceive));
+
+		if (!simulate) {
+			energy += energyReceived;
+		}
+		return energyReceived;
+	}
+	
+	
+	
+	
+	@Override
+	public int getEnergyStored(EnumFacing from) {
+		return Ints.saturatedCast(energy);
+	}
+
+	@Override
+	public int getMaxEnergyStored(EnumFacing from) {
+		return Ints.saturatedCast(ENERGY_CAPACITY);
+	}
+	
+	@Override
+	public int receiveEnergy(EnumFacing from, int maxReceive, boolean simulate) {
+		return Ints.saturatedCast(receiveEnergy(maxReceive, simulate));
+	}
+	
+	
+	
+	@Override
+	public int receiveEnergy(int maxReceive, boolean simulate) {
+		return Ints.saturatedCast(receiveEnergy((long)maxReceive, simulate));
+	}
+
+	@Override
+	public int extractEnergy(int maxExtract, boolean simulate) {
+		return 0;
+	}
+
+	@Override
+	public int getEnergyStored() {
+		return Ints.saturatedCast(energy);
+	}
+
+	@Override
+	public int getMaxEnergyStored() {
+		return Ints.saturatedCast(ENERGY_CAPACITY);
+	}
+
+	@Override
+	public boolean canExtract() {
+		return false;
+	}
+
+	@Override
+	public boolean canReceive() {
+		return true;
+	}
+	
+	
+	private Object teslaConsumer;
+	
+	
+	@Override
+	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+		if (capability == null) return null;
+		if (capability == CapabilityEnergy.ENERGY) {
+			return (T)this;
+		} else if (capability == CoPo.TESLA_CONSUMER) {
+			if (teslaConsumer == null) {
+				teslaConsumer = new TeslaConsumer();
+			}
+			return (T)teslaConsumer;
+		}
+		return super.getCapability(capability, facing);
+	}
+	
+	@Override
+	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+		if (capability == null) return false;
+		if (capability == CapabilityEnergy.ENERGY) {
+			return true;
+		} else if (capability == CoPo.TESLA_CONSUMER) {
+			return true;
+		}
+		return super.hasCapability(capability, facing);
+	}
+	
+	public class TeslaConsumer implements ITeslaConsumer {
+		@Override
+		public long givePower(long power, boolean simulated) {
+			return receiveEnergy(power, simulated);
+		}
 	}
 
 }

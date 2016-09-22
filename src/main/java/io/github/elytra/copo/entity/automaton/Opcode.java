@@ -7,9 +7,9 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 
-import io.github.elytra.copo.BiConsumer;
-import io.github.elytra.copo.IntFunction;
 import io.github.elytra.copo.entity.EntityAutomaton;
+import io.github.elytra.copo.function.BiConsumer;
+import io.github.elytra.copo.function.IntFunction;
 import io.netty.buffer.ByteBuf;
 
 public abstract class Opcode {

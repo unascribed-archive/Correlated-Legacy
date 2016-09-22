@@ -14,7 +14,16 @@ Welcome to the unfinished 2.x branch of CoPo! Targets for the release of 2.0.0:
   * [x] Floor plan generator
   * [ ] Keycards
   * [ ] The awesome room at the end with the processor
+    * [ ] Final effort
+    	* [ ] Boss fight?
+    	* [ ] Hacking minigame?
+    * [ ] Animate the entire dungeon going dark when the processor is removed
   * [x] Unstable Pearl
+    * [x] Transport thrower to a random dungeon
+    * [x] JPEG glitching animation
+    * [x] Fake reboot
+    * [x] Glitchy main menu
+    * [ ] Set dungeon seed based on blocks in a 5x5x5 area centered on the pearl
 * [ ] Rework storage math
   * [x] Memory
     * [x] Allocate memory based on complexity of types (example: a backpack allocates as much memory as all the items within it would, as does a Data Core or Drive)

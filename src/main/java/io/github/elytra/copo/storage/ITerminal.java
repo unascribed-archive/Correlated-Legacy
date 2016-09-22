@@ -1,4 +1,4 @@
-package io.github.elytra.copo;
+package io.github.elytra.copo.storage;
 
 import com.google.common.base.Enums;
 import com.google.common.base.Strings;

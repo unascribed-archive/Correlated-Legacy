@@ -7,9 +7,9 @@ import java.util.UUID;
 import com.google.common.collect.Maps;
 
 import io.github.elytra.copo.CoPo;
-import io.github.elytra.copo.ITerminal;
 import io.github.elytra.copo.block.BlockTerminal;
 import io.github.elytra.copo.item.ItemDrive;
+import io.github.elytra.copo.storage.ITerminal;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -78,7 +78,7 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 	}
 	
 	@Override
-	public int getEnergyConsumedPerTick() {
+	public long getEnergyConsumedPerTick() {
 		return CoPo.inst.terminalRfUsage;
 	}
 

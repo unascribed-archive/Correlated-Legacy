@@ -6,9 +6,9 @@ import java.util.Locale;
 import com.google.common.collect.Lists;
 
 import io.github.elytra.copo.CoPo;
-import io.github.elytra.copo.client.ClientProxy;
 import io.github.elytra.copo.helper.ItemStacks;
 import io.github.elytra.copo.helper.Numbers;
+import io.github.elytra.copo.proxy.ClientProxy;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;

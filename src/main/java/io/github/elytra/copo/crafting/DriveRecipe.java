@@ -1,5 +1,6 @@
-package io.github.elytra.copo;
+package io.github.elytra.copo.crafting;
 
+import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.item.ItemDrive;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.InventoryCrafting;

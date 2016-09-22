@@ -55,7 +55,7 @@ public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITic
 	}
 
 	@Override
-	public int getEnergyConsumedPerTick() {
+	public long getEnergyConsumedPerTick() {
 		return CoPo.inst.memoryBayRfUsage;
 	}
 

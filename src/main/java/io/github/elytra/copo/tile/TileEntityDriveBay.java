@@ -23,7 +23,7 @@ import scala.actors.threadpool.Arrays;
 public class TileEntityDriveBay extends TileEntityNetworkMember implements ITickable, Iterable<ItemStack> {
 
 	private ItemStack[] drives = new ItemStack[8];
-	private int consumedPerTick = CoPo.inst.driveBayRfUsage;
+	private long consumedPerTick = CoPo.inst.driveBayRfUsage;
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
@@ -61,7 +61,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 	}
 
 	@Override
-	public int getEnergyConsumedPerTick() {
+	public long getEnergyConsumedPerTick() {
 		return consumedPerTick;
 	}
 
@@ -178,7 +178,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 	}
 
 	private void onDriveChange() {
-		int old = consumedPerTick;
+		long old = consumedPerTick;
 		consumedPerTick = CoPo.inst.driveBayRfUsage;
 		for (ItemStack is : drives) {
 			if (is == null) continue;

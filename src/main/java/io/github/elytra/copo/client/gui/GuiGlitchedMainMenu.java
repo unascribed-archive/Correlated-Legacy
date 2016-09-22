@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.Random;
 
 import io.github.elytra.copo.CoPo;
-import io.github.elytra.copo.client.ClientProxy;
 import io.github.elytra.copo.network.EnterDungeonMessage;
+import io.github.elytra.copo.proxy.ClientProxy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiButton;

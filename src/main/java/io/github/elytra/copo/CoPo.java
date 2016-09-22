@@ -26,6 +26,8 @@ import io.github.elytra.copo.block.item.ItemBlockMemoryBay;
 import io.github.elytra.copo.block.item.ItemBlockTerminal;
 import io.github.elytra.copo.block.item.ItemBlockWirelessEndpoint;
 import io.github.elytra.copo.compat.WailaCompatibility;
+import io.github.elytra.copo.crafting.CRecipes;
+import io.github.elytra.copo.crafting.DriveRecipe;
 import io.github.elytra.copo.entity.EntityAutomaton;
 import io.github.elytra.copo.entity.EntityThrownItem;
 import io.github.elytra.copo.entity.automaton.Opcode;
@@ -52,6 +54,7 @@ import io.github.elytra.copo.network.SetSearchQueryClientMessage;
 import io.github.elytra.copo.network.SetSearchQueryServerMessage;
 import io.github.elytra.copo.network.SetSlotSizeMessage;
 import io.github.elytra.copo.network.StartWeldthrowingMessage;
+import io.github.elytra.copo.proxy.Proxy;
 import io.github.elytra.copo.tile.TileEntityController;
 import io.github.elytra.copo.tile.TileEntityDriveBay;
 import io.github.elytra.copo.tile.TileEntityImporterChest;
@@ -63,6 +66,7 @@ import io.github.elytra.copo.tile.TileEntityVTImporter;
 import io.github.elytra.copo.tile.TileEntityWirelessReceiver;
 import io.github.elytra.copo.tile.TileEntityWirelessTransmitter;
 import io.github.elytra.copo.world.LimboProvider;
+import net.darkhax.tesla.api.ITeslaConsumer;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -76,6 +80,8 @@ import net.minecraft.world.storage.loot.conditions.LootCondition;
 import net.minecraft.world.storage.loot.functions.LootFunction;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.fml.common.Loader;
@@ -103,8 +109,13 @@ public class CoPo {
 
 	@Instance
 	public static CoPo inst;
-	@SidedProxy(clientSide="io.github.elytra.copo.client.ClientProxy", serverSide="io.github.elytra.copo.Proxy")
+	@SidedProxy(clientSide="io.github.elytra.copo.proxy.ClientProxy", serverSide="io.github.elytra.copo.proxy.Proxy")
 	public static Proxy proxy;
+
+	
+	@CapabilityInject(ITeslaConsumer.class)
+	public static Capability<?> TESLA_CONSUMER;
+	
 
 	public static BlockController controller;
 	public static BlockDriveBay drive_bay;
@@ -177,10 +188,10 @@ public class CoPo {
 
 	@EventHandler
 	public void onPreInit(FMLPreInitializationEvent e) {
-		log = LogManager.getLogger("CorrelatedPotentialistics");
+		log = LogManager.getLogger("CoPo");
 
 		Configuration config = new Configuration(e.getSuggestedConfigurationFile());
-		easyProcessors = config.getBoolean("easyProcessors", "Crafting", false, "If true, processors can be crafted without finding one in a dungeon.");
+		easyProcessors = config.getBoolean("easyProcessors", "Crafting", false, "If true, processors can be crafted without going to the limbo dungeon. Not recommended.");
 		
 		defaultWirelessRange = config.getFloat("defaultWirelessRange", "Balance", 64, 1, 65536, "The default radius of wireless transmitters, in blocks.");
 		weldthrowerHurts = config.getBoolean("weldthrowerHurts", "Balance", true, "If enabled, the Weldthrower will damage mobs and set them on fire.");

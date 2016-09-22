@@ -1,4 +1,4 @@
-package io.github.elytra.copo.client;
+package io.github.elytra.copo.proxy;
 
 import java.awt.Graphics;
 import java.awt.Image;
@@ -29,7 +29,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import io.github.elytra.copo.CoPo;
-import io.github.elytra.copo.Proxy;
+import io.github.elytra.copo.client.ParticleWeldthrower;
 import io.github.elytra.copo.client.gui.GuiAbortRetryFail;
 import io.github.elytra.copo.client.gui.GuiFakeReboot;
 import io.github.elytra.copo.client.gui.GuiGlitchedMainMenu;

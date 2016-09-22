@@ -86,7 +86,7 @@ public abstract class TileEntityNetworkMember extends TileEntity {
 		return oldState.getBlock() != newState.getBlock();
 	}
 
-	public abstract int getEnergyConsumedPerTick();
+	public abstract long getEnergyConsumedPerTick();
 
 	public void handleNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
 		TileEntity te = world.getTileEntity(neighbor);

@@ -44,6 +44,7 @@ public class Dungeon implements INBTSerializable<NBTTagCompound> {
 	
 	private final Map<UUID, DungeonPlayer> playerLookup = new WeakHashMap<>();
 	private VectorField<DungeonTile> plan = new VectorField<>(0, 0);
+	private long seed;
 
 	public void generateNewPlan() {
 		DungeonTile hall = new DungeonTile(TileType.HALLWAY);
@@ -115,6 +116,7 @@ public class Dungeon implements INBTSerializable<NBTTagCompound> {
 		planTag.setInteger("Width", plan.getWidth());
 		planTag.setInteger("Height", plan.getHeight());
 		tag.setTag("Plan", planTag);
+		tag.setLong("Seed", seed);
 		return tag;
 	}
 
@@ -139,6 +141,7 @@ public class Dungeon implements INBTSerializable<NBTTagCompound> {
 			tile.deserializeNBT(entry.getCompoundTag("Content"));
 			plan.put(entry.getInteger("X"), entry.getInteger("Y"), tile);
 		}
+		seed = nbt.getLong("Seed");
 	}
 	
 	public int getX() {
@@ -205,6 +208,14 @@ public class Dungeon implements INBTSerializable<NBTTagCompound> {
 		}
 		if (found <= 0) return null;
 		return new Vec2f(xAcc/found, zAcc/found);
+	}
+	
+	public long getSeed() {
+		return seed;
+	}
+	
+	public void setSeed(long seed) {
+		this.seed = seed;
 	}
 
 }

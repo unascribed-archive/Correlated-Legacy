@@ -1,4 +1,4 @@
-package io.github.elytra.copo;
+package io.github.elytra.copo.storage;
 
 import java.util.List;
 

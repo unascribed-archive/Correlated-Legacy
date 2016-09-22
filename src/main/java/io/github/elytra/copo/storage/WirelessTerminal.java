@@ -1,5 +1,6 @@
-package io.github.elytra.copo;
+package io.github.elytra.copo.storage;
 
+import io.github.elytra.copo.CoPoWorldData;
 import io.github.elytra.copo.CoPoWorldData.Transmitter;
 import io.github.elytra.copo.item.ItemWirelessTerminal;
 import net.minecraft.entity.player.EntityPlayer;

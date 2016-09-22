@@ -8,8 +8,8 @@ import org.lwjgl.input.Keyboard;
 import com.google.common.base.Strings;
 
 import io.github.elytra.copo.CoPo;
-import io.github.elytra.copo.client.ClientProxy;
 import io.github.elytra.copo.client.IBMFontRenderer;
+import io.github.elytra.copo.proxy.ClientProxy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 

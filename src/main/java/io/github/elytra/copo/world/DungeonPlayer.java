@@ -10,6 +10,7 @@ public class DungeonPlayer implements INBTSerializable<NBTTagCompound> {
 	private GameProfile profile;
 	private int unstablePearlSlot;
 	private NBTTagCompound oldPlayer;
+	private long seed;
 	
 	public DungeonPlayer() {}
 	public DungeonPlayer(GameProfile profile, int unstablePearlSlot, NBTTagCompound oldPlayer) {
@@ -24,6 +25,7 @@ public class DungeonPlayer implements INBTSerializable<NBTTagCompound> {
 		NBTUtil.writeGameProfile(tag, profile);
 		tag.setInteger("UnstablePearlSlot", unstablePearlSlot);
 		tag.setTag("OldPlayer", oldPlayer);
+		tag.setLong("Seed", seed);
 		return tag;
 	}
 
@@ -32,6 +34,7 @@ public class DungeonPlayer implements INBTSerializable<NBTTagCompound> {
 		profile = NBTUtil.readGameProfileFromNBT(nbt);
 		unstablePearlSlot = nbt.getInteger("UnstablePearlSlot");
 		oldPlayer = nbt.getCompoundTag("OldPlayer");
+		seed = nbt.getLong("Seed");
 	}
 	
 	
@@ -57,6 +60,14 @@ public class DungeonPlayer implements INBTSerializable<NBTTagCompound> {
 	
 	public void setOldPlayer(NBTTagCompound oldPlayer) {
 		this.oldPlayer = oldPlayer;
+	}
+	
+	public long getSeed() {
+		return seed;
+	}
+	
+	public void setSeed(long seed) {
+		this.seed = seed;
 	}
 	
 	

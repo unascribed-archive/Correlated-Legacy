@@ -305,7 +305,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 	}
 
 	@Override
-	public int getEnergyConsumedPerTick() {
+	public long getEnergyConsumedPerTick() {
 		return CoPo.inst.interfaceRfUsage;
 	}
 

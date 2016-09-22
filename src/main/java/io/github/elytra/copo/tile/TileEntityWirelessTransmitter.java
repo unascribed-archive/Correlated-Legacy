@@ -42,7 +42,7 @@ public class TileEntityWirelessTransmitter extends TileEntityWirelessEndpoint {
 	}
 
 	@Override
-	public int getEnergyConsumedPerTick() {
+	public long getEnergyConsumedPerTick() {
 		return CoPo.inst.transmitterRfUsage;
 	}
 	
