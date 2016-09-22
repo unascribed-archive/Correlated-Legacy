@@ -58,7 +58,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	
 	private long maxMemory = 0;
 	
-	// Measured in Danks, also accepts RF and CapabilityEnergy
+	// Measured in Teslas, also accepts RF and CapabilityEnergy
 	private long energy;
 	
 	public TileEntityController() {
