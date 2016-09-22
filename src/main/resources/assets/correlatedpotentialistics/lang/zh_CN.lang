@@ -84,7 +84,7 @@ msg.correlatedpotentialistics.terminal_cantconnect=找不到配对的发射仪�
 msg.correlatedpotentialistics.terminal_outofrange=发射仪不在服务区
 
 numbers.correlatedpotentialistics.gibibytes=%d GiB
-numbers.correlatedpotentialistics.mibibytes=%d MiB
+numbers.correlatedpotentialistics.mebibytes=%d MiB
 numbers.correlatedpotentialistics.kibibytes=%d KiB
 numbers.correlatedpotentialistics.bytes=%d字节
 numbers.correlatedpotentialistics.byte=1字节

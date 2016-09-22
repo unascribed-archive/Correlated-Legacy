@@ -142,7 +142,7 @@ tooltip.correlatedpotentialistics.automaton.followDistance.3=Distant
 
 
 msg.correlatedpotentialistics.terminal_no_controller=Cannot find a Controller to communicate with.
-msg.correlatedpotentialistics.terminal_no_power=The unlit screen resists all attempts at interaction. Maybe you should power the network?
+msg.correlatedpotentialistics.terminal_no_power=The unlit screen resists all attempts at interaction.
 msg.correlatedpotentialistics.terminal_error=There is a fatal error preventing access to the network.
 msg.correlatedpotentialistics.terminal_booting=The network is still starting up.
 
@@ -159,8 +159,13 @@ msg.correlatedpotentialistics.automaton_angry=The Automaton refuses to let you c
 msg.correlatedpotentialistics.automaton_untamed=The Automaton doesn't trust you.
 msg.correlatedpotentialistics.automaton_dead=The Automaton has shut off to avoid fatal damage. (Try repairing it with a Weldthrower.)
 
+numbers.correlatedpotentialistics.yobibytes=%d YiB
+numbers.correlatedpotentialistics.zebibytes=%d ZiB
+numbers.correlatedpotentialistics.exbibytes=%d EiB
+numbers.correlatedpotentialistics.pebibytes=%d PiB
+numbers.correlatedpotentialistics.tebibytes=%d TiB
 numbers.correlatedpotentialistics.gibibytes=%d GiB
-numbers.correlatedpotentialistics.mibibytes=%d MiB
+numbers.correlatedpotentialistics.mebibytes=%d MiB
 numbers.correlatedpotentialistics.kibibytes=%d KiB
 numbers.correlatedpotentialistics.bytes=%d bytes
 numbers.correlatedpotentialistics.byte=1 byte
