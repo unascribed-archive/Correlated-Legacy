@@ -130,6 +130,7 @@ public class ContainerInterface extends Container {
 
 	@Override
 	public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, EntityPlayer player) {
+		if (clickTypeIn == ClickType.QUICK_CRAFT) return player.inventory.getItemStack();
 		if (slotId >= 1) {
 			Slot slot = getSlot(slotId);
 			if (slot instanceof SlotFake) {
