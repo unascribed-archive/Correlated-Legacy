@@ -125,6 +125,12 @@ tooltip.correlatedpotentialistics.crafting.only_shift_click=(Only affects shift-
 
 tooltip.correlatedpotentialistics.clear_crafting_grid=Clear Crafting Grid
 
+tooltip.correlatedpotentialistics.focus_search_by_default.true=Focus Search on Open
+tooltip.correlatedpotentialistics.focus_search_by_default.false=Don't Focus Search on Open
+
+tooltip.correlatedpotentialistics.jei_sync.true=Sync Search with JEI
+tooltip.correlatedpotentialistics.jei_sync.false=Don't Sync Search with JEI
+
 
 entity.correlatedpotentialistics.automaton.name=Automaton
 

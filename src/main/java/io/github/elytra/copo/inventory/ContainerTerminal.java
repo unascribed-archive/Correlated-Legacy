@@ -10,6 +10,7 @@ import java.util.Locale;
 import com.google.common.primitives.Ints;
 
 import io.github.elytra.copo.CoPo;
+import io.github.elytra.copo.client.gui.GuiTerminal;
 import io.github.elytra.copo.helper.Numbers;
 import io.github.elytra.copo.item.ItemDrive;
 import io.github.elytra.copo.network.AddStatusLineMessage;
@@ -24,6 +25,8 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Booleans;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ClickType;
@@ -38,6 +41,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 // Yes, this class is a huge hardcoded mess and I'm sorry.
 public class ContainerTerminal extends Container {
@@ -109,6 +114,8 @@ public class ContainerTerminal extends Container {
 	public boolean sortAscending = false;
 	public CraftingAmount craftingAmount = CraftingAmount.ONE;
 	public CraftingTarget craftingTarget = CraftingTarget.INVENTORY;
+	public boolean jeiSyncEnabled = false;
+	public boolean searchFocusedByDefault = false;
 	private int lastChangeId;
 	public InventoryCrafting craftMatrix = new InventoryCrafting(this, 3, 3);
 	public InventoryCraftResult craftResult = new InventoryCraftResult();
@@ -211,6 +218,8 @@ public class ContainerTerminal extends Container {
 			sortAscending = prefs.isSortAscending();
 			searchQuery = prefs.getLastSearchQuery();
 			craftingTarget = prefs.getCraftingTarget();
+			searchFocusedByDefault = prefs.isSearchFocusedByDefault();
+			jeiSyncEnabled = prefs.isJeiSyncEnabled();
 		}
 
 		if (terminal.supportsDumpSlot()) {
@@ -382,6 +391,20 @@ public class ContainerTerminal extends Container {
 				}
 				break;
 
+			case -24:
+				searchFocusedByDefault = true;
+				break;
+			case -25:
+				searchFocusedByDefault = false;
+				break;
+				
+			case -26:
+				jeiSyncEnabled = true;
+				break;
+			case -27:
+				jeiSyncEnabled = false;
+				break;
+				
 			/*
 			 * -30 (inclusive) through -60 (inclusive) are for subclass use
 			 */
@@ -503,12 +526,15 @@ public class ContainerTerminal extends Container {
 		listener.sendProgressBarUpdate(this, 2, sortAscending ? 1 : 0);
 		listener.sendProgressBarUpdate(this, 3, craftingTarget.ordinal());
 		listener.sendProgressBarUpdate(this, 4, craftingAmount.ordinal());
+		listener.sendProgressBarUpdate(this, 5, searchFocusedByDefault ? 1 : 0);
+		listener.sendProgressBarUpdate(this, 6, jeiSyncEnabled ? 1 : 0);
 		if (listener instanceof EntityPlayerMP) {
 			new SetSearchQueryClientMessage(windowId, searchQuery).sendTo((EntityPlayerMP)listener);
 		}
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public void updateProgressBar(int id, int data) {
 		if (id == 0) {
 			rows = data;
@@ -523,6 +549,14 @@ public class ContainerTerminal extends Container {
 		} else if (id == 4) {
 			CraftingAmount[] values = CraftingAmount.values();
 			craftingAmount = values[data%values.length];
+		} else if (id == 5) {
+			searchFocusedByDefault = data != 0;
+			GuiScreen cur = Minecraft.getMinecraft().currentScreen;
+			if (searchFocusedByDefault && cur instanceof GuiTerminal) {
+				((GuiTerminal)cur).focusSearch();
+			}
+		} else if (id == 6) {
+			jeiSyncEnabled = data != 0;
 		}
 	}
 
@@ -660,6 +694,8 @@ public class ContainerTerminal extends Container {
 		prefs.setSortAscending(sortAscending);
 		prefs.setCraftingTarget(craftingTarget);
 		prefs.setLastSearchQuery(searchQuery);
+		prefs.setJeiSyncEnabled(jeiSyncEnabled);
+		prefs.setSearchFocusedByDefault(searchFocusedByDefault);
 		terminal.markUnderlyingStorageDirty();
 	}
 

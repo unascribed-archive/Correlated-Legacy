@@ -11,6 +11,7 @@ public interface ITerminal {
 	boolean supportsDumpSlot();
 	IInventory getDumpSlotInventory();
 	boolean canContinueInteracting(EntityPlayer player);
+	// this ridiculous name is to avoid conflict with markDirty in TileEntity
 	void markUnderlyingStorageDirty();
 
 }

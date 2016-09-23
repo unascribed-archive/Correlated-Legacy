@@ -12,6 +12,9 @@ public class SimpleUserPreferences implements UserPreferences {
 	private boolean sortAscending = false;
 	private String lastSearchQuery = "";
 	private CraftingTarget craftingTarget = CraftingTarget.INVENTORY;
+	private boolean jeiSyncEnabled = false;
+	private boolean searchFocusedByDefault = false;
+	
 	@Override
 	public SortMode getSortMode() {
 		return sortMode;
@@ -20,6 +23,7 @@ public class SimpleUserPreferences implements UserPreferences {
 	public void setSortMode(SortMode sortMode) {
 		this.sortMode = sortMode;
 	}
+	
 	@Override
 	public boolean isSortAscending() {
 		return sortAscending;
@@ -28,6 +32,7 @@ public class SimpleUserPreferences implements UserPreferences {
 	public void setSortAscending(boolean sortAscending) {
 		this.sortAscending = sortAscending;
 	}
+	
 	@Override
 	public String getLastSearchQuery() {
 		return lastSearchQuery;
@@ -36,6 +41,7 @@ public class SimpleUserPreferences implements UserPreferences {
 	public void setLastSearchQuery(String lastSearchQuery) {
 		this.lastSearchQuery = lastSearchQuery;
 	}
+	
 	@Override
 	public CraftingTarget getCraftingTarget() {
 		return craftingTarget;
@@ -45,16 +51,38 @@ public class SimpleUserPreferences implements UserPreferences {
 		this.craftingTarget = craftingTarget;
 	}
 	
+	@Override
+	public boolean isJeiSyncEnabled() {
+		return jeiSyncEnabled;
+	}
+	@Override
+	public void setJeiSyncEnabled(boolean jeiSyncEnabled) {
+		this.jeiSyncEnabled = jeiSyncEnabled;
+	}
+	
+	@Override
+	public boolean isSearchFocusedByDefault() {
+		return searchFocusedByDefault;
+	}
+	@Override
+	public void setSearchFocusedByDefault(boolean searchFocusedByDefault) {
+		this.searchFocusedByDefault = searchFocusedByDefault;
+	}
+	
 	public void writeToNBT(NBTTagCompound data) {
 		data.setString("SortMode", getSortMode().name());
 		data.setBoolean("SortAscending", isSortAscending());
 		data.setString("LastSearchQuery", Strings.nullToEmpty(getLastSearchQuery()));
 		data.setString("CraftingTarget", getCraftingTarget().name());
+		data.setBoolean("JeiSyncEnabled", jeiSyncEnabled);
+		data.setBoolean("SearchFocusedByDefault", searchFocusedByDefault);
 	}
 	public void readFromNBT(NBTTagCompound data) {
 		setSortMode(Enums.getIfPresent(SortMode.class, data.getString("SortMode")).or(SortMode.QUANTITY));
 		setSortAscending(data.getBoolean("SortAscending"));
 		setLastSearchQuery(data.getString("LastSearchQuery"));
 		setCraftingTarget(Enums.getIfPresent(CraftingTarget.class, data.getString("CraftingTarget")).or(CraftingTarget.INVENTORY));
+		setJeiSyncEnabled(data.getBoolean("JeiSyncEnabled"));
+		setSearchFocusedByDefault(data.getBoolean("SearchFocusedByDefault"));
 	}
 }

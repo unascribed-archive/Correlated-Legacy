@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.google.common.base.Supplier;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
@@ -31,6 +32,7 @@ import io.github.elytra.copo.crafting.DriveRecipe;
 import io.github.elytra.copo.entity.EntityAutomaton;
 import io.github.elytra.copo.entity.EntityThrownItem;
 import io.github.elytra.copo.entity.automaton.Opcode;
+import io.github.elytra.copo.function.Consumer;
 import io.github.elytra.copo.item.ItemCoPoRecord;
 import io.github.elytra.copo.item.ItemDrive;
 import io.github.elytra.copo.item.ItemFloppy;
@@ -184,6 +186,11 @@ public class CoPo {
 	public boolean refundBlocks;
 	public boolean refundDriveComponents;
 	public boolean importNetworks;
+	
+	public boolean jeiAvailable = false;
+
+	public Consumer<String> jeiQueryUpdater = (s) -> {};
+	public Supplier<String> jeiQueryReader = () -> "";
 	
 
 	@EventHandler

@@ -7,6 +7,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
+import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.client.IBMFontRenderer;
 import io.github.elytra.copo.client.gui.shell.GuiTerminalShell;
 import io.github.elytra.copo.helper.Numbers;
@@ -37,11 +38,16 @@ public class GuiTerminal extends GuiContainer {
 	private GuiButtonExt craftingTarget;
 	private GuiButtonExt craftingAmount;
 	private GuiButtonExt clearGrid;
+	private GuiButtonExt focusByDefault;
+	private GuiButtonExt jeiSync;
+	
+	private String lastJeiQuery;
 	
 	public GuiTerminal(ContainerTerminal container) {
 		super(container);
 		searchField.setEnableBackgroundDrawing(false);
 		searchField.setTextColor(-1);
+		searchField.setFocused(container.searchFocusedByDefault);
 		this.container = container;
 		xSize = 256;
 		ySize = 222;
@@ -52,6 +58,7 @@ public class GuiTerminal extends GuiContainer {
 				container.status.add("Ready.");
 			}
 		}
+		lastJeiQuery = CoPo.inst.jeiQueryReader.get();
 	}
 
 	protected boolean hasStatusLine() {
@@ -138,6 +145,10 @@ public class GuiTerminal extends GuiContainer {
 		if (hasSearchAndSort()) {
 			drawTexturedModalRect(sortDirection.xPosition+2, sortDirection.yPosition+2, container.sortAscending ? 0 : 8, 248, 8, 8);
 			drawTexturedModalRect(sortMode.xPosition+2, sortMode.yPosition+2, 16+(container.sortMode.ordinal()*8), 248, 8, 8);
+			drawTexturedModalRect(focusByDefault.xPosition+2, focusByDefault.yPosition+2, container.searchFocusedByDefault ? 192 : 184, 240, 8, 8);
+			if (jeiSync != null) {
+				drawTexturedModalRect(jeiSync.xPosition+2, jeiSync.yPosition+2, container.jeiSyncEnabled ? 192 : 184, 248, 8, 8);
+			}
 			searchField.drawTextBox();
 			if (sortMode.isMouseOver()) {
 				drawHoveringText(Lists.newArrayList(
@@ -150,6 +161,16 @@ public class GuiTerminal extends GuiContainer {
 				drawHoveringText(Lists.newArrayList(
 						I18n.format("tooltip.correlatedpotentialistics.sortdirection"),
 						"\u00A77"+I18n.format("tooltip.correlatedpotentialistics.sortdirection."+str)
+					), mouseX, mouseY);
+			}
+			if (focusByDefault.isMouseOver()) {
+				drawHoveringText(Lists.newArrayList(
+						I18n.format("tooltip.correlatedpotentialistics.focus_search_by_default."+container.searchFocusedByDefault)
+					), mouseX, mouseY);
+			}
+			if (jeiSync != null && jeiSync.isMouseOver()) {
+				drawHoveringText(Lists.newArrayList(
+						I18n.format("tooltip.correlatedpotentialistics.jei_sync."+container.jeiSyncEnabled)
 					), mouseX, mouseY);
 			}
 			if (container.hasCraftingMatrix) {
@@ -192,6 +213,10 @@ public class GuiTerminal extends GuiContainer {
 			searchField.yPosition = y+6;
 			buttonList.add(sortDirection = new GuiButtonExt(0, x+236, y+4, 12, 12, ""));
 			buttonList.add(sortMode = new GuiButtonExt(1, x+128, y+4, 12, 12, ""));
+			buttonList.add(focusByDefault = new GuiButtonExt(5, x+114, y+4, 12, 12, ""));
+			if (CoPo.inst.jeiAvailable) {
+				buttonList.add(jeiSync = new GuiButtonExt(6, x+getJeiSyncX(), y+getJeiSyncY(), 12, 12, ""));
+			}
 		}
 		if (container.hasCraftingMatrix) {
 			buttonList.add(craftingAmount = new GuiButtonExt(2, x+51, y+99, 12, 12, ""));
@@ -206,6 +231,14 @@ public class GuiTerminal extends GuiContainer {
 	
 	protected int getXOffset() {
 		return 0;
+	}
+	
+	protected int getJeiSyncX() {
+		return 236;
+	}
+	
+	protected int getJeiSyncY() {
+		return 130;
 	}
 
 	@Override
@@ -261,6 +294,12 @@ public class GuiTerminal extends GuiContainer {
 			}
 		} else if (button.id == 4) {
 			mc.playerController.sendEnchantPacket(container.windowId, -128);
+		} else if (button.id == 5) {
+			mc.playerController.sendEnchantPacket(container.windowId, container.searchFocusedByDefault ? -25 : -24);
+			container.searchFocusedByDefault = !container.searchFocusedByDefault;
+		} else if (button.id == 6) {
+			mc.playerController.sendEnchantPacket(container.windowId, container.jeiSyncEnabled ? -27 : -26);
+			container.jeiSyncEnabled = !container.jeiSyncEnabled;
 		}
 	}
 
@@ -278,6 +317,13 @@ public class GuiTerminal extends GuiContainer {
 		}
 		if (hasSearchAndSort()) {
 			searchField.updateCursorCounter();
+			if (container.jeiSyncEnabled) {
+				String jeiQuery = CoPo.inst.jeiQueryReader.get();
+				if (!Objects.equal(jeiQuery, lastJeiQuery)) {
+					lastJeiQuery = jeiQuery;
+					searchField.setText(jeiQuery);
+				}
+			}
 			if (!Objects.equal(searchField.getText(), lastSearchQuery)) {
 				lastSearchQuery = searchField.getText();
 				ticksSinceLastQueryChange = 0;
@@ -300,6 +346,9 @@ public class GuiTerminal extends GuiContainer {
 				mc.thePlayer.closeScreen();
 			} else {
 				searchField.textboxKeyTyped(typedChar, keyCode);
+				if (container.jeiSyncEnabled) {
+					CoPo.inst.jeiQueryUpdater.accept(searchField.getText());
+				}
 			}
 		} else {
 			super.keyTyped(typedChar, keyCode);
@@ -380,11 +429,20 @@ public class GuiTerminal extends GuiContainer {
 		lastSearchQuery = query;
 		if (hasSearchAndSort()) {
 			searchField.setText(query);
+			if (container.jeiSyncEnabled) {
+				CoPo.inst.jeiQueryUpdater.accept(query);
+			}
 		}
 	}
 
 	public void addLine(String line) {
 		container.status.add(line);
+	}
+
+	public void focusSearch() {
+		if (searchField != null) {
+			searchField.setFocused(true);
+		}
 	}
 
 }

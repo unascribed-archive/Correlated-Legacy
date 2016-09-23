@@ -8,6 +8,7 @@ import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.inventory.ContainerTerminal;
 import io.github.elytra.copo.network.RecipeTransferMessage;
 import mezz.jei.api.BlankModPlugin;
+import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModRegistry;
 import mezz.jei.api.JEIPlugin;
 import mezz.jei.api.gui.IGuiIngredient;
@@ -24,6 +25,7 @@ public class CoPoJEIPlugin extends BlankModPlugin {
 
 	@Override
 	public void register(IModRegistry registry) {
+		CoPo.inst.jeiAvailable = true;
 		registry.addRecipeCategoryCraftingItem(new ItemStack(CoPo.terminal), VanillaRecipeCategoryUid.CRAFTING);
 		registry.getRecipeTransferRegistry().addRecipeTransferHandler(new IRecipeTransferHandler() {
 			
@@ -54,6 +56,12 @@ public class CoPoJEIPlugin extends BlankModPlugin {
 				return ContainerTerminal.class;
 			}
 		});
+	}
+	
+	@Override
+	public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
+		CoPo.inst.jeiQueryUpdater = jeiRuntime.getItemListOverlay()::setFilterText;
+		CoPo.inst.jeiQueryReader = jeiRuntime.getItemListOverlay()::getFilterText;
 	}
 
 }
