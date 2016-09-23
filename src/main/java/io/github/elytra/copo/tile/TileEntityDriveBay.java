@@ -207,11 +207,6 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 
 	public void clear() {
 		Arrays.fill(drives, null);
-		NBTTagCompound nbt = new NBTTagCompound();
-		for (int i = 0; i < drives.length; i++) {
-			nbt.setTag("Drive"+i, new NBTTagCompound());
-		}
-		sendUpdatePacket(nbt); 
 		onDriveChange();
 	}
 

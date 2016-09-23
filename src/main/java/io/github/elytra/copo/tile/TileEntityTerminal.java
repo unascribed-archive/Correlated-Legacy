@@ -10,6 +10,8 @@ import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.block.BlockTerminal;
 import io.github.elytra.copo.item.ItemDrive;
 import io.github.elytra.copo.storage.ITerminal;
+import io.github.elytra.copo.storage.SimpleUserPreferences;
+import io.github.elytra.copo.storage.UserPreferences;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -25,7 +27,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.util.Constants.NBT;
 
 public class TileEntityTerminal extends TileEntityNetworkMember implements ITickable, IInventory, ITerminal, ISidedInventory {
-	private Map<UUID, UserPreferences> preferences = Maps.newHashMap();
+	private Map<UUID, SimpleUserPreferences> preferences = Maps.newHashMap();
 
 	@Override
 	public void update() {
@@ -84,7 +86,7 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 
 	public UserPreferences getPreferences(UUID uuid) {
 		if (!preferences.containsKey(uuid)) {
-			preferences.put(uuid, new UserPreferences());
+			preferences.put(uuid, new SimpleUserPreferences());
 		}
 		return preferences.get(uuid);
 	}
@@ -98,8 +100,8 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
 		NBTTagList prefs = new NBTTagList();
-		for (Map.Entry<UUID, UserPreferences> en : preferences.entrySet()) {
-			UserPreferences pref = en.getValue();
+		for (Map.Entry<UUID, SimpleUserPreferences> en : preferences.entrySet()) {
+			SimpleUserPreferences pref = en.getValue();
 			NBTTagCompound data = new NBTTagCompound();
 			data.setLong("UUIDMost", en.getKey().getMostSignificantBits());
 			data.setLong("UUIDLeast", en.getKey().getLeastSignificantBits());
@@ -124,7 +126,7 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 		super.readFromNBT(compound);
 		NBTTagList prefs = compound.getTagList("Preferences", NBT.TAG_COMPOUND);
 		for (int i = 0; i < prefs.tagCount(); i++) {
-			UserPreferences pref = new UserPreferences();
+			SimpleUserPreferences pref = new SimpleUserPreferences();
 			NBTTagCompound data = prefs.getCompoundTagAt(i);
 			pref.readFromNBT(data);
 			preferences.put(new UUID(data.getLong("UUIDMost"), data.getLong("UUIDLeast")), pref);

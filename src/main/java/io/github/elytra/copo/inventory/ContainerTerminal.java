@@ -16,7 +16,7 @@ import io.github.elytra.copo.network.AddStatusLineMessage;
 import io.github.elytra.copo.network.SetSearchQueryClientMessage;
 import io.github.elytra.copo.network.SetSlotSizeMessage;
 import io.github.elytra.copo.storage.ITerminal;
-import io.github.elytra.copo.storage.ITerminal.UserPreferences;
+import io.github.elytra.copo.storage.UserPreferences;
 import io.github.elytra.copo.tile.TileEntityController;
 import io.github.elytra.copo.tile.TileEntityTerminal;
 
@@ -207,10 +207,10 @@ public class ContainerTerminal extends Container {
 
 		if (!player.worldObj.isRemote) {
 			UserPreferences prefs = terminal.getPreferences(player);
-			sortMode = prefs.sortMode;
-			sortAscending = prefs.sortAscending;
-			searchQuery = prefs.lastSearchQuery;
-			craftingTarget = prefs.craftingTarget;
+			sortMode = prefs.getSortMode();
+			sortAscending = prefs.isSortAscending();
+			searchQuery = prefs.getLastSearchQuery();
+			craftingTarget = prefs.getCraftingTarget();
 		}
 
 		if (terminal.supportsDumpSlot()) {
@@ -656,10 +656,10 @@ public class ContainerTerminal extends Container {
 			}
 		}
 		UserPreferences prefs = terminal.getPreferences(player);
-		prefs.sortMode = sortMode;
-		prefs.sortAscending = sortAscending;
-		prefs.craftingTarget = craftingTarget;
-		prefs.lastSearchQuery = searchQuery;
+		prefs.setSortMode(sortMode);
+		prefs.setSortAscending(sortAscending);
+		prefs.setCraftingTarget(craftingTarget);
+		prefs.setLastSearchQuery(searchQuery);
 		terminal.markUnderlyingStorageDirty();
 	}
 

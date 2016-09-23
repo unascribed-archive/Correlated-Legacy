@@ -9,6 +9,8 @@ import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.inventory.ContainerTerminal.SortMode;
 import io.github.elytra.copo.storage.IDigitalStorage;
 import io.github.elytra.copo.storage.ITerminal;
+import io.github.elytra.copo.storage.SimpleUserPreferences;
+import io.github.elytra.copo.storage.UserPreferences;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
@@ -284,9 +286,9 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 
 	@Override
 	public UserPreferences getPreferences(EntityPlayer player) {
-		UserPreferences prefs = new UserPreferences();
-		prefs.sortMode = SortMode.NAME;
-		prefs.sortAscending = true;
+		UserPreferences prefs = new SimpleUserPreferences();
+		prefs.setSortMode(SortMode.NAME);
+		prefs.setSortAscending(true);
 		return prefs;
 	}
 

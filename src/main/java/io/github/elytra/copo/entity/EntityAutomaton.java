@@ -21,6 +21,8 @@ import io.github.elytra.copo.item.ItemModule;
 import io.github.elytra.copo.item.ItemDrive.Priority;
 import io.github.elytra.copo.storage.IDigitalStorage;
 import io.github.elytra.copo.storage.ITerminal;
+import io.github.elytra.copo.storage.SimpleUserPreferences;
+import io.github.elytra.copo.storage.UserPreferences;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCreature;
@@ -881,7 +883,7 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 
 	@Override
 	public UserPreferences getPreferences(EntityPlayer player) {
-		return new UserPreferences();
+		return new SimpleUserPreferences();
 	}
 
 	@Override

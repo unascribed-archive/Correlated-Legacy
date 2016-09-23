@@ -1,31 +1,35 @@
 package io.github.elytra.copo.storage;
 
-import io.github.elytra.copo.CoPoWorldData;
 import io.github.elytra.copo.CoPoWorldData.Transmitter;
 import io.github.elytra.copo.item.ItemWirelessTerminal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants.NBT;
 
 public class WirelessTerminal implements ITerminal {
 	private World world;
 	private EntityPlayer player;
 	private ItemWirelessTerminal iwt;
 	private ItemStack stack;
-	private UserPreferences prefs = new UserPreferences();
 	
 	public WirelessTerminal(World world, EntityPlayer player, ItemWirelessTerminal iwt, ItemStack stack) {
 		this.world = world;
 		this.player = player;
 		this.iwt = iwt;
 		this.stack = stack;
-		prefs.readFromNBT(stack.getSubCompound("Preferences", true));
 	}
 
 	@Override
 	public UserPreferences getPreferences(EntityPlayer player) {
-		return prefs;
+		String id = player.getGameProfile().getId().toString();
+		NBTTagCompound prefs = stack.getSubCompound("Preferences", true);
+		if (!prefs.hasKey(id, NBT.TAG_COMPOUND)) {
+			prefs.setTag(id, new NBTTagCompound());
+		}
+		return new NBTUserPreferences(prefs.getCompoundTag(id));
 	}
 
 	@Override
@@ -56,7 +60,6 @@ public class WirelessTerminal implements ITerminal {
 
 	@Override
 	public void markUnderlyingStorageDirty() {
-		prefs.writeToNBT(stack.getSubCompound("Preferences", true));
 	}
 
 }
