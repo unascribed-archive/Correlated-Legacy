@@ -215,7 +215,7 @@ public class GuiTerminal extends GuiContainer {
 			buttonList.add(sortMode = new GuiButtonExt(1, x+128, y+4, 12, 12, ""));
 			buttonList.add(focusByDefault = new GuiButtonExt(5, x+114, y+4, 12, 12, ""));
 			if (CoPo.inst.jeiAvailable) {
-				buttonList.add(jeiSync = new GuiButtonExt(6, x+getJeiSyncX(), y+getJeiSyncY(), 12, 12, ""));
+				buttonList.add(jeiSync = new GuiButtonExt(6, x-getXOffset()+getJeiSyncX(), y-getYOffset()+getJeiSyncY(), 12, 12, ""));
 			}
 		}
 		if (container.hasCraftingMatrix) {
@@ -399,6 +399,7 @@ public class GuiTerminal extends GuiContainer {
 					&& mouseX >= searchField.xPosition && mouseX <= searchField.xPosition+searchField.width
 					&& mouseY >= searchField.yPosition && mouseY <= searchField.yPosition+searchField.height) {
 				searchField.setText("");
+				CoPo.inst.jeiQueryUpdater.accept("");
 			}
 			searchField.mouseClicked(mouseX, mouseY, mouseButton);
 		}

@@ -90,6 +90,16 @@ public class GuiAutomaton extends GuiTerminal implements GuiResponder {
 	}
 	
 	@Override
+	protected int getJeiSyncX() {
+		return 8;
+	}
+	
+	@Override
+	protected int getJeiSyncY() {
+		return 115;
+	}
+	
+	@Override
 	public void updateScreen() {
 		super.updateScreen();
 		name.updateCursorCounter();

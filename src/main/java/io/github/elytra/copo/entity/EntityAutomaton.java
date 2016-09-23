@@ -883,6 +883,7 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 
 	@Override
 	public UserPreferences getPreferences(EntityPlayer player) {
+		// TODO save preferences
 		return new SimpleUserPreferences();
 	}
 
