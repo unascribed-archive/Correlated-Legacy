@@ -18,7 +18,7 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
-import scala.actors.threadpool.Arrays;
+import java.util.Arrays;
 
 public class TileEntityDriveBay extends TileEntityNetworkMember implements ITickable, Iterable<ItemStack> {
 
