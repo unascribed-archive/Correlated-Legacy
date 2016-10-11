@@ -136,7 +136,6 @@ public class ContainerTerminal extends Container {
 
 		@Override
 		public ItemStack getStack() {
-			ItemStack stack = this.stack;
 			return stack;
 		}
 
