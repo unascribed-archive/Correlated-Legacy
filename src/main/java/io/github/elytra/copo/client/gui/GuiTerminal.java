@@ -399,8 +399,10 @@ public class GuiTerminal extends GuiContainer {
 					&& mouseX >= searchField.xPosition && mouseX <= searchField.xPosition+searchField.width
 					&& mouseY >= searchField.yPosition && mouseY <= searchField.yPosition+searchField.height) {
 				searchField.setText("");
-				CoPo.inst.jeiQueryUpdater.accept("");
-			}
+				if (container.jeiSyncEnabled) {
+					CoPo.inst.jeiQueryUpdater.accept("");
+				}
+			}					 
 			searchField.mouseClicked(mouseX, mouseY, mouseButton);
 		}
 		super.mouseClicked(mouseX, mouseY, mouseButton);
