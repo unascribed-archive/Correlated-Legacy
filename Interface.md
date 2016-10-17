@@ -1,7 +1,5 @@
 # ![](https://i.imgur.com/oH28xFM.png) Interface
 
-**Note that the Interface is probably about as complex as automation in this mod is going to get. Correlated Potentialistics is just a storage mod, and is intended to be minimal and not do everything for you.**
-
 The Interface exposes the contents of the network to automation, or allows automation to add items to the network.
 
 Using any BuildCraft-compatible wrench, you can reconfigure each face of the interface to choose the mode. There are four modes:
