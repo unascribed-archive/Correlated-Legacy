@@ -2,7 +2,6 @@ package io.github.elytra.copo.tile;
 
 import java.util.Iterator;
 
-import com.google.common.base.Predicates;
 import com.google.common.collect.Iterators;
 
 import io.github.elytra.copo.CoPo;
@@ -10,14 +9,13 @@ import io.github.elytra.copo.block.BlockDriveBay;
 import io.github.elytra.copo.helper.ItemStacks;
 import io.github.elytra.copo.item.ItemDrive;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.world.WorldServer;
-import net.minecraft.world.chunk.Chunk;
+
 import java.util.Arrays;
 
 public class TileEntityDriveBay extends TileEntityNetworkMember implements ITickable, Iterable<ItemStack> {
@@ -146,7 +144,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 		ItemDrive id = ((ItemDrive)drive.getItem());
 		nbt.setInteger("Slot", slot);
 		nbt.setInteger("UsedBits", id.getKilobitsUsed(drive));
-		sendUpdatePacket(nbt);
+		CoPo.sendUpdatePacket(this, nbt);
 	}
 	
 	public void setDriveInSlot(int slot, ItemStack drive) {
@@ -161,19 +159,8 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 			} else {
 				nbt.setTag("Drive"+slot, new NBTTagCompound());
 			}
-			sendUpdatePacket(nbt); 
+			CoPo.sendUpdatePacket(this, nbt); 
 			onDriveChange();
-		}
-	}
-
-	private void sendUpdatePacket(NBTTagCompound nbt) {
-		WorldServer ws = (WorldServer)worldObj;
-		Chunk c = worldObj.getChunkFromBlockCoords(getPos());
-		SPacketUpdateTileEntity packet = new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), nbt);
-		for (EntityPlayerMP player : worldObj.getPlayers(EntityPlayerMP.class, Predicates.alwaysTrue())) {
-			if (ws.getPlayerChunkMap().isPlayerWatchingChunk(player, c.xPosition, c.zPosition)) {
-				player.connection.sendPacket(packet);
-			}
 		}
 	}
 

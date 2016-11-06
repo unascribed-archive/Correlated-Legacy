@@ -7,7 +7,6 @@ import org.lwjgl.input.Keyboard;
 
 import com.google.common.base.Strings;
 
-import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.client.IBMFontRenderer;
 import io.github.elytra.copo.proxy.ClientProxy;
 import net.minecraft.client.Minecraft;
@@ -32,13 +31,13 @@ public class CommandInterpreter extends Program {
 			if (line.length() > cols) {
 				line = line.substring(0, cols-3)+"...";
 			}
-			IBMFontRenderer.drawString(0, y, line, CoPo.proxy.getColor("other", 64));
+			drawString(0, y, line);
 			y += 8;
 		}
 		if (command.length() > (cols-4)) {
 			command.setLength(cols-4);
 		}
-		IBMFontRenderer.drawString(0, y, "J:\\>"+command+(ClientProxy.ticks % 20 < 10 ? "_" : ""), CoPo.proxy.getColor("other", 64));
+		drawString(0, y, "J:\\>"+command+(ClientProxy.ticks % 20 < 10 ? "_" : ""));
 	}
 	
 	@Override

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 
 import io.github.elytra.copo.CoPo;
@@ -21,6 +22,8 @@ import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.text.ITextComponent;
@@ -28,7 +31,8 @@ import net.minecraftforge.common.util.Constants.NBT;
 
 public class TileEntityTerminal extends TileEntityNetworkMember implements ITickable, IInventory, ITerminal, ISidedInventory {
 	private Map<UUID, SimpleUserPreferences> preferences = Maps.newHashMap();
-
+	private String error;
+	
 	@Override
 	public void update() {
 		if (hasWorldObj() && !worldObj.isRemote) {
@@ -51,6 +55,13 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 			
 			if (hasStorage()) {
 				TileEntityController controller = getStorage();
+				if (controller.error) {
+					if (!Objects.equal(error, controller.errorReason)) {
+						setError(controller.errorReason);
+					}
+				} else {
+					setError(null);
+				}
 				if (controller.isPowered() && !controller.error && !controller.booting && getDumpDrive() != null) {
 					if (getDumpDrive().getItem() instanceof ItemDrive) {
 						ItemDrive id = (ItemDrive)getDumpDrive().getItem();
@@ -77,6 +88,36 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 				}
 			}
 		}
+	}
+	
+	public boolean isErroring() {
+		return error != null;
+	}
+	
+	public String getError() {
+		return error;
+	}
+	
+	public void setError(String error) {
+		this.error = error;
+		CoPo.sendUpdatePacket(this);
+	}
+	
+	@Override
+	public NBTTagCompound getUpdateTag() {
+		NBTTagCompound tag = new NBTTagCompound();
+		if (error != null) tag.setString("Error", error);
+		return tag;
+	}
+	
+	@Override
+	public SPacketUpdateTileEntity getUpdatePacket() {
+		return new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), getUpdateTag());
+	}
+	
+	@Override
+	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+		error = pkt.getNbtCompound().hasKey("Error", NBT.TAG_STRING) ? pkt.getNbtCompound().getString("Error") : null;
 	}
 	
 	@Override

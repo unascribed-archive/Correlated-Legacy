@@ -122,7 +122,7 @@ public class ClientProxy extends Proxy {
 	private int jpegTexture = -1;
 	private Random rand = new Random();
 	
-	private Set<String> knownColorTypes = Sets.newHashSet("tier", "fullness", "other", "pci");
+	private Set<String> knownColorTypes = Sets.newHashSet("tier", "fullness", "other", "pci", "terminal");
 	private Map<String, int[]> colors = Maps.newHashMap();
 	
 	private Future<BufferedImage> corruptionFuture;
@@ -495,6 +495,7 @@ public class ClientProxy extends Proxy {
 	public void onStitch(TextureStitchEvent.Pre e) {
 		e.getMap().registerSprite(new ResourceLocation("correlatedpotentialistics", "blocks/wireless_endpoint_error"));
 		e.getMap().registerSprite(new ResourceLocation("correlatedpotentialistics", "blocks/wireless_endpoint_linked"));
+		e.getMap().registerSprite(new ResourceLocation("correlatedpotentialistics", "blocks/terminal_error_glow"));
 		e.getMap().registerSprite(new ResourceLocation("correlatedpotentialistics", "items/wireless_terminal_glow"));
 		e.getMap().registerSprite(new ResourceLocation("correlatedpotentialistics", "items/doc_tablet_glow"));
 		e.getMap().registerSprite(new ResourceLocation("correlatedpotentialistics", "items/keycard_glow"));

@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.google.common.base.Predicates;
 import com.google.common.base.Supplier;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -55,6 +56,7 @@ import io.github.elytra.copo.network.SetGlitchingStateMessage;
 import io.github.elytra.copo.network.SetSearchQueryClientMessage;
 import io.github.elytra.copo.network.SetSearchQueryServerMessage;
 import io.github.elytra.copo.network.SetSlotSizeMessage;
+import io.github.elytra.copo.network.ShowTerminalErrorMessage;
 import io.github.elytra.copo.network.StartWeldthrowingMessage;
 import io.github.elytra.copo.proxy.Proxy;
 import io.github.elytra.copo.tile.TileEntityController;
@@ -71,12 +73,18 @@ import io.github.elytra.copo.world.LimboProvider;
 import net.darkhax.tesla.api.ITeslaConsumer;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.storage.loot.LootEntryItem;
 import net.minecraft.world.storage.loot.conditions.LootCondition;
 import net.minecraft.world.storage.loot.functions.LootFunction;
@@ -292,6 +300,7 @@ public class CoPo {
 		network.register(SetEditorStatusMessage.class);
 		network.register(SaveProgramMessage.class);
 		network.register(RecipeTransferMessage.class);
+		network.register(ShowTerminalErrorMessage.class);
 
 		EntityRegistry.registerModEntity(EntityThrownItem.class, "thrown_item", 0, this, 64, 10, true);
 		EntityRegistry.registerModEntity(EntityAutomaton.class, "automaton", 1, this, 64, 1, true);
@@ -487,6 +496,21 @@ public class CoPo {
 			this.getClass().getField(name).set(this, item);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	public static void sendUpdatePacket(TileEntity te) {
+		sendUpdatePacket(te, te.getUpdateTag());
+	}
+	
+	public static void sendUpdatePacket(TileEntity te, NBTTagCompound nbt) {
+		WorldServer ws = (WorldServer)te.getWorld();
+		Chunk c = te.getWorld().getChunkFromBlockCoords(te.getPos());
+		SPacketUpdateTileEntity packet = new SPacketUpdateTileEntity(te.getPos(), te.getBlockMetadata(), nbt);
+		for (EntityPlayerMP player : te.getWorld().getPlayers(EntityPlayerMP.class, Predicates.alwaysTrue())) {
+			if (ws.getPlayerChunkMap().isPlayerWatchingChunk(player, c.xPosition, c.zPosition)) {
+				player.connection.sendPacket(packet);
+			}
 		}
 	}
 

@@ -23,6 +23,8 @@ public class GuiTerminalShell extends GuiScreen {
 	private static final ResourceLocation terminal_overlay = new ResourceLocation("correlatedpotentialistics", "textures/gui/shell_overlay.png");
 	public Program program = new CommandInterpreter(this);
 	
+	public int palette = 0;
+	
 	public GuiTerminalShell(GuiTerminal guiTerminal, ContainerTerminal container) {
 		this.guiTerminal = guiTerminal;
 		this.container = container;
@@ -35,8 +37,12 @@ public class GuiTerminalShell extends GuiScreen {
 		int ySize = 144;
 		GlStateManager.pushMatrix();
 			GlStateManager.translate((width - xSize) / 2, (height - ySize) / 2, 0);
+			int bg = CoPo.proxy.getColor("terminal", palette*4);
+			GlStateManager.color(((bg >> 16)&0xFF)/255f, ((bg >> 8)&0xFF)/255f, (bg&0xFF)/255f);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(terminal);
 			drawTexturedModalRect(0, 0, 0, 0, 256, 144);
+			
+			GlStateManager.color(1, 1, 1);
 			int rows = 15;
 			int cols = 51;
 			GlStateManager.pushMatrix();
@@ -49,7 +55,7 @@ public class GuiTerminalShell extends GuiScreen {
 				GL11.glScissor((int)((((width - xSize)/2f)+10)*res.getScaleFactor()), (int)((((height - ySize)/2f)+10.375f)*res.getScaleFactor()), (int)(((cols*4.5f)+5f)*res.getScaleFactor()), (int)((rows*8)+3.5f)*res.getScaleFactor());
 				GL11.glEnable(GL11.GL_SCISSOR_TEST);
 				GlStateManager.translate(0, (ClientProxy.ticks%244)-100, 16);
-				int c = CoPo.proxy.getColor("other", 64) & 0x00FFFFFF;
+				int c = CoPo.proxy.getColor("terminal", (palette*4)+1) & 0x00FFFFFF;
 				drawGradientRect(11, 0, 244, 100, c, c | 0x44000000);
 				GL11.glDisable(GL11.GL_SCISSOR_TEST);
 			GlStateManager.popMatrix();
@@ -59,6 +65,7 @@ public class GuiTerminalShell extends GuiScreen {
 			GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
 			
 			GlStateManager.pushMatrix();
+				GlStateManager.color(1, 1, 1);
 				GlStateManager.translate(0, 0, 32);
 				Minecraft.getMinecraft().getTextureManager().bindTexture(terminal_overlay);
 				drawTexturedModalRect(0, 0, 0, 0, 256, 144);

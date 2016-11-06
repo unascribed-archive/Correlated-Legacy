@@ -41,6 +41,7 @@ public class CoPoWailaProvider implements IWailaDataProvider {
 		}
 		if (te instanceof TileEntityNetworkMember) {
 			nbt.setLong("EnergyPerTick", ((TileEntityNetworkMember) te).getEnergyConsumedPerTick());
+			nbt.setInteger("MaxEnergyPerTick", CoPo.inst.controllerCap);
 			nbt.setBoolean("HasController", ((TileEntityNetworkMember) te).hasStorage());
 		}
 		if (te instanceof TileEntityDriveBay) {
@@ -108,7 +109,7 @@ public class CoPoWailaProvider implements IWailaDataProvider {
 					body.add("\u00A7a"+I18n.format("tooltip.correlatedpotentialistics.controller_boot_eta", seconds));
 				}
 			}
-			body.add(I18n.format("tooltip.correlatedpotentialistics.controller_consumption_rate", nbt.getInteger("EnergyPerTick")));
+			body.add(I18n.format("tooltip.correlatedpotentialistics.controller_consumption_rate", nbt.getInteger("EnergyPerTick"), nbt.getInteger("MaxEnergyPerTick")));
 			body.add(I18n.format("tooltip.correlatedpotentialistics.controller_energy_buffer", nbt.getInteger("Energy"), nbt.getInteger("MaxEnergy")));
 		} else if (access.getTileEntity() instanceof TileEntityNetworkMember) {
 			if (nbt.getBoolean("HasController")) {

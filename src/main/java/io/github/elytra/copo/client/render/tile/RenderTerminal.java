@@ -41,7 +41,7 @@ public class RenderTerminal extends TileEntitySpecialRenderer<TileEntityTerminal
 	public void renderTileEntityAt(TileEntityTerminal te, double x, double y, double z, float partialTicks, int destroyStage) {
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
 		if (bs.getBlock() != CoPo.terminal) return;
-
+		
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);
 
@@ -78,7 +78,13 @@ public class RenderTerminal extends TileEntitySpecialRenderer<TileEntityTerminal
 			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
 			GlStateManager.disableLighting();
 	
-			TextureAtlasSprite tas = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("correlatedpotentialistics:blocks/terminal_glow");
+			String path = "correlatedpotentialistics:blocks/terminal_glow";
+			
+			if (te.isErroring()) {
+				path = "correlatedpotentialistics:blocks/terminal_error_glow";
+			}
+			
+			TextureAtlasSprite tas = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(path);
 			float minU = tas.getMinU();
 			float maxU = tas.getMaxU();
 			float minV = tas.getMinV();

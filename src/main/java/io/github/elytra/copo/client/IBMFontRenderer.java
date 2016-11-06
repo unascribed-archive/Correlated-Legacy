@@ -95,4 +95,13 @@ public class IBMFontRenderer {
 	public static boolean canRender(char c) {
 		return substitutes.containsKey(c) || CP437.contains(Character.toString(c));
 	}
+	public static boolean canRender(String str) {
+		for (int i = 0; i < str.length(); i++) {
+			char c = str.charAt(i);
+			if (!canRender(c)) {
+				return false;
+			}
+		}
+		return true;
+	}
 }

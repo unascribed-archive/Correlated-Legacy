@@ -17,7 +17,6 @@ import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 
 @JEIPlugin
@@ -27,10 +26,10 @@ public class CoPoJEIPlugin extends BlankModPlugin {
 	public void register(IModRegistry registry) {
 		CoPo.inst.jeiAvailable = true;
 		registry.addRecipeCategoryCraftingItem(new ItemStack(CoPo.terminal), VanillaRecipeCategoryUid.CRAFTING);
-		registry.getRecipeTransferRegistry().addRecipeTransferHandler(new IRecipeTransferHandler() {
+		registry.getRecipeTransferRegistry().addRecipeTransferHandler(new IRecipeTransferHandler<ContainerTerminal>() {
 			
 			@Override
-			public IRecipeTransferError transferRecipe(Container container, IRecipeLayout layout, EntityPlayer player, boolean max, boolean doTransfer) {
+			public IRecipeTransferError transferRecipe(ContainerTerminal container, IRecipeLayout layout, EntityPlayer player, boolean max, boolean doTransfer) {
 				if (doTransfer) {
 					List<List<ItemStack>> matrix = Lists.newArrayList();
 					for (int i = 0; i < 9; i++) {
@@ -52,7 +51,7 @@ public class CoPoJEIPlugin extends BlankModPlugin {
 			}
 			
 			@Override
-			public Class<? extends Container> getContainerClass() {
+			public Class<ContainerTerminal> getContainerClass() {
 				return ContainerTerminal.class;
 			}
 		});

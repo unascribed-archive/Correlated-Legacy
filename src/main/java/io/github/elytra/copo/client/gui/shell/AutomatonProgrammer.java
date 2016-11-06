@@ -6,8 +6,6 @@ import org.lwjgl.input.Keyboard;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import io.github.elytra.copo.CoPo;
-import io.github.elytra.copo.client.IBMFontRenderer;
 import io.github.elytra.copo.entity.automaton.Opcode;
 import io.github.elytra.copo.item.ItemFloppy;
 import io.github.elytra.copo.network.SaveProgramMessage;
@@ -289,14 +287,16 @@ public class AutomatonProgrammer extends Program {
 		
 	}
 
-	private void drawStringInverseVideo(int x, int y, String str) {
+	@Override
+	protected void drawStringInverseVideo(int x, int y, String str) {
 		if (y < scrollOffset) return;
 		y -= scrollOffset;
 		if (y >= totalRows) return;
 		drawStringInverseVideoAbsolute(x, y, str);
 	}
 	
-	private void drawString(int x, int y, String str) {
+	@Override
+	protected void drawString(int x, int y, String str) {
 		if (y < scrollOffset) return;
 		y -= scrollOffset;
 		if (y >= totalRows) return;
@@ -306,14 +306,14 @@ public class AutomatonProgrammer extends Program {
 	private void drawStringInverseVideoAbsolute(int x, int y, String str) {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x*4.5f, y*8f, 0);
-		IBMFontRenderer.drawStringInverseVideo(0, 0, str, CoPo.proxy.getColor("other", 64));
+		super.drawStringInverseVideo(0, 0, str);
 		GlStateManager.popMatrix();
 	}
 	
 	private void drawStringAbsolute(int x, int y, String str) {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x*4.5f, y*8f, 0);
-		IBMFontRenderer.drawString(0, 0, str, CoPo.proxy.getColor("other", 64));
+		super.drawString(0, 0, str);
 		GlStateManager.popMatrix();
 	}
 	

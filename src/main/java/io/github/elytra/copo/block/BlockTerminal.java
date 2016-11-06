@@ -3,6 +3,7 @@ package io.github.elytra.copo.block;
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.helper.Blocks;
 import io.github.elytra.copo.item.ItemFloppy;
+import io.github.elytra.copo.network.ShowTerminalErrorMessage;
 import io.github.elytra.copo.tile.TileEntityNetworkMember;
 import io.github.elytra.copo.tile.TileEntityTerminal;
 import net.minecraft.block.Block;
@@ -131,7 +132,7 @@ public class BlockTerminal extends Block {
 								player.addChatMessage(new TextComponentTranslation("msg.correlatedpotentialistics.terminal_booting"));
 								break;
 							case ERROR:
-								player.addChatMessage(new TextComponentTranslation("msg.correlatedpotentialistics.terminal_error"));
+								new ShowTerminalErrorMessage(pos).sendTo(player);
 								break;
 							case OFF:
 								player.addChatMessage(new TextComponentTranslation("msg.correlatedpotentialistics.terminal_no_power"));
