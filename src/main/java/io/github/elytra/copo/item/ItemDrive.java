@@ -6,9 +6,12 @@ import java.util.Locale;
 import com.google.common.collect.Lists;
 
 import io.github.elytra.copo.CoPo;
+import io.github.elytra.copo.block.BlockDriveBay;
+import io.github.elytra.copo.block.BlockMemoryBay;
 import io.github.elytra.copo.helper.ItemStacks;
 import io.github.elytra.copo.helper.Numbers;
 import io.github.elytra.copo.proxy.ClientProxy;
+import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -24,6 +27,9 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
@@ -263,6 +269,16 @@ public class ItemDrive extends Item {
 				return ActionResult.newResult(EnumActionResult.SUCCESS, new ItemStack(CoPo.misc, 1, 3));
 			}
 		} else {
+			Vec3d eyes = new Vec3d(playerIn.posX, playerIn.posY + playerIn.getEyeHeight(), playerIn.posZ);
+			Vec3d look = playerIn.getLookVec();
+			Vec3d origin = eyes.addVector(look.xCoord * 4, look.yCoord * 4, look.zCoord * 4);
+			RayTraceResult rtr = playerIn.worldObj.rayTraceBlocks(eyes, origin, false, false, true);
+			if (rtr.typeOfHit == Type.BLOCK) {
+				Block b = worldIn.getBlockState(rtr.getBlockPos()).getBlock();
+				if (b instanceof BlockDriveBay || b instanceof BlockMemoryBay) {
+					return ActionResult.newResult(EnumActionResult.FAIL, itemStackIn);
+				}
+			}
 			playerIn.openGui(CoPo.inst, 1, worldIn, playerIn.inventory.currentItem, 0, 0);
 			return ActionResult.newResult(EnumActionResult.SUCCESS, itemStackIn);
 		}
