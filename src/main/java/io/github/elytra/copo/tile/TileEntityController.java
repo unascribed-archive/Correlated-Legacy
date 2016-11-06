@@ -42,7 +42,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	private long consumedPerTick = CoPo.inst.controllerRfUsage;
 	private long energyCapacity = CoPo.inst.controllerCapacity;
 	public int bootTicks = 0;
-	private int networkMembers = 0;
+	private int totalScanned = 0;
 	private transient Set<BlockPos> networkMemberLocations = Sets.newHashSet();
 	private transient List<TileEntityInterface> interfaces = Lists.newArrayList();
 	private transient List<TileEntityWirelessReceiver> receivers = Lists.newArrayList();
@@ -176,7 +176,6 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		List<TileEntityNetworkMember> members = Lists.newArrayList();
 		List<BlockPos> queue = Lists.newArrayList(getPos());
 		boolean foundOtherController = false;
-		consumedPerTick = CoPo.inst.controllerRfUsage;
 
 		for (BlockPos pos : networkMemberLocations) {
 			TileEntity te = worldObj.getTileEntity(pos);
@@ -185,7 +184,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			}
 		}
 
-		networkMembers = 0;
+		totalScanned = 0;
 		networkMemberLocations.clear();
 		driveBays.clear();
 		memoryBays.clear();
@@ -208,8 +207,8 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 				for (EnumFacing ef : EnumFacing.VALUES) {
 					BlockPos p = pos.offset(ef);
 					if (seen.contains(p)) continue;
+					seen.add(p);
 					if (worldObj.getTileEntity(p) == null) {
-						seen.add(p);
 						continue;
 					}
 					queue.add(p);
@@ -222,7 +221,8 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 						foundOtherController = true;
 					}
 					if (!members.contains(te)) {
-						members.add((TileEntityNetworkMember) te);
+						TileEntityNetworkMember tenm = (TileEntityNetworkMember) te;
+						members.add(tenm);
 						if (te instanceof TileEntityDriveBay) {
 							driveBays.add((TileEntityDriveBay)te);
 						} else if (te instanceof TileEntityInterface) {
@@ -232,7 +232,6 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 						} else if (te instanceof TileEntityMemoryBay) {
 							memoryBays.add((TileEntityMemoryBay)te);
 						}
-						TileEntityNetworkMember tenm = ((TileEntityNetworkMember) te);
 						networkMemberLocations.add(pos);
 						memberTypes.add(tenm.getClass());
 						consumedPerTick += tenm.getEnergyConsumedPerTick();
@@ -253,7 +252,12 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		for (TileEntityNetworkMember te : members) {
 			te.setController(this);
 		}
-		networkMembers = itr;
+		totalScanned = itr;
+		long energyUsage = CoPo.inst.controllerRfUsage;
+		for (TileEntityNetworkMember tenm : members) {
+			energyUsage += tenm.getEnergyConsumedPerTick();
+		}
+		consumedPerTick = energyUsage;
 		if (consumedPerTick > CoPo.inst.controllerCap) {
 			error = true;
 			errorReason = "too_much_power";
@@ -485,7 +489,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	}
 	
 	public long getUsedNetworkMemory() {
-		return networkMembers * 6L;
+		return totalScanned * 6L;
 	}
 	
 	public long getUsedWirelessMemory() {
@@ -540,7 +544,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	}
 
 	public void onNetworkPatched(TileEntityNetworkMember tenm) {
-		if (networkMembers == 0) return;
+		if (totalScanned == 0) return;
 		if (tenm instanceof TileEntityDriveBay) {
 			if (!driveBays.contains(tenm)) {
 				driveBays.add((TileEntityDriveBay)tenm);
@@ -566,8 +570,8 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			}
 		}
 		if (networkMemberLocations.add(tenm.getPos())) {
-			networkMembers++;
-			if (networkMembers > 100) {
+			totalScanned++;
+			if (totalScanned > 100) {
 				error = true;
 				errorReason = "network_too_big";
 				consumedPerTick = CoPo.inst.controllerErrorUsage_NetworkTooBig;
