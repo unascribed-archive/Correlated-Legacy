@@ -175,6 +175,11 @@ public class CoPo {
 	public int transmitterRfUsage;
 	public int receiverRfUsage;
 	
+	public int controllerCapacity;
+	public int controllerCap;
+	public int controllerErrorUsage_MultipleControllers;
+	public int controllerErrorUsage_NetworkTooBig;
+	
 	public int driveRfUsagePow;
 	public int driveRfUsageDiv;
 	
@@ -197,24 +202,31 @@ public class CoPo {
 	public void onPreInit(FMLPreInitializationEvent e) {
 		log = LogManager.getLogger("CoPo");
 
+		// TODO this badly needs cleanup
+		
 		Configuration config = new Configuration(e.getSuggestedConfigurationFile());
 		easyProcessors = config.getBoolean("easyProcessors", "Crafting", false, "If true, processors can be crafted without going to the limbo dungeon. Not recommended.");
 		
 		defaultWirelessRange = config.getFloat("defaultWirelessRange", "Balance", 64, 1, 65536, "The default radius of wireless transmitters, in blocks.");
 		weldthrowerHurts = config.getBoolean("weldthrowerHurts", "Balance", true, "If enabled, the Weldthrower will damage mobs and set them on fire.");
 		
-		controllerRfUsage = config.getInt("controller", "PowerUsage", 32, 0, 640, "The RF/t used by the Controller.");
-		driveBayRfUsage = config.getInt("driveBay", "PowerUsage", 8, 0, 640, "The RF/t used by the Drive Bay.");
-		memoryBayRfUsage = config.getInt("memoryBay", "PowerUsage", 4, 0, 640, "The RF/t used by the Memory Bay.");
-		terminalRfUsage = config.getInt("terminal", "PowerUsage", 4, 0, 640, "The RF/t used by the Terminal.");
-		interfaceRfUsage = config.getInt("interface", "PowerUsage", 8, 0, 640, "The RF/t used by the Interface.");
-		transmitterRfUsage = config.getInt("transmitter", "PowerUsage", 16, 0, 640, "The RF/t used by the Wireless Transmitter.");
-		receiverRfUsage = config.getInt("receiver", "PowerUsage", 16, 0, 640, "The RF/t used by the Wireless Receiver.");
+		controllerRfUsage = config.getInt("controller", "PowerUsage", 32, 0, Integer.MAX_VALUE, "The T/t used by the Controller.");
+		driveBayRfUsage = config.getInt("driveBay", "PowerUsage", 8, 0, 640, "The T/t used by the Drive Bay.");
+		memoryBayRfUsage = config.getInt("memoryBay", "PowerUsage", 4, 0, 640, "The T/t used by the Memory Bay.");
+		terminalRfUsage = config.getInt("terminal", "PowerUsage", 4, 0, 640, "The T/t used by the Terminal.");
+		interfaceRfUsage = config.getInt("interface", "PowerUsage", 8, 0, 640, "The T/t used by the Interface.");
+		transmitterRfUsage = config.getInt("transmitter", "PowerUsage", 16, 0, 640, "The T/t used by the Wireless Transmitter.");
+		receiverRfUsage = config.getInt("receiver", "PowerUsage", 16, 0, 640, "The T/t used by the Wireless Receiver.");
+		
+		controllerCapacity = config.getInt("controllerCapacity", "PowerFineTuning", 64000, 0, Integer.MAX_VALUE, "The Tesla stored by the controller.");
+		controllerCap = config.getInt("controllerCap", "PowerFineTuning", 640, 0, Integer.MAX_VALUE, "The maximum T/t the controller can use, and therefore a network.");
+		controllerErrorUsage_MultipleControllers = config.getInt("controllerErrorUsage_MultipleControllers", "PowerFineTuning", 4, 0, Integer.MAX_VALUE, "The T/t used by the controller when it detects another controller in its network and is erroring.");
+		controllerErrorUsage_NetworkTooBig = config.getInt("controllerErrorUsage_NetworkTooBig", "PowerFineTuning", 640, 0, Integer.MAX_VALUE, "The T/t used by the controller when it reaches the network scan limit.");
 		
 		driveRfUsagePow = config.getInt("drivePow", "PowerUsage", 2, 0, 8, "Drive power usage is (pow**tier)/div");
 		driveRfUsageDiv = config.getInt("driveDiv", "PowerUsage", 2, 0, 8, "Drive power usage is (pow**tier)/div");
 		
-		voidDriveUsage = config.getInt("voidDrive", "PowerUsage", 4, 0, 640, "The RF/t used by the Void Drive.");
+		voidDriveUsage = config.getInt("voidDrive", "PowerUsage", 4, 0, 640, "The T/t used by the Void Drive.");
 		
 		limboDimId = config.getInt("limboDimId", "IDs", -31, -256, 256, "The dimension ID for the glitch dungeon.");
 		

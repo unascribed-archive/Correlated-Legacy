@@ -35,14 +35,12 @@ import net.minecraftforge.fml.common.Optional;
 
 @Optional.Interface(iface="cofh.api.energy.IEnergyReceiver",modid="CoFHAPI|energy")
 public class TileEntityController extends TileEntityNetworkMember implements IEnergyReceiver, ITickable, IDigitalStorage, IEnergyStorage {
-	public static final long POWER_CAP = 640;
-	// 5 seconds of full power
-	public static final long ENERGY_CAPACITY = (POWER_CAP*20)*5;
 	
 	public boolean error = false;
 	public boolean booting = true;
 	public String errorReason;
-	private long consumedPerTick = 32;
+	private long consumedPerTick = CoPo.inst.controllerRfUsage;
+	private long energyCapacity = CoPo.inst.controllerCapacity;
 	public int bootTicks = 0;
 	private int networkMembers = 0;
 	private transient Set<BlockPos> networkMemberLocations = Sets.newHashSet();
@@ -104,7 +102,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
 		energy = compound.getLong("Energy");
-		if (energy > ENERGY_CAPACITY) energy = ENERGY_CAPACITY;
+		if (energy > energyCapacity) energy = energyCapacity;
 	}
 
 	@Override
@@ -200,7 +198,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			if (itr > 100) {
 				error = true;
 				errorReason = "network_too_big";
-				consumedPerTick = POWER_CAP;
+				consumedPerTick = CoPo.inst.controllerErrorUsage_NetworkTooBig;
 				return;
 			}
 			BlockPos pos = queue.remove(0);
@@ -246,7 +244,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		if (foundOtherController) {
 			error = true;
 			errorReason = "multiple_controllers";
-			consumedPerTick = 4;
+			consumedPerTick = CoPo.inst.controllerErrorUsage_MultipleControllers;
 		} else {
 			error = false;
 			errorReason = null;
@@ -256,7 +254,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			te.setController(this);
 		}
 		networkMembers = itr;
-		if (consumedPerTick > POWER_CAP) {
+		if (consumedPerTick > CoPo.inst.controllerCap) {
 			error = true;
 			errorReason = "too_much_power";
 		}
@@ -369,7 +367,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 
 	public void updateConsumptionRate(long change) {
 		consumedPerTick += change;
-		if (consumedPerTick > POWER_CAP) {
+		if (consumedPerTick > CoPo.inst.controllerCap) {
 			error = true;
 			errorReason = "too_much_power";
 		} else {
@@ -572,7 +570,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			if (networkMembers > 100) {
 				error = true;
 				errorReason = "network_too_big";
-				consumedPerTick = POWER_CAP;
+				consumedPerTick = CoPo.inst.controllerErrorUsage_NetworkTooBig;
 			}
 		}
 	}
@@ -590,16 +588,16 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	
 	public void modifyEnergyStored(long energy) {
 		this.energy += energy;
-		if (this.energy > ENERGY_CAPACITY) {
-			this.energy = ENERGY_CAPACITY;
+		if (this.energy > energyCapacity) {
+			this.energy = energyCapacity;
 		} else if (this.energy < 0) {
 			this.energy = 0;
 		}
 	}
 	
 	public long receiveEnergy(long maxReceive, boolean simulate) {
-		long energyReceived = Math.min(ENERGY_CAPACITY - energy,
-				Math.min(POWER_CAP+1, maxReceive));
+		long energyReceived = Math.min(energyCapacity - energy,
+				Math.min(CoPo.inst.controllerCap+1, maxReceive));
 
 		if (!simulate) {
 			energy += energyReceived;
@@ -617,7 +615,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 
 	@Override
 	public int getMaxEnergyStored(EnumFacing from) {
-		return Ints.saturatedCast(ENERGY_CAPACITY);
+		return Ints.saturatedCast(energyCapacity);
 	}
 	
 	@Override
@@ -644,7 +642,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 
 	@Override
 	public int getMaxEnergyStored() {
-		return Ints.saturatedCast(ENERGY_CAPACITY);
+		return Ints.saturatedCast(energyCapacity);
 	}
 
 	@Override
