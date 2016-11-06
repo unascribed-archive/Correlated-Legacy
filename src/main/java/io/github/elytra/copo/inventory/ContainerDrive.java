@@ -65,6 +65,7 @@ public class ContainerDrive extends Container {
 
 		@Override
 		public boolean isItemValid(ItemStack stack) {
+			if (stack == null) return false;
 			for (ItemStack s : prototypes) {
 				if (ItemStack.areItemsEqual(s, stack) && ItemStack.areItemStackTagsEqual(s, stack)) {
 					return false;
@@ -187,9 +188,11 @@ public class ContainerDrive extends Container {
 						if (getItemDrive().getPartitioningMode(getDrive()) == PartitioningMode.NONE) return cursor;
 						if (cursor != null) {
 							if (slot.isItemValid(cursor)) {
-								getItemDrive().allocateType(getDrive(), cursor, 0);
-								updateSlots();
-								player.inventory.setInventorySlotContents(driveSlotId, getDrive());
+								if (cursor != getDrive()) {
+									getItemDrive().allocateType(getDrive(), cursor, 0);
+									updateSlots();
+									player.inventory.setInventorySlotContents(driveSlotId, getDrive());
+								}
 							}
 						}
 						return cursor;
@@ -199,9 +202,11 @@ public class ContainerDrive extends Container {
 				ItemStack stack = slot.getStack();
 				if (getItemDrive().getPartitioningMode(getDrive()) == PartitioningMode.NONE) return stack;
 				if (getSlot(1).isItemValid(stack)) {
-					getItemDrive().allocateType(getDrive(), stack, 0);
-					updateSlots();
-					player.inventory.setInventorySlotContents(driveSlotId, getDrive());
+					if (stack != getDrive()) {
+						getItemDrive().allocateType(getDrive(), stack, 0);
+						updateSlots();
+						player.inventory.setInventorySlotContents(driveSlotId, getDrive());
+					}
 				}
 				return stack;
 			}
