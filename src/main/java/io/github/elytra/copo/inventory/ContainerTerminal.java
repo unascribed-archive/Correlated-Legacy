@@ -12,7 +12,6 @@ import com.google.common.primitives.Ints;
 import io.github.elytra.copo.CoPo;
 import io.github.elytra.copo.client.gui.GuiTerminal;
 import io.github.elytra.copo.helper.Numbers;
-import io.github.elytra.copo.item.ItemDrive;
 import io.github.elytra.copo.network.AddStatusLineMessage;
 import io.github.elytra.copo.network.SetSearchQueryClientMessage;
 import io.github.elytra.copo.network.SetSlotSizeMessage;
@@ -407,7 +406,7 @@ public class ContainerTerminal extends Container {
 			/*
 			 * -30 (inclusive) through -60 (inclusive) are for subclass use
 			 */
-				
+			
 			case -128:
 				for (int i = 0; i < 9; i++) {
 					ItemStack is = craftMatrix.getStackInSlot(i);
@@ -429,24 +428,7 @@ public class ContainerTerminal extends Container {
 
 	public ItemStack addItemToNetwork(ItemStack stack) {
 		if (player.worldObj.isRemote) return null;
-		int oldBits = terminal.getStorage().getKilobitsStorageFree();
-		int initialStackSize = stack.stackSize;
-		ItemStack is = terminal.getStorage().addItemToNetwork(stack);
-		int newBits = terminal.getStorage().getKilobitsStorageFree();
-		int delta = oldBits-newBits;
-		String amt = delta < 8 ? delta+" Kib" : (delta/8)+" KiB";
-		if (is == null) {
-			addStatusLine("Add "+initialStackSize+": OK, used "+amt);
-		} else if (is.stackSize < initialStackSize) {
-			addStatusLine("Add "+(initialStackSize-is.stackSize)+": OK, used "+amt);
-		} else {
-			int needed = ItemDrive.getNBTComplexity(stack.getTagCompound());
-			needed += 8*8;
-			needed += stack.stackSize;
-			addStatusLine("Add: Insufficient disk space.");
-			addStatusLine("Need about "+needed+", only "+newBits+" available");
-		}
-		return is;
+		return terminal.getStorage().addItemToNetwork(stack);
 	}
 
 	private void addStatusLine(String line) {
@@ -461,15 +443,7 @@ public class ContainerTerminal extends Container {
 
 	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount) {
 		if (player.worldObj.isRemote) return null;
-		int oldBits = terminal.getStorage().getKilobitsStorageFree();
-		ItemStack is = terminal.getStorage().removeItemsFromNetwork(prototype, amount, true);
-		int newBits = terminal.getStorage().getKilobitsStorageFree();
-		int delta = newBits-oldBits;
-		String amt = delta < 8 ? delta+" Kib" : (delta/8)+" KiB";
-		if (is != null) {
-			addStatusLine("Remove "+is.stackSize+": OK, freed "+amt);
-		}
-		return is;
+		return terminal.getStorage().removeItemsFromNetwork(prototype, amount, true);
 	}
 
 	private List<Integer> oldStackSizes = Lists.newArrayList();

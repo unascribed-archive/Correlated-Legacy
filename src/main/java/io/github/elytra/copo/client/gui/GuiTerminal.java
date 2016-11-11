@@ -16,6 +16,7 @@ import io.github.elytra.copo.inventory.ContainerTerminal.CraftingAmount;
 import io.github.elytra.copo.inventory.ContainerTerminal.CraftingTarget;
 import io.github.elytra.copo.inventory.ContainerTerminal.SlotVirtual;
 import io.github.elytra.copo.inventory.ContainerTerminal.SortMode;
+import io.github.elytra.copo.network.InsertAllMessage;
 import io.github.elytra.copo.network.SetSearchQueryServerMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -24,6 +25,7 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
 
@@ -425,7 +427,17 @@ public class GuiTerminal extends GuiContainer {
 		if (mouseButton == 0) {
 			draggingScrollKnob = false;
 		}
-		super.mouseReleased(mouseX, mouseY, mouseButton);
+		Slot slot = getSlotAtPosition(mouseX, mouseY);
+		if (doubleClick && slot != null && mouseButton == 0 && inventorySlots.canMergeSlot((ItemStack)null, slot)
+				&& isShiftKeyDown()
+				&& slot != null && slot.inventory != null && shiftClickedSlot != null) {
+			if (!(slot instanceof SlotVirtual)) {
+				new InsertAllMessage(inventorySlots.windowId, shiftClickedSlot).sendToServer();
+			}
+			doubleClick = false;
+		} else {
+			super.mouseReleased(mouseX, mouseY, mouseButton);
+		}
 	}
 
 	public void updateSearchQuery(String query) {
