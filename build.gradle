@@ -80,9 +80,6 @@ jar {
 
 shadowJar {
 	classifier = ''
-	relocate 'javax.speech', 'io.github.elytra.copo.repackage.javax.speech'
-	relocate 'com.sun.speech', 'io.github.elytra.copo.repackage.com.sun.speech'
-	relocate 'de.dfki', 'io.github.elytra.copo.repackage.de.dfki'
 	relocate 'io.github.elytra.concrete', 'io.github.elytra.copo.repackage.io.github.elytra.concrete'
 	configurations = [project.configurations.shadow]
 }
@@ -101,24 +98,6 @@ dependencies {
 	deploy 'org.apache.maven.wagon:wagon-ssh:2.10'
 	
 	compile fileTree(dir: 'libs', include: '*.jar')
-	
-	shadow 'net.sourceforge.freetts:freetts'
-	compile 'net.sourceforge.freetts:freetts'
-	
-	shadow 'net.sourceforge.freetts:en_us'
-	compile 'net.sourceforge.freetts:en_us'
-	
-	shadow 'net.sourceforge.freetts:cmu_us_kal'
-	compile 'net.sourceforge.freetts:cmu_us_kal'
-	
-	shadow 'net.sourceforge.freetts:cmu_us_kal'
-	compile 'net.sourceforge.freetts:cmu_us_kal'
-	
-	shadow 'net.sourceforge.freetts:cmulex'
-	compile 'net.sourceforge.freetts:cmulex'
-	
-	shadow 'net.sourceforge.freetts:cmudict04'
-	compile 'net.sourceforge.freetts:cmudict04'
 	
 	shadow 'io.github.elytra:concrete:0.0.6'
 	compile 'io.github.elytra:concrete:0.0.6'
