@@ -2,7 +2,7 @@
 {
   "modid": "correlated",
   "name": "Correlated",
-  "description": "Digital storage for the modern world.",
+  "description": "Storage and automation for the modern world.",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "https://unascribed.com",
