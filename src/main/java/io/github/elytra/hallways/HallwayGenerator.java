@@ -4,7 +4,7 @@ import java.util.Random;
 
 import javax.swing.JFrame;
 
-import io.github.elytra.copo.math.Vec2i;
+import io.github.elytra.correlated.math.Vec2i;
 import io.github.elytra.hallways.DungeonTile.TileType;
 
 /**

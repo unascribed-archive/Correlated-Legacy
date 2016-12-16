@@ -1,15 +1,15 @@
 [
 {
-  "modid": "correlatedpotentialistics",
-  "name": "Correlated Potentialistics",
-  "description": "Digital storage.",
+  "modid": "correlated",
+  "name": "Correlated",
+  "description": "Digital storage for the modern world.",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "https://unascribed.com",
-  "updateJSON": "http://unascribed.com/update-check/correlated-potentialistics.json",
+  "updateJSON": "http://unascribed.com/update-check/correlated.json",
   "authorList": ["Una Thompson (unascribed)"],
   "credits": "",
-  "logoFile": "",
+  "logoFile": "correlated.png",
   "screenshots": [],
   "dependencies": []
 }

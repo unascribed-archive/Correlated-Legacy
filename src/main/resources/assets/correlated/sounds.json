@@ -1,0 +1,67 @@
+{
+	"weldthrow": {
+		"category": "player",
+		"sounds": [
+			"correlated:weldthrower_0",
+			"correlated:weldthrower_1"
+		],
+		"subtitle": "subtitles.correlated.weldthrow"
+	},
+	"glitchbgm": {
+		"category": "master",
+		"sounds": [
+			{"name":"correlated:glitch-bgm0","stream":true},
+			{"name":"correlated:glitch-bgm1","stream":true},
+			{"name":"correlated:glitch-bgm2","stream":true},
+			{"name":"correlated:glitch-bgm3","stream":true}
+		]
+	},
+	"glitchfloppy": {
+		"category": "master",
+		"sounds": [ "correlated:floppy" ]
+	},
+	"glitchboot": {
+		"category": "master",
+		"sounds": [ "correlated:boot" ]
+	},
+	"convert": {
+		"category": "master",
+		"sounds": [ "correlated:convert" ],
+		"subtitle": "subtitles.correlated.convert"
+	},
+	"glitchtravel": {
+		"category": "master",
+		"sounds": [ "correlated:glitchtravel" ]
+	},
+	"automaton_hurt": {
+		"category": "neutral",
+		"sounds": [
+			"correlated:automaton/hurt1",
+			"correlated:automaton/hurt2",
+			"correlated:automaton/hurt3"
+		],
+		"subtitle": "subtitles.correlated.automaton_hurt"
+	},
+	"automaton_idle": {
+		"category": "neutral",
+		"sounds": [
+			"correlated:automaton/idle1",
+			"correlated:automaton/idle2"
+		],
+		"subtitle": "subtitles.correlated.automaton_idle"
+	},
+	"drive_disassemble": {
+		"category": "player",
+		"sounds": [
+			"correlated:drive_disassemble"
+		],
+		"subtitle": "subtitles.correlated.drive_disassemble"
+	},
+	"data_core_shatter": {
+		"category": "player",
+		"sounds": [
+			"correlated:data_core_shatter"
+		],
+		"subtitle": "subtitles.correlated.data_core_shatter"
+	}
+}

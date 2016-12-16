@@ -1,6 +1,6 @@
 package io.github.elytra.hallways;
 
-import io.github.elytra.copo.math.Vec2i;
+import io.github.elytra.correlated.math.Vec2i;
 
 public enum Cardinal {
 	NORTH( 0,-1),

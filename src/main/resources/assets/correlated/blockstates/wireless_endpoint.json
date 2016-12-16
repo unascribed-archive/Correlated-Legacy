@@ -1,0 +1,34 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"textures": {
+			"particle": "correlated:blocks/top",
+			"top": "correlated:blocks/top",
+			"side": "correlated:blocks/wireless_endpoint_base"
+		}
+	},
+	"variants": {
+		"kind": {
+			"receiver" : {
+				"model": "correlated:wireless_receiver",
+				"textures": {
+					"pole": "correlated:blocks/side"
+				}
+			},
+			"transmitter" : {
+				"model": "correlated:wireless_transmitter",
+				"textures": {
+					"pole": "correlated:blocks/lumtorch"
+				}
+			}
+		},
+		"state": {
+			"dead": {},
+			"error": {},
+			"linked": {}
+		},
+		"inventory": {
+			"transform": "forge:default-block"
+		}
+	}
+}

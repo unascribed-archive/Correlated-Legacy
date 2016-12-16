@@ -1,0 +1,34 @@
+{
+	"parent": "builtin/generated",
+	"textures": {
+		"layer0": "correlated:items/drive",
+		"layer1": "correlated:items/drive_fullness_light",
+		"layer2": "correlated:items/drive_tier_light",
+		"layer3": "correlated:items/drive_partition_light",
+		"layer4": "correlated:items/drive_priority_light_left",
+		"layer5": "correlated:items/drive_priority_light_middle",
+		"layer6": "correlated:items/drive_priority_light_right"
+	},
+	"display": {
+		"ground": {
+			"rotation": [ 0, 0, 0 ],
+			"translation": [ 0, 2, 0],
+			"scale":[ 0.5, 0.5, 0.5 ]
+		},
+		"head": {
+			"rotation": [ 0, 180, 0 ],
+			"translation": [ 0, 13, 7],
+			"scale":[ 1, 1, 1]
+		},
+		"thirdperson_righthand": {
+			"rotation": [ 0, 0, 0 ],
+			"translation": [ 0, 3, 1 ],
+			"scale": [ 0.55, 0.55, 0.55 ]
+		},
+		"firstperson_righthand": {
+			"rotation": [ 0, -90, 25 ],
+			"translation": [ 1.13, 3.2, 1.13],
+			"scale": [ 0.68, 0.68, 0.68 ]
+		}
+	}
+}

@@ -1,0 +1,62 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"model": "minecraft:cube_all"
+	},
+	"variants": {
+		"state": {
+			"off": {
+				"textures": {
+					"all": "correlated:blocks/controller_off"
+				}
+			},
+			"powered": {
+				"textures": {
+					"all": "correlated:blocks/top"
+				}
+			},
+			"error": {
+				"textures": {
+					"all": "correlated:blocks/top"
+				}
+			},
+			"booting": {
+				"textures": {
+					"all": "correlated:blocks/top"
+				}
+			}
+		},
+		"inventory0": {
+			"transform": "forge:default-block",
+			"model": "correlated:double_cube_all",
+			"textures": {
+				"base": "correlated:blocks/top",
+				"overlay": "correlated:blocks/controller"
+			}
+		},
+		"inventory1": {
+			"transform": "forge:default-block",
+			"model": "correlated:double_cube_all",
+			"textures": {
+				"base": "correlated:blocks/top",
+				"overlay": "correlated:blocks/controller_off"
+			}
+		},
+		"inventory2": {
+			"transform": "forge:default-block",
+			"model": "correlated:double_cube_all",
+			"textures": {
+				"base": "correlated:blocks/top",
+				"overlay": "correlated:blocks/controller_error"
+			}
+		},
+		"inventory3": {
+			"transform": "forge:default-block",
+			"model": "correlated:double_cube_all",
+			"textures": {
+				"base": "correlated:blocks/top",
+				"overlay": "correlated:blocks/controller_booting"
+			}
+		}
+	}
+}

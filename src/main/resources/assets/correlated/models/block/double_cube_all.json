@@ -1,0 +1,18 @@
+{
+	"parent": "correlated:block/double_cube",
+	"textures": {
+		"particle": "#base",
+		"down_base": "#base",
+		"up_base": "#base",
+		"north_base": "#base",
+		"east_base": "#base",
+		"south_base": "#base",
+		"west_base": "#base",
+		"down_overlay": "#overlay",
+		"up_overlay": "#overlay",
+		"north_overlay": "#overlay",
+		"east_overlay": "#overlay",
+		"south_overlay": "#overlay",
+		"west_overlay": "#overlay"
+	}
+}
