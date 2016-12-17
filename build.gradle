@@ -131,14 +131,6 @@ processResources {
 		expand 'version':project.version, 'mcversion':project.minecraft.version
 	}
 	
-	from(sourceSets.main.resources.srcDirs) {
-		include 'voices.txt'
-		
-		filter {
-			it.replace('com.sun.speech', 'io.github.elytra.copo.repackage.com.sun.speech')
-		}
-	}
-
 	// copy everything else, thats not the mcmod.info
 	from(sourceSets.main.resources.srcDirs) {
 		exclude 'mcmod.info'
