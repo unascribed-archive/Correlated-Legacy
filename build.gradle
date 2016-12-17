@@ -114,7 +114,7 @@ minecraft {
 
 	runDir = "minecraft"
 
-	replaceIn 'src/main/java/io/github/elytra/copo/CoPo.java'
+	replaceIn 'src/main/java/io/github/elytra/correlated/Correlated.java'
 	replace '@VERSION@', project.version
 }
 
