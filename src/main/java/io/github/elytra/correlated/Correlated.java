@@ -355,7 +355,7 @@ public class Correlated {
 		registerRecord("thirteen.mod");
 		registerRecord("irokos.mod");
 		
-		register(new BlockController().setHardness(2), ItemBlockController.class, "controller", 9);
+		register(new BlockController().setHardness(2), ItemBlockController.class, "controller", 16);
 		register(new BlockDriveBay().setHardness(2), ItemBlockDriveBay.class, "drive_bay", 0);
 		register(new BlockMemoryBay().setHardness(2), ItemBlockMemoryBay.class, "memory_bay", 0);
 		register(new BlockTerminal().setHardness(2), ItemBlockTerminal.class, "terminal", 0);
@@ -398,7 +398,7 @@ public class Correlated {
 		
 		Opcode.init();
 		
-		if (Loader.isModLoaded("Waila")) {
+		if (Loader.isModLoaded("Waila") || Loader.isModLoaded("hwyla") || Loader.isModLoaded("waila")) {
 			WailaCompatibility.init();
 		}
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, new CorrelatedGuiHandler());

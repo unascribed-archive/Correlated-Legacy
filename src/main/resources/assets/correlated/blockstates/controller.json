@@ -54,28 +54,28 @@
 			"model": "correlated:double_cube_all",
 			"textures": {
 				"base": "correlated:blocks/top",
-				"overlay": "correlated:blocks/controller"
+				"overlay": "correlated:items/ceramic_drive_platter"
 			}
 		},
 		"inventory5": {
 			"model": "correlated:double_cube_all",
 			"textures": {
 				"base": "correlated:blocks/top",
-				"overlay": "correlated:blocks/controller_off"
+				"overlay": "correlated:items/drive"
 			}
 		},
 		"inventory6": {
 			"model": "correlated:double_cube_all",
 			"textures": {
 				"base": "correlated:blocks/top",
-				"overlay": "correlated:blocks/controller_error"
+				"overlay": "correlated:items/keycard_amber"
 			}
 		},
 		"inventory7": {
 			"model": "correlated:double_cube_all",
 			"textures": {
 				"base": "correlated:blocks/top",
-				"overlay": "correlated:blocks/controller_booting"
+				"overlay": "correlated:items/irokos_record"
 			}
 		},
 		"inventory8": {
@@ -83,6 +83,55 @@
 			"textures": {
 				"base": "correlated:blocks/top",
 				"overlay": "correlated:blocks/controller_creative"
+			}
+		},
+		"inventory9": {
+			"model": "correlated:double_cube_all",
+			"textures": {
+				"base": "correlated:blocks/top",
+				"overlay": "correlated:blocks/controller_off"
+			}
+		},
+		"inventory10": {
+			"model": "correlated:double_cube_all",
+			"textures": {
+				"base": "correlated:blocks/top",
+				"overlay": "correlated:blocks/controller_error"
+			}
+		},
+		"inventory11": {
+			"model": "correlated:double_cube_all",
+			"textures": {
+				"base": "correlated:blocks/top",
+				"overlay": "correlated:blocks/controller_booting"
+			}
+		},
+		"inventory12": {
+			"model": "correlated:double_cube_all",
+			"textures": {
+				"base": "correlated:blocks/top",
+				"overlay": "correlated:items/metallic_drive_platter"
+			}
+		},
+		"inventory13": {
+			"model": "correlated:double_cube_all",
+			"textures": {
+				"base": "correlated:blocks/top",
+				"overlay": "correlated:items/ram"
+			}
+		},
+		"inventory14": {
+			"model": "correlated:double_cube_all",
+			"textures": {
+				"base": "correlated:blocks/top",
+				"overlay": "correlated:items/keycard_black"
+			}
+		},
+		"inventory15": {
+			"model": "correlated:double_cube_all",
+			"textures": {
+				"base": "correlated:blocks/top",
+				"overlay": "correlated:items/greyatari_record"
 			}
 		}
 	}

@@ -26,7 +26,7 @@ public class ItemBlockController extends ItemBlock {
 	
 	@Override
 	public String getUnlocalizedName(ItemStack stack) {
-		return stack.getMetadata() == 8 ? "tile.correlated.cheaty_controller" : "tile.correlated.controller";
+		return stack.getMetadata() >= 8 ? "tile.correlated.cheaty_controller" : "tile.correlated.controller";
 	}
 	
 	@Override
