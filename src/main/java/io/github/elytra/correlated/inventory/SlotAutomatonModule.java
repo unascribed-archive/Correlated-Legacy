@@ -38,12 +38,8 @@ public class SlotAutomatonModule extends Slot {
 	
 	@Override
 	public ItemStack decrStackSize(int amount) {
-		if (getStack() == null) return null;
 		ItemStack stack = getStack();
 		ItemStack result = stack.splitStack(amount);
-		if (stack.stackSize <= 0) {
-			putStack(null);
-		}
 		return result;
 	}
 	
@@ -54,7 +50,7 @@ public class SlotAutomatonModule extends Slot {
 	
 	@Override
 	public boolean isItemValid(ItemStack stack) {
-		return stack != null && stack.getItem() instanceof ItemModule && !automaton.hasModule(((ItemModule)stack.getItem()).getType(stack));
+		return stack.getItem() instanceof ItemModule && !automaton.hasModule(((ItemModule)stack.getItem()).getType(stack));
 	}
 	
 	@Override

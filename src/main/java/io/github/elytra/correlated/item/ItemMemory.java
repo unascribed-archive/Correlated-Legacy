@@ -1,12 +1,11 @@
 package io.github.elytra.correlated.item;
 
-import java.util.List;
-
 import io.github.elytra.correlated.Correlated;
 import io.github.elytra.correlated.helper.Numbers;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.translation.I18n;
 
 public class ItemMemory extends Item {
@@ -35,7 +34,7 @@ public class ItemMemory extends Item {
 	}
 
 	@Override
-	public void getSubItems(Item itemIn, CreativeTabs tab, List<ItemStack> subItems) {
+	public void getSubItems(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> subItems) {
 		for (int i = 0; i < tierSizes.length; i++) {
 			subItems.add(new ItemStack(itemIn, 1, i));
 		}

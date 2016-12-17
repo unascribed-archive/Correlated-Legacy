@@ -26,9 +26,9 @@ public class TileEntityWirelessReceiver extends TileEntityWirelessEndpoint {
 	public float getYaw(float partialTicks) {
 		switch (getCurrentState()) {
 			case ERROR:
-				return (worldObj.getTotalWorldTime()+partialTicks)%360;
+				return (world.getTotalWorldTime()+partialTicks)%360;
 			case LINKED:
-				if (hasWorldObj() && getWorld().isRemote) {
+				if (hasWorld() && getWorld().isRemote) {
 					return syncedYaw;
 				} else {
 					Vec3d dir = getDirectionToTransmitter();
@@ -42,9 +42,9 @@ public class TileEntityWirelessReceiver extends TileEntityWirelessEndpoint {
 	public float getPitch(float partialTicks) {
 		switch (getCurrentState()) {
 			case ERROR:
-				return (((MathHelper.sin((worldObj.getTotalWorldTime()+partialTicks)/20f)+1)/2)*90)-20;
+				return (((MathHelper.sin((world.getTotalWorldTime()+partialTicks)/20f)+1)/2)*90)-20;
 			case LINKED:
-				if (hasWorldObj() && getWorld().isRemote) {
+				if (hasWorld() && getWorld().isRemote) {
 					return syncedPitch;
 				} else {
 					Vec3d dir = getDirectionToTransmitter();
@@ -100,7 +100,7 @@ public class TileEntityWirelessReceiver extends TileEntityWirelessEndpoint {
 	}
 	
 	public Transmitter getTransmitter() {
-		if (!hasWorldObj()) return null;
+		if (!hasWorld()) return null;
 		if (transmitter == null) return null;
 		if (transmitterCache != null && transmitterCache.isValid()) return transmitterCache;
 		if (hasStorage() && !getStorage().isCheckingInfiniteLoop()) {
@@ -127,7 +127,7 @@ public class TileEntityWirelessReceiver extends TileEntityWirelessEndpoint {
 	
 	@Override
 	protected State getCurrentState() {
-		if (hasWorldObj() && getWorld().isRemote) {
+		if (hasWorld() && getWorld().isRemote) {
 			IBlockState state = getWorld().getBlockState(getPos());
 			if (state.getBlock() == Correlated.wireless_endpoint) {
 				return state.getValue(BlockWirelessEndpoint.state);

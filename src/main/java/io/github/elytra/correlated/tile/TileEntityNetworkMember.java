@@ -41,7 +41,7 @@ public abstract class TileEntityNetworkMember extends TileEntity {
 	}
 
 	public TileEntityController getStorage() {
-		if (!hasWorldObj()) return null;
+		if (!hasWorld()) return null;
 		if (controller != null && controller.isInvalid()) controller = null;
 		if (controller == null && controllerPos != null) {
 			BlockPos pos = getPos().add(controllerPos);
@@ -58,7 +58,7 @@ public abstract class TileEntityNetworkMember extends TileEntity {
 		return controller;
 	}
 	public void setController(TileEntityController controller) {
-		if (!hasWorldObj()) return;
+		if (!hasWorld()) return;
 		if (controller == null) {
 			controllerPos = null;
 		} else {
@@ -67,7 +67,7 @@ public abstract class TileEntityNetworkMember extends TileEntity {
 		this.controller = controller;
 		if (controller != null) {
 			for (EnumFacing ef : EnumFacing.VALUES) {
-				TileEntity neighbor = worldObj.getTileEntity(getPos().offset(ef));
+				TileEntity neighbor = world.getTileEntity(getPos().offset(ef));
 				if (neighbor instanceof TileEntityNetworkMember) {
 					TileEntityNetworkMember tenm = (TileEntityNetworkMember)neighbor;
 					if (!tenm.hasStorage() && this.hasStorage()) {

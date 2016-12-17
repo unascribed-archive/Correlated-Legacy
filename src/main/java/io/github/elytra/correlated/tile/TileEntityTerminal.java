@@ -35,7 +35,7 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 	
 	@Override
 	public void update() {
-		if (hasWorldObj() && !worldObj.isRemote) {
+		if (hasWorld() && !world.isRemote) {
 			IBlockState state = getWorld().getBlockState(getPos());
 			if (state.getBlock() == Correlated.terminal) {
 				boolean lit;
@@ -47,7 +47,7 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 				if (lit != state.getValue(BlockTerminal.LIT)) {
 					getWorld().setBlockState(getPos(), state = state.withProperty(BlockTerminal.LIT, lit));
 				}
-				boolean floppy = getStackInSlot(1) != null;
+				boolean floppy = !getStackInSlot(1).isEmpty();
 				if (floppy != state.getValue(BlockTerminal.FLOPPY)) {
 					getWorld().setBlockState(getPos(), state = state.withProperty(BlockTerminal.FLOPPY, floppy));
 				}
@@ -71,16 +71,16 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 							if (prototypes.isEmpty()) break;
 							ItemStack prototype = prototypes.get(0);
 							ItemStack split = id.removeItems(getDumpDrive(), prototype, prototype.getMaxStackSize());
-							if (split.stackSize == 0) {
+							if (split.isEmpty()) {
 								prototypes.remove(0);
 								continue;
 							}
 							controller.addItemToNetwork(split);
-							moved += split.stackSize;
-							if (split.stackSize > 0) {
+							moved += split.getCount();
+							if (!split.isEmpty()) {
 								// no more room for this item in the network, skip it this tick
 								prototypes.remove(0);
-								moved -= split.stackSize;
+								moved -= split.getCount();
 								id.addItem(getDumpDrive(), split);
 							}
 						}
@@ -153,7 +153,7 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 		NBTTagList invList = new NBTTagList();
 		for (int i = 0; i < inv.getSizeInventory(); i++) {
 			ItemStack is = getStackInSlot(i);
-			if (is == null) continue;
+			if (is.isEmpty()) continue;
 			NBTTagCompound tag = is.writeToNBT(new NBTTagCompound());
 			tag.setInteger("Slot", i);
 			invList.appendTag(tag);
@@ -176,7 +176,7 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 		NBTTagList invList = compound.getTagList("Inventory", NBT.TAG_COMPOUND);
 		for (int i = 0; i < invList.tagCount(); i++) {
 			NBTTagCompound tag = invList.getCompoundTagAt(i);
-			ItemStack is = ItemStack.loadItemStackFromNBT(tag);
+			ItemStack is = new ItemStack(tag);
 			int slot = tag.getInteger("Slot");
 			setInventorySlotContents(slot, is);
 		}
@@ -255,8 +255,8 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 	}
 
 	@Override
-	public boolean isUseableByPlayer(EntityPlayer player) {
-		return inv.isUseableByPlayer(player);
+	public boolean isUsableByPlayer(EntityPlayer player) {
+		return inv.isUsableByPlayer(player);
 	}
 
 	@Override
@@ -327,6 +327,11 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 	@Override
 	public void markUnderlyingStorageDirty() {
 		markDirty();
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return inv.isEmpty();
 	}
 	
 	

@@ -98,7 +98,7 @@ public class BlockInterface extends Block implements ITweakable {
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (Blocks.tryWrench(world, pos, player, hand, side, hitX, hitY, hitZ)) {
 			return true;
 		}
@@ -106,7 +106,7 @@ public class BlockInterface extends Block implements ITweakable {
 			player.openGui(Correlated.inst, 2, world, pos.getX(), pos.getY(), pos.getZ());
 			return true;
 		}
-		return super.onBlockActivated(world, pos, state, player, hand, heldItem, side, hitX, hitY, hitZ);
+		return super.onBlockActivated(world, pos, state, player, hand, side, hitX, hitY, hitZ);
 	}
 
 	@Override

@@ -31,11 +31,11 @@ public class DriveRecipe extends ShapedOreRecipe {
 		NBTTagList ingredients = new NBTTagList();
 		for (int i = 0; i < var1.getSizeInventory(); i++) {
 			ItemStack is = var1.getStackInSlot(i);
-			if (is != null) {
+			if (is.isEmpty()) {
 				if (!is.getItem().hasContainerItem(is)) {
 					NBTTagCompound ingredient = new NBTTagCompound();
 					ItemStack copy = is.copy();
-					copy.stackSize = 1;
+					copy.setCount(1);
 					copy.writeToNBT(ingredient);
 					ingredient.setInteger("Slot", i);
 					ingredients.appendTag(ingredient);
@@ -44,7 +44,7 @@ public class DriveRecipe extends ShapedOreRecipe {
 					if (stack.getItem() instanceof ItemDrive) {
 						ItemDrive id = ((ItemDrive)stack.getItem());
 						if (Correlated.drive.getKilobitsUsed(is) > id.getMaxKilobits(stack)) {
-							return null;
+							return ItemStack.EMPTY;
 						}
 					}
 					tag.merge(is.getTagCompound());

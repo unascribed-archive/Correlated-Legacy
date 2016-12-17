@@ -41,7 +41,7 @@ public class RSOD extends Program {
 	@Override
 	public void keyTyped(char typedChar, int keyCode) {
 		if (keyCode == Keyboard.KEY_ESCAPE) {
-			Minecraft.getMinecraft().thePlayer.closeScreen();
+			Minecraft.getMinecraft().player.closeScreen();
 		}
 	}
 

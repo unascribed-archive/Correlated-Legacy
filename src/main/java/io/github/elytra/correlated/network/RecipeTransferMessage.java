@@ -40,12 +40,12 @@ public class RecipeTransferMessage extends Message {
 				for (int i = 0; i < 9; i++) {
 					List<ItemStack> possibilities = matrix.get(i);
 					if (possibilities.isEmpty()) continue;
-					ItemStack res = null;
+					ItemStack res = ItemStack.EMPTY;
 					for (ItemStack is : possibilities) {
 						res = terminal.removeItemsFromNetwork(is, 1);
-						if (res != null) break;
+						if (!res.isEmpty()) break;
 					}
-					if (res != null) {
+					if (!res.isEmpty()) {
 						matrixResult[i] = res;
 					} else {
 						anyFailed = true;
@@ -54,18 +54,18 @@ public class RecipeTransferMessage extends Message {
 				}
 				if (anyFailed) {
 					for (ItemStack is : matrixResult) {
-						if (is != null) {
+						if (!is.isEmpty()) {
 							terminal.addItemToNetwork(is);
 						}
 					}
 				} else {
 					for (int i = 0; i < 9; i++) {
 						ItemStack cur = terminal.craftMatrix.getStackInSlot(i);
-						if (cur != null) {
+						if (!cur.isEmpty()) {
 							cur = terminal.addItemToNetwork(cur);
-							if (cur != null) {
+							if (!cur.isEmpty()) {
 								sender.entityDropItem(cur, 0.5f);
-								cur = null;
+								cur = ItemStack.EMPTY;
 							}
 						}
 						terminal.craftMatrix.setInventorySlotContents(i, matrixResult[i]);

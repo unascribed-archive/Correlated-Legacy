@@ -46,20 +46,20 @@ public class LimboProvider extends WorldProvider {
 	}
 
 	@Override
-	public void createBiomeProvider() {
+	protected void init() {
 		this.biomeProvider = new BiomeProviderSingle(Biomes.VOID);
 		this.hasNoSky = true;
 		grid = new DungeonGrid();
-		grid.deserializeNBT(worldObj.getWorldInfo().getDimensionData(getDimensionType()));
-		scribe = new DungeonScribe(worldObj);
-		if (worldObj instanceof WorldServer) {
-			teleporter = new LimboTeleporter((WorldServer)worldObj, scribe, grid);
+		grid.deserializeNBT(world.getWorldInfo().getDimensionData(getDimensionType()));
+		scribe = new DungeonScribe(world);
+		if (world instanceof WorldServer) {
+			teleporter = new LimboTeleporter((WorldServer)world, scribe, grid);
 		}
 	}
 
 	@Override
 	public IChunkGenerator createChunkGenerator() {
-		return new LimboChunkGenerator(this.worldObj, this.worldObj.getWorldInfo().isMapFeaturesEnabled(), this.worldObj.getSeed(), grid);
+		return new LimboChunkGenerator(this.world, this.world.getWorldInfo().isMapFeaturesEnabled(), this.world.getSeed(), grid);
 	}
 
 	@Override
@@ -112,7 +112,7 @@ public class LimboProvider extends WorldProvider {
 
 	@Override
 	public boolean canCoordinateBeSpawn(int x, int z) {
-		return this.worldObj.getGroundAboveSeaLevel(new BlockPos(x, 0, z)).getMaterial().blocksMovement();
+		return this.world.getGroundAboveSeaLevel(new BlockPos(x, 0, z)).getMaterial().blocksMovement();
 	}
 
 	@Override
@@ -155,7 +155,7 @@ public class LimboProvider extends WorldProvider {
 	
 	@Override
 	public void onWorldSave() {
-		worldObj.getWorldInfo().setDimensionData(getDimensionType(), grid.serializeNBT());
+		world.getWorldInfo().setDimensionData(getDimensionType(), grid.serializeNBT());
 	}
 	
 	@Override

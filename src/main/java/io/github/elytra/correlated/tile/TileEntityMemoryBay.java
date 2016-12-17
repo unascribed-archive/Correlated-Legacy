@@ -1,5 +1,7 @@
 package io.github.elytra.correlated.tile;
 
+import java.util.Arrays;
+
 import com.google.common.base.Predicates;
 
 import io.github.elytra.correlated.Correlated;
@@ -19,6 +21,10 @@ public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITic
 
 	private ItemStack[] memory = new ItemStack[12];
 
+	public TileEntityMemoryBay() {
+		Arrays.fill(memory, ItemStack.EMPTY);
+	}
+	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
@@ -39,12 +45,12 @@ public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITic
 			if (compound.hasKey("Memory"+i)) {
 				NBTTagCompound drive = compound.getCompoundTag("Memory"+i);
 				if (drive.hasNoTags()) {
-					memory[i] = null;
+					memory[i] = ItemStack.EMPTY;
 				} else {
-					ItemStack is = ItemStack.loadItemStackFromNBT(drive);
-					if (hasWorldObj() && worldObj.isRemote) {
+					ItemStack is = new ItemStack(drive);
+					if (hasWorld() && world.isRemote) {
 						ItemStacks.ensureHasTag(is);
-						is.setTagCompound((NBTTagCompound)is.getTagCompound().copy());
+						is.setTagCompound(is.getTagCompound().copy());
 						is.getTagCompound().setBoolean("Dirty", true);
 					}
 					memory[i] = is;
@@ -72,7 +78,7 @@ public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITic
 		nbt.setInteger("z", getPos().getZ());
 		for (int i = 0; i < memory.length; i++) {
 			ItemStack stack = memory[i];
-			if (stack == null) continue;
+			if (stack.isEmpty()) continue;
 			nbt.setTag("Memory"+i, stack.serializeNBT());
 		}
 		return nbt;
@@ -84,9 +90,9 @@ public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITic
 			if (pkt.getNbtCompound().hasKey("Memory"+i)) {
 				NBTTagCompound tag = pkt.getNbtCompound().getCompoundTag("Memory"+i);
 				if (tag.hasNoTags()) {
-					memory[i] = null;
+					memory[i] = ItemStack.EMPTY;
 				} else {
-					memory[i] = ItemStack.loadItemStackFromNBT(tag);
+					memory[i] = new ItemStack(tag);
 				}
 			}
 		}
@@ -94,11 +100,7 @@ public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITic
 
 	@Override
 	public void update() {
-		if (hasWorldObj() && !worldObj.isRemote) {
-			for (int i = 0; i < 12; i++) {
-				ItemStack is = memory[i];
-				if (is == null) continue;
-			}
+		if (hasWorld() && !world.isRemote) {
 			IBlockState state = getWorld().getBlockState(getPos());
 			if (state.getBlock() == Correlated.memory_bay) {
 				boolean lit;
@@ -116,23 +118,19 @@ public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITic
 
 	public void setMemoryInSlot(int slot, ItemStack mem) {
 		memory[slot] = mem;
-		if (hasWorldObj() && !worldObj.isRemote && worldObj instanceof WorldServer) {
+		if (hasWorld() && !world.isRemote && world instanceof WorldServer) {
 			NBTTagCompound nbt = new NBTTagCompound();
-			if (mem != null) {
-				nbt.setTag("Memory"+slot, mem.serializeNBT());
-			} else {
-				nbt.setTag("Memory"+slot, new NBTTagCompound());
-			}
+			nbt.setTag("Memory"+slot, mem.serializeNBT());
 			sendUpdatePacket(nbt); 
 			onMemoryChange();
 		}
 	}
 
 	private void sendUpdatePacket(NBTTagCompound nbt) {
-		WorldServer ws = (WorldServer)worldObj;
-		Chunk c = worldObj.getChunkFromBlockCoords(getPos());
+		WorldServer ws = (WorldServer)world;
+		Chunk c = world.getChunkFromBlockCoords(getPos());
 		SPacketUpdateTileEntity packet = new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), nbt);
-		for (EntityPlayerMP player : worldObj.getPlayers(EntityPlayerMP.class, Predicates.alwaysTrue())) {
+		for (EntityPlayerMP player : world.getPlayers(EntityPlayerMP.class, Predicates.alwaysTrue())) {
 			if (ws.getPlayerChunkMap().isPlayerWatchingChunk(player, c.xPosition, c.zPosition)) {
 				player.connection.sendPacket(packet);
 			}
@@ -140,7 +138,7 @@ public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITic
 	}
 
 	private void onMemoryChange() {
-		if (hasWorldObj() && !worldObj.isRemote && hasStorage()) {
+		if (hasWorld() && !world.isRemote && hasStorage()) {
 			getStorage().updateMemoryCache();
 		}
 	}
@@ -150,7 +148,7 @@ public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITic
 	}
 
 	public boolean hasMemoryInSlot(int slot) {
-		return memory[slot] != null;
+		return !memory[slot].isEmpty();
 	}
 
 }

@@ -67,7 +67,7 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 	public ItemStack decrStackSize(int index, int count) {
 		ItemStack is = storage.get(index);
 		ItemStack split = is.splitStack(count);
-		if (is.stackSize <= 0) {
+		if (is.isEmpty()) {
 			storage.remove(index);
 		}
 		changeId++;
@@ -97,7 +97,7 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 	}
 
 	@Override
-	public boolean isUseableByPlayer(EntityPlayer player) {
+	public boolean isUsableByPlayer(EntityPlayer player) {
 		return true;
 	}
 
@@ -151,8 +151,8 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 		if (stack == null) return null;
 		for (ItemStack is : storage) {
 			if (areCompatible(is, stack)) {
-				is.stackSize += stack.stackSize;
-				stack.stackSize = 0;
+				is.setCount(is.getCount()+stack.getCount());
+				stack.setCount(0);
 				return null;
 			}
 		}
@@ -165,23 +165,23 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount, boolean checkInterfaces) {
 		if (prototype == null) return null;
 		ItemStack res = prototype.copy();
-		res.stackSize = 0;
+		res.setCount(0);
 		Iterator<ItemStack> iter = storage.iterator();
 		while (iter.hasNext()) {
 			ItemStack is = iter.next();
 			if (areCompatible(is, res)) {
-				int toTake = Math.min(amount, is.stackSize);
+				int toTake = Math.min(amount, is.getCount());
 				amount -= toTake;
-				res.stackSize += toTake;
-				is.stackSize -= toTake;
-				if (is.stackSize <= 0) {
+				res.setCount(res.getCount() + toTake);
+				is.setCount(is.getCount() - toTake);
+				if (is.isEmpty()) {
 					iter.remove();
 				}
 				if (amount <= 0) break;
 			}
 		}
 		changeId++;
-		return res.stackSize <= 0 ? null : res;
+		return res;
 	}
 
 	@Override
@@ -211,7 +211,7 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 	@Override
 	public void update() {
 		if (++this.ticksSinceSync % 20 * 4 == 0) {
-			this.worldObj.addBlockEvent(this.pos, Correlated.importer_chest, 1,
+			this.world.addBlockEvent(this.pos, Correlated.importer_chest, 1,
 					this.numPlayersUsing);
 		}
 
@@ -223,9 +223,9 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 		if (this.numPlayersUsing > 0 && this.lidAngle == 0.0F) {
 			double d0 = i + 0.5D;
 			double d1 = k + 0.5D;
-			this.worldObj.playSound((EntityPlayer) null, d0, j + 0.5D,
+			this.world.playSound((EntityPlayer) null, d0, j + 0.5D,
 					d1, SoundEvents.BLOCK_ENDERCHEST_OPEN, SoundCategory.BLOCKS,
-					0.5F, this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
+					0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
 		}
 
 		if (this.numPlayersUsing == 0 && this.lidAngle > 0.0F
@@ -245,11 +245,11 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 			if (this.lidAngle < 0.5F && f2 >= 0.5F) {
 				double d3 = i + 0.5D;
 				double d2 = k + 0.5D;
-				this.worldObj.playSound((EntityPlayer) null, d3,
+				this.world.playSound((EntityPlayer) null, d3,
 						j + 0.5D, d2,
 						SoundEvents.BLOCK_ENDERCHEST_CLOSE,
 						SoundCategory.BLOCKS, 0.5F,
-						this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
+						this.world.rand.nextFloat() * 0.1F + 0.9F);
 			}
 
 			if (this.lidAngle < 0.0F) {
@@ -276,12 +276,12 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 
 	public void openChest() {
 		numPlayersUsing++;
-		worldObj.addBlockEvent(getPos(), Correlated.importer_chest, 1, numPlayersUsing);
+		world.addBlockEvent(getPos(), Correlated.importer_chest, 1, numPlayersUsing);
 	}
 
 	public void closeChest() {
 		numPlayersUsing--;
-		worldObj.addBlockEvent(getPos(), Correlated.importer_chest, 1, numPlayersUsing);
+		world.addBlockEvent(getPos(), Correlated.importer_chest, 1, numPlayersUsing);
 	}
 
 	@Override
@@ -325,6 +325,11 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 	@Override
 	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
 		return oldState.getBlock() != newState.getBlock();
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return storage.isEmpty();
 	}
 
 }

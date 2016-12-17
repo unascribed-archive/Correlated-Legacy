@@ -35,13 +35,11 @@ public class SetSlotSizeMessage extends Message {
 	@Override
 	@SideOnly(Side.CLIENT)
 	protected void handle(EntityPlayer sender) {
-		Container c = Minecraft.getMinecraft().thePlayer.openContainer;
+		Container c = Minecraft.getMinecraft().player.openContainer;
 		if (c.windowId == windowId) {
 			Slot s = c.getSlot(slot);
 			ItemStack stack = s.getStack();
-			if (stack != null) {
-				stack.stackSize = slotSize;
-			}
+			stack.setCount(slotSize);
 			s.putStack(stack);
 		}
 	}

@@ -27,7 +27,7 @@ public class EntityAIAutomatonFollowOwner extends EntityAIBase {
 
 	public EntityAIAutomatonFollowOwner(EntityAutomaton thePetIn, double followSpeedIn, float minDistIn, float maxDistIn) {
 		this.thePet = thePetIn;
-		this.theWorld = thePetIn.worldObj;
+		this.theWorld = thePetIn.world;
 		this.followSpeed = followSpeedIn;
 		this.petPathfinder = thePetIn.getNavigator();
 		this.minDist = minDistIn;
@@ -105,9 +105,9 @@ public class EntityAIAutomatonFollowOwner extends EntityAIBase {
 			if (!this.petPathfinder.tryMoveToEntityLiving(this.theOwner, this.followSpeed)) {
 				if (!this.thePet.getLeashed()) {
 					if (this.thePet.getDistanceSqToEntity(this.theOwner) >= 144.0D) {
-						int i = MathHelper.floor_double(this.theOwner.posX) - 2;
-						int j = MathHelper.floor_double(this.theOwner.posZ) - 2;
-						int k = MathHelper.floor_double(this.theOwner.getEntityBoundingBox().minY);
+						int i = MathHelper.floor(this.theOwner.posX) - 2;
+						int j = MathHelper.floor(this.theOwner.posZ) - 2;
+						int k = MathHelper.floor(this.theOwner.getEntityBoundingBox().minY);
 
 						for (int l = 0; l <= 4; ++l) {
 							for (int i1 = 0; i1 <= 4; ++i1) {

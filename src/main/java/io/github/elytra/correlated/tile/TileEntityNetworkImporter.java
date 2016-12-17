@@ -66,7 +66,7 @@ public class TileEntityNetworkImporter extends TileEntityImporter {
 				for (EnumFacing ef : EnumFacing.VALUES) {
 					BlockPos p = pos.offset(ef);
 					if (seen.contains(p)) continue;
-					if (worldObj.getTileEntity(p) == null) {
+					if (world.getTileEntity(p) == null) {
 						seen.add(p);
 						continue;
 					}
@@ -109,11 +109,11 @@ public class TileEntityNetworkImporter extends TileEntityImporter {
 							}
 						}
 						blockRefunds.add(new ItemStack(Correlated.drive_bay));
-						directions.add(worldObj.getBlockState(pos).getValue(BlockDriveBay.FACING));
+						directions.add(world.getBlockState(pos).getValue(BlockDriveBay.FACING));
 						delete.add(pos);
 					} else if (te instanceof TileEntityTerminal) {
 						blockRefunds.add(new ItemStack(Correlated.terminal));
-						directions.add(worldObj.getBlockState(pos).getValue(BlockTerminal.FACING));
+						directions.add(world.getBlockState(pos).getValue(BlockTerminal.FACING));
 						delete.add(pos);
 					} else if (te instanceof TileEntityWirelessReceiver) {
 						blockRefunds.add(new ItemStack(Correlated.wireless_endpoint, 1, 0));
@@ -143,8 +143,8 @@ public class TileEntityNetworkImporter extends TileEntityImporter {
 			}
 		}
 		for (BlockPos d : delete) {
-			worldObj.removeTileEntity(d);
-			worldObj.setBlockToAir(d);
+			world.removeTileEntity(d);
+			world.setBlockToAir(d);
 		}
 		if (justDelete) {
 			Correlated.log.info("Sucessfully deleted old network at {}, {}, {}", getPos().getX(), getPos().getY(), getPos().getZ());
@@ -181,7 +181,7 @@ public class TileEntityNetworkImporter extends TileEntityImporter {
 		for (int i = 0; i < chest.getSizeInventory(); i++) {
 			ItemStack is = chest.getStackInSlot(i);
 			if (is != null) {
-				sum += is.stackSize;
+				sum += is.getCount();
 			}
 		}
 		Correlated.log.info("Sucessfully imported old network at {}, {}, {}, refunding {} items", getPos().getX(), getPos().getY(), getPos().getZ(), sum);

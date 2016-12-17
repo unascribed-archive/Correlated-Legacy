@@ -40,11 +40,7 @@ public class SlotEquipment extends Slot {
 	
 	@Override
 	public ItemStack decrStackSize(int amount) {
-		if (getStack() == null) return null;
 		ItemStack result = getStack().splitStack(amount);
-		if (getStack().stackSize <= 0) {
-			putStack(null);
-		}
 		return result;
 	}
 	

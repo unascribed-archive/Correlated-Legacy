@@ -19,7 +19,7 @@ public class ContainerDrive extends Container {
 			super(null, index, xPosition, yPosition);
 		}
 
-		private ItemStack stack;
+		private ItemStack stack = ItemStack.EMPTY;
 
 		@Override
 		public ItemStack getStack() {
@@ -34,11 +34,7 @@ public class ContainerDrive extends Container {
 
 		@Override
 		public ItemStack decrStackSize(int amount) {
-			if (stack == null) return null;
 			ItemStack split = stack.splitStack(amount);
-			if (stack.stackSize <= 0) {
-				stack = null;
-			}
 			onSlotChanged();
 			return split;
 		}
@@ -65,7 +61,6 @@ public class ContainerDrive extends Container {
 
 		@Override
 		public boolean isItemValid(ItemStack stack) {
-			if (stack == null) return false;
 			for (ItemStack s : prototypes) {
 				if (ItemStack.areItemsEqual(s, stack) && ItemStack.areItemStackTagsEqual(s, stack)) {
 					return false;
@@ -127,10 +122,10 @@ public class ContainerDrive extends Container {
 			if (slot instanceof SlotFake) {
 				if (slot.getSlotIndex() < prototypes.size()) {
 					ItemStack stack = prototypes.get(slot.getSlotIndex());
-					stack.stackSize = 1;
+					stack.setCount(1);
 					slot.putStack(stack);
 				} else {
-					slot.putStack(null);
+					slot.putStack(ItemStack.EMPTY);
 				}
 			}
 		}
@@ -182,7 +177,7 @@ public class ContainerDrive extends Container {
 							updateSlots();
 							player.inventory.setInventorySlotContents(driveSlotId, getDrive());
 						}
-						return null;
+						return ItemStack.EMPTY;
 					} else {
 						ItemStack cursor = player.inventory.getItemStack();
 						if (getItemDrive().getPartitioningMode(getDrive()) == PartitioningMode.NONE) return cursor;

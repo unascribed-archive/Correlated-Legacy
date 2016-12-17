@@ -61,9 +61,8 @@ public class BlockDriveBay extends Block {
 	}
 
 	@Override
-	public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facingIn, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
-		return this.getDefaultState()
-				.withProperty(FACING, placer.getHorizontalFacing().getOpposite());
+	public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
+		worldIn.setBlockState(pos, state.withProperty(FACING, placer.getHorizontalFacing().getOpposite()));
 	}
 
 	@Override
@@ -88,7 +87,7 @@ public class BlockDriveBay extends Block {
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (Blocks.tryWrench(world, pos, player, hand, side, hitZ, hitZ, hitZ)) {
 			return true;
 		}
@@ -105,22 +104,22 @@ public class BlockDriveBay extends Block {
 								pos.getY()+hitY+(side.getFrontOffsetY()*0.2), pos.getZ()+hitZ+(side.getFrontOffsetZ()*0.2));
 						ent.setEntityItemStack(tedb.getDriveInSlot(slot));
 						ent.setNoPickupDelay();
-						world.spawnEntityInWorld(ent);
-						tedb.setDriveInSlot(slot, null);
+						world.spawnEntity(ent);
+						tedb.setDriveInSlot(slot, ItemStack.EMPTY);
 					}
 					return true;
 				} else {
 					if (inHand != null && inHand.getItem() instanceof ItemDrive) {
 						if (!world.isRemote) {
 							tedb.setDriveInSlot(slot, inHand.copy());
-							inHand.stackSize = 0;
+							inHand.setCount(0);
 						}
 						return true;
 					}
 				}
 			}
 		}
-		return super.onBlockActivated(world, pos, state, player, hand, heldItem, side, hitX, hitY, hitZ);
+		return super.onBlockActivated(world, pos, state, player, hand, side, hitX, hitY, hitZ);
 	}
 
 	public int getLookedAtSlot(IBlockState state, EnumFacing side, float hitX, float hitY, float hitZ) {

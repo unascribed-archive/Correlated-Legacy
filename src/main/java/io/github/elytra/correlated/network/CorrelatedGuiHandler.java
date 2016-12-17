@@ -42,7 +42,7 @@ public class CorrelatedGuiHandler implements IGuiHandler {
 			}
 			case 1: {
 				ItemStack drive = player.inventory.getStackInSlot(x);
-				if (drive != null && drive.getItem() instanceof ItemDrive) {
+				if (drive.getItem() instanceof ItemDrive) {
 					return new ContainerDrive(player.inventory, x, player);
 				} else {
 					Correlated.log.warn("Expected a drive, got {} instead", drive);
@@ -60,7 +60,7 @@ public class CorrelatedGuiHandler implements IGuiHandler {
 			}
 			case 3: {
 				ItemStack terminal = player.inventory.getStackInSlot(x);
-				if (terminal != null && terminal.getItem() instanceof ItemWirelessTerminal) {
+				if (terminal.getItem() instanceof ItemWirelessTerminal) {
 					return new ContainerTerminal(player.inventory, player, new WirelessTerminal(world, player, (ItemWirelessTerminal)terminal.getItem(), terminal));
 				} else {
 					Correlated.log.warn("Expected a wireless terminal, got {} instead", terminal);
@@ -103,7 +103,7 @@ public class CorrelatedGuiHandler implements IGuiHandler {
 			}
 			case 1: {
 				ItemStack drive = player.inventory.getStackInSlot(x);
-				if (drive != null && drive.getItem() instanceof ItemDrive) {
+				if (drive.getItem() instanceof ItemDrive) {
 					return new GuiDrive(new ContainerDrive(player.inventory, x, player));
 				} else {
 					Correlated.log.warn("Expected a drive, got {} instead", drive);
@@ -121,7 +121,7 @@ public class CorrelatedGuiHandler implements IGuiHandler {
 			}
 			case 3: {
 				ItemStack terminal = player.inventory.getStackInSlot(x);
-				if (terminal != null && terminal.getItem() instanceof ItemWirelessTerminal) {
+				if (terminal.getItem() instanceof ItemWirelessTerminal) {
 					return new GuiTerminal(new ContainerTerminal(player.inventory, player, new WirelessTerminal(world, player, (ItemWirelessTerminal)terminal.getItem(), terminal)));
 				} else {
 					Correlated.log.warn("Expected a wireless terminal, got {} instead", terminal);

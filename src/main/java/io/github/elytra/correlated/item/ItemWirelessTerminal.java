@@ -22,16 +22,18 @@ import net.minecraft.world.World;
 public class ItemWirelessTerminal extends Item {
 	
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) {
+	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+		ItemStack stack = player.getHeldItem(hand);
 		if (!world.isRemote && getTransmitter(stack, world, player, true) != null) {
 			player.openGui(Correlated.inst, 3, world, player.inventory.currentItem, 0, 0);
 			return ActionResult.newResult(EnumActionResult.SUCCESS, stack);
 		}
-		return super.onItemRightClick(stack, world, player, hand);
+		return super.onItemRightClick(world, player, hand);
 	}
 
 	@Override
-	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+		ItemStack stack = player.getHeldItem(hand);
 		TileEntity te = world.getTileEntity(pos);
 		if (te instanceof TileEntityWirelessTransmitter) {
 			TileEntityWirelessTransmitter tewt = (TileEntityWirelessTransmitter)te;
@@ -41,11 +43,11 @@ public class ItemWirelessTerminal extends Item {
 			stack.getTagCompound().setLong("TransmitterUUIDMost", tewt.getId().getMostSignificantBits());
 			stack.getTagCompound().setLong("TransmitterUUIDLeast", tewt.getId().getLeastSignificantBits());
 			if (world.isRemote) {
-				player.addChatMessage(new TextComponentTranslation("msg.correlated.terminal_linked"));
+				player.sendMessage(new TextComponentTranslation("msg.correlated.terminal_linked"));
 			}
 			return EnumActionResult.SUCCESS;
 		}
-		return super.onItemUse(stack, player, world, pos, hand, facing, hitX, hitY, hitZ);
+		return super.onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ);
 	}
 	
 	@Override
@@ -55,17 +57,17 @@ public class ItemWirelessTerminal extends Item {
 	
 	public Transmitter getTransmitter(ItemStack stack, World world, EntityPlayer player, boolean sendMessages) {
 		if (!stack.hasTagCompound() || !stack.getTagCompound().hasKey("TransmitterUUIDMost")) {
-			if (sendMessages) player.addChatMessage(new TextComponentTranslation("msg.correlated.terminal_unlinked"));
+			if (sendMessages) player.sendMessage(new TextComponentTranslation("msg.correlated.terminal_unlinked"));
 			return null;
 		}
 		UUID uuid = new UUID(stack.getTagCompound().getLong("TransmitterUUIDMost"), stack.getTagCompound().getLong("TransmitterUUIDLeast"));
 		Transmitter t = Correlated.getDataFor(world).getTransmitterById(uuid);
 		if (t == null) {
-			if (sendMessages) player.addChatMessage(new TextComponentTranslation("msg.correlated.terminal_cantconnect"));
+			if (sendMessages) player.sendMessage(new TextComponentTranslation("msg.correlated.terminal_cantconnect"));
 			return null;
 		}
 		if (t.position.distanceSq(player.posX, player.posY, player.posZ) > t.range*t.range) {
-			if (sendMessages) player.addChatMessage(new TextComponentTranslation("msg.correlated.terminal_outofrange"));
+			if (sendMessages) player.sendMessage(new TextComponentTranslation("msg.correlated.terminal_outofrange"));
 			return null;
 		}
 		return t;

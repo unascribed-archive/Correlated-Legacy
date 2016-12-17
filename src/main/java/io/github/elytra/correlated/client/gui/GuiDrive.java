@@ -100,8 +100,8 @@ public class GuiDrive extends GuiContainer {
 				int stored = container.getItemDrive().getAmountStored(container.getDrive(), stack);
 				if (stored > 0) {
 					String str = Numbers.humanReadableItemCount(stored);
-					int x = slot.xDisplayPosition*2;
-					int y = slot.yDisplayPosition*2;
+					int x = slot.xPos*2;
+					int y = slot.yPos*2;
 					x += (32-mc.fontRendererObj.getStringWidth(str));
 					y += (32-mc.fontRendererObj.FONT_HEIGHT);
 					mc.fontRendererObj.drawStringWithShadow(str, x, y, -1);

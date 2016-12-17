@@ -13,7 +13,7 @@ public class WirelessTerminal implements ITerminal {
 	private World world;
 	private EntityPlayer player;
 	private ItemWirelessTerminal iwt;
-	private ItemStack stack;
+	private ItemStack stack = ItemStack.EMPTY;
 	
 	public WirelessTerminal(World world, EntityPlayer player, ItemWirelessTerminal iwt, ItemStack stack) {
 		this.world = world;
@@ -25,7 +25,7 @@ public class WirelessTerminal implements ITerminal {
 	@Override
 	public UserPreferences getPreferences(EntityPlayer player) {
 		String id = player.getGameProfile().getId().toString();
-		NBTTagCompound prefs = stack.getSubCompound("Preferences", true);
+		NBTTagCompound prefs = stack.getOrCreateSubCompound("Preferences");
 		if (!prefs.hasKey(id, NBT.TAG_COMPOUND)) {
 			prefs.setTag(id, new NBTTagCompound());
 		}

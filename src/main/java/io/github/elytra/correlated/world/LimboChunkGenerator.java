@@ -38,9 +38,9 @@ public class LimboChunkGenerator implements IChunkGenerator {
 	public List<SpawnListEntry> getPossibleCreatures(EnumCreatureType creatureType, BlockPos pos) {
 		return Collections.emptyList();
 	}
-
+	
 	@Override
-	public BlockPos getStrongholdGen(World worldIn, String structureName, BlockPos position) {
+	public BlockPos getStrongholdGen(World worldIn, String structureName, BlockPos position, boolean unknown) {
 		Dungeon d = grid.getFromBlock(position);
 		if (d != null) {
 			Vec2f entrance = d.findEntranceTile();

@@ -25,7 +25,7 @@ public class RenderWirelessReceiver extends TileEntitySpecialRenderer<TileEntity
 	public void renderTileEntityAt(TileEntityWirelessReceiver te, double x, double y, double z, float partialTicks, int destroyStage) {
 		State state = State.DEAD;
 		if (te != null) {
-			if (te.hasWorldObj()) {
+			if (te.hasWorld()) {
 				IBlockState bs = te.getWorld().getBlockState(te.getPos());
 				if (bs.getBlock() != Correlated.wireless_endpoint) return;
 				state = bs.getValue(BlockWirelessEndpoint.state);

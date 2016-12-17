@@ -47,7 +47,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class ContainerTerminal extends Container {
 	public enum SortMode {
 		QUANTITY((a, b) -> {
-			int quantityComp = Ints.compare(a.stackSize, b.stackSize);
+			int quantityComp = Ints.compare(a.getCount(), b.getCount());
 			if (quantityComp != 0) return quantityComp;
 			return Collator.getInstance().compare(a.getDisplayName(), b.getDisplayName());
 		}),
@@ -84,7 +84,7 @@ public class ContainerTerminal extends Container {
 	}
 	public enum CraftingAmount {
 		ONE(s -> 1),
-		STACK(s -> s.getMaxStackSize()/Math.max(1, s.stackSize)),
+		STACK(s -> s.getMaxStackSize()/Math.max(1, s.getCount())),
 		MAX(s -> 6400);
 		/*
 		 * The above is 6400 instead of MAX_VALUE, as some mods add infinite
@@ -127,7 +127,7 @@ public class ContainerTerminal extends Container {
 	public boolean hasCraftingMatrix = true;
 
 	public class SlotVirtual extends Slot {
-		private ItemStack stack;
+		private ItemStack stack = ItemStack.EMPTY;
 		private int count;
 		public SlotVirtual(int index, int xPosition, int yPosition) {
 			super(null, index, xPosition, yPosition);
@@ -141,27 +141,24 @@ public class ContainerTerminal extends Container {
 		@Override
 		public void putStack(ItemStack stack) {
 			if (world.isRemote) {
-				if (stack != null) {
-					// prevent vanilla from corrupting our stack size
-					if (ItemStack.areItemsEqual(stack, this.stack) && ItemStack.areItemStackTagsEqual(stack, this.stack)) {
-						if ((stack.stackSize <= 127 && stack.stackSize >= -128)
-								&& (count < -128 || count > 127)) {
-							int diff = Math.abs(stack.stackSize-count);
-							if (diff > stack.getMaxStackSize()) {
-								return;
-							}
+				// prevent vanilla from corrupting our stack size
+				if (ItemStack.areItemsEqual(stack, this.stack) && ItemStack.areItemStackTagsEqual(stack, this.stack)) {
+					if ((stack.getCount() <= 127 && stack.getCount() >= -128)
+							&& (count < -128 || count > 127)) {
+						int diff = Math.abs(stack.getCount()-count);
+						if (diff > stack.getMaxStackSize()) {
+							return;
 						}
 					}
-					this.stack = stack.copy();
-					count = stack.stackSize;
+				}
+				this.stack = stack.copy();
+				count = stack.getCount();
+				if (!this.stack.isEmpty()) {
 					// prevent vanilla from drawing the stack size
-					this.stack.stackSize = 1;
-				} else {
-					this.stack = null;
-					count = 0;
+					this.stack.setCount(1);
 				}
 			} else {
-				if (stack != null) {
+				if (!stack.isEmpty()) {
 					Correlated.log.warn("putStack was called on a virtual slot", new RuntimeException()
 						.fillInStackTrace());
 					addItemToNetwork(stack);
@@ -181,7 +178,7 @@ public class ContainerTerminal extends Container {
 		@Override
 		public ItemStack decrStackSize(int amount) {
 			ItemStack nw = stack.copy();
-			nw.stackSize = 0;
+			nw.setCount(0);
 			return nw;
 		}
 
@@ -204,13 +201,13 @@ public class ContainerTerminal extends Container {
 
 	public ContainerTerminal(IInventory playerInventory, EntityPlayer player, ITerminal terminal) {
 		this.player = player;
-		this.world = player.worldObj;
+		this.world = player.world;
 		this.terminal = terminal;
 		initializeTerminalSize();
 		int x = startX;
 		int y = startY;
 
-		if (!player.worldObj.isRemote) {
+		if (!player.world.isRemote) {
 			UserPreferences prefs = terminal.getPreferences(player);
 			sortMode = prefs.getSortMode();
 			sortAscending = prefs.isSortAscending();
@@ -296,7 +293,7 @@ public class ContainerTerminal extends Container {
 		outer: for (ItemStack is : typesAll) {
 			for (ItemStack existing : types) {
 				if (ItemStack.areItemsEqual(is, existing) && ItemStack.areItemStackTagsEqual(is, existing)) {
-					existing.stackSize += is.stackSize;
+					existing.setCount(existing.getCount()+is.getCount());
 					continue outer;
 				}
 			}
@@ -317,7 +314,7 @@ public class ContainerTerminal extends Container {
 				if (idx < types.size()) {
 					sv.setStack(types.get(idx));
 				} else {
-					sv.setStack(null);
+					sv.setStack(ItemStack.EMPTY);
 				}
 				idx++;
 			}
@@ -410,7 +407,7 @@ public class ContainerTerminal extends Container {
 			case -128:
 				for (int i = 0; i < 9; i++) {
 					ItemStack is = craftMatrix.getStackInSlot(i);
-					if (is == null) continue;
+					if (is.isEmpty()) continue;
 					craftMatrix.setInventorySlotContents(i, addItemToNetwork(is));
 				}
 				detectAndSendChanges();
@@ -427,7 +424,7 @@ public class ContainerTerminal extends Container {
 	}
 
 	public ItemStack addItemToNetwork(ItemStack stack) {
-		if (player.worldObj.isRemote) return null;
+		if (player.world.isRemote) return ItemStack.EMPTY;
 		return terminal.getStorage().addItemToNetwork(stack);
 	}
 
@@ -442,7 +439,7 @@ public class ContainerTerminal extends Container {
 	}
 
 	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount) {
-		if (player.worldObj.isRemote) return null;
+		if (player.world.isRemote) return ItemStack.EMPTY;
 		return terminal.getStorage().removeItemsFromNetwork(prototype, amount, true);
 	}
 
@@ -460,7 +457,7 @@ public class ContainerTerminal extends Container {
 		super.detectAndSendChanges();
 		for (int i = 0; i < this.inventorySlots.size(); i++) {
 			ItemStack stack = inventorySlots.get(i).getStack();
-			int cur = stack == null ? 0 : stack.stackSize;
+			int cur = stack.getCount();
 			int old = oldStackSizes.get(i);
 
 			if (cur != old) {
@@ -537,8 +534,8 @@ public class ContainerTerminal extends Container {
 	public ItemStack slotClick(int slotId, int clickedButton, ClickType clickTypeIn, EntityPlayer player) {
 		Slot slot = slotId >= 0 ? getSlot(slotId) : null;
 		if (slot instanceof SlotVirtual) {
-			if (!player.worldObj.isRemote) {
-				if (player.inventory.getItemStack() != null) {
+			if (!player.world.isRemote) {
+				if (!player.inventory.getItemStack().isEmpty()) {
 					if (clickTypeIn == ClickType.PICKUP) {
 						if (clickedButton == 0) {
 							addItemToNetwork(player.inventory.getItemStack());
@@ -554,20 +551,20 @@ public class ContainerTerminal extends Container {
 							player.inventory.setItemStack(removeItemsFromNetwork(slot.getStack(), 1));
 						}
 					} else if (clickTypeIn == ClickType.QUICK_MOVE) {
-						ItemStack is = null;
+						ItemStack is = ItemStack.EMPTY;
 						if (clickedButton == 0) {
 							is = removeItemsFromNetwork(slot.getStack(), Math.min(64, slot.getStack().getMaxStackSize()));
 						} else if (clickedButton == 1) {
 							is = removeItemsFromNetwork(slot.getStack(), 1);
 						}
-						if (is != null) {
+						if (!is.isEmpty()) {
 							if (!player.inventory.addItemStackToInventory(is)) {
 								addItemToNetwork(is);
 							}
 							detectAndSendChanges();
 						}
 					} else if (clickTypeIn == ClickType.THROW) {
-						ItemStack is = null;
+						ItemStack is = ItemStack.EMPTY;
 						if (clickedButton == 0) {
 							is = removeItemsFromNetwork(slot.getStack(), 1);
 						} else if (clickedButton == 1) {
@@ -578,32 +575,29 @@ public class ContainerTerminal extends Container {
 					}
 				}
 			}
-			if (player.inventory.getItemStack() != null && player.inventory.getItemStack().stackSize <= 0) {
-				player.inventory.setItemStack(null);
-			}
 			return player.inventory.getItemStack();
 		} else {
 			if (clickTypeIn == ClickType.QUICK_MOVE) {
 				// shift click
-				if (!player.worldObj.isRemote && slot != null) {
+				if (!player.world.isRemote && slot != null) {
 					ItemStack stack = slot.getStack();
-					if (stack != null) {
+					if (!stack.isEmpty()) {
 						if (slot instanceof SlotCrafting) {
 							ItemStack template = stack.copy();
 							for (int i = 0; i < craftingAmount.amountToCraft.apply(template); i++) {
 								stack = slot.getStack();
-								if (stack == null || !ItemStack.areItemsEqual(template, stack)) break;
+								if (stack.isEmpty() || !ItemStack.areItemsEqual(template, stack)) break;
 								boolean success;
 								switch (craftingTarget) {
 									case INVENTORY:
 										success = player.inventory.addItemStackToInventory(stack);
 										break;
 									case NETWORK:
-										int amountOrig = stack.stackSize;
+										int amountOrig = stack.getCount();
 										ItemStack res = addItemToNetwork(stack);
-										success = (res == null || res.stackSize <= 0);
-										if (!success && res != null) {
-											removeItemsFromNetwork(stack, amountOrig-res.stackSize);
+										success = res.getCount() <= 0;
+										if (!success && !res.isEmpty()) {
+											removeItemsFromNetwork(stack, amountOrig-res.getCount());
 										}
 										break;
 									default:
@@ -612,13 +606,13 @@ public class ContainerTerminal extends Container {
 								if (!success) break;
 								for (int j = 0; j < 9; j++) {
 									ItemStack inSlot = craftMatrix.getStackInSlot(j);
-									if (inSlot == null) continue;
+									if (inSlot.isEmpty()) continue;
 									ItemStack is = removeItemsFromNetwork(inSlot, 1);
-									if (is != null && is.stackSize > 0) {
-										inSlot.stackSize += is.stackSize;
+									if (!is.isEmpty() && is.getCount() > 0) {
+										inSlot.setCount(inSlot.getCount() + is.getCount());
 									}
 								}
-								slot.onPickupFromSlot(player, stack);
+								slot.onTake(player, stack);
 							}
 							if (craftingAmount == CraftingAmount.MAX) {
 								craftingAmount = CraftingAmount.ONE;
@@ -627,7 +621,7 @@ public class ContainerTerminal extends Container {
 								}
 							}
 							detectAndSendChanges();
-							return null;
+							return ItemStack.EMPTY;
 						} else {
 							ItemStack is = addItemToNetwork(stack);
 							getSlot(slotId).putStack(is);
@@ -638,7 +632,7 @@ public class ContainerTerminal extends Container {
 				if (slotId >= 0) {
 					return getSlot(slotId).getStack();
 				} else {
-					return null;
+					return ItemStack.EMPTY;
 				}
 			}
 			return super.slotClick(slotId, clickedButton, clickTypeIn, player);
@@ -653,11 +647,11 @@ public class ContainerTerminal extends Container {
 	@Override
 	public void onContainerClosed(EntityPlayer player) {
 		super.onContainerClosed(player);
-		if (!player.worldObj.isRemote) {
+		if (!player.world.isRemote) {
 			for (int i = 0; i < 9; ++i) {
 				ItemStack itemstack = craftMatrix.removeStackFromSlot(i);
 
-				if (itemstack != null) {
+				if (!itemstack.isEmpty()) {
 					player.dropItem(itemstack, false);
 				}
 			}
@@ -674,7 +668,7 @@ public class ContainerTerminal extends Container {
 
 	@Override
 	public void onCraftMatrixChanged(IInventory inventory) {
-		craftResult.setInventorySlotContents(0, CraftingManager.getInstance().findMatchingRecipe(craftMatrix, player.worldObj));
+		craftResult.setInventorySlotContents(0, CraftingManager.getInstance().findMatchingRecipe(craftMatrix, player.world));
 	}
 
 	@Override

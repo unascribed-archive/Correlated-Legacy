@@ -54,7 +54,8 @@ public class ItemWeldthrower extends Item {
 	}
 	
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStack, World world, EntityPlayer player, EnumHand hand) {
+	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+		ItemStack itemStack = player.getHeldItem(hand);
 		if (hand == EnumHand.MAIN_HAND) {
 			if (!world.isRemote && !weldthrowing.containsKey(player) && (player.capabilities.isCreativeMode || player.inventory.clearMatchingItems(Correlated.misc, 5, 1, null) > 0)) {
 				world.playSound(null, player.posX, player.posY, player.posZ, Correlated.weldthrow, SoundCategory.PLAYERS, 0.4f, 1f);
@@ -63,7 +64,7 @@ public class ItemWeldthrower extends Item {
 				return ActionResult.newResult(EnumActionResult.SUCCESS, itemStack);
 			}
 		}
-		return super.onItemRightClick(itemStack, world, player, hand);
+		return super.onItemRightClick(world, player, hand);
 	}
 	
 	@SubscribeEvent
@@ -86,13 +87,13 @@ public class ItemWeldthrower extends Item {
 					e.player.posZ+(right.zCoord*dist)+(look.zCoord*gap));
 			for (int i = 0; i < Math.min(mi.intValue()/4, 10); i++) {
 				AxisAlignedBB aabb = new AxisAlignedBB(cursor.xCoord-0.1, cursor.yCoord-0.1, cursor.zCoord-0.1, cursor.xCoord+0.1, cursor.yCoord+0.1, cursor.zCoord+0.1);
-				if (e.player.worldObj.collidesWithAnyBlock(aabb)) break;
+				if (e.player.world.collidesWithAnyBlock(aabb)) break;
 				aabb = aabb.expandXyz(0.9);
-				for (Entity ent : e.player.worldObj.getEntitiesWithinAABBExcludingEntity(e.player, aabb)) {
+				for (Entity ent : e.player.world.getEntitiesWithinAABBExcludingEntity(e.player, aabb)) {
 					if (ent instanceof EntityAutomaton) {
 						EntityAutomaton a = ((EntityAutomaton) ent);
-						if (!a.worldObj.isRemote) {
-							if (a.worldObj.rand.nextInt(3) == 0 && a.getHealth() < a.getMaxHealth() && a.getFavor(e.player) >= 0) {
+						if (!a.world.isRemote) {
+							if (a.world.rand.nextInt(3) == 0 && a.getHealth() < a.getMaxHealth() && a.getFavor(e.player) >= 0) {
 								a.adjustFavor(e.player, 1);
 							}
 							a.heal(0.05f);

@@ -39,7 +39,7 @@ public class RenderController extends TileEntitySpecialRenderer<TileEntityContro
 			case OFF:
 				return;
 			case POWERED:
-				tex = "correlated:blocks/controller";
+				tex = bs.getValue(BlockController.cheaty) ? "correlated:blocks/controller_creative" : "correlated:blocks/controller";
 				break;
 			default:
 				return;

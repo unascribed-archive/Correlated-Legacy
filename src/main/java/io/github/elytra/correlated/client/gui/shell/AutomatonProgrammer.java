@@ -47,7 +47,7 @@ public class AutomatonProgrammer extends Program {
 		super(parent);
 		if (parent.container.floppySlot != null) {
 			ItemStack floppy = parent.container.floppySlot.getStack();
-			if (floppy != null) {
+			if (!floppy.isEmpty()) {
 				if (floppy.hasTagCompound() && floppy.getTagCompound().hasKey("SourceCode", NBT.TAG_LIST)) {
 					NBTTagList src = floppy.getTagCompound().getTagList("SourceCode", NBT.TAG_COMPOUND);
 					System.out.println(src);

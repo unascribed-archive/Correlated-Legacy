@@ -37,7 +37,8 @@ public class ItemBlockWirelessEndpoint extends ItemBlock {
 	}
 	
 	@Override
-	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+		ItemStack stack = player.getHeldItem(hand);
 		if (stack.getMetadata() == 0) {
 			TileEntity te = world.getTileEntity(pos);
 			if (te instanceof TileEntityWirelessTransmitter) {
@@ -48,18 +49,18 @@ public class ItemBlockWirelessEndpoint extends ItemBlock {
 				stack.getTagCompound().setLong("TransmitterUUIDMost", tewt.getId().getMostSignificantBits());
 				stack.getTagCompound().setLong("TransmitterUUIDLeast", tewt.getId().getLeastSignificantBits());
 				if (world.isRemote) {
-					player.addChatMessage(new TextComponentTranslation("msg.correlated.receiver_linked"));
+					player.sendMessage(new TextComponentTranslation("msg.correlated.receiver_linked"));
 				}
-				return EnumActionResult.FAIL;
+				return EnumActionResult.SUCCESS;
 			}
 			if (!stack.hasTagCompound() || !stack.getTagCompound().hasKey("TransmitterUUIDMost")) {
 				if (world.isRemote) {
-					player.addChatMessage(new TextComponentTranslation("msg.correlated.receiver_unlinked"));
+					player.sendMessage(new TextComponentTranslation("msg.correlated.receiver_unlinked"));
 				}
 				return EnumActionResult.FAIL;
 			}
 		}
-		return super.onItemUse(stack, player, world, pos, hand, facing, hitX, hitY, hitZ);
+		return super.onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ);
 	}
 	
 	@Override

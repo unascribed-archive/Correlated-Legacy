@@ -35,9 +35,7 @@ public class CorrelatedJEIPlugin extends BlankModPlugin {
 					for (int i = 0; i < 9; i++) {
 						List<ItemStack> possibilities = Lists.newArrayList();
 						IGuiIngredient<ItemStack> ingredient = layout.getItemStacks().getGuiIngredients().get(i+1);
-						if (ingredient != null) {
-							possibilities.addAll(ingredient.getAllIngredients());
-						}
+						possibilities.addAll(ingredient.getAllIngredients());
 						matrix.add(possibilities);
 					}
 					new RecipeTransferMessage(container.windowId, matrix, max).sendToServer();
@@ -46,15 +44,10 @@ public class CorrelatedJEIPlugin extends BlankModPlugin {
 			}
 			
 			@Override
-			public String getRecipeCategoryUid() {
-				return VanillaRecipeCategoryUid.CRAFTING;
-			}
-			
-			@Override
 			public Class<ContainerTerminal> getContainerClass() {
 				return ContainerTerminal.class;
 			}
-		});
+		}, VanillaRecipeCategoryUid.CRAFTING);
 	}
 	
 	@Override

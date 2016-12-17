@@ -116,8 +116,8 @@ public class GuiTerminal extends GuiContainer {
 				SlotVirtual sv = ((SlotVirtual)slot);
 				if (sv.getCount() > 0) {
 					String str = Numbers.humanReadableItemCount(sv.getCount());
-					int x = sv.xDisplayPosition*2;
-					int y = sv.yDisplayPosition*2;
+					int x = sv.xPos*2;
+					int y = sv.yPos*2;
 					x += (32-mc.fontRendererObj.getStringWidth(str));
 					y += (32-mc.fontRendererObj.FONT_HEIGHT);
 					mc.fontRendererObj.drawStringWithShadow(str, x, y, -1);
@@ -345,7 +345,7 @@ public class GuiTerminal extends GuiContainer {
 	protected void keyTyped(char typedChar, int keyCode) throws IOException {
 		if (searchField.isFocused()) {
 			if (keyCode == Keyboard.KEY_ESCAPE) {
-				mc.thePlayer.closeScreen();
+				mc.player.closeScreen();
 			} else {
 				searchField.textboxKeyTyped(typedChar, keyCode);
 				if (container.jeiSyncEnabled) {
@@ -428,7 +428,7 @@ public class GuiTerminal extends GuiContainer {
 			draggingScrollKnob = false;
 		}
 		Slot slot = getSlotAtPosition(mouseX, mouseY);
-		if (doubleClick && slot != null && mouseButton == 0 && inventorySlots.canMergeSlot((ItemStack)null, slot)
+		if (doubleClick && slot != null && mouseButton == 0 && inventorySlots.canMergeSlot(ItemStack.EMPTY, slot)
 				&& isShiftKeyDown()
 				&& slot != null && slot.inventory != null && shiftClickedSlot != null) {
 			if (!(slot instanceof SlotVirtual)) {

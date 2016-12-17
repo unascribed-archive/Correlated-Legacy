@@ -33,7 +33,8 @@ public class ItemFloppy extends Item {
 	}
 	
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
+	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand) {
+		ItemStack itemStackIn = playerIn.getHeldItem(hand);
 		setWriteProtected(itemStackIn, !isWriteProtected(itemStackIn));
 		return ActionResult.newResult(EnumActionResult.SUCCESS, itemStackIn);
 	}

@@ -12,9 +12,9 @@ public class DriveComparator implements Comparator<ItemStack> {
 
 	@Override
 	public int compare(ItemStack a, ItemStack b) {
-		if (a == null || !(a.getItem() instanceof ItemDrive) || b == null || !(b.getItem() instanceof ItemDrive)) {
-			boolean aSafe = a != null && a.getItem() instanceof ItemDrive;
-			boolean bSafe = b != null && b.getItem() instanceof ItemDrive;
+		if (!(a.getItem() instanceof ItemDrive) || !(b.getItem() instanceof ItemDrive)) {
+			boolean aSafe = a.getItem() instanceof ItemDrive;
+			boolean bSafe = b.getItem() instanceof ItemDrive;
 			return Booleans.compare(aSafe, bSafe);
 		}
 		ItemDrive aI = (ItemDrive)a.getItem();

@@ -30,7 +30,7 @@ public class ShowTerminalErrorMessage extends Message {
 	@Override
 	@SideOnly(Side.CLIENT)
 	protected void handle(EntityPlayer sender) {
-		TileEntity te = sender.worldObj.getTileEntity(pos);
+		TileEntity te = sender.world.getTileEntity(pos);
 		if (te instanceof TileEntityTerminal) {
 			GuiTerminalShell gui = new GuiTerminalShell(null, null);
 			gui.program = new RSOD(gui, ((TileEntityTerminal) te).getError());

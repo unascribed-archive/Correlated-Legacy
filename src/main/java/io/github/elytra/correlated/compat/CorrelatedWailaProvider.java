@@ -31,8 +31,8 @@ public class CorrelatedWailaProvider implements IWailaDataProvider {
 	public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound nbt, World world, BlockPos pos) {
 		if (te instanceof TileEntityController) {
 			TileEntityController tec = (TileEntityController)te;
-			nbt.setInteger("Energy", tec.getEnergyStored(EnumFacing.UP));
-			nbt.setInteger("MaxEnergy", tec.getMaxEnergyStored(EnumFacing.UP));
+			nbt.setInteger("Energy", tec.getEnergyStored());
+			nbt.setInteger("MaxEnergy", tec.getMaxEnergyStored());
 			if (tec.error && tec.errorReason != null) {
 				nbt.setString("ErrorReason", tec.errorReason);
 			} else if (tec.booting) {

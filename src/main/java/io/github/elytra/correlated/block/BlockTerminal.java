@@ -67,9 +67,8 @@ public class BlockTerminal extends Block {
 	}
 
 	@Override
-	public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facingIn, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
-		return this.getDefaultState()
-				.withProperty(FACING, placer.getHorizontalFacing().getOpposite());
+	public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
+		worldIn.setBlockState(pos, state.withProperty(FACING, placer.getHorizontalFacing().getOpposite()));
 	}
 
 	@Override
@@ -81,10 +80,11 @@ public class BlockTerminal extends Block {
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (Blocks.tryWrench(world, pos, player, hand, side, hitZ, hitZ, hitZ)) {
 			return true;
 		}
+		ItemStack heldItem = player.getHeldItem(hand);
 		if (!player.isSneaking()) {
 			TileEntity te = world.getTileEntity(pos);
 			if (te instanceof TileEntityTerminal) {
@@ -109,9 +109,9 @@ public class BlockTerminal extends Block {
 							x = 0;
 					}
 					if (withinRegion(x, y, 5, 13)) {
-						if (heldItem != null && heldItem.getItem() instanceof ItemFloppy) {
+						if (heldItem.getItem() instanceof ItemFloppy) {
 							tet.setInventorySlotContents(1, heldItem.copy());
-							heldItem.stackSize = 0;
+							heldItem.setCount(0);
 							return true;
 						} else if (tet.getStackInSlot(1) != null) {
 							if (!world.isRemote) {
@@ -119,7 +119,7 @@ public class BlockTerminal extends Block {
 										pos.getY()+hitY+(side.getFrontOffsetY()*0.2), pos.getZ()+hitZ+(side.getFrontOffsetZ()*0.2));
 								ent.setEntityItemStack(tet.removeStackFromSlot(1));
 								ent.setNoPickupDelay();
-								world.spawnEntityInWorld(ent);
+								world.spawnEntity(ent);
 							}
 							return true;
 						}
@@ -129,13 +129,13 @@ public class BlockTerminal extends Block {
 					if (!world.isRemote) {
 						switch (world.getBlockState(tet.getStorage().getPos()).getValue(BlockController.state)) {
 							case BOOTING:
-								player.addChatMessage(new TextComponentTranslation("msg.correlated.terminal_booting"));
+								player.sendMessage(new TextComponentTranslation("msg.correlated.terminal_booting"));
 								break;
 							case ERROR:
 								new ShowTerminalErrorMessage(pos).sendTo(player);
 								break;
 							case OFF:
-								player.addChatMessage(new TextComponentTranslation("msg.correlated.terminal_no_power"));
+								player.sendMessage(new TextComponentTranslation("msg.correlated.terminal_no_power"));
 								break;
 							case POWERED:
 								player.openGui(Correlated.inst, 0, world, pos.getX(), pos.getY(), pos.getZ());
@@ -149,11 +149,11 @@ public class BlockTerminal extends Block {
 				}
 			}
 			if (!world.isRemote) {
-				player.addChatMessage(new TextComponentTranslation("msg.correlated.terminal_no_controller"));
+				player.sendMessage(new TextComponentTranslation("msg.correlated.terminal_no_controller"));
 			}
 			return true;
 		}
-		return super.onBlockActivated(world, pos, state, player, hand, heldItem, side, hitX, hitY, hitZ);
+		return super.onBlockActivated(world, pos, state, player, hand, side, hitX, hitY, hitZ);
 	}
 	
 	private boolean withinRegion(float x, float y, int regionX, int regionY) {

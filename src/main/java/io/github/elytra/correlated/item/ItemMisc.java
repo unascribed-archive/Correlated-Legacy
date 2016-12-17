@@ -19,6 +19,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
@@ -47,7 +48,7 @@ public class ItemMisc extends Item {
 				ItemStack copy = stack.splitStack(1);
 				e.setStack(copy);
 				e.setThrowableHeading(facing.getFrontOffsetX(), facing.getFrontOffsetY(), facing.getFrontOffsetZ(), 0.5f, 1.0f);
-				src.getWorld().spawnEntityInWorld(e);
+				src.getWorld().spawnEntity(e);
 				return stack;
 			} else {
 				return BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.getObject(Items.APPLE).dispense(src, stack);
@@ -84,7 +85,7 @@ public class ItemMisc extends Item {
 	}
 
 	@Override
-	public void getSubItems(Item itemIn, CreativeTabs tab, List<ItemStack> subItems) {
+	public void getSubItems(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> subItems) {
 		for (int i = 0; i < items.length; i++) {
 			if (i == 9) continue;
 			subItems.add(new ItemStack(itemIn, 1, i));
@@ -92,10 +93,11 @@ public class ItemMisc extends Item {
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
+	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand) {
+		ItemStack itemStackIn = playerIn.getHeldItem(hand);
 		if (!(playerIn instanceof FakePlayer) && playerIn.dimension != Correlated.limboDimId && (itemStackIn.getMetadata() == 3 || itemStackIn.getMetadata() == 6 || itemStackIn.getMetadata() == 8)) {
 			if (!playerIn.capabilities.isCreativeMode) {
-				--itemStackIn.stackSize;
+				itemStackIn.setCount(itemStackIn.getCount()-1);
 			}
 
 			worldIn.playSound((EntityPlayer) null, playerIn.posX, playerIn.posY, playerIn.posZ, SoundEvents.ENTITY_ENDERPEARL_THROW, SoundCategory.NEUTRAL, 0.5F, 0.4F / (itemRand.nextFloat() * 0.4F + 0.8F));
@@ -103,10 +105,10 @@ public class ItemMisc extends Item {
 			if (!worldIn.isRemote) {
 				EntityThrownItem e = new EntityThrownItem(worldIn, playerIn);
 				ItemStack copy = itemStackIn.copy();
-				copy.stackSize = 1;
+				copy.setCount(1);
 				e.setStack(copy);
 				e.setHeadingFromThrower(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 0.0F, 0.9F, 1.0F);
-				worldIn.spawnEntityInWorld(e);
+				worldIn.spawnEntity(e);
 			}
 
 			playerIn.addStat(StatList.getObjectUseStats(this));
@@ -119,7 +121,7 @@ public class ItemMisc extends Item {
 				return new ActionResult<>(EnumActionResult.FAIL, itemStackIn);
 			}
 		}
-		return super.onItemRightClick(itemStackIn, worldIn, playerIn, hand);
+		return super.onItemRightClick(worldIn, playerIn, hand);
 	}
 	
 	@Override
@@ -141,7 +143,7 @@ public class ItemMisc extends Item {
 	
 	@Override
 	public ItemStack onItemUseFinish(ItemStack stack, World worldIn, EntityLivingBase entityLiving) {
-		--stack.stackSize;
+		stack.setCount(stack.getCount()-1);
 
 		if (entityLiving instanceof EntityPlayer) {
 			EntityPlayer entityplayer = (EntityPlayer) entityLiving;

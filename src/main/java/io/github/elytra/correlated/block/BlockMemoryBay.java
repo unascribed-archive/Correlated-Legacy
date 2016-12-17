@@ -62,9 +62,8 @@ public class BlockMemoryBay extends Block {
 	}
 
 	@Override
-	public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facingIn, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
-		return this.getDefaultState()
-				.withProperty(FACING, placer.getHorizontalFacing().getOpposite());
+	public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
+		worldIn.setBlockState(pos, state.withProperty(FACING, placer.getHorizontalFacing().getOpposite()));
 	}
 
 	@Override
@@ -91,7 +90,7 @@ public class BlockMemoryBay extends Block {
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (Blocks.tryWrench(world, pos, player, hand, side, hitZ, hitZ, hitZ)) {
 			return true;
 		}
@@ -108,8 +107,8 @@ public class BlockMemoryBay extends Block {
 								pos.getY()+hitY+(side.getFrontOffsetY()*0.2), pos.getZ()+hitZ+(side.getFrontOffsetZ()*0.2));
 						ent.setEntityItemStack(tedb.getMemoryInSlot(slot));
 						ent.setNoPickupDelay();
-						world.spawnEntityInWorld(ent);
-						tedb.setMemoryInSlot(slot, null);
+						world.spawnEntity(ent);
+						tedb.setMemoryInSlot(slot, ItemStack.EMPTY);
 					}
 					return true;
 				} else {
@@ -117,9 +116,9 @@ public class BlockMemoryBay extends Block {
 						if (!world.isRemote) {
 							tedb.setMemoryInSlot(slot, inHand);
 							if (hand == EnumHand.MAIN_HAND) {
-								player.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, null);
+								player.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, ItemStack.EMPTY);
 							} else {
-								player.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, null);
+								player.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, ItemStack.EMPTY);
 							}
 						}
 						return true;
@@ -127,7 +126,7 @@ public class BlockMemoryBay extends Block {
 				}
 			}
 		}
-		return super.onBlockActivated(world, pos, state, player, hand, heldItem, side, hitX, hitY, hitZ);
+		return super.onBlockActivated(world, pos, state, player, hand, side, hitX, hitY, hitZ);
 	}
 
 	public int getLookedAtSlot(IBlockState state, EnumFacing side, float hitX, float hitY, float hitZ) {

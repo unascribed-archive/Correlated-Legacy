@@ -51,12 +51,10 @@ public class LayerAutomatonDrives implements LayerRenderer<EntityAutomaton> {
 
 		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 		for (EntityEquipmentSlot slot : slots) {
-			if (ent.getItemStackFromSlot(slot) != null) {
-				ItemStack drive = ent.getItemStackFromSlot(slot);
-				if (drive.getItem() instanceof ItemDrive) {
-					ItemDrive itemDrive = (ItemDrive)drive.getItem();
-					RenderDriveBay.pbr.render(itemDrive.getBaseColor(drive), slot == EntityEquipmentSlot.CHEST ? 0 : 2, 0, 0);
-				}
+			ItemStack drive = ent.getItemStackFromSlot(slot);
+			if (drive.getItem() instanceof ItemDrive) {
+				ItemDrive itemDrive = (ItemDrive)drive.getItem();
+				RenderDriveBay.pbr.render(itemDrive.getBaseColor(drive), slot == EntityEquipmentSlot.CHEST ? 0 : 2, 0, 0);
 			}
 		}
 		tess.draw();
@@ -71,24 +69,20 @@ public class LayerAutomatonDrives implements LayerRenderer<EntityAutomaton> {
 
 		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 		for (EntityEquipmentSlot slot : slots) {
-			if (ent.getItemStackFromSlot(slot) != null) {
-				ItemStack drive = ent.getItemStackFromSlot(slot);
-				if (drive.getItem() instanceof ItemDrive) {
-					ItemDrive itemDrive = (ItemDrive)drive.getItem();
-					RenderDriveBay.pbr.render(lit ? itemDrive.getFullnessColor(drive) : Correlated.proxy.getColor("other", 48), slot == EntityEquipmentSlot.CHEST ? 0 : 2, 0, 0.5f);
-				}
+			ItemStack drive = ent.getItemStackFromSlot(slot);
+			if (drive.getItem() instanceof ItemDrive) {
+				ItemDrive itemDrive = (ItemDrive)drive.getItem();
+				RenderDriveBay.pbr.render(lit ? itemDrive.getFullnessColor(drive) : Correlated.proxy.getColor("other", 48), slot == EntityEquipmentSlot.CHEST ? 0 : 2, 0, 0.5f);
 			}
 		}
 		tess.draw();
 
 		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 		for (EntityEquipmentSlot slot : slots) {
-			if (ent.getItemStackFromSlot(slot) != null) {
-				ItemStack drive = ent.getItemStackFromSlot(slot);
-				if (drive.getItem() instanceof ItemDrive) {
-					ItemDrive itemDrive = (ItemDrive)drive.getItem();
-					RenderDriveBay.pbr.render(itemDrive.getTierColor(drive), slot == EntityEquipmentSlot.CHEST ? 0 : 2, 0.5f, 0);
-				}
+			ItemStack drive = ent.getItemStackFromSlot(slot);
+			if (drive.getItem() instanceof ItemDrive) {
+				ItemDrive itemDrive = (ItemDrive)drive.getItem();
+				RenderDriveBay.pbr.render(itemDrive.getTierColor(drive), slot == EntityEquipmentSlot.CHEST ? 0 : 2, 0.5f, 0);
 			}
 		}
 		tess.draw();

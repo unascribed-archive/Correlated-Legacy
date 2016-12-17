@@ -26,6 +26,7 @@ import net.minecraft.nbt.NBTPrimitive;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -148,7 +149,7 @@ public class ItemDrive extends Item {
 	}
 
 	@Override
-	public void getSubItems(Item itemIn, CreativeTabs tab, List<ItemStack> subItems) {
+	public void getSubItems(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> subItems) {
 		for (int i = 0; i < tierSizes.length; i++) {
 			subItems.add(new ItemStack(itemIn, 1, i));
 		}
@@ -250,13 +251,14 @@ public class ItemDrive extends Item {
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
+	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand) {
+		ItemStack itemStackIn = playerIn.getHeldItem(hand);
 		if (playerIn.isSneaking()) {
 			playerIn.playSound(Correlated.drive_disassemble, 0.4f, 0.875f+(itemRand.nextFloat()/4));
 			NBTTagList ingredients = ItemStacks.getCompoundList(itemStackIn, "Ingredients");
 			if (!worldIn.isRemote) {
 				for (int i = 0; i < ingredients.tagCount(); i++) {
-					ItemStack is = ItemStack.loadItemStackFromNBT(ingredients.getCompoundTagAt(i));
+					ItemStack is = new ItemStack(ingredients.getCompoundTagAt(i));
 					if (is.getItem() == Correlated.misc && (is.getMetadata() == 3 || is.getMetadata() == 8)) continue;
 					playerIn.entityDropItem(is, 0.5f);
 				}
@@ -272,7 +274,7 @@ public class ItemDrive extends Item {
 			Vec3d eyes = new Vec3d(playerIn.posX, playerIn.posY + playerIn.getEyeHeight(), playerIn.posZ);
 			Vec3d look = playerIn.getLookVec();
 			Vec3d origin = eyes.addVector(look.xCoord * 4, look.yCoord * 4, look.zCoord * 4);
-			RayTraceResult rtr = playerIn.worldObj.rayTraceBlocks(eyes, origin, false, false, true);
+			RayTraceResult rtr = playerIn.world.rayTraceBlocks(eyes, origin, false, false, true);
 			if (rtr.typeOfHit == Type.BLOCK) {
 				Block b = worldIn.getBlockState(rtr.getBlockPos()).getBlock();
 				if (b instanceof BlockDriveBay || b instanceof BlockMemoryBay) {
@@ -359,48 +361,45 @@ public class ItemDrive extends Item {
 	public ItemStack addItem(ItemStack drive, ItemStack item) {
 		if (getMaxKilobits(drive) == -1) {
 			if (getPartitioningMode(drive) == PartitioningMode.NONE || findDataIndexForPrototype(drive, createPrototype(item)) != -1) {
-				item.stackSize = 0;
-				return null;
-			} else {
-				return item;
+				item.setCount(0);
+				markDirty(drive);
 			}
+			return item;
 		}
 		int bitsFree = getKilobitsFreeFor(drive, item);
-		int amountTaken = Math.min(item.stackSize, bitsFree);
+		int amountTaken = Math.min(item.getCount(), bitsFree);
 		int current = getAmountStored(drive, item);
 		if (amountTaken > 0) {
 			setAmountStored(drive, item, current+amountTaken);
-			item.stackSize -= amountTaken;
+			item.setCount(item.getCount()-amountTaken);
 			markDirty(drive);
 		}
-		if (item.stackSize <= 0) {
-			return null;
-		} else {
-			return item;
-		}
+		return item;
 	}
 
 	/**
 	 * Take as many items as possible, up to the passed limit, from a drive into
-	 * the given stack.
+	 * a new stack.
 	 * <p>
-	 * The stackSize of the passed stack will be affected. Return value is for
-	 * convenience.
+	 * The stackSize of the passed stack will <b>not</b> be affected, thanks to
+	 * Mojang and their air stacks.
 	 *
 	 * @param drive
 	 *            The drive to affect
 	 * @param item
-	 *            The item to affect
+	 *            The item to remove
 	 * @param amountWanted
 	 *            The maximum amount to extract
 	 */
-	public ItemStack removeItems(ItemStack drive, ItemStack stack, int amountWanted) {
-		if (getMaxKilobits(drive) == -1) return null;
-		int stored = getAmountStored(drive, stack);
+	public ItemStack removeItems(ItemStack drive, ItemStack prototype, int amountWanted) {
+		if (getMaxKilobits(drive) == -1) return ItemStack.EMPTY;
+		ItemStack stack = prototype.copy();
+		stack.setCount(0);
+		int stored = getAmountStored(drive, prototype);
 		int amountGiven = Math.min(amountWanted, stored);
 		if (amountGiven > 0) {
-			setAmountStored(drive, stack, stored-amountGiven);
-			stack.stackSize += amountGiven;
+			setAmountStored(drive, prototype, stored-amountGiven);
+			stack.setCount(stack.getCount() + amountGiven);
 			markDirty(drive);
 		}
 		return stack;
@@ -419,7 +418,7 @@ public class ItemDrive extends Item {
 		NBTTagList list = ItemStacks.getCompoundList(drive, "Data");
 		int index = findDataIndexForPrototype(drive, prototype);
 		if (index == -1) {
-			allocateType(drive, item, item.stackSize);
+			allocateType(drive, item, item.getCount());
 		} else {
 			if (amount <= 0 && getPartitioningMode(drive) == PartitioningMode.NONE) {
 				deallocateType(drive, item);
@@ -431,7 +430,7 @@ public class ItemDrive extends Item {
 	}
 
 	/**
-	 * Creates a list of "prototype" (stack size zero) itemstacks based on the
+	 * Creates a list of "prototype" (stack size one) itemstacks based on the
 	 * stored data in the given drive.
 	 * <p>
 	 * As these are newly created, it is safe to just modify the stack size and
@@ -442,11 +441,8 @@ public class ItemDrive extends Item {
 		List<ItemStack> rtrn = Lists.newArrayList();
 		for (int i = 0; i < list.tagCount(); i++) {
 			NBTTagCompound tag = list.getCompoundTagAt(i);
-			ItemStack is = ItemStack.loadItemStackFromNBT(tag.getCompoundTag("Prototype"));
-			if (is == null) {
-				list.removeTag(i);
-				continue;
-			}
+			ItemStack is = new ItemStack(tag.getCompoundTag("Prototype"));
+			is.setCount(1);
 			rtrn.add(is);
 		}
 		return rtrn;
@@ -473,12 +469,8 @@ public class ItemDrive extends Item {
 			NBTTagCompound tag = list.getCompoundTagAt(i);
 			int count = tag.getInteger("Count");
 			if (count > 0) {
-				ItemStack is = ItemStack.loadItemStackFromNBT(tag.getCompoundTag("Prototype"));
-				if (is == null) {
-					list.removeTag(i);
-					continue;
-				}
-				is.stackSize = count;
+				ItemStack is = new ItemStack(tag.getCompoundTag("Prototype"));
+				is.setCount(count);
 				rtrn.add(is);
 			}
 		}

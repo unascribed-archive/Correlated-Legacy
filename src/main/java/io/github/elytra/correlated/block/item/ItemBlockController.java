@@ -17,7 +17,26 @@ public class ItemBlockController extends ItemBlock {
 
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
-		tooltip.add(I18n.format("tooltip.correlated.rf_usage", Correlated.inst.controllerRfUsage));
+		if (stack.getMetadata() == 8) {
+			tooltip.add(I18n.format("tooltip.correlated.rf_usage", 0));
+		} else {
+			tooltip.add(I18n.format("tooltip.correlated.rf_usage", Correlated.inst.controllerRfUsage));
+		}
+	}
+	
+	@Override
+	public String getUnlocalizedName(ItemStack stack) {
+		return stack.getMetadata() == 8 ? "tile.correlated.cheaty_controller" : "tile.correlated.controller";
+	}
+	
+	@Override
+	public boolean getHasSubtypes() {
+		return true;
+	}
+	
+	@Override
+	public int getMetadata(int damage) {
+		return damage;
 	}
 
 }

@@ -59,6 +59,10 @@ repositories {
 		name = 'jei'
 		url = 'http://dvs1.progwml6.com/files/maven'
 	}
+	maven {
+		name = 'hwyla'
+		url = 'http://tehnut.info/maven'
+	}
 	jcenter()
 	ivy {
 		artifactPattern "http://unascribed.com/jars/[organisation]/[module].[ext]"
@@ -102,10 +106,11 @@ dependencies {
 	shadow 'io.github.elytra:concrete:0.0.6'
 	compile 'io.github.elytra:concrete:0.0.6'
 	
-	compile 'net.darkhax.tesla:Tesla:1.10.2-1.2.1.49'
+	compile 'net.darkhax.tesla:Tesla:1.11-1.3.0.51'
+	compile 'mcp.mobius.waila:Hwyla:1.8.5-B19_1.11'
 	
-	compile 'mezz.jei:jei_1.10.2:3.9.7.260:api'
-	runtime 'mezz.jei:jei_1.10.2:3.9.7.260'
+	compile 'mezz.jei:jei_1.11:4.1.0.205:api'
+	runtime 'mezz.jei:jei_1.11:4.1.0.205'
 }
 
 minecraft {

@@ -29,7 +29,7 @@ public class StartWeldthrowingMessage extends Message {
 	@Override
 	@SideOnly(Side.CLIENT)
 	protected void handle(EntityPlayer sender) {
-		Entity e = Minecraft.getMinecraft().theWorld.getEntityByID(entityId);
+		Entity e = Minecraft.getMinecraft().world.getEntityByID(entityId);
 		if (e instanceof EntityPlayer) {
 			Correlated.weldthrower.weldthrowing.put((EntityPlayer)e, new MutableInt());
 		}

@@ -11,7 +11,6 @@ import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 
-import cofh.api.energy.IEnergyReceiver;
 import gnu.trove.set.hash.TCustomHashSet;
 import gnu.trove.strategy.HashingStrategy;
 import io.github.elytra.correlated.Correlated;
@@ -34,7 +33,7 @@ import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.common.Optional;
 
 @Optional.Interface(iface="cofh.api.energy.IEnergyReceiver",modid="CoFHAPI|energy")
-public class TileEntityController extends TileEntityNetworkMember implements IEnergyReceiver, ITickable, IDigitalStorage, IEnergyStorage {
+public class TileEntityController extends TileEntityNetworkMember implements ITickable, IDigitalStorage, IEnergyStorage {
 	
 	public boolean error = false;
 	public boolean booting = true;
@@ -113,13 +112,8 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	}
 
 	@Override
-	public boolean canConnectEnergy(EnumFacing from) {
-		return true;
-	}
-
-	@Override
 	public void update() {
-		if (!hasWorldObj() || getWorld().isRemote) return;
+		if (!hasWorld() || getWorld().isRemote) return;
 		if (bootTicks > 100 && booting) {
 			/*
 			 * The booting delay is meant to deal with people avoiding the
@@ -169,8 +163,8 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	public void setController(TileEntityController controller) {}
 
 	public void scanNetwork() {
-		if (!hasWorldObj()) return;
-		if (worldObj.isRemote) return;
+		if (!hasWorld()) return;
+		if (world.isRemote) return;
 		if (booting) return;
 		Set<BlockPos> seen = Sets.newHashSet();
 		List<TileEntityNetworkMember> members = Lists.newArrayList();
@@ -178,7 +172,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		boolean foundOtherController = false;
 
 		for (BlockPos pos : networkMemberLocations) {
-			TileEntity te = worldObj.getTileEntity(pos);
+			TileEntity te = world.getTileEntity(pos);
 			if (te instanceof TileEntityNetworkMember) {
 				((TileEntityNetworkMember)te).setController(null);
 			}
@@ -208,7 +202,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 					BlockPos p = pos.offset(ef);
 					if (seen.contains(p)) continue;
 					seen.add(p);
-					if (worldObj.getTileEntity(p) == null) {
+					if (world.getTileEntity(p) == null) {
 						continue;
 					}
 					queue.add(p);
@@ -305,10 +299,14 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	}
 
 	private void updateState() {
-		if (!hasWorldObj()) return;
-		if (worldObj.isRemote) return;
-		State old = worldObj.getBlockState(getPos()).getValue(BlockController.state);
+		if (!hasWorld()) return;
+		if (world.isRemote) return;
+		boolean cheaty = world.getBlockState(getPos()).getValue(BlockController.cheaty);
+		State old = world.getBlockState(getPos()).getValue(BlockController.state);
 		State nw;
+		if (cheaty) {
+			energy = energyCapacity;
+		}
 		if (isPowered()) {
 			if (old == State.OFF) {
 				booting = true;
@@ -325,7 +323,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			nw = State.OFF;
 		}
 		if (old != nw) {
-			worldObj.setBlockState(getPos(), worldObj.getBlockState(getPos())
+			world.setBlockState(getPos(), world.getBlockState(getPos())
 					.withProperty(BlockController.state, nw));
 		}
 	}
@@ -337,7 +335,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 
 	/** assumes the network cache is also up to date, if it's not, call scanNetwork */
 	public void updateDrivesCache() {
-		if (hasWorldObj() && worldObj.isRemote) return;
+		if (hasWorld() && world.isRemote) return;
 		drives.clear();
 		prototypes.clear();
 		for (TileEntityDriveBay tedb : driveBays) {
@@ -352,7 +350,7 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	}
 	
 	public void updateMemoryCache() {
-		if (!hasWorldObj() || worldObj.isRemote) return;
+		if (!hasWorld() || world.isRemote) return;
 		maxMemory = 0;
 		for (TileEntityMemoryBay temb : memoryBays) {
 			if (temb.isInvalid()) continue;
@@ -385,20 +383,19 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 	@Override
 	public ItemStack addItemToNetwork(ItemStack stack) {
 		if (error) return stack;
-		if (stack == null) return null;
 		if (!prototypes.contains(stack) && getTotalUsedMemory()+getMemoryUsage(stack) > getMaxMemory()) {
 			return stack;
 		}
 		for (ItemStack drive : drives) {
 			// both these conditions should always be true, but might as well be safe
 			if (drive != null && drive.getItem() instanceof ItemDrive) {
-				int oldSize = stack.stackSize;
+				int oldSize = stack.getCount();
 				ItemDrive itemDrive = ((ItemDrive)drive.getItem());
 				itemDrive.addItem(drive, stack);
-				if (stack.stackSize < oldSize && !prototypes.contains(stack)) {
+				if (stack.getCount() < oldSize && !prototypes.contains(stack)) {
 					prototypes.add(stack.copy());
 				}
-				if (stack.stackSize <= 0) break;
+				if (stack.isEmpty()) break;
 			}
 		}
 		for (TileEntityWirelessReceiver r : receivers) {
@@ -406,31 +403,27 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			if (cont != null) {
 				cont.addItemToNetwork(stack);
 			}
-			if (stack.stackSize <= 0) break;
+			if (stack.isEmpty()) break;
 		}
 		changeId++;
-		return stack.stackSize <= 0 ? null : stack;
+		return stack;
 	}
 
 	@Override
 	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount, boolean checkInterfaces) {
-		if (error) return null;
-		if (prototype == null) return null;
+		if (error) return ItemStack.EMPTY;
 		ItemStack stack = prototype.copy();
-		stack.stackSize = 0;
+		stack.setCount(0);
 		if (checkInterfaces) {
 			for (TileEntityInterface in : interfaces) {
 				for (int i = 9; i <= 17; i++) {
 					ItemStack is = in.getStackInSlot(i);
 					if (is != null && ItemStack.areItemsEqual(is, prototype) && ItemStack.areItemStackTagsEqual(is, prototype)) {
-						int amountWanted = amount-stack.stackSize;
-						int amountTaken = Math.min(is.stackSize, amountWanted);
-						is.stackSize -= amountTaken;
-						stack.stackSize += amountTaken;
-						if (is.stackSize <= 0) {
-							in.setInventorySlotContents(i, null);
-						}
-						if (stack.stackSize >= amount) break;
+						int amountWanted = amount-stack.getCount();
+						int amountTaken = Math.min(is.getCount(), amountWanted);
+						is.setCount(is.getCount()-amountTaken);
+						stack.setCount(stack.getCount()+amountTaken);
+						if (stack.getCount() >= amount) break;
 					}
 				}
 			}
@@ -440,29 +433,30 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			// both these conditions should always be true, but might as well be safe
 			if (drive != null && drive.getItem() instanceof ItemDrive) {
 				ItemDrive itemDrive = ((ItemDrive)drive.getItem());
-				int amountWanted = amount-stack.stackSize;
-				itemDrive.removeItems(drive, stack, amountWanted);
-				if (!anyDriveStillHasItem && itemDrive.getAmountStored(drive, stack) > 0) {
+				int amountWanted = amount-stack.getCount();
+				ItemStack res = itemDrive.removeItems(drive, prototype, amountWanted);
+				stack.grow(res.getCount());
+				if (!anyDriveStillHasItem && itemDrive.getAmountStored(drive, prototype) > 0) {
 					anyDriveStillHasItem = true;
 				}
-				if (stack.stackSize >= amount) break;
+				if (stack.getCount() >= amount) break;
 			}
 		}
 		for (TileEntityWirelessReceiver r : receivers) {
 			TileEntityController cont = r.getTransmitterController();
 			if (cont != null) {
-				ItemStack remote = cont.removeItemsFromNetwork(prototype, amount-stack.stackSize, checkInterfaces);
+				ItemStack remote = cont.removeItemsFromNetwork(prototype, amount-stack.getCount(), checkInterfaces);
 				if (remote != null) {
-					stack.stackSize += remote.stackSize;
+					stack.setCount(stack.getCount()+remote.getCount());
 				}
 			}
-			if (stack.stackSize >= amount) break;
+			if (stack.getCount() >= amount) break;
 		}
 		if (!anyDriveStillHasItem) {
 			prototypes.remove(prototype);
 		}
 		changeId++;
-		return stack.stackSize <= 0 ? null : stack;
+		return stack;
 	}
 	
 	@Override
@@ -519,18 +513,16 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 		for (TileEntityInterface in : interfaces) {
 			for (int i = 9; i <= 17; i++) {
 				ItemStack ifaceStack = in.getStackInSlot(i);
-				if (ifaceStack != null) {
-					boolean added = false;
-					for (ItemStack cur : li) {
-						if (ItemStack.areItemsEqual(ifaceStack, cur) && ItemStack.areItemStackTagsEqual(ifaceStack, cur)) {
-							cur.stackSize += ifaceStack.stackSize;
-							added = true;
-							break;
-						}
+				boolean added = false;
+				for (ItemStack cur : li) {
+					if (ItemStack.areItemsEqual(ifaceStack, cur) && ItemStack.areItemStackTagsEqual(ifaceStack, cur)) {
+						cur.setCount(cur.getCount()+ifaceStack.getCount());
+						added = true;
+						break;
 					}
-					if (!added) {
-						li.add(ifaceStack.copy());
-					}
+				}
+				if (!added) {
+					li.add(ifaceStack.copy());
 				}
 			}
 		}
@@ -607,24 +599,6 @@ public class TileEntityController extends TileEntityNetworkMember implements IEn
 			energy += energyReceived;
 		}
 		return energyReceived;
-	}
-	
-	
-	
-	
-	@Override
-	public int getEnergyStored(EnumFacing from) {
-		return Ints.saturatedCast(energy);
-	}
-
-	@Override
-	public int getMaxEnergyStored(EnumFacing from) {
-		return Ints.saturatedCast(energyCapacity);
-	}
-	
-	@Override
-	public int receiveEnergy(EnumFacing from, int maxReceive, boolean simulate) {
-		return Ints.saturatedCast(receiveEnergy(maxReceive, simulate));
 	}
 	
 	

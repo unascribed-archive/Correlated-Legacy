@@ -15,7 +15,7 @@ public class RenderImporterChest extends TileEntitySpecialRenderer<TileEntityImp
 	public void renderTileEntityAt(TileEntityImporterChest te, double x, double y, double z, float partialTicks, int destroyStage) {
 		int i = 0;
 
-		if (te.hasWorldObj()) {
+		if (te.hasWorld()) {
 			i = te.getBlockMetadata();
 		}
 

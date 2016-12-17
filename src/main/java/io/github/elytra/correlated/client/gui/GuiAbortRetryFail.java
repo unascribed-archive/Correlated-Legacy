@@ -55,11 +55,11 @@ public class GuiAbortRetryFail extends GuiGameOver {
 	protected void keyTyped(char typedChar, int keyCode) throws IOException {
 		if (ticks >= (causeOfDeath == null ? "You died" : causeOfDeath.getUnformattedText()).length()+10) {
 			if (typedChar == 'r' || typedChar == 'R') {
-				this.mc.thePlayer.respawnPlayer();
+				this.mc.player.respawnPlayer();
 				this.mc.displayGuiScreen((GuiScreen) null);
 			} else if (typedChar == 'a' || typedChar == 'A') {
 				new LeaveDungeonMessage().sendToServer();
-				this.mc.thePlayer.respawnPlayer();
+				this.mc.player.respawnPlayer();
 				this.mc.displayGuiScreen((GuiScreen) null);
 			}
 		}

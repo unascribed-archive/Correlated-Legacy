@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.BitSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -88,6 +87,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ScreenShotHelper;
 import net.minecraft.util.math.MathHelper;
@@ -208,7 +208,7 @@ public class ClientProxy extends Proxy {
 		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
 			@Override
 			public int getColorFromItemstack(ItemStack stack, int tintIndex) {
-				if (stack == null || !(stack.getItem() instanceof ItemModule)) return -1;
+				if (!(stack.getItem() instanceof ItemModule)) return -1;
 				ItemModule id = (ItemModule)stack.getItem();
 				if (tintIndex == 1) {
 					return id.getTypeColor(stack);
@@ -220,7 +220,7 @@ public class ClientProxy extends Proxy {
 		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
 			@Override
 			public int getColorFromItemstack(ItemStack stack, int tintIndex) {
-				if (stack == null || !(stack.getItem() instanceof ItemMemory)) return -1;
+				if (!(stack.getItem() instanceof ItemMemory)) return -1;
 				ItemMemory id = (ItemMemory)stack.getItem();
 				if (tintIndex == 1) {
 					return id.getTierColor(stack);
@@ -233,7 +233,7 @@ public class ClientProxy extends Proxy {
 			@Override
 			@SuppressWarnings("fallthrough")
 			public int getColorFromItemstack(ItemStack stack, int tintIndex) {
-				if (stack == null || !(stack.getItem() instanceof ItemDrive)) return -1;
+				if (!(stack.getItem() instanceof ItemDrive)) return -1;
 				ItemDrive id = (ItemDrive)stack.getItem();
 				if (tintIndex == 1) {
 					return id.getFullnessColor(stack);
@@ -301,7 +301,7 @@ public class ClientProxy extends Proxy {
 			loc = new ResourceLocation("correlated", "tesrstack");
 		}
 		if (variants == -1) {
-			List<ItemStack> li = Lists.newArrayList();
+			NonNullList<ItemStack> li = NonNullList.create();
 			item.getSubItems(item, Correlated.creativeTab, li);
 			for (ItemStack is : li) {
 				ModelLoader.setCustomModelResourceLocation(item, is.getItemDamage(), new ModelResourceLocation(loc, "inventory"));
@@ -323,8 +323,8 @@ public class ClientProxy extends Proxy {
 		double fuzz = 0.05;
 		look.rotateYaw(20);
 		for (int i = 0; i < 5; i++) {
-			Random rand = player.worldObj.rand;
-			ParticleWeldthrower dust = new ParticleWeldthrower(player.worldObj,
+			Random rand = player.world.rand;
+			ParticleWeldthrower dust = new ParticleWeldthrower(player.world,
 					player.posX+(right.xCoord*dist)+(look.xCoord*gap),
 					player.posY+(player.getEyeHeight()-0.1)+(right.yCoord*dist)+(look.yCoord*gap),
 					player.posZ+(right.zCoord*dist)+(look.zCoord*gap), 1);
@@ -336,8 +336,8 @@ public class ClientProxy extends Proxy {
 	@Override
 	public void weldthrowerHeal(EntityAutomaton ent) {
 		for (int i = 0; i < 5; i++) {
-			Random rand = ent.worldObj.rand;
-			ParticleWeldthrower dust = new ParticleWeldthrower(ent.worldObj,
+			Random rand = ent.world.rand;
+			ParticleWeldthrower dust = new ParticleWeldthrower(ent.world,
 					ent.posX+(rand.nextGaussian()*0.2),
 					ent.posY+(rand.nextGaussian()*0.2),
 					ent.posZ+(rand.nextGaussian()*0.2), 1);
@@ -347,8 +347,8 @@ public class ClientProxy extends Proxy {
 	}
 	@Override
 	public void smokeTick(EntityAutomaton ent) {
-		if (Minecraft.getMinecraft().theWorld == null || Minecraft.getMinecraft().theWorld.getTotalWorldTime() < 10) return;
-		Random rand = ent.worldObj.rand;
+		if (Minecraft.getMinecraft().world == null || Minecraft.getMinecraft().world.getTotalWorldTime() < 10) return;
+		Random rand = ent.world.rand;
 		for (int i = 0; i < ent.getMaxHealth()-ent.getHealth(); i++) {
 			if (rand.nextInt(5) == 0) {
 				Minecraft.getMinecraft().effectRenderer.spawnEffectParticle(EnumParticleTypes.SMOKE_NORMAL.getParticleID(),
@@ -370,7 +370,7 @@ public class ClientProxy extends Proxy {
 	public void onClientTick(ClientTickEvent e) {
 		if (e.phase == Phase.START) {
 			ticks++;
-			if (glitchTicks > -1 && Minecraft.getMinecraft().theWorld == null) {
+			if (glitchTicks > -1 && Minecraft.getMinecraft().world == null) {
 				glitchTicks = -1;
 			}
 			if (glitchTicks > -1 && jpegTexture != -1 && !Minecraft.getMinecraft().isGamePaused()) {
@@ -378,7 +378,7 @@ public class ClientProxy extends Proxy {
 				if (glitchTicks >= 240) {
 					glitchTicks = -1;
 					Minecraft.getMinecraft().getSoundHandler().stopSounds();
-					if (Minecraft.getMinecraft().thePlayer != null && !Minecraft.getMinecraft().thePlayer.isDead) {
+					if (Minecraft.getMinecraft().player != null && !Minecraft.getMinecraft().player.isDead) {
 						Minecraft.getMinecraft().displayGuiScreen(new GuiFakeReboot());
 					}
 				}
@@ -421,11 +421,11 @@ public class ClientProxy extends Proxy {
 	public void onGuiOpen(GuiOpenEvent e) {
 		if (glitchTicks >= 0 && e.getGui() != null && !(e.getGui() instanceof GuiIngameMenu)) {
 			e.setCanceled(true);
-		} else if (Minecraft.getMinecraft().theWorld != null
-				&& !Minecraft.getMinecraft().theWorld.getWorldInfo().isHardcoreModeEnabled()
+		} else if (Minecraft.getMinecraft().world != null
+				&& !Minecraft.getMinecraft().world.getWorldInfo().isHardcoreModeEnabled()
 				&& e.getGui() instanceof GuiGameOver
 				&& !(e.getGui() instanceof GuiAbortRetryFail)) {
-			if (Minecraft.getMinecraft().thePlayer != null && Minecraft.getMinecraft().thePlayer.dimension == Correlated.limboDimId) {
+			if (Minecraft.getMinecraft().player != null && Minecraft.getMinecraft().player.dimension == Correlated.limboDimId) {
 				e.setGui(new GuiAbortRetryFail(ReflectionHelper.getPrivateValue(GuiGameOver.class, (GuiGameOver)e.getGui(), "field_184871_f", "causeOfDeath", "f")));
 			}
 		}
@@ -531,7 +531,7 @@ public class ClientProxy extends Proxy {
 					&& item != Correlated.keycard) return;
 			Minecraft mc = Minecraft.getMinecraft();
 			
-			AbstractClientPlayer p = mc.thePlayer;
+			AbstractClientPlayer p = mc.player;
 			EnumHand hand = e.getHand();
 			ItemRenderer ir = mc.getItemRenderer();
 			
@@ -569,11 +569,11 @@ public class ClientProxy extends Proxy {
 			
 			TransformType transform = (handSide == EnumHandSide.RIGHT ? TransformType.FIRST_PERSON_RIGHT_HAND : TransformType.FIRST_PERSON_LEFT_HAND);
 			
-			IBakedModel model = mc.getRenderItem().getItemModelWithOverrides(e.getItemStack(), mc.theWorld, p);
+			IBakedModel model = mc.getRenderItem().getItemModelWithOverrides(e.getItemStack(), mc.world, p);
 			
 			GlStateManager.pushMatrix();
-				float f = -0.4F * MathHelper.sin(MathHelper.sqrt_float(swing) * (float) Math.PI);
-				float f1 = 0.2F * MathHelper.sin(MathHelper.sqrt_float(swing) * ((float) Math.PI * 2F));
+				float f = -0.4F * MathHelper.sin(MathHelper.sqrt(swing) * (float) Math.PI);
+				float f1 = 0.2F * MathHelper.sin(MathHelper.sqrt(swing) * ((float) Math.PI * 2F));
 				float f2 = -0.2F * MathHelper.sin(swing * (float) Math.PI);
 				int i = isMain ? 1 : -1;
 				GlStateManager.translate(i * f, f1, f2);

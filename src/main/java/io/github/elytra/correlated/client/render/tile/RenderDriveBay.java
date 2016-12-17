@@ -199,7 +199,7 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 						nameX += mop.sideHit.getFrontOffsetX()*(2/16f);
 						nameY += mop.sideHit.getFrontOffsetY()*(2/16f);
 						nameZ += mop.sideHit.getFrontOffsetZ()*(2/16f);
-						DUMMY_ENTITY.worldObj = te.getWorld();
+						DUMMY_ENTITY.world = te.getWorld();
 						DUMMY_ENTITY.posX = DUMMY_ENTITY.prevPosX = te.getPos().getX()+0.5;
 						DUMMY_ENTITY.posY = DUMMY_ENTITY.prevPosY = te.getPos().getY()+0.5;
 						DUMMY_ENTITY.posZ = DUMMY_ENTITY.prevPosZ = te.getPos().getZ()+0.5;

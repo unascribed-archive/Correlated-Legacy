@@ -166,14 +166,12 @@ public class Correlated {
 	public static CreativeTabs creativeTab = new CreativeTabs("correlated") {
 		ItemStack stack = null;
 		@Override
-		public ItemStack getIconItemStack() {
+		public ItemStack getTabIconItem() {
 			if (stack == null) {
 				stack = new ItemStack(misc, 1, 9);
 			}
 			return stack;
 		}
-		@Override
-		public Item getTabIconItem() { return null; };
 	};
 
 	public static int limboDimId;
@@ -312,10 +310,10 @@ public class Correlated {
 		network.register(ShowTerminalErrorMessage.class);
 		network.register(InsertAllMessage.class);
 
-		EntityRegistry.registerModEntity(EntityThrownItem.class, "thrown_item", 0, this, 64, 10, true);
-		EntityRegistry.registerModEntity(EntityAutomaton.class, "automaton", 1, this, 64, 1, true);
+		EntityRegistry.registerModEntity(new ResourceLocation("correlated", "thrown_item"), EntityThrownItem.class, "thrown_item", 0, this, 64, 10, true);
+		EntityRegistry.registerModEntity(new ResourceLocation("correlated", "automaton"), EntityAutomaton.class, "automaton", 1, this, 64, 1, true);
 		
-		EntityRegistry.registerEgg(EntityAutomaton.class, 0x37474F, 0x00F8C1);
+		EntityRegistry.registerEgg(new ResourceLocation("correlated", "automaton"), 0x37474F, 0x00F8C1);
 		
 		limbo = DimensionType.register("Limbo", "_correlateddungeon", limboDimId, LimboProvider.class, false);
 		DimensionManager.registerDimension(limboDimId, limbo);
@@ -357,7 +355,7 @@ public class Correlated {
 		registerRecord("thirteen.mod");
 		registerRecord("irokos.mod");
 		
-		register(new BlockController().setHardness(2), ItemBlockController.class, "controller", 4);
+		register(new BlockController().setHardness(2), ItemBlockController.class, "controller", 9);
 		register(new BlockDriveBay().setHardness(2), ItemBlockDriveBay.class, "drive_bay", 0);
 		register(new BlockMemoryBay().setHardness(2), ItemBlockMemoryBay.class, "memory_bay", 0);
 		register(new BlockTerminal().setHardness(2), ItemBlockTerminal.class, "terminal", 0);
@@ -389,16 +387,14 @@ public class Correlated {
 		GameRegistry.registerTileEntity(TileEntityNetworkImporter.class, "correlatedpotentialistics:controller");
 		GameRegistry.registerTileEntity(TileEntityVTImporter.class, "correlatedpotentialistics:vt");
 		
-		Class<TileEntityPotentialisticsImporter> tepi = TileEntityPotentialisticsImporter.class;
-		
-		GameRegistry.registerTileEntity(tepi, "correlatedpotentialistics:controller_new");
-		GameRegistry.registerTileEntity(tepi, "correlatedpotentialistics:drive_bay");
-		GameRegistry.registerTileEntity(tepi, "correlatedpotentialistics:memory_bay");
-		GameRegistry.registerTileEntity(tepi, "correlatedpotentialistics:terminal");
-		GameRegistry.registerTileEntity(tepi, "correlatedpotentialistics:interface");
-		GameRegistry.registerTileEntity(tepi, "correlatedpotentialistics:wireless_receiver");
-		GameRegistry.registerTileEntity(tepi, "correlatedpotentialistics:wireless_transmitter");
-		GameRegistry.registerTileEntity(tepi, "correlatedpotentialistics:importer_chest");
+		GameRegistry.registerTileEntity(TileEntityPotentialisticsImporter.A.class, "correlatedpotentialistics:controller_new");
+		GameRegistry.registerTileEntity(TileEntityPotentialisticsImporter.B.class, "correlatedpotentialistics:drive_bay");
+		GameRegistry.registerTileEntity(TileEntityPotentialisticsImporter.C.class, "correlatedpotentialistics:memory_bay");
+		GameRegistry.registerTileEntity(TileEntityPotentialisticsImporter.D.class, "correlatedpotentialistics:terminal");
+		GameRegistry.registerTileEntity(TileEntityPotentialisticsImporter.E.class, "correlatedpotentialistics:interface");
+		GameRegistry.registerTileEntity(TileEntityPotentialisticsImporter.F.class, "correlatedpotentialistics:wireless_receiver");
+		GameRegistry.registerTileEntity(TileEntityPotentialisticsImporter.G.class, "correlatedpotentialistics:wireless_transmitter");
+		GameRegistry.registerTileEntity(TileEntityPotentialisticsImporter.H.class, "correlatedpotentialistics:importer_chest");
 		
 		Opcode.init();
 		
@@ -443,7 +439,7 @@ public class Correlated {
 	
 	@SubscribeEvent
 	public void onRespawn(PlayerRespawnEvent e) {
-		CorrelatedWorldData d = getDataFor(e.player.worldObj);
+		CorrelatedWorldData d = getDataFor(e.player.world);
 		UUID id = e.player.getGameProfile().getId();
 		if (d.getPlayerRespawnData().containsKey(id)) {
 			e.player.readFromNBT(d.getPlayerRespawnData().remove(id));

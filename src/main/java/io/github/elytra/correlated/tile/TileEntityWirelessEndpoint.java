@@ -16,7 +16,7 @@ public abstract class TileEntityWirelessEndpoint extends TileEntityNetworkMember
 	
 	@Override
 	public void update() {
-		if (hasWorldObj() && !worldObj.isRemote) {
+		if (hasWorld() && !world.isRemote) {
 			IBlockState state = getWorld().getBlockState(getPos());
 			if (state.getBlock() == Correlated.wireless_endpoint) {
 				State newState;

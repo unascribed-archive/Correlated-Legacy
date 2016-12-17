@@ -30,8 +30,8 @@ public abstract class TileEntityImporter extends TileEntity implements ITickable
 	
 	@Override
 	public void update() {
-		if (!hasWorldObj()) return;
-		if (worldObj.isRemote) return;
+		if (!hasWorld()) return;
+		if (world.isRemote) return;
 		ticks++;
 		if (ticks <= triggerTicks) return;
 		doImport();
@@ -45,23 +45,23 @@ public abstract class TileEntityImporter extends TileEntity implements ITickable
 			tag.merge(capturedNbt);
 		}
 		tag.setString("id", id);
-		TileEntity te = create(worldObj, tag);
-		worldObj.setTileEntity(getPos(), te);
+		TileEntity te = create(world, tag);
+		world.setTileEntity(getPos(), te);
 	}
 	
 	protected void substitute(TileEntity te, boolean importOldNbt) {
 		if (importOldNbt) {
 			te.readFromNBT(capturedNbt);
 		}
-		worldObj.setTileEntity(getPos(), te);
+		world.setTileEntity(getPos(), te);
 	}
 	
 	protected void substitute(IBlockState state, TileEntity te, boolean importOldNbt) {
 		if (importOldNbt) {
 			te.readFromNBT(capturedNbt);
 		}
-		worldObj.setBlockState(getPos(), state);
-		worldObj.setTileEntity(getPos(), te);
+		world.setBlockState(getPos(), state);
+		world.setTileEntity(getPos(), te);
 	}
 
 }

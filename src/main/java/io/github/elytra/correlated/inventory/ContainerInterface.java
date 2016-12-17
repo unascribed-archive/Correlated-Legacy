@@ -15,7 +15,7 @@ public class ContainerInterface extends Container {
 			super(null, index, xPosition, yPosition);
 		}
 
-		private ItemStack stack;
+		private ItemStack stack = ItemStack.EMPTY;
 
 		@Override
 		public ItemStack getStack() {
@@ -30,11 +30,7 @@ public class ContainerInterface extends Container {
 
 		@Override
 		public ItemStack decrStackSize(int amount) {
-			if (stack == null) return null;
 			ItemStack split = stack.splitStack(amount);
-			if (stack.stackSize <= 0) {
-				stack = null;
-			}
 			onSlotChanged();
 			return split;
 		}
@@ -103,7 +99,7 @@ public class ContainerInterface extends Container {
 
 	@Override
 	public ItemStack transferStackInSlot(EntityPlayer player, int index) {
-		ItemStack result = null;
+		ItemStack result = ItemStack.EMPTY;
 		Slot slot = inventorySlots.get(index);
 
 		if (slot != null && slot.getHasStack()) {
@@ -112,14 +108,14 @@ public class ContainerInterface extends Container {
 
 			if (index < 27) {
 				if (!mergeItemStack(stack, 27, inventorySlots.size(), true)) {
-					return null;
+					return ItemStack.EMPTY;
 				}
 			} else if (!mergeItemStack(stack, 0, 9, false)) {
-				return null;
+				return ItemStack.EMPTY;
 			}
 
-			if (stack.stackSize == 0) {
-				slot.putStack(null);
+			if (stack.isEmpty()) {
+				slot.putStack(ItemStack.EMPTY);
 			} else {
 				slot.onSlotChanged();
 			}
@@ -136,15 +132,15 @@ public class ContainerInterface extends Container {
 			if (slot instanceof SlotFake) {
 				if (clickTypeIn == ClickType.PICKUP) {
 					if (slot.getHasStack()) {
-						slot.putStack(null);
-						te.setOutputPrototype(slot.getSlotIndex(), null);
-						return null;
+						slot.putStack(ItemStack.EMPTY);
+						te.setOutputPrototype(slot.getSlotIndex(), ItemStack.EMPTY);
+						return ItemStack.EMPTY;
 					} else {
 						ItemStack cursor = player.inventory.getItemStack();
-						if (cursor != null) {
+						if (!cursor.isEmpty()) {
 							if (slot.isItemValid(cursor)) {
 								ItemStack copy = cursor.copy();
-								copy.stackSize = 1;
+								copy.setCount(1);
 								slot.putStack(copy);
 								te.setOutputPrototype(slot.getSlotIndex(), copy);
 							}

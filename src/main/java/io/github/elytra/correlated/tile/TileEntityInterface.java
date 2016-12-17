@@ -1,5 +1,7 @@
 package io.github.elytra.correlated.tile;
 
+import java.util.Arrays;
+
 import com.google.common.base.Enums;
 
 import io.github.elytra.correlated.Correlated;
@@ -55,6 +57,10 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 
 	private FaceMode[] modes = new FaceMode[6];
 
+	public TileEntityInterface() {
+		Arrays.fill(prototypes, ItemStack.EMPTY);
+	}
+	
 	public FaceMode getModeForFace(EnumFacing face) {
 		if (face == null) return null;
 		FaceMode mode = modes[face.ordinal()];
@@ -87,7 +93,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 		NBTTagList inv = new NBTTagList();
 		for (int i = 0; i < getSizeInventory(); i++) {
 			ItemStack is = getStackInSlot(i);
-			if (is != null) {
+			if (!is.isEmpty()) {
 				NBTTagCompound nbt = is.writeToNBT(new NBTTagCompound());
 				nbt.setInteger("Slot", i);
 				inv.appendTag(nbt);
@@ -97,7 +103,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 		NBTTagList proto = new NBTTagList();
 		for (int i = 0; i < prototypes.length; i++) {
 			ItemStack is = prototypes[i];
-			if (is != null) {
+			if (!is.isEmpty()) {
 				NBTTagCompound nbt = is.writeToNBT(new NBTTagCompound());
 				nbt.setInteger("Slot", i);
 				nbt.removeTag("Count");
@@ -115,13 +121,13 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 		NBTTagList inv = compound.getTagList("Buffer", NBT.TAG_COMPOUND);
 		for (int i = 0; i < inv.tagCount(); i++) {
 			NBTTagCompound nbt = inv.getCompoundTagAt(i);
-			setInventorySlotContents(nbt.getInteger("Slot"), ItemStack.loadItemStackFromNBT(nbt));
+			setInventorySlotContents(nbt.getInteger("Slot"), new ItemStack(nbt));
 		}
 		NBTTagList proto = compound.getTagList("Prototypes", NBT.TAG_COMPOUND);
 		for (int i = 0; i < proto.tagCount(); i++) {
 			NBTTagCompound nbt = proto.getCompoundTagAt(i);
 			nbt.setInteger("Count", 1);
-			prototypes[nbt.getInteger("Slot")] = ItemStack.loadItemStackFromNBT(nbt);
+			prototypes[nbt.getInteger("Slot")] = new ItemStack(nbt);
 		}
 	}
 
@@ -144,7 +150,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
 		super.onDataPacket(net, pkt);
 		readFacesFromNBT(pkt.getNbtCompound());
-		worldObj.markBlockRangeForRenderUpdate(getPos(), getPos());
+		world.markBlockRangeForRenderUpdate(getPos(), getPos());
 	}
 
 	private void writeFacesToNBT(NBTTagCompound nbt) {
@@ -161,47 +167,41 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 
 	@Override
 	public void update() {
-		if (hasStorage() && hasWorldObj() && !worldObj.isRemote && worldObj.getTotalWorldTime() % 16 == 0) {
+		if (hasStorage() && hasWorld() && !world.isRemote && world.getTotalWorldTime() % 16 == 0) {
 			TileEntityController controller = getStorage();
 			if (!controller.isPowered() || controller.booting || controller.error) return;
 			for (int i = 0; i <= 8; i++) {
 				ItemStack stack = inv.getStackInSlot(i);
-				if (stack != null) {
+				if (!stack.isEmpty()) {
 					inv.setInventorySlotContents(i, controller.addItemToNetwork(stack));
 				}
 			}
 			for (int i = 9; i <= 17; i++) {
 				ItemStack prototype = prototypes[i-9];
-				if (prototype != null) {
+				if (!prototype.isEmpty()) {
 					ItemStack cur = inv.getStackInSlot(i);
 					int needed;
-					if (cur == null) {
+					if (cur.isEmpty()) {
 						needed = prototype.getMaxStackSize();
 						cur = prototype.copy();
-						cur.stackSize = 0;
+						cur.setCount(0);
 					} else {
 						if (!ItemStack.areItemsEqual(cur, prototype) || !ItemStack.areItemStackTagsEqual(cur, prototype)) {
 							continue;
 						}
-						needed = prototype.getMaxStackSize()-cur.stackSize;
+						needed = prototype.getMaxStackSize()-cur.getCount();
 					}
 					if (needed > 0) {
 						ItemStack stack = controller.removeItemsFromNetwork(prototype, needed, false);
-						if (stack != null) {
-							cur.stackSize += stack.stackSize;
-						}
-						if (cur.stackSize <= 0) {
-							inv.setInventorySlotContents(i, null);
-						} else {
-							inv.setInventorySlotContents(i, cur);
-						}
+						cur.setCount(cur.getCount() + stack.getCount());
+						inv.setInventorySlotContents(i, cur);
 					}
 				}
 			}
 			for (EnumFacing face : EnumFacing.VALUES) {
 				FaceMode mode = getModeForFace(face);
 				if (mode == FaceMode.DISABLED || mode == FaceMode.PASSIVE) continue;
-				TileEntity other = worldObj.getTileEntity(getPos().offset(face));
+				TileEntity other = world.getTileEntity(getPos().offset(face));
 				if (!(other instanceof IInventory)) continue;
 				if (other instanceof ISidedInventory) {
 					ISidedInventory sided = (ISidedInventory)other;
@@ -210,7 +210,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 						if (mode == FaceMode.ACTIVE_PUSH) {
 							for (int i = 9; i < 18; i++) {
 								ItemStack content = getStackInSlot(i);
-								if (content != null) {
+								if (!content.isEmpty()) {
 									int slot = findSlot(sided, content, slots);
 									if (slot != -1) {
 										if (sided.canInsertItem(slot, content, face.getOpposite())) {
@@ -222,7 +222,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 						} else if (mode == FaceMode.ACTIVE_PULL) {
 							for (int s : slots) {
 								ItemStack content = sided.getStackInSlot(s);
-								if (content != null) {
+								if (!content.isEmpty()) {
 									int slot = findSlot(this, content, 0, 9);
 									if (slot != -1) {
 										if (sided.canExtractItem(s, content, face.getOpposite())) {
@@ -238,7 +238,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 					if (mode == FaceMode.ACTIVE_PUSH) {
 						for (int i = 9; i < 18; i++) {
 							ItemStack content = getStackInSlot(i);
-							if (content != null) {
+							if (!content.isEmpty()) {
 								int slot = findSlot(inv, content, 0, inv.getSizeInventory());
 								if (slot != -1) {
 									transfer(this, i, inv, slot);
@@ -248,7 +248,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 					} else if (mode == FaceMode.ACTIVE_PULL) {
 						for (int s = 0; s < inv.getSizeInventory(); s++) {
 							ItemStack content = inv.getStackInSlot(s);
-							if (content != null) {
+							if (!content.isEmpty()) {
 								int slot = findSlot(this, content, 0, 9);
 								if (slot != -1) {
 									transfer(inv, s, this, slot);
@@ -263,27 +263,25 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 
 	private static void transfer(IInventory fromInv, int fromSlot, IInventory toInv, int toSlot) {
 		ItemStack fromStack = fromInv.getStackInSlot(fromSlot);
-		if (fromStack == null) return;
-		int toTake = Math.min(fromStack.stackSize, Math.min(toInv.getInventoryStackLimit(), fromStack.getMaxStackSize()));
+		if (fromStack.isEmpty()) return;
+		int toTake = Math.min(fromStack.getCount(), Math.min(toInv.getInventoryStackLimit(), fromStack.getMaxStackSize()));
 		ItemStack toStack = toInv.getStackInSlot(toSlot);
-		if (toStack == null) {
+		if (toStack.isEmpty()) {
 			toStack = fromStack.splitStack(toTake);
 		} else {
-			toStack.stackSize += toTake;
-			fromStack.stackSize -= toTake;
+			toStack.setCount(toStack.getCount() + toTake);
+			fromStack.setCount(fromStack.getCount() - toTake);
 		}
-		if (fromStack.stackSize <= 0) {
-			fromInv.setInventorySlotContents(fromSlot, null);
-		}
+		fromInv.setInventorySlotContents(fromSlot, fromStack);
 		toInv.setInventorySlotContents(toSlot, toStack);
 	}
 
 	private static int findSlot(IInventory inv, ItemStack a, int start, int end) {
 		for (int i = start; i < end; i++) {
 			ItemStack b = inv.getStackInSlot(i);
-			if (b == null) {
+			if (b.isEmpty()) {
 				return i;
-			} else if (b.stackSize < b.getMaxStackSize() && b.stackSize < inv.getInventoryStackLimit()
+			} else if (b.getCount() < b.getMaxStackSize() && b.getCount() < inv.getInventoryStackLimit()
 					&& ItemStack.areItemsEqual(a, b) && ItemStack.areItemStackTagsEqual(a, b)) {
 				return i;
 			}
@@ -296,7 +294,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 			ItemStack b = inv.getStackInSlot(i);
 			if (b == null) {
 				return i;
-			} else if (b.stackSize < b.getMaxStackSize() && b.stackSize < inv.getInventoryStackLimit()
+			} else if (b.getCount() < b.getMaxStackSize() && b.getCount() < inv.getInventoryStackLimit()
 					&& ItemStack.areItemsEqual(a, b) && ItemStack.areItemStackTagsEqual(a, b)) {
 				return i;
 			}
@@ -380,7 +378,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 	}
 
 	@Override
-	public boolean isUseableByPlayer(EntityPlayer player) {
+	public boolean isUsableByPlayer(EntityPlayer player) {
 		return false;
 	}
 
@@ -415,6 +413,11 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 	@Override
 	public void clear() {
 		inv.clear();
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return inv.isEmpty();
 	}
 
 }

@@ -2,8 +2,6 @@ package io.github.elytra.correlated.block;
 
 import java.util.Random;
 
-import javax.annotation.Nullable;
-
 import io.github.elytra.correlated.Correlated;
 import io.github.elytra.correlated.tile.TileEntityImporterChest;
 import net.minecraft.block.Block;
@@ -14,7 +12,6 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
@@ -65,7 +62,7 @@ public class BlockImporterChest extends Block {
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
 		playerIn.openGui(Correlated.inst, 5, world, pos.getX(), pos.getY(), pos.getZ());
 		return true;
 	}
