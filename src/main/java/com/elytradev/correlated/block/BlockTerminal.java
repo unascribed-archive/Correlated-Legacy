@@ -150,7 +150,7 @@ public class BlockTerminal extends Block {
 				}
 			}
 			if (!world.isRemote) {
-				player.sendMessage(new TextComponentTranslation("msg.correlated.terminal_no_controller"));
+				player.sendMessage(new TextComponentTranslation("msg.correlated.terminal_no_power"));
 			}
 			return true;
 		}
