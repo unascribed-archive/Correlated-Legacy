@@ -187,6 +187,7 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 		receivers.clear();
 		interfaces.clear();
 		prototypes.clear();
+		memberTypes.clear();
 
 		int itr = 0;
 		while (!queue.isEmpty()) {
@@ -353,7 +354,7 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	
 	public void updateMemoryCache() {
 		if (!hasWorld() || world.isRemote) return;
-		maxMemory = 0;
+		maxMemory = 128;
 		for (TileEntityMemoryBay temb : memoryBays) {
 			if (temb.isInvalid()) continue;
 			for (int i = 0; i < 12; i++) {
