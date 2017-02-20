@@ -7,10 +7,11 @@ import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.block.BlockMemoryBay;
 import com.elytradev.correlated.helper.ItemStacks;
 import com.elytradev.correlated.item.ItemMemory;
+import com.elytradev.probe.api.IProbeData;
+import com.elytradev.probe.api.IProbeDataProvider;
+import com.elytradev.probe.api.UnitDictionary;
+import com.elytradev.probe.api.impl.ProbeData;
 import com.google.common.base.Predicates;
-import io.github.elytra.probe.api.IProbeData;
-import io.github.elytra.probe.api.IProbeDataProvider;
-import io.github.elytra.probe.api.impl.ProbeData;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -19,6 +20,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.capabilities.Capability;
@@ -188,8 +190,8 @@ public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITic
 					max += (im.getMaxBits(mem)/8D);
 				}
 			}
-			data.add(new ProbeData("Memory")
-					.withBar(0, max, max, "B"));
+			data.add(new ProbeData(new TextComponentTranslation("tooltip.correlated.memory"))
+					.withBar(0, max, max, UnitDictionary.BYTES));
 		}
 	}
 

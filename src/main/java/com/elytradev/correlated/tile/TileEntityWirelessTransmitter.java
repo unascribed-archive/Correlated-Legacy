@@ -6,8 +6,8 @@ import java.util.UUID;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.block.BlockWirelessEndpoint.State;
 
-import io.github.elytra.probe.api.IProbeData;
-import io.github.elytra.probe.api.IProbeDataProvider;
+import com.elytradev.probe.api.IProbeData;
+import com.elytradev.probe.api.IProbeDataProvider;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;

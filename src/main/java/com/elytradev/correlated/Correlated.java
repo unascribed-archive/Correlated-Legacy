@@ -70,7 +70,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
-import io.github.elytra.probe.api.IProbeDataProvider;
+import com.elytradev.probe.api.IProbeDataProvider;
 
 import com.elytradev.concrete.NetworkContext;
 import net.minecraft.block.Block;

@@ -13,8 +13,8 @@ import com.elytradev.correlated.storage.UserPreferences;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 
-import io.github.elytra.probe.api.IProbeData;
-import io.github.elytra.probe.api.IProbeDataProvider;
+import com.elytradev.probe.api.IProbeData;
+import com.elytradev.probe.api.IProbeDataProvider;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;

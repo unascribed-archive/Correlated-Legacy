@@ -84,7 +84,7 @@ public class ItemDrive extends Item {
 		} else {
 			idx = 512;
 			float usedBits = getKilobitsUsed(stack)/(float)getMaxKilobits(stack);
-			int x = (int)(usedBits*255f);
+			int x = (int)(usedBits*254f);
 			idx += x;
 			if (!dirty) {
 				idx += 256;

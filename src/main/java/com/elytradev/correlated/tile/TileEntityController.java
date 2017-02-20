@@ -11,6 +11,10 @@ import com.elytradev.correlated.helper.DriveComparator;
 import com.elytradev.correlated.item.ItemDrive;
 import com.elytradev.correlated.item.ItemMemory;
 import com.elytradev.correlated.storage.IDigitalStorage;
+import com.elytradev.probe.api.IProbeData;
+import com.elytradev.probe.api.IProbeDataProvider;
+import com.elytradev.probe.api.UnitDictionary;
+import com.elytradev.probe.api.impl.ProbeData;
 import com.google.common.base.Objects;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Lists;
@@ -20,15 +24,13 @@ import com.google.common.primitives.Ints;
 
 import gnu.trove.set.hash.TCustomHashSet;
 import gnu.trove.strategy.HashingStrategy;
-import io.github.elytra.probe.api.IProbeData;
-import io.github.elytra.probe.api.IProbeDataProvider;
-import io.github.elytra.probe.api.impl.ProbeData;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -655,12 +657,12 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	private final class ProbeCapability implements IProbeDataProvider {
 		@Override
 		public void provideProbeData(List<IProbeData> data) {
-			data.add(new ProbeData("Energy Stored")
-					.withBar(0, getEnergyStored(), getMaxEnergyStored(), "FU"));
-			data.add(new ProbeData("Energy Usage")
-					.withBar(0, getEnergyConsumedPerTick(), Correlated.inst.controllerCap, "FU/t"));
-			data.add(new ProbeData("Memory")
-					.withBar(0, getTotalUsedMemory()/8D, getMaxMemory()/8D, "B"));
+			data.add(new ProbeData(new TextComponentTranslation("tooltip.correlated.energy_stored"))
+					.withBar(0, getEnergyStored(), getMaxEnergyStored(), UnitDictionary.FORGE_ENERGY));
+			data.add(new ProbeData(new TextComponentTranslation("tooltip.correlated.energy_usage"))
+					.withBar(0, getEnergyConsumedPerTick(), Correlated.inst.controllerCap, UnitDictionary.FU_PER_TICK));
+			data.add(new ProbeData(new TextComponentTranslation("tooltip.correlated.memory"))
+					.withBar(0, getTotalUsedMemory()/8D, getMaxMemory()/8D, UnitDictionary.BYTES));
 			double storage = 0;
 			double maxStorage = 0;
 			for (ItemStack drive : drives) {
@@ -670,8 +672,8 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 					maxStorage += (id.getMaxKilobits(drive)/8D)*1024;
 				}
 			}
-			data.add(new ProbeData("Storage")
-					.withBar(0, storage, maxStorage, "B"));
+			data.add(new ProbeData(new TextComponentTranslation("tooltip.correlated.storage"))
+					.withBar(0, storage, maxStorage, UnitDictionary.BYTES));
 		}
 	}
 

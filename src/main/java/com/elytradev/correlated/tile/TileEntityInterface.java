@@ -2,12 +2,16 @@ package com.elytradev.correlated.tile;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import com.elytradev.correlated.Correlated;
 import com.google.common.base.Enums;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 
-import io.github.elytra.probe.api.IProbeData;
-import io.github.elytra.probe.api.IProbeDataProvider;
+import com.elytradev.probe.api.IProbeData;
+import com.elytradev.probe.api.IProbeDataProvider;
+import com.elytradev.probe.api.impl.ProbeData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
@@ -424,14 +428,20 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 		return inv.isEmpty();
 	}
 	
-	private Object probeCapability;
+	private Map<EnumFacing, Object> probeCapability = Maps.newEnumMap(EnumFacing.class);
+	private Object facelessProbeCapability;
 	
 	@Override
 	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
 		if (capability == null) return null;
 		if (capability == Correlated.PROBE) {
-			if (probeCapability == null) probeCapability = new ProbeCapability();
-			return (T)probeCapability;
+			if (facing == null) {
+				if (facelessProbeCapability == null) facelessProbeCapability = new ProbeCapability(null);
+				return (T)facelessProbeCapability;
+			} else {
+				if (!probeCapability.containsKey(facing)) probeCapability.put(facing, new ProbeCapability(facing));
+				return (T)probeCapability.get(facing);
+			}
 		}
 		return super.getCapability(capability, facing);
 	}
@@ -446,9 +456,33 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 	}
 	
 	private final class ProbeCapability implements IProbeDataProvider {
+		private final EnumFacing facing;
+		public ProbeCapability(EnumFacing facing) {
+			this.facing = facing;
+		}
+
 		@Override
 		public void provideProbeData(List<IProbeData> data) {
-			
+			if (facing != null) {
+				data.add(new ProbeData()
+						.withLabel(new TextComponentTranslation("tooltip.correlated.mode", new TextComponentTranslation("tooltip.correlated.iface.mode_"+getModeForFace(facing).getName()))));
+				data.add(new ProbeData()
+						.withLabel(new TextComponentTranslation("tooltip.correlated.side", new TextComponentTranslation("direction.correlated."+facing.getName()))));
+			}
+			ItemStack[] input = new ItemStack[9];
+			ItemStack[] output = new ItemStack[9];
+			for (int i = 0; i < 9; i++) {
+				input[i] = inv.getStackInSlot(i);
+			}
+			for (int i = 0; i < 9; i++) {
+				output[i] = inv.getStackInSlot(i+9);
+			}
+			data.add(new ProbeData()
+					.withLabel(new TextComponentTranslation("tooltip.correlated.input"))
+					.withInventory(ImmutableList.copyOf(input)));
+			data.add(new ProbeData()
+					.withLabel(new TextComponentTranslation("tooltip.correlated.output"))
+					.withInventory(ImmutableList.copyOf(output)));
 		}
 	}
 

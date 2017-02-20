@@ -10,8 +10,8 @@ import com.elytradev.correlated.CorrelatedWorldData.Transmitter;
 import com.elytradev.correlated.block.BlockWirelessEndpoint;
 import com.elytradev.correlated.block.BlockWirelessEndpoint.State;
 
-import io.github.elytra.probe.api.IProbeData;
-import io.github.elytra.probe.api.IProbeDataProvider;
+import com.elytradev.probe.api.IProbeData;
+import com.elytradev.probe.api.IProbeDataProvider;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;

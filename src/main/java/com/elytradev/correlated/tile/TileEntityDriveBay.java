@@ -9,9 +9,10 @@ import com.elytradev.correlated.helper.ItemStacks;
 import com.elytradev.correlated.item.ItemDrive;
 import com.google.common.collect.Iterators;
 
-import io.github.elytra.probe.api.IProbeData;
-import io.github.elytra.probe.api.IProbeDataProvider;
-import io.github.elytra.probe.api.impl.ProbeData;
+import com.elytradev.probe.api.IProbeData;
+import com.elytradev.probe.api.IProbeDataProvider;
+import com.elytradev.probe.api.UnitDictionary;
+import com.elytradev.probe.api.impl.ProbeData;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -19,6 +20,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.capabilities.Capability;
 import java.util.Arrays;
@@ -238,8 +240,8 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 					maxStorage += (id.getMaxKilobits(drive)/8D)*1024;
 				}
 			}
-			data.add(new ProbeData("Storage")
-					.withBar(0, storage, maxStorage, "B"));
+			data.add(new ProbeData(new TextComponentTranslation("tooltip.correlated.storage"))
+					.withBar(0, storage, maxStorage, UnitDictionary.BYTES));
 		}
 	}
 
