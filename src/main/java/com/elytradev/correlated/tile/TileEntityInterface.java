@@ -1,10 +1,13 @@
 package com.elytradev.correlated.tile;
 
 import java.util.Arrays;
+import java.util.List;
 
 import com.elytradev.correlated.Correlated;
 import com.google.common.base.Enums;
 
+import io.github.elytra.probe.api.IProbeData;
+import io.github.elytra.probe.api.IProbeDataProvider;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
@@ -20,6 +23,7 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants.NBT;
 
 public class TileEntityInterface extends TileEntityNetworkMember implements IInventory, ISidedInventory, ITickable {
@@ -303,7 +307,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 	}
 
 	@Override
-	public long getEnergyConsumedPerTick() {
+	public int getEnergyConsumedPerTick() {
 		return Correlated.inst.interfaceRfUsage;
 	}
 
@@ -418,6 +422,34 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 	@Override
 	public boolean isEmpty() {
 		return inv.isEmpty();
+	}
+	
+	private Object probeCapability;
+	
+	@Override
+	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+		if (capability == null) return null;
+		if (capability == Correlated.PROBE) {
+			if (probeCapability == null) probeCapability = new ProbeCapability();
+			return (T)probeCapability;
+		}
+		return super.getCapability(capability, facing);
+	}
+	
+	@Override
+	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+		if (capability == null) return false;
+		if (capability == Correlated.PROBE) {
+			return true;
+		}
+		return super.hasCapability(capability, facing);
+	}
+	
+	private final class ProbeCapability implements IProbeDataProvider {
+		@Override
+		public void provideProbeData(List<IProbeData> data) {
+			
+		}
 	}
 
 }

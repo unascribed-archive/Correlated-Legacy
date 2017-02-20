@@ -21,7 +21,6 @@ import com.elytradev.correlated.block.item.ItemBlockInterface;
 import com.elytradev.correlated.block.item.ItemBlockMemoryBay;
 import com.elytradev.correlated.block.item.ItemBlockTerminal;
 import com.elytradev.correlated.block.item.ItemBlockWirelessEndpoint;
-import com.elytradev.correlated.compat.WailaCompatibility;
 import com.elytradev.correlated.crafting.CRecipes;
 import com.elytradev.correlated.crafting.DriveRecipe;
 import com.elytradev.correlated.entity.EntityAutomaton;
@@ -399,9 +398,6 @@ public class Correlated {
 		
 		Opcode.init();
 		
-		if (Loader.isModLoaded("Waila") || Loader.isModLoaded("hwyla") || Loader.isModLoaded("waila")) {
-			WailaCompatibility.init();
-		}
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, new CorrelatedGuiHandler());
 		MinecraftForge.EVENT_BUS.register(this);
 		proxy.preInit();

@@ -1,21 +1,27 @@
 package com.elytradev.correlated.tile;
 
 import java.util.Arrays;
+import java.util.List;
 
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.block.BlockMemoryBay;
 import com.elytradev.correlated.helper.ItemStacks;
+import com.elytradev.correlated.item.ItemMemory;
 import com.google.common.base.Predicates;
-
+import io.github.elytra.probe.api.IProbeData;
+import io.github.elytra.probe.api.IProbeDataProvider;
+import io.github.elytra.probe.api.impl.ProbeData;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.common.capabilities.Capability;
 
 public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITickable {
 
@@ -61,7 +67,7 @@ public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITic
 	}
 
 	@Override
-	public long getEnergyConsumedPerTick() {
+	public int getEnergyConsumedPerTick() {
 		return Correlated.inst.memoryBayRfUsage;
 	}
 
@@ -149,6 +155,42 @@ public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITic
 
 	public boolean hasMemoryInSlot(int slot) {
 		return !memory[slot].isEmpty();
+	}
+	
+	private Object probeCapability;
+	
+	@Override
+	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+		if (capability == null) return null;
+		if (capability == Correlated.PROBE) {
+			if (probeCapability == null) probeCapability = new ProbeCapability();
+			return (T)probeCapability;
+		}
+		return super.getCapability(capability, facing);
+	}
+	
+	@Override
+	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+		if (capability == null) return false;
+		if (capability == Correlated.PROBE) {
+			return true;
+		}
+		return super.hasCapability(capability, facing);
+	}
+	
+	private final class ProbeCapability implements IProbeDataProvider {
+		@Override
+		public void provideProbeData(List<IProbeData> data) {
+			double max = 0;
+			for (ItemStack mem : memory) {
+				if (mem != null && mem.getItem() instanceof ItemMemory) {
+					ItemMemory im = (ItemMemory)mem.getItem();
+					max += (im.getMaxBits(mem)/8D);
+				}
+			}
+			data.add(new ProbeData("Memory")
+					.withBar(0, max, max, "B"));
+		}
 	}
 
 }

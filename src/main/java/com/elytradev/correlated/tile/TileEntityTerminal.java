@@ -13,6 +13,8 @@ import com.elytradev.correlated.storage.UserPreferences;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 
+import io.github.elytra.probe.api.IProbeData;
+import io.github.elytra.probe.api.IProbeDataProvider;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -27,6 +29,7 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants.NBT;
 
 public class TileEntityTerminal extends TileEntityNetworkMember implements ITickable, IInventory, ITerminal, ISidedInventory {
@@ -121,7 +124,7 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 	}
 	
 	@Override
-	public long getEnergyConsumedPerTick() {
+	public int getEnergyConsumedPerTick() {
 		return Correlated.inst.terminalRfUsage;
 	}
 
@@ -334,6 +337,32 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 		return inv.isEmpty();
 	}
 	
+	private Object probeCapability;
 	
+	@Override
+	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+		if (capability == null) return null;
+		if (capability == Correlated.PROBE) {
+			if (probeCapability == null) probeCapability = new ProbeCapability();
+			return (T)probeCapability;
+		}
+		return super.getCapability(capability, facing);
+	}
+	
+	@Override
+	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+		if (capability == null) return false;
+		if (capability == Correlated.PROBE) {
+			return true;
+		}
+		return super.hasCapability(capability, facing);
+	}
+	
+	private final class ProbeCapability implements IProbeDataProvider {
+		@Override
+		public void provideProbeData(List<IProbeData> data) {
+			// do nothing, just suppress the default behavior
+		}
+	}
 
 }

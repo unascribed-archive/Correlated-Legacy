@@ -1,6 +1,7 @@
 package com.elytradev.correlated.tile;
 
 import java.util.Iterator;
+import java.util.List;
 
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.block.BlockDriveBay;
@@ -8,20 +9,24 @@ import com.elytradev.correlated.helper.ItemStacks;
 import com.elytradev.correlated.item.ItemDrive;
 import com.google.common.collect.Iterators;
 
+import io.github.elytra.probe.api.IProbeData;
+import io.github.elytra.probe.api.IProbeDataProvider;
+import io.github.elytra.probe.api.impl.ProbeData;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.world.WorldServer;
-
+import net.minecraftforge.common.capabilities.Capability;
 import java.util.Arrays;
 
 public class TileEntityDriveBay extends TileEntityNetworkMember implements ITickable, Iterable<ItemStack> {
 
 	private ItemStack[] drives = new ItemStack[8];
-	private long consumedPerTick = Correlated.inst.driveBayRfUsage;
+	private int consumedPerTick = Correlated.inst.driveBayRfUsage;
 	
 	public TileEntityDriveBay() {
 		Arrays.fill(drives, ItemStack.EMPTY);
@@ -63,7 +68,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 	}
 
 	@Override
-	public long getEnergyConsumedPerTick() {
+	public int getEnergyConsumedPerTick() {
 		return consumedPerTick;
 	}
 
@@ -141,7 +146,6 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 	}
 
 	public void blinkDriveInSlot(int slot) {
-		System.out.println("blink "+slot+"!");
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setBoolean("UpdateUsedBits", true);
 		ItemStack drive = drives[slot];
@@ -170,7 +174,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 	}
 
 	private void onDriveChange() {
-		long old = consumedPerTick;
+		int old = consumedPerTick;
 		consumedPerTick = Correlated.inst.driveBayRfUsage;
 		for (ItemStack is : drives) {
 			if (is.getItem() instanceof ItemDrive) {
@@ -199,6 +203,44 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 	public void clear() {
 		Arrays.fill(drives, ItemStack.EMPTY);
 		onDriveChange();
+	}
+	
+	private Object probeCapability;
+	
+	@Override
+	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+		if (capability == null) return null;
+		if (capability == Correlated.PROBE) {
+			if (probeCapability == null) probeCapability = new ProbeCapability();
+			return (T)probeCapability;
+		}
+		return super.getCapability(capability, facing);
+	}
+	
+	@Override
+	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+		if (capability == null) return false;
+		if (capability == Correlated.PROBE) {
+			return true;
+		}
+		return super.hasCapability(capability, facing);
+	}
+	
+	private final class ProbeCapability implements IProbeDataProvider {
+		@Override
+		public void provideProbeData(List<IProbeData> data) {
+			double storage = 0;
+			double maxStorage = 0;
+			for (ItemStack drive : drives) {
+				if (drive != null && drive.getItem() instanceof ItemDrive) {
+					ItemDrive id = (ItemDrive)drive.getItem();
+					storage += (id.getKilobitsUsed(drive)/8D)*1024;
+					maxStorage += (id.getMaxKilobits(drive)/8D)*1024;
+				}
+			}
+			data.add(new ProbeData("Storage")
+					.withBar(0, storage, maxStorage, "B"));
+		}
 	}
 
 }

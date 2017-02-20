@@ -2,6 +2,7 @@ package com.elytradev.correlated.tile;
 
 import static net.minecraft.util.math.MathHelper.*;
 
+import java.util.List;
 import java.util.UUID;
 
 import com.elytradev.correlated.Correlated;
@@ -9,14 +10,18 @@ import com.elytradev.correlated.CorrelatedWorldData.Transmitter;
 import com.elytradev.correlated.block.BlockWirelessEndpoint;
 import com.elytradev.correlated.block.BlockWirelessEndpoint.State;
 
+import io.github.elytra.probe.api.IProbeData;
+import io.github.elytra.probe.api.IProbeDataProvider;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.common.capabilities.Capability;
 
 public class TileEntityWirelessReceiver extends TileEntityWirelessEndpoint {
 	private UUID transmitter;
@@ -162,8 +167,36 @@ public class TileEntityWirelessReceiver extends TileEntityWirelessEndpoint {
 	}
 
 	@Override
-	public long getEnergyConsumedPerTick() {
+	public int getEnergyConsumedPerTick() {
 		return Correlated.inst.receiverRfUsage;
+	}
+	
+	private Object probeCapability;
+	
+	@Override
+	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+		if (capability == null) return null;
+		if (capability == Correlated.PROBE) {
+			if (probeCapability == null) probeCapability = new ProbeCapability();
+			return (T)probeCapability;
+		}
+		return super.getCapability(capability, facing);
+	}
+	
+	@Override
+	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+		if (capability == null) return false;
+		if (capability == Correlated.PROBE) {
+			return true;
+		}
+		return super.hasCapability(capability, facing);
+	}
+	
+	private final class ProbeCapability implements IProbeDataProvider {
+		@Override
+		public void provideProbeData(List<IProbeData> data) {
+			// TODO should we display who we're linked to somehow? showing a UUID directly isn't very user-friendly...
+		}
 	}
 	
 }

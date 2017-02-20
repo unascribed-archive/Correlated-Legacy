@@ -20,6 +20,9 @@ import com.google.common.primitives.Ints;
 
 import gnu.trove.set.hash.TCustomHashSet;
 import gnu.trove.strategy.HashingStrategy;
+import io.github.elytra.probe.api.IProbeData;
+import io.github.elytra.probe.api.IProbeDataProvider;
+import io.github.elytra.probe.api.impl.ProbeData;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -35,8 +38,8 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	public boolean error = false;
 	public boolean booting = true;
 	public String errorReason;
-	private long consumedPerTick = Correlated.inst.controllerRfUsage;
-	private long energyCapacity = Correlated.inst.controllerCapacity;
+	private int consumedPerTick = Correlated.inst.controllerRfUsage;
+	private int energyCapacity = Correlated.inst.controllerCapacity;
 	public int bootTicks = 0;
 	private int totalScanned = 0;
 	private transient Set<BlockPos> networkMemberLocations = Sets.newHashSet();
@@ -52,8 +55,8 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	
 	private long maxMemory = 0;
 	
-	// Measured in Teslas, also accepts RF and CapabilityEnergy
-	private long energy;
+	// Measured in FUs
+	private int energy;
 	
 	public TileEntityController() {
 		prototypes = new TCustomHashSet<>(new HashingStrategy<ItemStack>() {
@@ -97,7 +100,7 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
-		energy = compound.getLong("Energy");
+		energy = compound.getInteger("Energy");
 		if (energy > energyCapacity) energy = energyCapacity;
 	}
 
@@ -142,7 +145,7 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	}
 
 	@Override
-	public long getEnergyConsumedPerTick() {
+	public int getEnergyConsumedPerTick() {
 		return consumedPerTick;
 	}
 
@@ -244,7 +247,7 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 			te.setController(this);
 		}
 		totalScanned = itr;
-		long energyUsage = Correlated.inst.controllerRfUsage;
+		int energyUsage = Correlated.inst.controllerRfUsage;
 		for (TileEntityNetworkMember tenm : members) {
 			energyUsage += tenm.getEnergyConsumedPerTick();
 		}
@@ -364,7 +367,7 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 		booting = true;
 	}
 
-	public void updateConsumptionRate(long change) {
+	public void updateConsumptionRate(int change) {
 		consumedPerTick += change;
 		if (consumedPerTick > Correlated.inst.controllerCap) {
 			error = true;
@@ -579,7 +582,7 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	
 	
 	
-	public void modifyEnergyStored(long energy) {
+	public void modifyEnergyStored(int energy) {
 		this.energy += energy;
 		if (this.energy > energyCapacity) {
 			this.energy = energyCapacity;
@@ -588,21 +591,15 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 		}
 	}
 	
-	public long receiveEnergy(long maxReceive, boolean simulate) {
-		long energyReceived = Math.min(energyCapacity - energy,
+	@Override
+	public int receiveEnergy(int maxReceive, boolean simulate) {
+		int energyReceived = Math.min(energyCapacity - energy,
 				Math.min(Correlated.inst.controllerCap+1, maxReceive));
 
 		if (!simulate) {
 			energy += energyReceived;
 		}
 		return energyReceived;
-	}
-	
-	
-	
-	@Override
-	public int receiveEnergy(int maxReceive, boolean simulate) {
-		return Ints.saturatedCast(receiveEnergy((long)maxReceive, simulate));
 	}
 
 	@Override
@@ -630,12 +627,16 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 		return true;
 	}
 	
+	private Object probeCapability;
 	
 	@Override
 	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
 		if (capability == null) return null;
 		if (capability == CapabilityEnergy.ENERGY) {
 			return (T)this;
+		} else if (capability == Correlated.PROBE) {
+			if (probeCapability == null) probeCapability = new ProbeCapability();
+			return (T)probeCapability;
 		}
 		return super.getCapability(capability, facing);
 	}
@@ -645,8 +646,33 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 		if (capability == null) return false;
 		if (capability == CapabilityEnergy.ENERGY) {
 			return true;
+		} else if (capability == Correlated.PROBE) {
+			return true;
 		}
 		return super.hasCapability(capability, facing);
+	}
+	
+	private final class ProbeCapability implements IProbeDataProvider {
+		@Override
+		public void provideProbeData(List<IProbeData> data) {
+			data.add(new ProbeData("Energy Stored")
+					.withBar(0, getEnergyStored(), getMaxEnergyStored(), "FU"));
+			data.add(new ProbeData("Energy Usage")
+					.withBar(0, getEnergyConsumedPerTick(), Correlated.inst.controllerCap, "FU/t"));
+			data.add(new ProbeData("Memory")
+					.withBar(0, getTotalUsedMemory()/8D, getMaxMemory()/8D, "B"));
+			double storage = 0;
+			double maxStorage = 0;
+			for (ItemStack drive : drives) {
+				if (drive != null && drive.getItem() instanceof ItemDrive) {
+					ItemDrive id = (ItemDrive)drive.getItem();
+					storage += (id.getKilobitsUsed(drive)/8D)*1024;
+					maxStorage += (id.getMaxKilobits(drive)/8D)*1024;
+				}
+			}
+			data.add(new ProbeData("Storage")
+					.withBar(0, storage, maxStorage, "B"));
+		}
 	}
 
 }
