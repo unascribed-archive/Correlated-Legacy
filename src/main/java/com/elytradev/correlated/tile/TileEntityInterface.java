@@ -255,13 +255,13 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 	}
 
 	private static void transfer(IItemHandler fromInv, int fromSlot, IItemHandler toInv, int toSlot) {
-		ItemStack taken = fromInv.extractItem(fromSlot, fromInv.getSlotLimit(fromSlot), false);
-		ItemStack remaining = toInv.insertItem(toSlot, taken, false);
+		ItemStack available = fromInv.extractItem(fromSlot, fromInv.getSlotLimit(fromSlot), true);
+		ItemStack existing = toInv.insertItem(toSlot, available, true);
+		int toTake = available.getCount()-existing.getCount();
+		System.out.println(toTake);
+		ItemStack remaining = toInv.insertItem(toSlot, fromInv.extractItem(fromSlot, toTake, false), false);
 		if (!remaining.isEmpty()) {
-			ItemStack leftover = fromInv.insertItem(fromSlot, remaining, false);
-			if (!leftover.isEmpty()) {
-				Correlated.log.warn("Accidentally disappeared {} items into the ether", leftover.getCount());
-			}
+			Correlated.log.warn("Accidentally disappeared {} items into the ether", remaining.getCount());
 		}
 	}
 
