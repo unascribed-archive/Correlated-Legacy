@@ -258,7 +258,6 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 		ItemStack available = fromInv.extractItem(fromSlot, fromInv.getSlotLimit(fromSlot), true);
 		ItemStack existing = toInv.insertItem(toSlot, available, true);
 		int toTake = available.getCount()-existing.getCount();
-		System.out.println(toTake);
 		ItemStack remaining = toInv.insertItem(toSlot, fromInv.extractItem(fromSlot, toTake, false), false);
 		if (!remaining.isEmpty()) {
 			Correlated.log.warn("Accidentally disappeared {} items into the ether", remaining.getCount());
