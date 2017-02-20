@@ -29,7 +29,12 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants.NBT;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraftforge.items.wrapper.SidedInvWrapper;
 
+// I hate this entire class.
 public class TileEntityInterface extends TileEntityNetworkMember implements IInventory, ISidedInventory, ITickable {
 	public enum FaceMode implements IStringSerializable {
 		PASSIVE,
@@ -62,6 +67,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 	}
 	private InventoryBasic inv = new InventoryBasic("container.interface", false, 18);
 	private ItemStack[] prototypes = new ItemStack[9];
+	private InvWrapper selfInvWrapper = new InvWrapper(this);
 
 	private FaceMode[] modes = new FaceMode[6];
 
@@ -210,57 +216,36 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 				FaceMode mode = getModeForFace(face);
 				if (mode == FaceMode.DISABLED || mode == FaceMode.PASSIVE) continue;
 				TileEntity other = world.getTileEntity(getPos().offset(face));
-				if (!(other instanceof IInventory)) continue;
-				if (other instanceof ISidedInventory) {
-					ISidedInventory sided = (ISidedInventory)other;
-					int[] slots = sided.getSlotsForFace(face.getOpposite());
-					if (slots != null && slots.length > 0) {
-						if (mode == FaceMode.ACTIVE_PUSH) {
-							for (int i = 9; i < 18; i++) {
-								ItemStack content = getStackInSlot(i);
-								if (!content.isEmpty()) {
-									int slot = findSlot(sided, content, slots);
-									if (slot != -1) {
-										if (sided.canInsertItem(slot, content, face.getOpposite())) {
-											transfer(this, i, sided, slot);
-										}
-									}
-								}
-							}
-						} else if (mode == FaceMode.ACTIVE_PULL) {
-							for (int s : slots) {
-								ItemStack content = sided.getStackInSlot(s);
-								if (!content.isEmpty()) {
-									int slot = findSlot(this, content, 0, 9);
-									if (slot != -1) {
-										if (sided.canExtractItem(s, content, face.getOpposite())) {
-											transfer(sided, s, this, slot);
-										}
-									}
-								}
+				if (other == null) continue;
+				IItemHandler inv;
+				if (other.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, face.getOpposite())) {
+					inv = other.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, face.getOpposite());
+				} else {
+					if (other instanceof ISidedInventory) {
+						inv = new SidedInvWrapper((ISidedInventory)other, face.getOpposite());
+					} else if (other instanceof IInventory) {
+						inv = new InvWrapper((IInventory)other);
+					} else {
+						continue;
+					}
+				}
+				if (mode == FaceMode.ACTIVE_PUSH) {
+					for (int i = 9; i < 18; i++) {
+						ItemStack content = getStackInSlot(i);
+						if (!content.isEmpty()) {
+							int slot = findSlot(inv, content, 0, inv.getSlots());
+							if (slot != -1) {
+								transfer(selfInvWrapper, i, inv, slot);
 							}
 						}
 					}
-				} else if (other instanceof IInventory) {
-					IInventory inv = (IInventory)other;
-					if (mode == FaceMode.ACTIVE_PUSH) {
-						for (int i = 9; i < 18; i++) {
-							ItemStack content = getStackInSlot(i);
-							if (!content.isEmpty()) {
-								int slot = findSlot(inv, content, 0, inv.getSizeInventory());
-								if (slot != -1) {
-									transfer(this, i, inv, slot);
-								}
-							}
-						}
-					} else if (mode == FaceMode.ACTIVE_PULL) {
-						for (int s = 0; s < inv.getSizeInventory(); s++) {
-							ItemStack content = inv.getStackInSlot(s);
-							if (!content.isEmpty()) {
-								int slot = findSlot(this, content, 0, 9);
-								if (slot != -1) {
-									transfer(inv, s, this, slot);
-								}
+				} else if (mode == FaceMode.ACTIVE_PULL) {
+					for (int s = 0; s < inv.getSlots(); s++) {
+						ItemStack content = inv.getStackInSlot(s);
+						if (!content.isEmpty()) {
+							int slot = findSlot(selfInvWrapper, content, 0, 9);
+							if (slot != -1) {
+								transfer(inv, s, selfInvWrapper, slot);
 							}
 						}
 					}
@@ -269,40 +254,23 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 		}
 	}
 
-	private static void transfer(IInventory fromInv, int fromSlot, IInventory toInv, int toSlot) {
-		ItemStack fromStack = fromInv.getStackInSlot(fromSlot);
-		if (fromStack.isEmpty()) return;
-		int toTake = Math.min(fromStack.getCount(), Math.min(toInv.getInventoryStackLimit(), fromStack.getMaxStackSize()));
-		ItemStack toStack = toInv.getStackInSlot(toSlot);
-		if (toStack.isEmpty()) {
-			toStack = fromStack.splitStack(toTake);
-		} else {
-			toStack.setCount(toStack.getCount() + toTake);
-			fromStack.setCount(fromStack.getCount() - toTake);
+	private static void transfer(IItemHandler fromInv, int fromSlot, IItemHandler toInv, int toSlot) {
+		ItemStack taken = fromInv.extractItem(fromSlot, fromInv.getSlotLimit(fromSlot), false);
+		ItemStack remaining = toInv.insertItem(toSlot, taken, false);
+		if (!remaining.isEmpty()) {
+			ItemStack leftover = fromInv.insertItem(fromSlot, remaining, false);
+			if (!leftover.isEmpty()) {
+				Correlated.log.warn("Accidentally disappeared {} items into the ether", leftover.getCount());
+			}
 		}
-		fromInv.setInventorySlotContents(fromSlot, fromStack);
-		toInv.setInventorySlotContents(toSlot, toStack);
 	}
 
-	private static int findSlot(IInventory inv, ItemStack a, int start, int end) {
+	private static int findSlot(IItemHandler inv, ItemStack a, int start, int end) {
 		for (int i = start; i < end; i++) {
 			ItemStack b = inv.getStackInSlot(i);
 			if (b.isEmpty()) {
 				return i;
-			} else if (b.getCount() < b.getMaxStackSize() && b.getCount() < inv.getInventoryStackLimit()
-					&& ItemStack.areItemsEqual(a, b) && ItemStack.areItemStackTagsEqual(a, b)) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	private static int findSlot(IInventory inv, ItemStack a, int[] slots) {
-		for (int i : slots) {
-			ItemStack b = inv.getStackInSlot(i);
-			if (b == null) {
-				return i;
-			} else if (b.getCount() < b.getMaxStackSize() && b.getCount() < inv.getInventoryStackLimit()
+			} else if (b.getCount() < b.getMaxStackSize() && b.getCount() < inv.getSlotLimit(i)
 					&& ItemStack.areItemsEqual(a, b) && ItemStack.areItemStackTagsEqual(a, b)) {
 				return i;
 			}
