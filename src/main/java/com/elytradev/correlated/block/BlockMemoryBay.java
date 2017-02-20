@@ -83,7 +83,7 @@ public class BlockMemoryBay extends Block {
 			for (int i = 0; i < 12; i++) {
 				if (temb.hasMemoryInSlot(i)) {
 					spawnAsEntity(world, pos, temb.getMemoryInSlot(i));
-					temb.setMemoryInSlot(i, null);
+					temb.setMemoryInSlot(i, ItemStack.EMPTY);
 				}
 			}
 		}

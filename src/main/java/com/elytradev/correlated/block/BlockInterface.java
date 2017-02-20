@@ -91,7 +91,7 @@ public class BlockInterface extends Block implements ITweakable {
 				ItemStack is = tei.getStackInSlot(i);
 				if (is != null) {
 					spawnAsEntity(world, pos, is);
-					tei.setInventorySlotContents(i, null);
+					tei.setInventorySlotContents(i, ItemStack.EMPTY);
 				}
 			}
 		}
