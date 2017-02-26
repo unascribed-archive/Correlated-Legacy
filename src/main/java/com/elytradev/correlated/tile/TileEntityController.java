@@ -402,6 +402,7 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	@Override
 	public InsertResult addItemToNetwork(ItemStack stack) {
 		if (error) return InsertResult.refused(stack);
+		if (stack == null || stack.isEmpty()) return InsertResult.success(stack);
 		boolean hasCheckedMemory = false;
 		Multiset<Result> results = EnumMultiset.create(Result.class);
 		for (ItemStack drive : drives) {
@@ -451,7 +452,8 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 			}
 			return new InsertResult(result, stack);
 		}
-		return stack.isEmpty() ? InsertResult.success(stack) : InsertResult.insufficientStorage(stack);
+		return stack.isEmpty() ? results.count(Result.SUCCESS_VOIDED) > results.count(Result.SUCCESS) ?
+				InsertResult.successVoided(stack) : InsertResult.success(stack) : InsertResult.insufficientStorage(stack);
 	}
 
 	@Override

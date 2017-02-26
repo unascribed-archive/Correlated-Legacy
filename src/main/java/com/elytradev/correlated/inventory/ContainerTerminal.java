@@ -16,6 +16,7 @@ import com.elytradev.correlated.network.SetSearchQueryClientMessage;
 import com.elytradev.correlated.network.SetSlotSizeMessage;
 import com.elytradev.correlated.storage.ITerminal;
 import com.elytradev.correlated.storage.InsertResult;
+import com.elytradev.correlated.storage.InsertResult.Result;
 import com.elytradev.correlated.storage.UserPreferences;
 import com.elytradev.correlated.tile.TileEntityController;
 import com.elytradev.correlated.tile.TileEntityTerminal;
@@ -293,6 +294,7 @@ public class ContainerTerminal extends Container {
 		}
 		List<ItemStack> types = Lists.newArrayList();
 		outer: for (ItemStack is : typesAll) {
+			if (is.isEmpty()) continue;
 			for (ItemStack existing : types) {
 				if (ItemStack.areItemsEqual(is, existing) && ItemStack.areItemStackTagsEqual(is, existing)) {
 					existing.setCount(existing.getCount()+is.getCount());
@@ -436,16 +438,20 @@ public class ContainerTerminal extends Container {
 		if (!ir.wasSuccessful()) {
 			addStatusLine(new TextComponentTranslation("msg.correlated.insertFailed", new TextComponentTranslation("msg.correlated.insertFailed."+ir.result.name().toLowerCase(Locale.ROOT))));
 		} else {
-			long endingMem = 0;
-			long endingDiskFree = terminal.getStorage().getKilobitsStorageFree();
-			if (terminal.getStorage() instanceof TileEntityController) {
-				endingMem = ((TileEntityController)terminal.getStorage()).getUsedTypeMemory();
-			}
-			long memChange = endingMem-startingMem;
-			if (memChange != 0) {
-				addStatusLine(new TextComponentTranslation("msg.correlated.insertSuccessMem", Numbers.humanReadableBits(memChange), Numbers.humanReadableBits((startingDiskFree-endingDiskFree)*1024)));
+			if (ir.result == Result.SUCCESS_VOIDED) {
+				addStatusLine(new TextComponentTranslation("msg.correlated.insertSuccessVoid"));
 			} else {
-				addStatusLine(new TextComponentTranslation("msg.correlated.insertSuccess", Numbers.humanReadableBits((startingDiskFree-endingDiskFree)*1024)));
+				long endingMem = 0;
+				long endingDiskFree = terminal.getStorage().getKilobitsStorageFree();
+				if (terminal.getStorage() instanceof TileEntityController) {
+					endingMem = ((TileEntityController)terminal.getStorage()).getUsedTypeMemory();
+				}
+				long memChange = endingMem-startingMem;
+				if (memChange != 0) {
+					addStatusLine(new TextComponentTranslation("msg.correlated.insertSuccessMem", Numbers.humanReadableBits(memChange), Numbers.humanReadableBits((startingDiskFree-endingDiskFree)*1024)));
+				} else {
+					addStatusLine(new TextComponentTranslation("msg.correlated.insertSuccess", Numbers.humanReadableBits((startingDiskFree-endingDiskFree)*1024)));
+				}
 			}
 		}
 		return ir;

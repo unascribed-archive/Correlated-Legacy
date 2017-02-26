@@ -206,6 +206,10 @@ public class ItemDrive extends Item {
 				NBTTagCompound compound = ((NBTTagCompound)base);
 				complexity += 4;
 				for (String k : compound.getKeySet()) {
+					// Forestry extensively uses NBT in a way most mods don't
+					// Don't penalize it for trying to save item IDs
+					if (k.startsWith("forestry.")) continue;
+					
 					complexity += getStringComplexity(k);
 					NBTBase tag = compound.getTag(k);
 					if ("Count".equals(k) || "Amount".equals(k) && tag instanceof NBTPrimitive) {
@@ -313,7 +317,7 @@ public class ItemDrive extends Item {
 	}
 
 	protected NBTTagCompound createPrototype(ItemStack item) {
-		if (item == null)
+		if (item.isEmpty())
 			return null;
 		NBTTagCompound prototype = item.writeToNBT(new NBTTagCompound());
 		prototype.removeTag("Count");
@@ -363,13 +367,17 @@ public class ItemDrive extends Item {
 	 * 		accepted or not, and if not, why
 	 */
 	public InsertResult addItem(ItemStack drive, ItemStack item, boolean simulate) {
-		if (item == null || item.isEmpty()) return InsertResult.success(item);
+		if (item == null || item.isEmpty()) {
+			return InsertResult.success(item);
+		}
 		if (getMaxKilobits(drive) == -1) {
 			if (getPartitioningMode(drive) == PartitioningMode.NONE || findDataIndexForPrototype(drive, createPrototype(item)) != -1) {
-				item.setCount(0);
-				markDirty(drive);
+				if (!simulate) {
+					item.setCount(0);
+					markDirty(drive);
+				}
+				return InsertResult.successVoided(item);
 			}
-			return InsertResult.successVoided(item);
 		}
 		if (getPartitioningMode(drive) != PartitioningMode.NONE && findDataForPrototype(drive, createPrototype(item)) == null) {
 			return InsertResult.itemIncompatible(item);
