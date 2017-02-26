@@ -26,6 +26,8 @@ import gnu.trove.set.hash.TCustomHashSet;
 import gnu.trove.strategy.HashingStrategy;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
@@ -56,6 +58,11 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	private boolean checkingInfiniteLoop = false;
 	
 	private long maxMemory = 0;
+	
+	private long clientMemoryMax;
+	private long clientMemoryUsed;
+	private int clientEnergy;
+	private int clientEnergyMax;
 	
 	// Measured in FUs
 	private int energy;
@@ -142,6 +149,12 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 			errorReason = null;
 			bootTicks = 0;
 			booting = true;
+		}
+		if (getClientEnergy() != getEnergyStored() ||
+				getClientEnergyMax() != getMaxEnergyStored() ||
+				getClientMemoryMax() != getMaxMemory() ||
+				getClientMemoryUsed() != getTotalUsedMemory()) {
+			Correlated.sendUpdatePacket(this);
 		}
 		updateState();
 	}
@@ -474,7 +487,7 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	}
 	
 	private long getMemoryUsage(ItemStack is) {
-		return (8L + ItemDrive.getNBTComplexity(is.getTagCompound()));
+		return (128L + ItemDrive.getNBTComplexity(is.getTagCompound()));
 	}
 	
 	public long getUsedTypeMemory() {
@@ -581,6 +594,49 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	@Override
 	public int getChangeId() {
 		return changeId;
+	}
+	
+	
+	@Override
+	public SPacketUpdateTileEntity getUpdatePacket() {
+		return new SPacketUpdateTileEntity(getPos(), 0, getUpdateTag());
+	}
+	
+	@Override
+	public NBTTagCompound getUpdateTag() {
+		NBTTagCompound nbt = new NBTTagCompound();
+		nbt.setInteger("x", getPos().getX());
+		nbt.setInteger("y", getPos().getY());
+		nbt.setInteger("z", getPos().getZ());
+		nbt.setLong("MemoryUsed", clientMemoryUsed = getTotalUsedMemory());
+		nbt.setLong("MemoryMax", clientMemoryMax = getMaxMemory());
+		nbt.setInteger("Energy", clientEnergy = getEnergyStored());
+		nbt.setInteger("EnergyMax", clientEnergyMax = getMaxEnergyStored());
+		return nbt;
+	}
+	
+	@Override
+	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+		clientMemoryUsed = pkt.getNbtCompound().getLong("MemoryUsed");
+		clientMemoryMax = pkt.getNbtCompound().getLong("MemoryMax");
+		clientEnergy = pkt.getNbtCompound().getInteger("Energy");
+		clientEnergyMax = pkt.getNbtCompound().getInteger("EnergyMax");
+	}
+	
+	public int getClientEnergy() {
+		return clientEnergy;
+	}
+	
+	public int getClientEnergyMax() {
+		return clientEnergyMax;
+	}
+	
+	public long getClientMemoryMax() {
+		return clientMemoryMax;
+	}
+	
+	public long getClientMemoryUsed() {
+		return clientMemoryUsed;
 	}
 	
 	

@@ -496,6 +496,8 @@ public class ClientProxy extends Proxy {
 		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/wireless_endpoint_error"));
 		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/wireless_endpoint_linked"));
 		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/terminal_error_glow"));
+		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/controller_power_light"));
+		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/controller_memory_light"));
 		e.getMap().registerSprite(new ResourceLocation("correlated", "items/wireless_terminal_glow"));
 		e.getMap().registerSprite(new ResourceLocation("correlated", "items/doc_tablet_glow"));
 		e.getMap().registerSprite(new ResourceLocation("correlated", "items/keycard_glow"));

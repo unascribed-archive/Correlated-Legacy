@@ -161,7 +161,9 @@ public class TileEntityWirelessReceiver extends TileEntityWirelessEndpoint {
 		Transmitter t = getTransmitter();
 		TileEntity te = getWorld().getTileEntity(t.position);
 		if (te != null && te instanceof TileEntityWirelessTransmitter) {
-			return ((TileEntityWirelessTransmitter)te).getStorage();
+			TileEntityController controller = ((TileEntityWirelessTransmitter)te).getStorage();
+			if (controller == null || !controller.isPowered()) return null;
+			return controller;
 		}
 		return null;
 	}

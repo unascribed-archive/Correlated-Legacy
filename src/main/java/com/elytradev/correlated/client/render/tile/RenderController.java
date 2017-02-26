@@ -6,7 +6,6 @@ import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.block.BlockController;
 import com.elytradev.correlated.block.BlockController.State;
 import com.elytradev.correlated.tile.TileEntityController;
-
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -17,9 +16,12 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.util.ResourceLocation;
 
 public class RenderController extends TileEntitySpecialRenderer<TileEntityController> {
 
+	private static final ResourceLocation LIGHT = new ResourceLocation("correlated", "textures/misc/controller_light.png");
+	
 	@Override
 	public void renderTileEntityAt(TileEntityController te, double x, double y, double z, float partialTicks, int destroyStage) {
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
@@ -48,6 +50,9 @@ public class RenderController extends TileEntitySpecialRenderer<TileEntityContro
 		String sideTex = topTex+"_side";
 		TextureAtlasSprite top = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(topTex);
 		TextureAtlasSprite side = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(sideTex);
+		TextureAtlasSprite powerLight = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("correlated:blocks/controller_power_light");
+		TextureAtlasSprite memoryLight = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("correlated:blocks/controller_memory_light");
+		
 		float minUTop = top.getMinU();
 		float maxUTop = top.getMaxU();
 		float minVTop = top.getMinV();
@@ -56,52 +61,79 @@ public class RenderController extends TileEntitySpecialRenderer<TileEntityContro
 		float maxUSide = side.getMaxU();
 		float minVSide = side.getMinV();
 		float maxVSide = side.getMaxV();
+		
+		float minUPowerLight = powerLight.getMinU();
+		float maxUPowerLight = powerLight.getMaxU();
+		float minVPowerLight = powerLight.getMinV();
+		float maxVPowerLight = powerLight.getMaxV();
+		float minUMemoryLight = memoryLight.getMinU();
+		float maxUMemoryLight = memoryLight.getMaxU();
+		float minVMemoryLight = memoryLight.getMinV();
+		float maxVMemoryLight = memoryLight.getMaxV();
 
 		GlStateManager.color(1, 1, 1);
 
 		Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		if (state != State.OFF) {
-			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
-			GlStateManager.disableLighting();
-		}
+		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
+		GlStateManager.disableLighting();
+		
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(x, y, z);
+		GlStateManager.disableCull();
 
 		Tessellator tess = Tessellator.getInstance();
 		VertexBuffer wr = tess.getBuffer();
-		wr.setTranslation(x, y, z);
 		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-
-		wr.pos(0, 0, 1.001).tex(minUSide, maxVSide).endVertex();
-		wr.pos(1, 0, 1.001).tex(maxUSide, maxVSide).endVertex();
-		wr.pos(1, 1, 1.001).tex(maxUSide, minVSide).endVertex();
-		wr.pos(0, 1, 1.001).tex(minUSide, minVSide).endVertex();
-
-		wr.pos(0, 0, -0.001).tex(maxUSide, maxVSide).endVertex();
-		wr.pos(0, 1, -0.001).tex(maxUSide, minVSide).endVertex();
-		wr.pos(1, 1, -0.001).tex(minUSide, minVSide).endVertex();
-		wr.pos(1, 0, -0.001).tex(minUSide, maxVSide).endVertex();
-
-		wr.pos(0, 1.001, 1).tex(minUTop, maxVTop).endVertex();
-		wr.pos(1, 1.001, 1).tex(maxUTop, maxVTop).endVertex();
-		wr.pos(1, 1.001, 0).tex(maxUTop, minVTop).endVertex();
-		wr.pos(0, 1.001, 0).tex(minUTop, minVTop).endVertex();
-
-		wr.pos(1.001, 0, 0).tex(maxUSide, maxVSide).endVertex();
-		wr.pos(1.001, 1, 0).tex(maxUSide, minVSide).endVertex();
-		wr.pos(1.001, 1, 1).tex(minUSide, minVSide).endVertex();
-		wr.pos(1.001, 0, 1).tex(minUSide, maxVSide).endVertex();
-
-		wr.pos(-0.001, 0, 1).tex(maxUSide, maxVSide).endVertex();
-		wr.pos(-0.001, 1, 1).tex(maxUSide, minVSide).endVertex();
-		wr.pos(-0.001, 1, 0).tex(minUSide, minVSide).endVertex();
-		wr.pos(-0.001, 0, 0).tex(minUSide, maxVSide).endVertex();
-
+		wr.pos(0, 1.001, 0).tex(maxUTop, maxVTop).endVertex();
+		wr.pos(0, 1.001, 1).tex(maxUTop, minVTop).endVertex();
+		wr.pos(1, 1.001, 1).tex(minUTop, minVTop).endVertex();
+		wr.pos(1, 1.001, 0).tex(minUTop, maxVTop).endVertex();
 		tess.draw();
-		wr.setTranslation(0, 0, 0);
-
-		if (state != State.OFF) {
-			GlStateManager.enableLighting();
-			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lastX, lastY);
+		
+		GlStateManager.enableCull();
+		
+		int powerIdx = 254-(int)(((float)te.getClientEnergy()/te.getClientEnergyMax())*254f);
+		int memoryIdx = (int)(((float)te.getClientMemoryUsed()/te.getClientMemoryMax())*254f);
+		if (memoryIdx > 254) memoryIdx = 254;
+		int powerColor = Correlated.proxy.getColor("fullness", 512+powerIdx);
+		int memoryColor = Correlated.proxy.getColor("fullness", 512+memoryIdx);
+		
+		for (int i = 0; i < 4; i++) {
+			GlStateManager.color(1, 1, 1);
+			wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+			wr.pos(0, 0, -0.001).tex(maxUSide, maxVSide).endVertex();
+			wr.pos(0, 1, -0.001).tex(maxUSide, minVSide).endVertex();
+			wr.pos(1, 1, -0.001).tex(minUSide, minVSide).endVertex();
+			wr.pos(1, 0, -0.001).tex(minUSide, maxVSide).endVertex();
+			tess.draw();
+			float r = ((powerColor >> 16) & 0xFF) / 255f;
+			float g = ((powerColor >>  8) & 0xFF) / 255f;
+			float b = ((powerColor      ) & 0xFF) / 255f;
+			GlStateManager.color(r, g, b);
+			wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+			wr.pos(0, 0, -0.001).tex(maxUPowerLight, maxVPowerLight).endVertex();
+			wr.pos(0, 1, -0.001).tex(maxUPowerLight, minVPowerLight).endVertex();
+			wr.pos(1, 1, -0.001).tex(minUPowerLight, minVPowerLight).endVertex();
+			wr.pos(1, 0, -0.001).tex(minUPowerLight, maxVPowerLight).endVertex();
+			tess.draw();
+			r = ((memoryColor >> 16) & 0xFF) / 255f;
+			g = ((memoryColor >>  8) & 0xFF) / 255f;
+			b = ((memoryColor      ) & 0xFF) / 255f;
+			GlStateManager.color(r, g, b);
+			wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+			wr.pos(0, 0, -0.001).tex(maxUMemoryLight, maxVMemoryLight).endVertex();
+			wr.pos(0, 1, -0.001).tex(maxUMemoryLight, minVMemoryLight).endVertex();
+			wr.pos(1, 1, -0.001).tex(minUMemoryLight, minVMemoryLight).endVertex();
+			wr.pos(1, 0, -0.001).tex(minUMemoryLight, maxVMemoryLight).endVertex();
+			tess.draw();
+			GlStateManager.translate(1, 0, 0);
+			GlStateManager.rotate(-90, 0, 1, 0);
 		}
+		GlStateManager.popMatrix();
+		
+
+		GlStateManager.enableLighting();
+		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lastX, lastY);
 	}
 
 }
