@@ -4,12 +4,16 @@ import java.util.List;
 import java.util.UUID;
 
 import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.CorrelatedWorldData.Transmitter;
 import com.elytradev.correlated.block.BlockWirelessEndpoint.State;
 
 import com.elytradev.probe.api.IProbeData;
 import com.elytradev.probe.api.IProbeDataProvider;
+import com.elytradev.probe.api.impl.ProbeData;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.Capability;
 
 public class TileEntityWirelessTransmitter extends TileEntityWirelessEndpoint {
@@ -76,6 +80,13 @@ public class TileEntityWirelessTransmitter extends TileEntityWirelessEndpoint {
 	private final class ProbeCapability implements IProbeDataProvider {
 		@Override
 		public void provideProbeData(List<IProbeData> data) {
+			int range = 0;
+			Transmitter t = Correlated.getDataFor(getWorld()).getTransmitterById(getId());
+			if (t != null) {
+				range = (int)t.range;
+			}
+			data.add(new ProbeData()
+						.withLabel(new TextComponentTranslation("tooltip.correlated.transmitter_range", range)));
 			// TODO should we display how many receivers are linked? there's not currently a way to do that
 		}
 	}

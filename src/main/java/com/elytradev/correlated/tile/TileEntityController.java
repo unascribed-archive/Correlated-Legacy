@@ -498,7 +498,6 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 			}
 		}
 		if (!anyDriveStillHasItem) {
-			System.out.println("nobody has item");
 			ItemStack copy = prototype.copy();
 			copy.setCount(1);
 			prototypes.remove(copy);
