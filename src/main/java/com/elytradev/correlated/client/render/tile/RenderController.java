@@ -29,27 +29,33 @@ public class RenderController extends TileEntitySpecialRenderer<TileEntityContro
 		float lastY = OpenGlHelper.lastBrightnessY;
 
 		State state = bs.getValue(BlockController.state);
-		String tex;
+		String topTex;
 		switch (state) {
 			case BOOTING:
-				tex = "correlated:blocks/controller_booting";
+				topTex = "correlated:blocks/controller_booting";
 				break;
 			case ERROR:
-				tex = "correlated:blocks/controller_error";
+				topTex = "correlated:blocks/controller_error";
 				break;
 			case OFF:
 				return;
 			case POWERED:
-				tex = bs.getValue(BlockController.cheaty) ? "correlated:blocks/controller_creative" : "correlated:blocks/controller";
+				topTex = bs.getValue(BlockController.cheaty) ? "correlated:blocks/controller_creative" : "correlated:blocks/controller";
 				break;
 			default:
 				return;
 		}
-		TextureAtlasSprite tas = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(tex);
-		float minU = tas.getMinU();
-		float maxU = tas.getMaxU();
-		float minV = tas.getMinV();
-		float maxV = tas.getMaxV();
+		String sideTex = topTex+"_side";
+		TextureAtlasSprite top = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(topTex);
+		TextureAtlasSprite side = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(sideTex);
+		float minUTop = top.getMinU();
+		float maxUTop = top.getMaxU();
+		float minVTop = top.getMinV();
+		float maxVTop = top.getMaxV();
+		float minUSide = side.getMinU();
+		float maxUSide = side.getMaxU();
+		float minVSide = side.getMinV();
+		float maxVSide = side.getMaxV();
 
 		GlStateManager.color(1, 1, 1);
 
@@ -64,35 +70,30 @@ public class RenderController extends TileEntitySpecialRenderer<TileEntityContro
 		wr.setTranslation(x, y, z);
 		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 
-		wr.pos(0, 0, 1.001).tex(maxU, minV).endVertex();
-		wr.pos(1, 0, 1.001).tex(minU, minV).endVertex();
-		wr.pos(1, 1, 1.001).tex(minU, maxV).endVertex();
-		wr.pos(0, 1, 1.001).tex(maxU, maxV).endVertex();
+		wr.pos(0, 0, 1.001).tex(minUSide, maxVSide).endVertex();
+		wr.pos(1, 0, 1.001).tex(maxUSide, maxVSide).endVertex();
+		wr.pos(1, 1, 1.001).tex(maxUSide, minVSide).endVertex();
+		wr.pos(0, 1, 1.001).tex(minUSide, minVSide).endVertex();
 
-		wr.pos(0, 0, -0.001).tex(minU, minV).endVertex();
-		wr.pos(0, 1, -0.001).tex(minU, maxV).endVertex();
-		wr.pos(1, 1, -0.001).tex(maxU, maxV).endVertex();
-		wr.pos(1, 0, -0.001).tex(maxU, minV).endVertex();
+		wr.pos(0, 0, -0.001).tex(maxUSide, maxVSide).endVertex();
+		wr.pos(0, 1, -0.001).tex(maxUSide, minVSide).endVertex();
+		wr.pos(1, 1, -0.001).tex(minUSide, minVSide).endVertex();
+		wr.pos(1, 0, -0.001).tex(minUSide, maxVSide).endVertex();
 
-		wr.pos(0, -0.001, 0).tex(maxU, minV).endVertex();
-		wr.pos(1, -0.001, 0).tex(minU, minV).endVertex();
-		wr.pos(1, -0.001, 1).tex(minU, maxV).endVertex();
-		wr.pos(0, -0.001, 1).tex(maxU, maxV).endVertex();
+		wr.pos(0, 1.001, 1).tex(minUTop, maxVTop).endVertex();
+		wr.pos(1, 1.001, 1).tex(maxUTop, maxVTop).endVertex();
+		wr.pos(1, 1.001, 0).tex(maxUTop, minVTop).endVertex();
+		wr.pos(0, 1.001, 0).tex(minUTop, minVTop).endVertex();
 
-		wr.pos(0, 1.001, 1).tex(minU, maxV).endVertex();
-		wr.pos(1, 1.001, 1).tex(maxU, maxV).endVertex();
-		wr.pos(1, 1.001, 0).tex(maxU, minV).endVertex();
-		wr.pos(0, 1.001, 0).tex(minU, minV).endVertex();
+		wr.pos(1.001, 0, 0).tex(maxUSide, maxVSide).endVertex();
+		wr.pos(1.001, 1, 0).tex(maxUSide, minVSide).endVertex();
+		wr.pos(1.001, 1, 1).tex(minUSide, minVSide).endVertex();
+		wr.pos(1.001, 0, 1).tex(minUSide, maxVSide).endVertex();
 
-		wr.pos(1.001, 0, 0).tex(maxU, minV).endVertex();
-		wr.pos(1.001, 1, 0).tex(minU, minV).endVertex();
-		wr.pos(1.001, 1, 1).tex(minU, maxV).endVertex();
-		wr.pos(1.001, 0, 1).tex(maxU, maxV).endVertex();
-
-		wr.pos(-0.001, 0, 1).tex(minU, maxV).endVertex();
-		wr.pos(-0.001, 1, 1).tex(maxU, maxV).endVertex();
-		wr.pos(-0.001, 1, 0).tex(maxU, minV).endVertex();
-		wr.pos(-0.001, 0, 0).tex(minU, minV).endVertex();
+		wr.pos(-0.001, 0, 1).tex(maxUSide, maxVSide).endVertex();
+		wr.pos(-0.001, 1, 1).tex(maxUSide, minVSide).endVertex();
+		wr.pos(-0.001, 1, 0).tex(minUSide, minVSide).endVertex();
+		wr.pos(-0.001, 0, 0).tex(minUSide, maxVSide).endVertex();
 
 		tess.draw();
 		wr.setTranslation(0, 0, 0);
