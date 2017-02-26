@@ -408,22 +408,25 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 			if (stack.isEmpty()) break;
 			// both these conditions should always be true, but might as well be safe
 			if (drive != null && drive.getItem() instanceof ItemDrive) {
-				int oldSize = stack.getCount();
 				ItemDrive itemDrive = ((ItemDrive)drive.getItem());
+				ItemStack copy = stack.copy();
+				copy.setCount(1);
 				if (!hasCheckedMemory) {
 					InsertResult sim = itemDrive.addItem(drive, stack, true);
-					// specifically ignores SUCCESS_VOIDED
-					if (sim.result == Result.SUCCESS &&
-							!prototypes.contains(stack) && getTotalUsedMemory()+getMemoryUsage(stack) > getMaxMemory()) {
-						return InsertResult.insufficientMemory(stack);
+					if (sim.wasSuccessful()) {
+						// specifically ignores SUCCESS_VOIDED
+						if (sim.result == Result.SUCCESS && !prototypes.contains(copy)
+								&& getTotalUsedMemory()+getMemoryUsage(stack) > getMaxMemory()) {
+							return InsertResult.insufficientMemory(stack);
+						}
+						hasCheckedMemory = true;
 					}
-					hasCheckedMemory = true;
 				}
 				InsertResult ir = itemDrive.addItem(drive, stack, false);
 				results.add(ir.result);
 				stack = ir.stack;
-				if (stack.getCount() < oldSize && !prototypes.contains(stack)) {
-					prototypes.add(stack.copy());
+				if (ir.result == Result.SUCCESS && !prototypes.contains(copy)) {
+					prototypes.add(copy);
 				}
 			}
 		}
@@ -495,7 +498,10 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 			}
 		}
 		if (!anyDriveStillHasItem) {
-			prototypes.remove(prototype);
+			System.out.println("nobody has item");
+			ItemStack copy = prototype.copy();
+			copy.setCount(1);
+			prototypes.remove(copy);
 		}
 		changeId++;
 		return stack;
