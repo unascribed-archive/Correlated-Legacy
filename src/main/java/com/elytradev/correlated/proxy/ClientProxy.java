@@ -126,7 +126,7 @@ public class ClientProxy extends Proxy {
 	private Map<String, int[]> colors = Maps.newHashMap();
 	
 	private Future<BufferedImage> corruptionFuture;
-	private ExecutorService jpegCorruptor = Executors.newFixedThreadPool(1, (r) -> new Thread(r, "JPEG Corruption Thread"));
+	private ExecutorService jpegCorruptor = Executors.newSingleThreadExecutor((r) -> new Thread(r, "JPEG Corruption Thread"));
 	private Callable<BufferedImage> jpegCorruptionTask = () -> {
 		int tries = 0;
 		while (true) {
@@ -197,10 +197,10 @@ public class ClientProxy extends Proxy {
 	}
 	@Override
 	public int getColor(String group, int index) {
-		if (index < 0) return -1;
-		if (!colors.containsKey(group)) return -1;
+		if (index < 0) return rand.nextInt();
+		if (!colors.containsKey(group)) return rand.nextInt();
 		int[] rgb = colors.get(group);
-		if (rgb == null || index >= rgb.length) return -1;
+		if (rgb == null || index >= rgb.length) return rand.nextInt();
 		return rgb[index] | 0xFF000000;
 	}
 	@Override

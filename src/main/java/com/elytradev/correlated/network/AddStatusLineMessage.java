@@ -11,6 +11,7 @@ import com.elytradev.concrete.annotation.type.ReceivedOn;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -18,12 +19,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class AddStatusLineMessage extends Message {
 	@MarshalledAs("i32")
 	public int windowId;
-	public String line;
+	@MarshalledAs(TextComponentMarshaller.NAME)
+	public ITextComponent line;
 
 	public AddStatusLineMessage(NetworkContext ctx) {
 		super(ctx);
 	}
-	public AddStatusLineMessage(int windowId, String line) {
+	public AddStatusLineMessage(int windowId, ITextComponent line) {
 		super(Correlated.inst.network);
 		this.windowId = windowId;
 		this.line = line;

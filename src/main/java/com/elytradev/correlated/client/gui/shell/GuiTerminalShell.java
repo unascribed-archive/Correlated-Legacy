@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.GlStateManager.DestFactor;
 import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 
 public class GuiTerminalShell extends GuiScreen {
 	public GuiTerminal guiTerminal;
@@ -111,7 +112,7 @@ public class GuiTerminalShell extends GuiScreen {
 		return false;
 	}
 
-	public void addLine(String line) {
+	public void addLine(ITextComponent line) {
 		container.status.add(line);
 	}
 

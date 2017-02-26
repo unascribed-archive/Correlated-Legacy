@@ -2,11 +2,9 @@ package com.elytradev.correlated.client.gui.shell;
 
 import org.lwjgl.input.Keyboard;
 
-import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.client.IBMFontRenderer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
 
 public class RSOD extends Program {
@@ -26,17 +24,8 @@ public class RSOD extends Program {
 		drawStringInverseVideo((w/2)-(len/2), (h/2)-16, header);
 		String key = "tooltip.correlated.controller_error."+error;
 		String errorLocal = I18n.format(key);
-		if (IBMFontRenderer.canRender(errorLocal)) {
-			int errLen = (int)(errorLocal.length()*4.5f);
-			drawString((w/2)-(errLen/2), (h/2), errorLocal);
-		} else {
-			FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
-			boolean oldUnicode = fr.getUnicodeFlag();
-			fr.setUnicodeFlag(true);
-			int errLen = fr.getStringWidth(errorLocal);
-			fr.drawString(errorLocal, (w/2)-(errLen/2), (h/2), Correlated.proxy.getColor("terminal", (parent.palette*4)+1));
-			fr.setUnicodeFlag(oldUnicode);
-		}
+		int errLen = IBMFontRenderer.measure(errorLocal);
+		drawString((w/2)-(errLen/2), (h/2), errorLocal);
 	}
 
 	@Override

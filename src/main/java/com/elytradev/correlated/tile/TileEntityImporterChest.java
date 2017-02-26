@@ -7,6 +7,7 @@ import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.inventory.ContainerTerminal.SortMode;
 import com.elytradev.correlated.storage.IDigitalStorage;
 import com.elytradev.correlated.storage.ITerminal;
+import com.elytradev.correlated.storage.InsertResult;
 import com.elytradev.correlated.storage.SimpleUserPreferences;
 import com.elytradev.correlated.storage.UserPreferences;
 import com.google.common.collect.Lists;
@@ -147,18 +148,17 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 	}
 
 	@Override
-	public ItemStack addItemToNetwork(ItemStack stack) {
-		if (stack == null) return null;
+	public InsertResult addItemToNetwork(ItemStack stack) {
 		for (ItemStack is : storage) {
 			if (areCompatible(is, stack)) {
 				is.setCount(is.getCount()+stack.getCount());
 				stack.setCount(0);
-				return null;
+				return InsertResult.success(stack);
 			}
 		}
 		storage.add(stack.copy());
 		changeId++;
-		return null;
+		return InsertResult.success(stack);
 	}
 
 	@Override

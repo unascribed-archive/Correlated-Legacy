@@ -1,6 +1,7 @@
 package com.elytradev.correlated.client;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -10,6 +11,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 
 public class IBMFontRenderer {
+	private static final Pattern COLOR_CODE = Pattern.compile("\u00A7.");
 	private static final ResourceLocation BIOS = new ResourceLocation("correlated", "textures/gui/bios.png");
 	private static final String CP437 =
 			  "\0☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼"
@@ -42,6 +44,7 @@ public class IBMFontRenderer {
 	public static final int DIM_WHITE = 0xFFA8A8A8;
 	
 	public static void drawStringInverseVideo(int x, int y, String str, int color) {
+		str = COLOR_CODE.matcher(str).replaceAll("");
 		// this is kind of magic, so I'll explain it for anyone who happens to
 		// be reading this that is curious
 		GlStateManager.enableDepth();
@@ -66,12 +69,21 @@ public class IBMFontRenderer {
 				GlStateManager.scale(0.5f, 0.5f, 1);
 				// due to depth test, the parts of the rectangle that are
 				// "behind" our invisible text will not be rendered 
-				Gui.drawRect(x*2, y*2, (x*2)+(str.length()*9), (y*2)+16, color);
+				Gui.drawRect(x*2, y*2, (x*2)+measureHalf(str), (y*2)+16, color);
 			GlStateManager.popMatrix();
 			
 		GlStateManager.disableDepth();
 	}
 	public static void drawString(int x, int y, String str, int color) {
+		str = COLOR_CODE.matcher(str).replaceAll("");
+		if (!canRender(str)) {
+			// fall back to unicode font - this usually happens when rendering non-english text
+			boolean oldUnicode = Minecraft.getMinecraft().fontRenderer.getUnicodeFlag();
+			Minecraft.getMinecraft().fontRenderer.setUnicodeFlag(true);
+			Minecraft.getMinecraft().fontRenderer.drawString(str, x, y, color);
+			Minecraft.getMinecraft().fontRenderer.setUnicodeFlag(oldUnicode);
+			return;
+		}
 		Minecraft.getMinecraft().getTextureManager().bindTexture(BIOS);
 		x*=2;
 		y*=2;
@@ -96,6 +108,7 @@ public class IBMFontRenderer {
 		return substitutes.containsKey(c) || CP437.contains(Character.toString(c));
 	}
 	public static boolean canRender(String str) {
+		str = COLOR_CODE.matcher(str).replaceAll("");
 		for (int i = 0; i < str.length(); i++) {
 			char c = str.charAt(i);
 			if (!canRender(c)) {
@@ -103,5 +116,26 @@ public class IBMFontRenderer {
 			}
 		}
 		return true;
+	}
+	public static int measureHalf(String str) {
+		str = COLOR_CODE.matcher(str).replaceAll("");
+		if (!canRender(str)) {
+			return measureUnicode(str)*2;
+		}
+		return str.length()*9;
+	}
+	public static int measure(String str) {
+		str = COLOR_CODE.matcher(str).replaceAll("");
+		if (!canRender(str)) {
+			measureUnicode(str);
+		}
+		return (int)(measureHalf(str)/2f);
+	}
+	private static int measureUnicode(String str) {
+		boolean oldUnicode = Minecraft.getMinecraft().fontRenderer.getUnicodeFlag();
+		Minecraft.getMinecraft().fontRenderer.setUnicodeFlag(true);
+		int len = Minecraft.getMinecraft().fontRenderer.getStringWidth(str);
+		Minecraft.getMinecraft().fontRenderer.setUnicodeFlag(oldUnicode);
+		return len;
 	}
 }

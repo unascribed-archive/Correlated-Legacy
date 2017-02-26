@@ -15,6 +15,7 @@ import com.elytradev.correlated.network.AddStatusLineMessage;
 import com.elytradev.correlated.network.SetSearchQueryClientMessage;
 import com.elytradev.correlated.network.SetSlotSizeMessage;
 import com.elytradev.correlated.storage.ITerminal;
+import com.elytradev.correlated.storage.InsertResult;
 import com.elytradev.correlated.storage.UserPreferences;
 import com.elytradev.correlated.tile.TileEntityController;
 import com.elytradev.correlated.tile.TileEntityTerminal;
@@ -37,6 +38,9 @@ import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -373,14 +377,14 @@ public class ContainerTerminal extends Container {
 			case -23:
 				if (terminal.getStorage() instanceof TileEntityController) {
 					TileEntityController cont = ((TileEntityController)terminal.getStorage());
-					addStatusLine("total: "+Numbers.humanReadableBytes(cont.getMaxMemory()/8));
-					addStatusLine("used: "+Numbers.humanReadableBytes(cont.getTotalUsedMemory()/8));
-					addStatusLine("free: "+Numbers.humanReadableBytes(cont.getBitsMemoryFree()/8));
-					addStatusLine("");
-					addStatusLine("network: "+Numbers.humanReadableBytes(cont.getUsedNetworkMemory()/8));
-					addStatusLine("wireless: "+Numbers.humanReadableBytes(cont.getUsedWirelessMemory()/8));
-					addStatusLine("types: "+Numbers.humanReadableBytes(cont.getUsedTypeMemory()/8));
-					addStatusLine("");
+					addStatusLine(new TextComponentTranslation("correlated.shell.free.total", Numbers.humanReadableBits(cont.getMaxMemory())));
+					addStatusLine(new TextComponentTranslation("correlated.shell.free.used", Numbers.humanReadableBits(cont.getTotalUsedMemory())));
+					addStatusLine(new TextComponentTranslation("correlated.shell.free.free", Numbers.humanReadableBits(cont.getBitsMemoryFree())));
+					addStatusLine(new TextComponentString(""));
+					addStatusLine(new TextComponentTranslation("correlated.shell.free.network", Numbers.humanReadableBits(cont.getUsedNetworkMemory())));
+					addStatusLine(new TextComponentTranslation("correlated.shell.free.wireless", Numbers.humanReadableBits(cont.getUsedWirelessMemory())));
+					addStatusLine(new TextComponentTranslation("correlated.shell.free.type", Numbers.humanReadableBits(cont.getUsedTypeMemory())));
+					addStatusLine(new TextComponentString(""));
 				}
 				break;
 
@@ -406,7 +410,7 @@ public class ContainerTerminal extends Container {
 				for (int i = 0; i < 9; i++) {
 					ItemStack is = craftMatrix.getStackInSlot(i);
 					if (is.isEmpty()) continue;
-					craftMatrix.setInventorySlotContents(i, addItemToNetwork(is));
+					craftMatrix.setInventorySlotContents(i, addItemToNetwork(is).stack);
 				}
 				detectAndSendChanges();
 				break;
@@ -421,12 +425,33 @@ public class ContainerTerminal extends Container {
 		return true;
 	}
 
-	public ItemStack addItemToNetwork(ItemStack stack) {
-		if (player.world.isRemote) return ItemStack.EMPTY;
-		return terminal.getStorage().addItemToNetwork(stack);
+	public InsertResult addItemToNetwork(ItemStack stack) {
+		if (player.world.isRemote) return InsertResult.success(ItemStack.EMPTY);
+		long startingMem = 0;
+		long startingDiskFree = terminal.getStorage().getKilobitsStorageFree();
+		if (terminal.getStorage() instanceof TileEntityController) {
+			startingMem = ((TileEntityController)terminal.getStorage()).getUsedTypeMemory();
+		}
+		InsertResult ir = terminal.getStorage().addItemToNetwork(stack);
+		if (!ir.wasSuccessful()) {
+			addStatusLine(new TextComponentTranslation("msg.correlated.insertFailed", new TextComponentTranslation("msg.correlated.insertFailed."+ir.result.name().toLowerCase(Locale.ROOT))));
+		} else {
+			long endingMem = 0;
+			long endingDiskFree = terminal.getStorage().getKilobitsStorageFree();
+			if (terminal.getStorage() instanceof TileEntityController) {
+				endingMem = ((TileEntityController)terminal.getStorage()).getUsedTypeMemory();
+			}
+			long memChange = endingMem-startingMem;
+			if (memChange != 0) {
+				addStatusLine(new TextComponentTranslation("msg.correlated.insertSuccessMem", Numbers.humanReadableBits(memChange), Numbers.humanReadableBits((startingDiskFree-endingDiskFree)*1024)));
+			} else {
+				addStatusLine(new TextComponentTranslation("msg.correlated.insertSuccess", Numbers.humanReadableBits((startingDiskFree-endingDiskFree)*1024)));
+			}
+		}
+		return ir;
 	}
 
-	private void addStatusLine(String line) {
+	private void addStatusLine(ITextComponent line) {
 		status.add(line);
 		for (IContainerListener ic : listeners) {
 			if (ic instanceof EntityPlayerMP) {
@@ -438,11 +463,28 @@ public class ContainerTerminal extends Container {
 
 	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount) {
 		if (player.world.isRemote) return ItemStack.EMPTY;
-		return terminal.getStorage().removeItemsFromNetwork(prototype, amount, true);
+		long startingMem = 0;
+		long startingDiskFree = terminal.getStorage().getKilobitsStorageFree();
+		if (terminal.getStorage() instanceof TileEntityController) {
+			startingMem = ((TileEntityController)terminal.getStorage()).getUsedTypeMemory();
+		}
+		ItemStack res = terminal.getStorage().removeItemsFromNetwork(prototype, amount, true);
+		long endingMem = 0;
+		long endingDiskFree = terminal.getStorage().getKilobitsStorageFree();
+		if (terminal.getStorage() instanceof TileEntityController) {
+			endingMem = ((TileEntityController)terminal.getStorage()).getUsedTypeMemory();
+		}
+		long memChange = startingMem-endingMem;
+		if (memChange != 0) {
+			addStatusLine(new TextComponentTranslation("msg.correlated.removeSuccessMem", Numbers.humanReadableBits(memChange), Numbers.humanReadableBits((endingDiskFree-startingDiskFree)*1024)));
+		} else {
+			addStatusLine(new TextComponentTranslation("msg.correlated.removeSuccess", Numbers.humanReadableBits((endingDiskFree-startingDiskFree)*1024)));
+		}
+		return res;
 	}
 
 	private List<Integer> oldStackSizes = Lists.newArrayList();
-	public List<String> status = Lists.newArrayList();
+	public List<ITextComponent> status = Lists.newArrayList();
 
 	@Override
 	protected Slot addSlotToContainer(Slot slotIn) {
@@ -592,7 +634,7 @@ public class ContainerTerminal extends Container {
 										break;
 									case NETWORK:
 										int amountOrig = stack.getCount();
-										ItemStack res = addItemToNetwork(stack);
+										ItemStack res = addItemToNetwork(stack).stack;
 										success = res.getCount() <= 0;
 										if (!success && !res.isEmpty()) {
 											removeItemsFromNetwork(stack, amountOrig-res.getCount());
@@ -621,7 +663,7 @@ public class ContainerTerminal extends Container {
 							detectAndSendChanges();
 							return ItemStack.EMPTY;
 						} else {
-							ItemStack is = addItemToNetwork(stack);
+							ItemStack is = addItemToNetwork(stack).stack;
 							getSlot(slotId).putStack(is);
 							return is;
 						}

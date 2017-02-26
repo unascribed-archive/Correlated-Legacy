@@ -1,5 +1,6 @@
 package com.elytradev.correlated.inventory;
 
+import com.elytradev.correlated.storage.InsertResult;
 import com.elytradev.correlated.tile.TileEntityImporterChest;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -27,9 +28,8 @@ public class ContainerImporterChest extends ContainerTerminal {
 	}
 	
 	@Override
-	public ItemStack addItemToNetwork(ItemStack stack) {
-		// refuse to insert items, read-only
-		return stack;
+	public InsertResult addItemToNetwork(ItemStack stack) {
+		return InsertResult.readOnly(stack);
 	}
 	
 	@Override

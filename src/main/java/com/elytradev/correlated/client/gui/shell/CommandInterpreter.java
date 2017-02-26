@@ -7,10 +7,10 @@ import org.lwjgl.input.Keyboard;
 
 import com.elytradev.correlated.client.IBMFontRenderer;
 import com.elytradev.correlated.proxy.ClientProxy;
-import com.google.common.base.Strings;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 
 public class CommandInterpreter extends Program {
 	private StringBuilder command = new StringBuilder();
@@ -27,7 +27,7 @@ public class CommandInterpreter extends Program {
 	public void render(int rows, int cols) {
 		int y = 0;
 		for (int i = Math.max(0, parent.container.status.size()-(rows-1)); i < parent.container.status.size(); i++) {
-			String line = Strings.nullToEmpty(parent.container.status.get(i));
+			String line = parent.container.status.get(i).getFormattedText();
 			if (line.length() > cols) {
 				line = line.substring(0, cols-3)+"...";
 			}
@@ -45,28 +45,28 @@ public class CommandInterpreter extends Program {
 		if (keyCode == Keyboard.KEY_ESCAPE) {
 			Minecraft.getMinecraft().displayGuiScreen(parent.guiTerminal);
 		} else if (keyCode == Keyboard.KEY_RETURN) {
-			parent.container.status.add("J:\\>"+command);
+			parent.container.status.add(new TextComponentString("J:\\>"+command));
 			String cmd = command.toString();
 			if (cmd.length() == 2 && cmd.endsWith(":")) {
 				if (!cmd.equalsIgnoreCase("J:")) {
-					parent.container.status.add("Not ready reading drive "+cmd.toUpperCase(Locale.ROOT).charAt(0));
+					parent.container.status.add(new TextComponentTranslation("correlated.shell.notReady", cmd.toUpperCase(Locale.ROOT).charAt(0)));
 				}
 			} else if (!cmd.isEmpty()) {
 				String[] split = cmd.split("[ /]", 2);
 				switch (split[0].toLowerCase(Locale.ROOT)) {
 					case "help":
-						parent.container.status.add("help - print this help");
-						parent.container.status.add("part - report disk space usage");
-						parent.container.status.add("free - display memory usage statistics");
-						parent.container.status.add("echo - display a line of text");
-						parent.container.status.add("exit - exit the shell");
-						parent.container.status.add("ide - write programs for automatons");
+						parent.container.status.add(new TextComponentTranslation("correlated.shell.help.help"));
+						parent.container.status.add(new TextComponentTranslation("correlated.shell.help.part"));
+						parent.container.status.add(new TextComponentTranslation("correlated.shell.help.free"));
+						parent.container.status.add(new TextComponentTranslation("correlated.shell.help.echo"));
+						parent.container.status.add(new TextComponentTranslation("correlated.shell.help.exit"));
+						parent.container.status.add(new TextComponentTranslation("correlated.shell.help.ide"));
 						break;
 					case "exit":
 						Minecraft.getMinecraft().displayGuiScreen(parent.guiTerminal);
 						break;
 					case "echo":
-						parent.container.status.add(split.length >= 2 ? split[1] : "");
+						parent.container.status.add(new TextComponentString(split.length >= 2 ? split[1] : ""));
 						break;
 					case "part":
 						Minecraft.getMinecraft().playerController.sendEnchantPacket(parent.container.windowId, -22);
@@ -74,37 +74,21 @@ public class CommandInterpreter extends Program {
 					case "free":
 						Minecraft.getMinecraft().playerController.sendEnchantPacket(parent.container.windowId, -23);
 						break;
-					case "download":
-						if (split.length == 1 || Strings.isNullOrEmpty(split[1])) {
-							parent.container.status.add("Download what?");
-						} else {
-							switch (split[1]) {
-								case "ram":
-								case "more ram":
-									parent.container.status.add("fatal: cannot connect to downloadmoreram.com");
-									parent.container.status.add("do you have an internet card?");
-									break;
-								default:
-									parent.container.status.add("fatal: don't know how to download '"+split[1]+"'");
-									break;
-							}
-						}
-						break;
 					case "ide":
 						parent.program = new AutomatonProgrammer(parent);
 						break;
 					case "437":
-						parent.container.status.add("\0☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼");
-						parent.container.status.add(" !\"#$%&'()*+,-./0123456789:;<=>?");
-						parent.container.status.add("@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_");
-						parent.container.status.add("`abcdefghijklmnopqrstuvwxyz{|}~⌂");
-						parent.container.status.add("ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒ");
-						parent.container.status.add("áíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐");
-						parent.container.status.add("└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀");
-						parent.container.status.add("αβΓπΣσμτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\u00a0");
+						parent.container.status.add(new TextComponentString("\0☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼"));
+						parent.container.status.add(new TextComponentString(" !\"#$%&'()*+,-./0123456789:;<=>?"));
+						parent.container.status.add(new TextComponentString("@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"));
+						parent.container.status.add(new TextComponentString("`abcdefghijklmnopqrstuvwxyz{|}~⌂"));
+						parent.container.status.add(new TextComponentString("ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒ"));
+						parent.container.status.add(new TextComponentString("áíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐"));
+						parent.container.status.add(new TextComponentString("└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀"));
+						parent.container.status.add(new TextComponentString("αβΓπΣσμτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\u00a0"));
 						break;
 					default:
-						parent.container.status.add("Bad command or file name");
+						parent.container.status.add(new TextComponentTranslation("correlated.shell.badCommand"));
 						break;
 				}
 			}
@@ -116,7 +100,7 @@ public class CommandInterpreter extends Program {
 		} else if (GuiScreen.isCtrlKeyDown()) {
 			switch (keyCode) {
 				case Keyboard.KEY_C:
-					parent.container.status.add("J:\\>"+command+"^C");
+					parent.container.status.add(new TextComponentString("J:\\>"+command+"^C"));
 					command.setLength(0);
 					break;
 				case Keyboard.KEY_D:
@@ -133,7 +117,7 @@ public class CommandInterpreter extends Program {
 	@Override
 	public void update() {
 		if (rand.nextInt() == 5) {
-			parent.container.status.add("Your free upgrade to Windows 10 is available!");
+			parent.container.status.add(new TextComponentTranslation("correlated.shell.egg"));
 		}
 	}
 

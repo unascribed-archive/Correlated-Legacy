@@ -9,6 +9,7 @@ import com.elytradev.correlated.block.BlockMemoryBay;
 import com.elytradev.correlated.helper.ItemStacks;
 import com.elytradev.correlated.helper.Numbers;
 import com.elytradev.correlated.proxy.ClientProxy;
+import com.elytradev.correlated.storage.InsertResult;
 import com.google.common.collect.Lists;
 
 import net.minecraft.block.Block;
@@ -32,9 +33,11 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemDrive extends Item {
 	public enum Priority {
@@ -107,22 +110,23 @@ public class ItemDrive extends Item {
 	}
 	
 	@Override
+	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
-		tooltip.add(I18n.translateToLocalFormatted("tooltip.correlated.rf_usage", getRFConsumptionRate(stack)));
+		tooltip.add(I18n.format("tooltip.correlated.rf_usage", getRFConsumptionRate(stack)));
 		if (stack.getItemDamage() == 4) {
 			int i = 0;
-			while (I18n.canTranslate("tooltip.correlated.void_drive." + i)) {
-				tooltip.add(I18n.translateToLocalFormatted("tooltip.correlated.void_drive." + i));
+			while (I18n.hasKey("tooltip.correlated.void_drive." + i)) {
+				tooltip.add(I18n.format("tooltip.correlated.void_drive." + i));
 				i++;
 			}
 		} else {
-			int bytesUsed = (getKilobitsUsed(stack) / 8)*1024;
-			int bytesMax = (getMaxKilobits(stack) / 8)*1024;
+			int bitsUsed = getKilobitsUsed(stack)*1024;
+			int bitsMax = getMaxKilobits(stack)*1024;
 
-			int bytesPercent = (int) (((double) bytesUsed / (double) bytesMax) * 100);
+			int bitsPercent = (int) (((double) bitsUsed / (double) bitsMax) * 100);
 
-			String max = Numbers.humanReadableBytes(bytesMax);
-			tooltip.add(I18n.translateToLocalFormatted("tooltip.correlated.bytes_used", Numbers.humanReadableBytes(bytesUsed), max, bytesPercent));
+			String max = Numbers.humanReadableBits(bitsMax);
+			tooltip.add(I18n.format("tooltip.correlated.bytes_used", Numbers.humanReadableBits(bitsUsed), max, bitsPercent));
 		}
 	}
 
@@ -144,8 +148,8 @@ public class ItemDrive extends Item {
 
 	@Override
 	public String getItemStackDisplayName(ItemStack stack) {
-		if (stack.getMetadata() == 4) return I18n.translateToLocal("item.correlated.drive.void.name");
-		return I18n.translateToLocalFormatted("item.correlated.drive.normal.name", Numbers.humanReadableBytes((getMaxKilobits(stack)/8)*1024));
+		if (stack.getMetadata() == 4) return net.minecraft.util.text.translation.I18n.translateToLocal("item.correlated.drive.void.name");
+		return net.minecraft.util.text.translation.I18n.translateToLocalFormatted("item.correlated.drive.normal.name", Numbers.humanReadableBits(getMaxKilobits(stack)*1024));
 	}
 
 	@Override
@@ -349,32 +353,39 @@ public class ItemDrive extends Item {
 	/**
 	 * Insert as many items as possible from the given stack into a drive.
 	 * <p>
-	 * The stackSize of the passed stack will be affected. Return value is for
-	 * convenience, and will be null if all items are taken.
+	 * The stackSize of the passed stack will be affected.
 	 *
-	 * @param drive
-	 *            The drive to affect
-	 * @param item
-	 *            The item to add
-	 * @return The item passed in
+	 * @param drive The drive to affect
+	 * @param item The item to add
+	 * @param simulate If true, the stack size will not be affected and the only
+	 * 		useful return value will be the result.
+	 * @return An InsertResult including information on whether the item was
+	 * 		accepted or not, and if not, why
 	 */
-	public ItemStack addItem(ItemStack drive, ItemStack item) {
+	public InsertResult addItem(ItemStack drive, ItemStack item, boolean simulate) {
+		if (item == null || item.isEmpty()) return InsertResult.success(item);
 		if (getMaxKilobits(drive) == -1) {
 			if (getPartitioningMode(drive) == PartitioningMode.NONE || findDataIndexForPrototype(drive, createPrototype(item)) != -1) {
 				item.setCount(0);
 				markDirty(drive);
 			}
-			return item;
+			return InsertResult.successVoided(item);
+		}
+		if (getPartitioningMode(drive) != PartitioningMode.NONE && findDataForPrototype(drive, createPrototype(item)) == null) {
+			return InsertResult.itemIncompatible(item);
 		}
 		int bitsFree = getKilobitsFreeFor(drive, item);
 		int amountTaken = Math.min(item.getCount(), bitsFree);
 		int current = getAmountStored(drive, item);
 		if (amountTaken > 0) {
-			setAmountStored(drive, item, current+amountTaken);
-			item.setCount(item.getCount()-amountTaken);
-			markDirty(drive);
+			if (!simulate) {
+				setAmountStored(drive, item, current+amountTaken);
+				item.setCount(item.getCount()-amountTaken);
+				markDirty(drive);
+			}
+			return InsertResult.success(item);
 		}
-		return item;
+		return InsertResult.insufficientStorage(item);
 	}
 
 	/**
@@ -386,7 +397,7 @@ public class ItemDrive extends Item {
 	 *
 	 * @param drive
 	 *            The drive to affect
-	 * @param item
+	 * @param prototype
 	 *            The item to remove
 	 * @param amountWanted
 	 *            The maximum amount to extract

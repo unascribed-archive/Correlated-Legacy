@@ -7,6 +7,7 @@ import com.elytradev.correlated.entity.EntityThrownItem;
 import com.elytradev.correlated.helper.Numbers;
 
 import net.minecraft.block.BlockDispenser;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -22,9 +23,10 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemMisc extends Item {
 	public static final String[] items = {
@@ -37,7 +39,9 @@ public class ItemMisc extends Item {
 			"unstable_pearl",
 			"unfinished_organic_circuit",
 			"data_core",
-			"logo"
+			"logo",
+			"chrysocolla",
+			"chrysocolla_ingot"
 		};
 
 	public ItemMisc() {
@@ -68,16 +72,17 @@ public class ItemMisc extends Item {
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
 		int i = 0;
-		while (I18n.canTranslate("tooltip.correlated.misc." + getItemName(stack) + "." + i)) {
-			tooltip.add(I18n.translateToLocal("tooltip.correlated.misc." + getItemName(stack) + "." + i));
+		while (I18n.hasKey("tooltip.correlated.misc." + getItemName(stack) + "." + i)) {
+			tooltip.add(I18n.format("tooltip.correlated.misc." + getItemName(stack) + "." + i));
 			i++;
 		}
 		if (stack.getMetadata() == 8) {
-			int bytesUsed = (Correlated.drive.getKilobitsUsed(stack) / 8)*1024;
+			int bitsUsed = Correlated.drive.getKilobitsUsed(stack)*1024;
 
-			tooltip.add(I18n.translateToLocalFormatted("tooltip.correlated.bytes_contained", Numbers.humanReadableBytes(bytesUsed)));
+			tooltip.add(I18n.format("tooltip.correlated.bytes_contained", Numbers.humanReadableBits(bitsUsed)));
 		}
 	}
 
@@ -127,11 +132,11 @@ public class ItemMisc extends Item {
 	
 	@Override
 	public String getItemStackDisplayName(ItemStack stack) {
-		String raw = I18n.translateToLocal(this.getUnlocalizedName(stack) + ".name");
+		String raw = I18n.format(this.getUnlocalizedName(stack) + ".name");
 		if (stack.getMetadata() != 6) return raw;
 		StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < raw.length(); i++) {
-			if (Math.random() < 0.2) {
+			if (itemRand.nextInt(5) == 0) {
 				builder.append("\u00A7k");
 				builder.append(raw.charAt(i));
 				builder.append("\u00A7r");

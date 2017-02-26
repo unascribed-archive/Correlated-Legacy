@@ -11,11 +11,14 @@ import com.elytradev.correlated.helper.DriveComparator;
 import com.elytradev.correlated.item.ItemDrive;
 import com.elytradev.correlated.item.ItemMemory;
 import com.elytradev.correlated.storage.IDigitalStorage;
+import com.elytradev.correlated.storage.InsertResult;
+import com.elytradev.correlated.storage.InsertResult.Result;
 import com.elytradev.probe.api.IProbeData;
 import com.elytradev.probe.api.IProbeDataProvider;
 import com.elytradev.probe.api.UnitDictionary;
 import com.elytradev.probe.api.impl.ProbeData;
 import com.google.common.base.Objects;
+import com.google.common.collect.EnumMultiset;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
@@ -397,32 +400,55 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	}
 
 	@Override
-	public ItemStack addItemToNetwork(ItemStack stack) {
-		if (error) return stack;
-		if (!prototypes.contains(stack) && getTotalUsedMemory()+getMemoryUsage(stack) > getMaxMemory()) {
-			return stack;
-		}
+	public InsertResult addItemToNetwork(ItemStack stack) {
+		if (error) return InsertResult.refused(stack);
+		boolean hasCheckedMemory = false;
+		Multiset<Result> results = EnumMultiset.create(Result.class);
 		for (ItemStack drive : drives) {
+			if (stack.isEmpty()) break;
 			// both these conditions should always be true, but might as well be safe
 			if (drive != null && drive.getItem() instanceof ItemDrive) {
 				int oldSize = stack.getCount();
 				ItemDrive itemDrive = ((ItemDrive)drive.getItem());
-				itemDrive.addItem(drive, stack);
+				if (!hasCheckedMemory) {
+					InsertResult sim = itemDrive.addItem(drive, stack, true);
+					// specifically ignores SUCCESS_VOIDED
+					if (sim.result == Result.SUCCESS &&
+							!prototypes.contains(stack) && getTotalUsedMemory()+getMemoryUsage(stack) > getMaxMemory()) {
+						return InsertResult.insufficientMemory(stack);
+					}
+					hasCheckedMemory = true;
+				}
+				InsertResult ir = itemDrive.addItem(drive, stack, false);
+				results.add(ir.result);
+				stack = ir.stack;
 				if (stack.getCount() < oldSize && !prototypes.contains(stack)) {
 					prototypes.add(stack.copy());
 				}
-				if (stack.isEmpty()) break;
 			}
 		}
 		for (TileEntityWirelessReceiver r : receivers) {
+			if (stack.isEmpty()) break;
 			TileEntityController cont = r.getTransmitterController();
 			if (cont != null) {
-				cont.addItemToNetwork(stack);
+				InsertResult ir = cont.addItemToNetwork(stack);
+				results.add(ir.result);
+				stack = ir.stack;
 			}
-			if (stack.isEmpty()) break;
 		}
 		changeId++;
-		return stack;
+		if (!results.contains(Result.SUCCESS) && !results.contains(Result.SUCCESS_VOIDED) && results.size() > 0) {
+			Result result = null;
+			int num = 0;
+			for (Multiset.Entry<Result> en : results.entrySet()) {
+				if (en.getCount() > num) {
+					result = en.getElement();
+					num = en.getCount();
+				}
+			}
+			return new InsertResult(result, stack);
+		}
+		return stack.isEmpty() ? InsertResult.success(stack) : InsertResult.insufficientStorage(stack);
 	}
 
 	@Override
@@ -430,22 +456,9 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 		if (error) return ItemStack.EMPTY;
 		ItemStack stack = prototype.copy();
 		stack.setCount(0);
-		if (checkInterfaces) {
-			for (TileEntityInterface in : interfaces) {
-				for (int i = 9; i <= 17; i++) {
-					ItemStack is = in.getStackInSlot(i);
-					if (is != null && ItemStack.areItemsEqual(is, prototype) && ItemStack.areItemStackTagsEqual(is, prototype)) {
-						int amountWanted = amount-stack.getCount();
-						int amountTaken = Math.min(is.getCount(), amountWanted);
-						is.setCount(is.getCount()-amountTaken);
-						stack.setCount(stack.getCount()+amountTaken);
-						if (stack.getCount() >= amount) break;
-					}
-				}
-			}
-		}
 		boolean anyDriveStillHasItem = false;
 		for (ItemStack drive : drives) {
+			if (stack.getCount() >= amount) break;
 			// both these conditions should always be true, but might as well be safe
 			if (drive != null && drive.getItem() instanceof ItemDrive) {
 				ItemDrive itemDrive = ((ItemDrive)drive.getItem());
@@ -455,10 +468,10 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 				if (!anyDriveStillHasItem && itemDrive.getAmountStored(drive, prototype) > 0) {
 					anyDriveStillHasItem = true;
 				}
-				if (stack.getCount() >= amount) break;
 			}
 		}
 		for (TileEntityWirelessReceiver r : receivers) {
+			if (stack.getCount() >= amount) break;
 			TileEntityController cont = r.getTransmitterController();
 			if (cont != null) {
 				ItemStack remote = cont.removeItemsFromNetwork(prototype, amount-stack.getCount(), checkInterfaces);
@@ -466,7 +479,20 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 					stack.setCount(stack.getCount()+remote.getCount());
 				}
 			}
-			if (stack.getCount() >= amount) break;
+		}
+		if (checkInterfaces) {
+			for (TileEntityInterface in : interfaces) {
+				if (stack.getCount() >= amount) break;
+				for (int i = 9; i <= 17; i++) {
+					ItemStack is = in.getStackInSlot(i);
+					if (is != null && ItemStack.areItemsEqual(is, prototype) && ItemStack.areItemStackTagsEqual(is, prototype)) {
+						int amountWanted = amount-stack.getCount();
+						int amountTaken = Math.min(is.getCount(), amountWanted);
+						is.setCount(is.getCount()-amountTaken);
+						stack.setCount(stack.getCount()+amountTaken);
+					}
+				}
+			}
 		}
 		if (!anyDriveStillHasItem) {
 			prototypes.remove(prototype);
@@ -714,8 +740,9 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	private final class ProbeCapability implements IProbeDataProvider {
 		@Override
 		public void provideProbeData(List<IProbeData> data) {
+			boolean cheaty = world.getBlockState(getPos()).getValue(BlockController.cheaty);
 			data.add(new ProbeData(new TextComponentTranslation("tooltip.correlated.energy_stored"))
-					.withBar(0, getEnergyStored(), getMaxEnergyStored(), UnitDictionary.FORGE_ENERGY));
+					.withBar(0, cheaty ? Double.POSITIVE_INFINITY : getEnergyStored(), getMaxEnergyStored(), UnitDictionary.FORGE_ENERGY));
 			data.add(new ProbeData(new TextComponentTranslation("tooltip.correlated.energy_usage"))
 					.withBar(0, getEnergyConsumedPerTick(), Correlated.inst.controllerCap, UnitDictionary.FU_PER_TICK));
 			data.add(new ProbeData(new TextComponentTranslation("tooltip.correlated.memory"))

@@ -63,7 +63,7 @@ public class RecipeTransferMessage extends Message {
 					for (int i = 0; i < 9; i++) {
 						ItemStack cur = terminal.craftMatrix.getStackInSlot(i);
 						if (!cur.isEmpty()) {
-							cur = terminal.addItemToNetwork(cur);
+							cur = terminal.addItemToNetwork(cur).stack;
 							if (!cur.isEmpty()) {
 								sender.entityDropItem(cur, 0.5f);
 								cur = ItemStack.EMPTY;

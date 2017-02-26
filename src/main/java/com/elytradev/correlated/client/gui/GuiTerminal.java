@@ -16,7 +16,6 @@ import com.elytradev.correlated.inventory.ContainerTerminal.SortMode;
 import com.elytradev.correlated.network.InsertAllMessage;
 import com.elytradev.correlated.network.SetSearchQueryServerMessage;
 import com.google.common.base.Objects;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
@@ -28,6 +27,8 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
 
 public class GuiTerminal extends GuiContainer {
@@ -56,9 +57,9 @@ public class GuiTerminal extends GuiContainer {
 		ySize = 222;
 		if (container.status.isEmpty()) {
 			if (Math.random() == 0.5) {
-				container.status.add("Dis is one half.");
+				container.status.add(new TextComponentTranslation("correlated.shell.readyEgg"));
 			} else {
-				container.status.add("Ready.");
+				container.status.add(new TextComponentTranslation("correlated.shell.ready"));
 			}
 		}
 		lastJeiQuery = Correlated.inst.jeiQueryReader.get();
@@ -96,9 +97,17 @@ public class GuiTerminal extends GuiContainer {
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 		fontRenderer.drawString(getTitle(), 8, 6, 0x404040);
 		if (hasStatusLine()) {
-			String lastLine = Strings.nullToEmpty(container.status.get(container.status.size()-1));
-			if (lastLine.length() > 32) {
-				lastLine = lastLine.substring(0, 32)+"...";
+			String lastLine = container.status.get(container.status.size()-1).getFormattedText().trim();
+			int len = IBMFontRenderer.measure(lastLine);
+			if (len > 160) {
+				String s = lastLine;
+				for (int i = 0; i < lastLine.length(); i++) {
+					String str = lastLine.substring(0, i)+"...";
+					int slen = IBMFontRenderer.measure(str);
+					if (slen > 160) break;
+					s = str;
+				}
+				lastLine = s;
 			}
 			int left = 68+container.playerInventoryOffsetX;
 			int top = 90+container.playerInventoryOffsetY;
@@ -451,7 +460,7 @@ public class GuiTerminal extends GuiContainer {
 		}
 	}
 
-	public void addLine(String line) {
+	public void addLine(ITextComponent line) {
 		container.status.add(line);
 	}
 

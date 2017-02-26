@@ -17,10 +17,15 @@ import com.elytradev.correlated.item.ItemModule;
 import com.elytradev.correlated.item.ItemDrive.Priority;
 import com.elytradev.correlated.storage.IDigitalStorage;
 import com.elytradev.correlated.storage.ITerminal;
+import com.elytradev.correlated.storage.InsertResult;
 import com.elytradev.correlated.storage.SimpleUserPreferences;
 import com.elytradev.correlated.storage.UserPreferences;
+import com.elytradev.correlated.storage.InsertResult.Result;
 import com.google.common.base.Optional;
+import com.google.common.collect.EnumMultiset;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multiset;
+
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -225,8 +230,8 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	
 	@Override
 	protected void updateEquipmentIfNeeded(EntityItem itemEntity) {
-		ItemStack res = addItemToNetwork(itemEntity.getEntityItem());
-		if (res == null) {
+		ItemStack res = addItemToNetwork(itemEntity.getEntityItem()).stack;
+		if (res.isEmpty()) {
 			itemEntity.setDead();
 		} else {
 			itemEntity.setEntityItemStack(res);
@@ -842,17 +847,32 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	}
 	
 	@Override
-	public ItemStack addItemToNetwork(ItemStack stack) {
-		if (stack.isEmpty()) return stack;
+	public InsertResult addItemToNetwork(ItemStack stack) {
+		if (stack.isEmpty()) return InsertResult.success(stack);
+		Multiset<Result> results = EnumMultiset.create(Result.class);
 		for (EntityEquipmentSlot slot : slots) {
+			if (stack.isEmpty()) break;
 			ItemStack drive = getItemStackFromSlot(slot);
 			if (drive.getItem() instanceof ItemDrive) {
 				ItemDrive itemDrive = (ItemDrive)drive.getItem();
-				itemDrive.addItem(drive, stack);
+				InsertResult ir = itemDrive.addItem(drive, stack, false);
+				results.add(ir.result);
+				stack = ir.stack;
 			}
 		}
 		changeId++;
-		return stack;
+		if (!results.contains(Result.SUCCESS) && !results.contains(Result.SUCCESS_VOIDED) && results.size() > 0) {
+			Result result = null;
+			int num = 0;
+			for (Multiset.Entry<Result> en : results.entrySet()) {
+				if (en.getCount() > num) {
+					result = en.getElement();
+					num = en.getCount();
+				}
+			}
+			return new InsertResult(result, stack);
+		}
+		return stack.isEmpty() ? InsertResult.success(stack) : InsertResult.insufficientStorage(stack);
 	}
 
 	@Override

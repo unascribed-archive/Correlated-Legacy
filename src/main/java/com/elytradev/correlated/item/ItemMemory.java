@@ -30,8 +30,7 @@ public class ItemMemory extends Item {
 
 	@Override
 	public String getItemStackDisplayName(ItemStack stack) {
-		if (stack.getMetadata() == 5) return I18n.translateToLocal("item.correlated.memory.infinite.name");
-		return I18n.translateToLocalFormatted("item.correlated.memory.normal.name", Numbers.humanReadableBytes(getMaxBits(stack)/8));
+		return I18n.translateToLocalFormatted("item.correlated.memory.normal.name", Numbers.humanReadableBits(getMaxBits(stack)));
 	}
 
 	@Override

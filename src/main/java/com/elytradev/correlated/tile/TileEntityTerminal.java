@@ -84,7 +84,7 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 								// no more room for this item in the network, skip it this tick
 								prototypes.remove(0);
 								moved -= split.getCount();
-								id.addItem(getDumpDrive(), split);
+								id.addItem(getDumpDrive(), split, false);
 							}
 						}
 					}

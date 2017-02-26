@@ -4,6 +4,7 @@ import java.text.NumberFormat;
 
 import net.minecraft.util.text.translation.I18n;
 
+@SuppressWarnings("deprecation")
 public class Numbers {
 	public static final long EXBIBYTE = 1024L*1024L*1024L*1024L*1024L*1024L;
 	public static final long PEBIBYTE = 1024L*1024L*1024L*1024L*1024L;
@@ -11,19 +12,28 @@ public class Numbers {
 	public static final long GIBIBYTE = 1024L*1024L*1024L;
 	public static final long MEBIBYTE = 1024L*1024L;
 	public static final long KIBIBYTE = 1024L;
+	public static String humanReadableBits(long bits) {
+		long magnitude = Math.abs(bits);
+		if (bits == 1) return I18n.translateToLocal("numbers.correlated.bit");
+		if (magnitude < 8) {
+			return I18n.translateToLocalFormatted("numbers.correlated.bits", bits);
+		}
+		return humanReadableBytes(bits/8);
+	}
 	public static String humanReadableBytes(long bytes) {
+		long magnitude = Math.abs(bytes);
 		if (bytes == 1) return I18n.translateToLocal("numbers.correlated.byte");
-		if (bytes >= EXBIBYTE) {
+		if (magnitude >= EXBIBYTE) {
 			return I18n.translateToLocalFormatted("numbers.correlated.exbibytes", bytes/EXBIBYTE);
-		} else if (bytes >= PEBIBYTE) {
+		} else if (magnitude >= PEBIBYTE) {
 			return I18n.translateToLocalFormatted("numbers.correlated.pebibytes", bytes/PEBIBYTE);
-		} else if (bytes >= TEBIBYTE) {
+		} else if (magnitude >= TEBIBYTE) {
 			return I18n.translateToLocalFormatted("numbers.correlated.tebibytes", bytes/TEBIBYTE);
-		} else if (bytes >= GIBIBYTE) {
+		} else if (magnitude >= GIBIBYTE) {
 			return I18n.translateToLocalFormatted("numbers.correlated.gibibytes", bytes/GIBIBYTE);
-		} else if (bytes >= MEBIBYTE) {
+		} else if (magnitude >= MEBIBYTE) {
 			return I18n.translateToLocalFormatted("numbers.correlated.mebibytes", bytes/MEBIBYTE);
-		} else if (bytes >= KIBIBYTE) {
+		} else if (magnitude >= KIBIBYTE) {
 			return I18n.translateToLocalFormatted("numbers.correlated.kibibytes", bytes/KIBIBYTE);
 		}
 		return I18n.translateToLocalFormatted("numbers.correlated.bytes", bytes);

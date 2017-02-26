@@ -187,7 +187,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 			for (int i = 0; i <= 8; i++) {
 				ItemStack stack = inv.getStackInSlot(i);
 				if (!stack.isEmpty()) {
-					inv.setInventorySlotContents(i, controller.addItemToNetwork(stack));
+					inv.setInventorySlotContents(i, controller.addItemToNetwork(stack).stack);
 				}
 			}
 			for (int i = 9; i <= 17; i++) {
