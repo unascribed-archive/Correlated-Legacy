@@ -186,6 +186,11 @@ public class ClientProxy extends Proxy {
 		ModelLoader.setCustomModelResourceLocation(Correlated.floppy, 0, new ModelResourceLocation(new ResourceLocation("correlated", "floppy_write_enabled"), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Correlated.floppy, 1, new ModelResourceLocation(new ResourceLocation("correlated", "floppy_write_disabled"), "inventory"));
 		
+		ModelLoader.setCustomModelResourceLocation(Correlated.wireless_terminal, 1, new ModelResourceLocation(new ResourceLocation("correlated", "wireless_terminal"), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Correlated.wireless_terminal, 2, new ModelResourceLocation(new ResourceLocation("correlated", "wireless_terminal"), "inventory"));
+		
+		ModelLoader.setCustomModelResourceLocation(Correlated.wireless_terminal, 4, new ModelResourceLocation(new ResourceLocation("correlated", "wireless_terminal_hand"), "inventory"));
+		
 		int idx = 0;
 		for (String s : ItemMisc.items) {
 			ModelLoader.setCustomModelResourceLocation(Correlated.misc, idx++, new ModelResourceLocation(new ResourceLocation("correlated", s), "inventory"));
@@ -499,6 +504,7 @@ public class ClientProxy extends Proxy {
 		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/controller_power_light"));
 		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/controller_memory_light"));
 		e.getMap().registerSprite(new ResourceLocation("correlated", "items/wireless_terminal_glow"));
+		e.getMap().registerSprite(new ResourceLocation("correlated", "items/wireless_terminal_glow_error"));
 		e.getMap().registerSprite(new ResourceLocation("correlated", "items/doc_tablet_glow"));
 		e.getMap().registerSprite(new ResourceLocation("correlated", "items/keycard_glow"));
 	}
@@ -525,12 +531,24 @@ public class ClientProxy extends Proxy {
 	
 	@SubscribeEvent
 	public void onRenderHand(RenderSpecificHandEvent e) {
-		if (e.getItemStack() != null) {
-			Item item = e.getItemStack().getItem();
+		ItemStack is = e.getItemStack();
+		if (is != null) {
+			Item item = is.getItem();
 			if (item != Correlated.wireless_terminal
 					&& item != Correlated.drive
 					&& item != Correlated.memory
 					&& item != Correlated.keycard) return;
+			boolean terminalError = false;
+			boolean terminalUnlinked = false;
+			if (is.getItem() == Correlated.wireless_terminal) {
+				if (is.getItemDamage() == 1) {
+					terminalError = true;
+				} else if (is.getItemDamage() == 2) {
+					terminalUnlinked = true;
+				}
+				is = is.copy();
+				is.setItemDamage(4);
+			}
 			Minecraft mc = Minecraft.getMinecraft();
 			
 			AbstractClientPlayer p = mc.player;
@@ -567,11 +585,11 @@ public class ClientProxy extends Proxy {
 			ir.rotateArm(partialTicks);
 			GlStateManager.enableRescaleNormal();
 
-			ir.renderItemInFirstPerson(p, partialTicks, interpPitch, hand, swing, e.getItemStack(), equip);
+			ir.renderItemInFirstPerson(p, partialTicks, interpPitch, hand, swing, is, equip);
 			
 			TransformType transform = (handSide == EnumHandSide.RIGHT ? TransformType.FIRST_PERSON_RIGHT_HAND : TransformType.FIRST_PERSON_LEFT_HAND);
 			
-			IBakedModel model = mc.getRenderItem().getItemModelWithOverrides(e.getItemStack(), mc.world, p);
+			IBakedModel model = mc.getRenderItem().getItemModelWithOverrides(is, mc.world, p);
 			
 			GlStateManager.pushMatrix();
 				float f = -0.4F * MathHelper.sin(MathHelper.sqrt(swing) * (float) Math.PI);
@@ -591,7 +609,9 @@ public class ClientProxy extends Proxy {
 				GlStateManager.disableAlpha();
 				GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
 				if (item == Correlated.wireless_terminal) {
-					drawSprite(mc.getTextureMapBlocks().getAtlasSprite("correlated:items/wireless_terminal_glow"));
+					if (!terminalUnlinked) {
+						drawSprite(mc.getTextureMapBlocks().getAtlasSprite("correlated:items/wireless_terminal_glow"+(terminalError ? "_error" : "")));
+					}
 				} else if (item == Correlated.drive) {
 					TextureAtlasSprite fullness = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/drive_fullness_light");
 					TextureAtlasSprite tier = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/drive_tier_light");
@@ -601,23 +621,23 @@ public class ClientProxy extends Proxy {
 					TextureAtlasSprite priority_right = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/drive_priority_light_right");
 					
 					int uncolored;
-					if (e.getItemStack().getItemDamage() == 4) {
+					if (is.getItemDamage() == 4) {
 						uncolored = getColor("other", 32);
 					} else {
 						uncolored = getColor("other", 48);
 					}
 					
-					int priorityLeftColor = mc.getItemColors().getColorFromItemstack(e.getItemStack(), 4);
-					int priorityMidColor = mc.getItemColors().getColorFromItemstack(e.getItemStack(), 5);
-					int priorityRightColor = mc.getItemColors().getColorFromItemstack(e.getItemStack(), 6);
+					int priorityLeftColor = mc.getItemColors().getColorFromItemstack(is, 4);
+					int priorityMidColor = mc.getItemColors().getColorFromItemstack(is, 5);
+					int priorityRightColor = mc.getItemColors().getColorFromItemstack(is, 6);
 					
-					color(mc.getItemColors().getColorFromItemstack(e.getItemStack(), 1));
+					color(mc.getItemColors().getColorFromItemstack(is, 1));
 					drawSprite(fullness);
 					
-					color(mc.getItemColors().getColorFromItemstack(e.getItemStack(), 2));
+					color(mc.getItemColors().getColorFromItemstack(is, 2));
 					drawSprite(tier);
 					
-					color(mc.getItemColors().getColorFromItemstack(e.getItemStack(), 3));
+					color(mc.getItemColors().getColorFromItemstack(is, 3));
 					drawSprite(partition);
 					
 					if (priorityLeftColor != uncolored) {
@@ -634,7 +654,7 @@ public class ClientProxy extends Proxy {
 					}
 				} else if (item == Correlated.memory) {
 					TextureAtlasSprite tier = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/ram_tier_light");
-					color(mc.getItemColors().getColorFromItemstack(e.getItemStack(), 1));
+					color(mc.getItemColors().getColorFromItemstack(is, 1));
 					drawSprite(tier);
 				} else if (item == Correlated.keycard) {
 					drawSprite(mc.getTextureMapBlocks().getAtlasSprite("correlated:items/keycard_glow"));
@@ -649,7 +669,7 @@ public class ClientProxy extends Proxy {
 			
 			GlStateManager.disableRescaleNormal();
 			RenderHelper.disableStandardItemLighting();
-			
+			e.setCanceled(true);
 		}
 	}
 	private void color(int packed) {

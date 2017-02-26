@@ -7,6 +7,7 @@ import com.elytradev.correlated.CorrelatedWorldData.Transmitter;
 import com.elytradev.correlated.tile.TileEntityController;
 import com.elytradev.correlated.tile.TileEntityWirelessTransmitter;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -54,6 +55,27 @@ public class ItemWirelessTerminal extends Item {
 	@Override
 	public int getItemStackLimit(ItemStack is) {
 		return 1;
+	}
+	
+	@Override
+	public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
+		super.onUpdate(stack, worldIn, entityIn, itemSlot, isSelected);
+		if (worldIn.isRemote) return;
+		if (isSelected) {
+			if (!stack.hasTagCompound() || !stack.getTagCompound().hasKey("TransmitterUUIDMost")) {
+				stack.setItemDamage(2);
+			} else {
+				UUID uuid = new UUID(stack.getTagCompound().getLong("TransmitterUUIDMost"), stack.getTagCompound().getLong("TransmitterUUIDLeast"));
+				Transmitter t = Correlated.getDataFor(worldIn).getTransmitterById(uuid);
+				if (t == null) {
+					stack.setItemDamage(1);
+				} else if (t.position.distanceSq(entityIn.posX, entityIn.posY, entityIn.posZ) > t.range*t.range) {
+					stack.setItemDamage(1);
+				} else {
+					stack.setItemDamage(0);
+				}
+			}
+		}
 	}
 	
 	public Transmitter getTransmitter(ItemStack stack, World world, EntityPlayer player, boolean sendMessages) {
