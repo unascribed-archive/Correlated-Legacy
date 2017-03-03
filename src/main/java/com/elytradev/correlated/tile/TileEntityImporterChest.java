@@ -331,5 +331,20 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 	public boolean isEmpty() {
 		return storage.isEmpty();
 	}
+	
+	@Override
+	public boolean allowAPNSelection() {
+		return false;
+	}
+	
+	@Override
+	public int getSignalStrength() {
+		return -1;
+	}
+	
+	@Override
+	public void setAPN(String apn) {
+		
+	}
 
 }

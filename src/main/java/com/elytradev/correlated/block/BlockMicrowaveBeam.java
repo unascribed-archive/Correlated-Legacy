@@ -1,56 +1,33 @@
 package com.elytradev.correlated.block;
 
 import java.util.List;
-import java.util.UUID;
-
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.CorrelatedWorldData;
-import com.elytradev.correlated.CorrelatedWorldData.Transmitter;
 import com.elytradev.correlated.helper.Blocks;
-import com.elytradev.correlated.tile.TileEntityWirelessReceiver;
-import com.elytradev.correlated.tile.TileEntityWirelessTransmitter;
-import com.google.common.base.Supplier;
-
+import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
+import com.elytradev.correlated.wifi.Beam;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 
-public class BlockWirelessEndpoint extends Block {
-	public enum Kind implements IStringSerializable {
-		RECEIVER(TileEntityWirelessReceiver::new),
-		TRANSMITTER(TileEntityWirelessTransmitter::new);
-		public static final Kind[] VALUES = values();
-		private final Supplier<TileEntity> teConstructor;
-		private final String lowerName;
-		private Kind(Supplier<TileEntity> teConstructor) {
-			lowerName = name().toLowerCase();
-			this.teConstructor = teConstructor;
-		}
-		@Override public String getName() { return lowerName; }
-		@Override public String toString() { return lowerName; }
-		public TileEntity createTileEntity() {
-			return teConstructor.get();
-		}
-	}
+public class BlockMicrowaveBeam extends Block {
+	
 	public enum State implements IStringSerializable {
 		DEAD,
 		ERROR,
@@ -64,12 +41,11 @@ public class BlockWirelessEndpoint extends Block {
 		@Override public String toString() { return lowerName; }
 	}
 	
-	public static final IProperty<Kind> kind = PropertyEnum.create("kind", Kind.class);
 	public static final IProperty<State> state = PropertyEnum.create("state", State.class);
 	
 	private AxisAlignedBB aabb = new AxisAlignedBB(0, 0, 0, 1, 0.3125, 1);
 	
-	public BlockWirelessEndpoint() {
+	public BlockMicrowaveBeam() {
 		super(Material.IRON);
 	}
 	
@@ -107,72 +83,49 @@ public class BlockWirelessEndpoint extends Block {
 	
 	@Override
 	public TileEntity createTileEntity(World world, IBlockState state) {
-		return state.getValue(kind).createTileEntity();
-	}
-	
-	@Override
-	public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand) {
-		return getDefaultState().withProperty(kind, meta == 0 ? Kind.RECEIVER : Kind.TRANSMITTER);
+		return new TileEntityMicrowaveBeam();
 	}
 	
 	
 	@Override
 	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
 		TileEntity te = world.getTileEntity(pos);
-		if (te instanceof TileEntityWirelessTransmitter && !world.isRemote) {
-			TileEntityWirelessTransmitter tewt = (TileEntityWirelessTransmitter)te;
-			CorrelatedWorldData data = Correlated.getDataFor(world);
-			if (stack.hasTagCompound() && stack.getTagCompound().hasKey("TransmitterUUIDMost", NBT.TAG_LONG)) {
-				tewt.setId(new UUID(stack.getTagCompound().getLong("TransmitterUUIDMost"), stack.getTagCompound().getLong("TransmitterUUIDLeast")));
-			}
-			Transmitter t = new Transmitter(tewt.getId(), pos);
-			data.addTransmitter(t);
-		} else if (te instanceof TileEntityWirelessReceiver && !world.isRemote) {
-			TileEntityWirelessReceiver tewr = (TileEntityWirelessReceiver)te;
-			if (stack.hasTagCompound() && stack.getTagCompound().hasKey("TransmitterUUIDMost", NBT.TAG_LONG)) {
-				tewr.setTransmitter(new UUID(stack.getTagCompound().getLong("TransmitterUUIDMost"), stack.getTagCompound().getLong("TransmitterUUIDLeast")));
+		if (te instanceof TileEntityMicrowaveBeam && !world.isRemote) {
+			TileEntityMicrowaveBeam temb = (TileEntityMicrowaveBeam)te;
+			if (stack.hasTagCompound() && stack.getTagCompound().hasKey("OtherSide", NBT.TAG_LONG)) {
+				BlockPos other = BlockPos.fromLong(stack.getTagCompound().getLong("OtherSide"));
+				if (world.getTileEntity(other) instanceof TileEntityMicrowaveBeam) {
+					temb.link(other);
+				}
 			}
 		}
 	}
 	
 	@Override
-	public int damageDropped(IBlockState state) {
-		return state.getValue(kind).ordinal();
-	}
-	
-	@Override
 	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, state, kind);
+		return new BlockStateContainer(this, state);
 	}
 	
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		return (state.getValue(BlockWirelessEndpoint.state).ordinal() & 0b0111)
-				| (state.getValue(kind) == Kind.RECEIVER ? 0b1000 : 0);
+		return (state.getValue(BlockMicrowaveBeam.state).ordinal() & 0b0111);
 	}
 	
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
 		return getDefaultState()
-				.withProperty(state, State.VALUES[meta%State.VALUES.length])
-				.withProperty(kind, ((meta & 0b1000) != 0) ? Kind.RECEIVER : Kind.TRANSMITTER);
+				.withProperty(state, State.VALUES[meta%State.VALUES.length]);
 	}
 	
 	@Override
 	public void breakBlock(World world, BlockPos pos, IBlockState state) {
 		TileEntity te = world.getTileEntity(pos);
-		if (te instanceof TileEntityWirelessTransmitter) {
-			TileEntityWirelessTransmitter tewt = (TileEntityWirelessTransmitter)te;
+		if (te instanceof TileEntityMicrowaveBeam) {
 			CorrelatedWorldData data = Correlated.getDataFor(world);
-			data.removeTransmitterById(tewt.getId());
+			Beam b = data.getWirelessManager().getBeam(pos);
+			data.getWirelessManager().remove(b);
 		}
 		super.breakBlock(world, pos, state);
-	}
-	
-	@Override
-	public void getSubBlocks(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> list) {
-		list.add(new ItemStack(itemIn, 1, 0));
-		list.add(new ItemStack(itemIn, 1, 1));
 	}
 	
 	@Override

@@ -33,9 +33,8 @@ import com.elytradev.correlated.client.render.tile.RenderController;
 import com.elytradev.correlated.client.render.tile.RenderDriveBay;
 import com.elytradev.correlated.client.render.tile.RenderImporterChest;
 import com.elytradev.correlated.client.render.tile.RenderMemoryBay;
+import com.elytradev.correlated.client.render.tile.RenderMicrowaveBeam;
 import com.elytradev.correlated.client.render.tile.RenderTerminal;
-import com.elytradev.correlated.client.render.tile.RenderWirelessReceiver;
-import com.elytradev.correlated.client.render.tile.RenderWirelessTransmitter;
 import com.elytradev.correlated.entity.EntityAutomaton;
 import com.elytradev.correlated.entity.EntityThrownItem;
 import com.elytradev.correlated.item.ItemDrive;
@@ -47,9 +46,8 @@ import com.elytradev.correlated.tile.TileEntityController;
 import com.elytradev.correlated.tile.TileEntityDriveBay;
 import com.elytradev.correlated.tile.TileEntityImporterChest;
 import com.elytradev.correlated.tile.TileEntityMemoryBay;
+import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
 import com.elytradev.correlated.tile.TileEntityTerminal;
-import com.elytradev.correlated.tile.TileEntityWirelessReceiver;
-import com.elytradev.correlated.tile.TileEntityWirelessTransmitter;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -153,12 +151,10 @@ public class ClientProxy extends Proxy {
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityDriveBay.class, new RenderDriveBay());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityMemoryBay.class, new RenderMemoryBay());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTerminal.class, new RenderTerminal());
-		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityWirelessReceiver.class, new RenderWirelessReceiver());
-		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityWirelessTransmitter.class, new RenderWirelessTransmitter());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityImporterChest.class, new RenderImporterChest());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityMicrowaveBeam.class, new RenderMicrowaveBeam());
 		
-		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(Correlated.wireless_endpoint), 0, TileEntityWirelessReceiver.class);
-		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(Correlated.wireless_endpoint), 1, TileEntityWirelessTransmitter.class);
+		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(Correlated.microwave_beam), 0, TileEntityMicrowaveBeam.class);
 		
 		RenderingRegistry.registerEntityRenderingHandler(EntityThrownItem.class, (rm) -> new RenderThrownItem(rm, Minecraft.getMinecraft().getRenderItem()));
 		RenderingRegistry.registerEntityRenderingHandler(EntityAutomaton.class, RenderAutomaton::new);

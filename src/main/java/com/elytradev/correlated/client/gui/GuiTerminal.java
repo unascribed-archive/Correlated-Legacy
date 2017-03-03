@@ -47,6 +47,8 @@ public class GuiTerminal extends GuiContainer {
 	
 	private String lastJeiQuery;
 	
+	public int signalStrength = -1;
+	
 	public GuiTerminal(ContainerTerminal container) {
 		super(container);
 		searchField.setEnableBackgroundDrawing(false);
@@ -97,14 +99,15 @@ public class GuiTerminal extends GuiContainer {
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 		fontRenderer.drawString(getTitle(), 8, 6, 0x404040);
 		if (hasStatusLine()) {
-			String lastLine = container.status.get(container.status.size()-1).getFormattedText().trim();
+			String lastLine = signalStrength == 0 ? I18n.format("gui.correlated.noSignal") : container.status.get(container.status.size()-1).getFormattedText().trim();
+			int maxLength = signalStrength == -1 ? 160 : 144;
 			int len = IBMFontRenderer.measure(lastLine);
-			if (len > 160) {
+			if (len > maxLength) {
 				String s = lastLine;
 				for (int i = 0; i < lastLine.length(); i++) {
 					String str = lastLine.substring(0, i)+"...";
 					int slen = IBMFontRenderer.measure(str);
-					if (slen > 160) break;
+					if (slen > maxLength) break;
 					s = str;
 				}
 				lastLine = s;
@@ -142,8 +145,15 @@ public class GuiTerminal extends GuiContainer {
 			u += 12;
 		}
 		int y = 18;
-		GlStateManager.color(1, 1, 1);
 		mc.getTextureManager().bindTexture(getBackground());
+		if (hasStatusLine() && signalStrength != -1) {
+			GlStateManager.color(0, 0.5587f, 0.4413f);
+			int right = 162+68+container.playerInventoryOffsetX;
+			int top = 90+container.playerInventoryOffsetY;
+			drawTexturedModalRect(right-20, top+1, 184, 224, 16, 8);
+			drawTexturedModalRect(right-20, top+1, 184, 232, 5+(signalStrength*2), 8);
+		}
+		GlStateManager.color(1, 1, 1);
 		drawTexturedModalRect(getScrollTrackX(), getScrollTrackY()+y+(scrollKnobY-6), u, 241, 12, 15);
 
 		GlStateManager.pushMatrix();

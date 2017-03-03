@@ -51,14 +51,13 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	private int totalScanned = 0;
 	private transient Set<BlockPos> networkMemberLocations = Sets.newHashSet();
 	private transient List<TileEntityInterface> interfaces = Lists.newArrayList();
-	private transient List<TileEntityWirelessReceiver> receivers = Lists.newArrayList();
 	private transient List<TileEntityDriveBay> driveBays = Lists.newArrayList();
 	private transient List<TileEntityMemoryBay> memoryBays = Lists.newArrayList();
+	private transient List<TileEntityMicrowaveBeam> beams = Lists.newArrayList();
 	private transient List<ItemStack> drives = Lists.newArrayList();
 	private transient Set<ItemStack> prototypes;
 	private transient Multiset<Class<? extends TileEntityNetworkMember>> memberTypes = HashMultiset.create(7);
 	public int changeId = 0;
-	private boolean checkingInfiniteLoop = false;
 	
 	private long maxMemory = 0;
 	
@@ -200,9 +199,9 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 		networkMemberLocations.clear();
 		driveBays.clear();
 		memoryBays.clear();
-		receivers.clear();
 		interfaces.clear();
 		prototypes.clear();
+		beams.clear();
 		memberTypes.clear();
 
 		int itr = 0;
@@ -240,10 +239,10 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 							driveBays.add((TileEntityDriveBay)te);
 						} else if (te instanceof TileEntityInterface) {
 							interfaces.add((TileEntityInterface)te);
-						} else if (te instanceof TileEntityWirelessReceiver) {
-							receivers.add((TileEntityWirelessReceiver)te);
 						} else if (te instanceof TileEntityMemoryBay) {
 							memoryBays.add((TileEntityMemoryBay)te);
+						} else if (te instanceof TileEntityMicrowaveBeam) {
+							beams.add((TileEntityMicrowaveBeam)te);
 						}
 						networkMemberLocations.add(pos);
 						memberTypes.add(tenm.getClass());
@@ -261,7 +260,6 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 			error = false;
 			errorReason = null;
 		}
-		checkInfiniteLoop();
 		for (TileEntityNetworkMember te : members) {
 			te.setController(this);
 		}
@@ -279,42 +277,6 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 		updateMemoryCache();
 		booting = false;
 		Correlated.log.debug("Found "+members.size()+" network members");
-	}
-	
-	public void checkInfiniteLoop() {
-		checkingInfiniteLoop = true;
-		for (TileEntityWirelessReceiver r : receivers) {
-			TileEntityController cont = r.getTransmitterController();
-			if (cont != null && cont.isLinkedTo(this, 0)) {
-				error = true;
-				errorReason = "infinite_loop";
-				receivers.clear();
-				checkingInfiniteLoop = false;
-				return;
-			}
-		}
-		if (error && "infinite_loop".equals(errorReason)) {
-			error = false;
-			errorReason = null;
-		}
-		checkingInfiniteLoop = false;
-	}
-	
-	public boolean isCheckingInfiniteLoop() {
-		return checkingInfiniteLoop;
-	}
-	
-	public boolean isLinkedTo(TileEntityController tec, int depth) {
-		// bail out now in case our infinite loop checking is causing infinite recursion
-		if (depth > 50) return true;
-		if (tec.equals(this)) return true;
-		for (TileEntityWirelessReceiver r : receivers) {
-			TileEntityController cont = r.getTransmitterController();
-			if (cont != null && cont.isLinkedTo(tec, depth + 1)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private void updateState() {
@@ -401,9 +363,13 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 
 	@Override
 	public InsertResult addItemToNetwork(ItemStack stack) {
+		return addItemToNetwork(Sets.newHashSet(), stack);
+	}
+	public InsertResult addItemToNetwork(Set<TileEntityController> alreadyChecked, ItemStack stack) {
 		if (error) return InsertResult.refused(stack);
 		if (stack == null || stack.isEmpty()) return InsertResult.success(stack);
 		boolean hasCheckedMemory = false;
+		boolean insufficientMemory = false;
 		Multiset<Result> results = EnumMultiset.create(Result.class);
 		for (ItemStack drive : drives) {
 			if (stack.isEmpty()) break;
@@ -418,7 +384,8 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 						// specifically ignores SUCCESS_VOIDED
 						if (sim.result == Result.SUCCESS && !prototypes.contains(copy)
 								&& getTotalUsedMemory()+getMemoryUsage(stack) > getMaxMemory()) {
-							return InsertResult.insufficientMemory(stack);
+							insufficientMemory = true;
+							break;
 						}
 						hasCheckedMemory = true;
 					}
@@ -431,14 +398,20 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 				}
 			}
 		}
-		for (TileEntityWirelessReceiver r : receivers) {
+		alreadyChecked.add(this);
+		for (TileEntityMicrowaveBeam beam : beams) {
 			if (stack.isEmpty()) break;
-			TileEntityController cont = r.getTransmitterController();
-			if (cont != null) {
-				InsertResult ir = cont.addItemToNetwork(stack);
+			TileEntityController other = beam.getOtherSide();
+			if (alreadyChecked.contains(other)) continue;
+			if (other != null) {
+				InsertResult ir = other.addItemToNetwork(stack);
 				results.add(ir.result);
 				stack = ir.stack;
+				insufficientMemory = false;
 			}
+		}
+		if (insufficientMemory) {
+			return InsertResult.insufficientMemory(stack);
 		}
 		changeId++;
 		if (!results.contains(Result.SUCCESS) && !results.contains(Result.SUCCESS_VOIDED) && results.size() > 0) {
@@ -458,6 +431,10 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 
 	@Override
 	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount, boolean checkInterfaces) {
+		return removeItemsFromNetwork(Sets.newHashSet(), prototype, amount, checkInterfaces);
+	}
+	
+	public ItemStack removeItemsFromNetwork(Set<TileEntityController> alreadyChecked, ItemStack prototype, int amount, boolean checkInterfaces) {
 		if (error) return ItemStack.EMPTY;
 		ItemStack stack = prototype.copy();
 		stack.setCount(0);
@@ -475,13 +452,15 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 				}
 			}
 		}
-		for (TileEntityWirelessReceiver r : receivers) {
+		alreadyChecked.add(this);
+		for (TileEntityMicrowaveBeam beam : beams) {
 			if (stack.getCount() >= amount) break;
-			TileEntityController cont = r.getTransmitterController();
-			if (cont != null) {
-				ItemStack remote = cont.removeItemsFromNetwork(prototype, amount-stack.getCount(), checkInterfaces);
+			TileEntityController other = beam.getOtherSide();
+			if (alreadyChecked.contains(other)) continue;
+			if (other != null) {
+				ItemStack remote = other.removeItemsFromNetwork(alreadyChecked, prototype, amount-stack.getCount(), checkInterfaces);
 				if (remote != null) {
-					stack.setCount(stack.getCount()+remote.getCount());
+					stack.grow(remote.getCount());
 				}
 			}
 		}
@@ -510,10 +489,22 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	
 	@Override
 	public int getKilobitsStorageFree() {
+		return getKilobitsStorageFree(Sets.newHashSet());
+	}
+	
+	public int getKilobitsStorageFree(Set<TileEntityController> alreadyChecked) {
 		int accum = 0;
 		for (ItemStack drive : drives) {
 			if (drive != null && drive.getItem() instanceof ItemDrive) {
 				accum += ((ItemDrive)drive.getItem()).getKilobitsFree(drive);
+			}
+		}
+		alreadyChecked.add(this);
+		for (TileEntityMicrowaveBeam beam : beams) {
+			TileEntityController other = beam.getOtherSide();
+			if (alreadyChecked.contains(other)) continue;
+			if (other != null) {
+				accum += other.getKilobitsStorageFree(alreadyChecked);
 			}
 		}
 		return accum;
@@ -536,7 +527,7 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	}
 	
 	public long getUsedWirelessMemory() {
-		return (memberTypes.count(TileEntityWirelessReceiver.class) * 16L) + (memberTypes.count(TileEntityWirelessTransmitter.class) * 32L);
+		return memberTypes.count(TileEntityMicrowaveBeam.class) * 80L;
 	}
 	
 	public long getTotalUsedMemory() {
@@ -553,7 +544,10 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 
 	@Override
 	public List<ItemStack> getTypes() {
-		List<ItemStack> li = Lists.newArrayList();
+		return getTypes(Sets.newHashSet(), Lists.newArrayList());
+	}
+	
+	public List<ItemStack> getTypes(Set<TileEntityController> alreadyChecked, List<ItemStack> li) {
 		for (ItemStack drive : drives) {
 			if (drive != null && drive.getItem() instanceof ItemDrive) {
 				li.addAll(((ItemDrive)drive.getItem()).getTypes(drive));
@@ -575,10 +569,12 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 				}
 			}
 		}
-		for (TileEntityWirelessReceiver r : receivers) {
-			TileEntityController cont = r.getTransmitterController();
-			if (cont != null) {
-				li.addAll(cont.getTypes());
+		alreadyChecked.add(this);
+		for (TileEntityMicrowaveBeam beam : beams) {
+			TileEntityController other = beam.getOtherSide();
+			if (alreadyChecked.contains(other)) continue;
+			if (other != null) {
+				other.getTypes(alreadyChecked, li);
 			}
 		}
 		return li;
@@ -595,12 +591,6 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 		} else if (tenm instanceof TileEntityInterface) {
 			if (!interfaces.contains(tenm)) {
 				interfaces.add((TileEntityInterface)tenm);
-				changeId++;
-			}
-		} else if (tenm instanceof TileEntityWirelessReceiver) {
-			if (!receivers.contains(tenm)) {
-				receivers.add((TileEntityWirelessReceiver)tenm);
-				checkInfiniteLoop();
 				changeId++;
 			}
 		} else if (tenm instanceof TileEntityMemoryBay) {

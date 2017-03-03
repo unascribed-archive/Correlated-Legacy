@@ -14,6 +14,7 @@ import com.elytradev.correlated.helper.Numbers;
 import com.elytradev.correlated.network.AddStatusLineMessage;
 import com.elytradev.correlated.network.SetSearchQueryClientMessage;
 import com.elytradev.correlated.network.SetSlotSizeMessage;
+import com.elytradev.correlated.network.SignalStrengthMessage;
 import com.elytradev.correlated.storage.ITerminal;
 import com.elytradev.correlated.storage.InsertResult;
 import com.elytradev.correlated.storage.InsertResult.Result;
@@ -128,6 +129,7 @@ public class ContainerTerminal extends Container {
 	public int playerInventoryOffsetX;
 	public int playerInventoryOffsetY;
 	public boolean hasCraftingMatrix = true;
+	private int lastSignal = -1;
 
 	public class SlotVirtual extends Slot {
 		private ItemStack stack = ItemStack.EMPTY;
@@ -531,7 +533,15 @@ public class ContainerTerminal extends Container {
 				updateSlots();
 			}
 		}
-		return player == this.player && terminal.hasStorage() && terminal.getStorage().isPowered() && terminal.canContinueInteracting(player);
+		boolean b = player == this.player && terminal.hasStorage() && terminal.getStorage().isPowered() && terminal.canContinueInteracting(player);
+		if (b) {
+			int signal = terminal.getSignalStrength();
+			if (signal != lastSignal) {
+				lastSignal = signal;
+				new SignalStrengthMessage(signal).sendTo(player);
+			}
+		}
+		return b;
 	}
 
 	@Override

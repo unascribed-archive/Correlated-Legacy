@@ -3,10 +3,9 @@ package com.elytradev.correlated.client.render.tile;
 import org.lwjgl.opengl.GL11;
 
 import com.elytradev.correlated.Correlated;
-import com.elytradev.correlated.block.BlockWirelessEndpoint;
-import com.elytradev.correlated.block.BlockWirelessEndpoint.Kind;
-import com.elytradev.correlated.block.BlockWirelessEndpoint.State;
-import com.elytradev.correlated.tile.TileEntityWirelessReceiver;
+import com.elytradev.correlated.block.BlockMicrowaveBeam;
+import com.elytradev.correlated.block.BlockMicrowaveBeam.State;
+import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -14,22 +13,26 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.client.model.pipeline.LightUtil;
 
-public class RenderWirelessReceiver extends TileEntitySpecialRenderer<TileEntityWirelessReceiver> {
-	private final IBlockState receiverBlockState = Correlated.wireless_endpoint.getDefaultState().withProperty(BlockWirelessEndpoint.kind, Kind.RECEIVER);
+public class RenderMicrowaveBeam extends TileEntitySpecialRenderer<TileEntityMicrowaveBeam> {
+	private final IBlockState beamBlockState = Correlated.microwave_beam.getDefaultState();
 	@Override
-	public void renderTileEntityAt(TileEntityWirelessReceiver te, double x, double y, double z, float partialTicks, int destroyStage) {
+	public void renderTileEntityAt(TileEntityMicrowaveBeam te, double x, double y, double z, float partialTicks, int destroyStage) {
 		State state = State.DEAD;
 		if (te != null) {
 			if (te.hasWorld()) {
 				IBlockState bs = te.getWorld().getBlockState(te.getPos());
-				if (bs.getBlock() != Correlated.wireless_endpoint) return;
-				state = bs.getValue(BlockWirelessEndpoint.state);
+				if (bs.getBlock() != Correlated.microwave_beam) return;
+				state = bs.getValue(BlockMicrowaveBeam.state);
 			} else {
 				return;
 			}
@@ -53,7 +56,7 @@ public class RenderWirelessReceiver extends TileEntitySpecialRenderer<TileEntity
 		GlStateManager.pushMatrix();
 			Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 			if (te == null) {
-				RenderWirelessEndpoint.renderBaseForItem(receiverBlockState);
+				renderBaseForItem(beamBlockState);
 			}
 			GlStateManager.translate(0.5, 0.875, 0.5);
 			GlStateManager.disableLighting();
@@ -219,10 +222,71 @@ public class RenderWirelessReceiver extends TileEntitySpecialRenderer<TileEntity
 			
 			tess.draw();
 		GlStateManager.popMatrix();
-		RenderWirelessEndpoint.drawGlow(state);
+		drawGlow(state);
 		GlStateManager.enableRescaleNormal();
 		GlStateManager.enableLighting();
 		GlStateManager.popMatrix();
+	}
+	
+	public static void renderBaseForItem(IBlockState state) {
+		Tessellator tess = Tessellator.getInstance();
+		VertexBuffer wr = tess.getBuffer();
+		IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(state);
+		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
+		for (EnumFacing ef : EnumFacing.VALUES) {
+			for (BakedQuad quad : model.getQuads(state, ef, 0)) {
+				LightUtil.renderQuadColor(wr, quad, 0xFFFFFFFF);
+			}
+		}
+		for (BakedQuad quad : model.getQuads(state, null, 0)) {
+			LightUtil.renderQuadColor(wr, quad, 0xFFFFFFFF);
+		}
+		tess.draw();
+	}
+	
+	public static void drawGlow(State state) {
+		VertexBuffer wr = Tessellator.getInstance().getBuffer();
+		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+		TextureAtlasSprite tas = null;
+		switch (state) {
+			case ERROR:
+				tas = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("correlated:blocks/wireless_endpoint_error");
+				break;
+			case LINKED:
+				tas = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("correlated:blocks/wireless_endpoint_linked");
+				break;
+			default:
+				break;
+		}
+		
+		if (tas != null) {
+			float minU = tas.getMinU();
+			float maxU = tas.getMaxU();
+			float minV = tas.getMinV();
+			float maxV = tas.getMaxV();
+			
+			
+			wr.pos(0, 0, 1.001).tex(minU, maxV).endVertex();
+			wr.pos(1, 0, 1.001).tex(maxU, maxV).endVertex();
+			wr.pos(1, 1, 1.001).tex(maxU, minV).endVertex();
+			wr.pos(0, 1, 1.001).tex(minU, minV).endVertex();
+
+			wr.pos(0, 0, -0.001).tex(minU, maxV).endVertex();
+			wr.pos(0, 1, -0.001).tex(minU, minV).endVertex();
+			wr.pos(1, 1, -0.001).tex(maxU, minV).endVertex();
+			wr.pos(1, 0, -0.001).tex(maxU, maxV).endVertex();
+
+			wr.pos(1.001, 0, 1).tex(minU, maxV).endVertex();
+			wr.pos(1.001, 0, 0).tex(maxU, maxV).endVertex();
+			wr.pos(1.001, 1, 0).tex(maxU, minV).endVertex();
+			wr.pos(1.001, 1, 1).tex(minU, minV).endVertex();
+
+			wr.pos(-0.001, 0, 0).tex(minU, maxV).endVertex();
+			wr.pos(-0.001, 0, 1).tex(maxU, maxV).endVertex();
+			wr.pos(-0.001, 1, 1).tex(maxU, minV).endVertex();
+			wr.pos(-0.001, 1, 0).tex(minU, minV).endVertex();
+		}
+		Tessellator.getInstance().draw();
 	}
 	
 }

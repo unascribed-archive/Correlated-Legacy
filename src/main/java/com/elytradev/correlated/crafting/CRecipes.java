@@ -210,33 +210,30 @@ public class CRecipes {
 				'o', luminousPearl
 				));
 		
-		// Wireless Receiver
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(Correlated.wireless_endpoint, 1, 0),
-				" t ",
+		// Microwave Beam
+		GameRegistry.addRecipe(new ShapedOreRecipe(Correlated.microwave_beam,
+				" | ",
 				"___",
-				"ipi",
-				'_', Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE,
+				"idi",
 				'i', "ingotIron",
-				't', luminousTorch,
-				'p', processor
-				));
-		
-		// Wireless Transmitter
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(Correlated.wireless_endpoint, 1, 1),
-				" t ",
-				"iii",
-				"ipi",
-				'i', "ingotIron",
-				't', luminousTorch,
-				'p', processor
+				'd', "gemDiamond",
+				'|', luminousTorch,
+				'_', Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE
 				));
 		
 		// Wireless Terminal
-		GameRegistry.addRecipe(new ShapedOreRecipe(Correlated.wireless_terminal,
-				"r",
-				"t",
-				'r', new ItemStack(Correlated.wireless_endpoint, 1, 0),
-				't', Correlated.terminal
+		GameRegistry.addRecipe(new ShapelessOreRecipe(Correlated.wireless_terminal,
+				Correlated.terminal
+				));
+		
+		// Wireless Terminal back to Terminal
+		GameRegistry.addRecipe(new ShapelessOreRecipe(Correlated.terminal,
+				Correlated.wireless_terminal
+				));
+		
+		// Reset Microwave Beam
+		GameRegistry.addRecipe(new ShapelessOreRecipe(Correlated.microwave_beam,
+				Correlated.microwave_beam
 				));
 		
 		// Weldthrower Fuel

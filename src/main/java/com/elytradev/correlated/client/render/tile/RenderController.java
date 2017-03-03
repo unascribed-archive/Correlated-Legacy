@@ -31,6 +31,7 @@ public class RenderController extends TileEntitySpecialRenderer<TileEntityContro
 		float lastY = OpenGlHelper.lastBrightnessY;
 
 		State state = bs.getValue(BlockController.state);
+		boolean cheaty = bs.getValue(BlockController.cheaty);
 		String topTex;
 		switch (state) {
 			case BOOTING:
@@ -42,7 +43,7 @@ public class RenderController extends TileEntitySpecialRenderer<TileEntityContro
 			case OFF:
 				return;
 			case POWERED:
-				topTex = bs.getValue(BlockController.cheaty) ? "correlated:blocks/controller_creative" : "correlated:blocks/controller";
+				topTex = cheaty ? "correlated:blocks/controller_creative" : "correlated:blocks/controller";
 				break;
 			default:
 				return;
@@ -95,7 +96,7 @@ public class RenderController extends TileEntitySpecialRenderer<TileEntityContro
 		int powerIdx = 254-(int)(((float)te.getClientEnergy()/te.getClientEnergyMax())*254f);
 		int memoryIdx = (int)(((float)te.getClientMemoryUsed()/te.getClientMemoryMax())*254f);
 		if (memoryIdx > 254) memoryIdx = 254;
-		int powerColor = Correlated.proxy.getColor("fullness", 512+powerIdx);
+		int powerColor = Correlated.proxy.getColor("fullness", cheaty ? 255 : 512+powerIdx);
 		int memoryColor = Correlated.proxy.getColor("fullness", 512+memoryIdx);
 		
 		for (int i = 0; i < 4; i++) {

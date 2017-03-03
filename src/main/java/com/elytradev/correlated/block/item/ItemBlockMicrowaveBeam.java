@@ -3,7 +3,8 @@ package com.elytradev.correlated.block.item;
 import java.util.List;
 
 import com.elytradev.correlated.Correlated;
-import com.elytradev.correlated.tile.TileEntityWirelessTransmitter;
+import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
+import com.elytradev.correlated.wifi.Beam;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
@@ -19,22 +20,16 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 
-public class ItemBlockWirelessEndpoint extends ItemBlock {
+public class ItemBlockMicrowaveBeam extends ItemBlock {
 
-	public ItemBlockWirelessEndpoint(Block block) {
+	public ItemBlockMicrowaveBeam(Block block) {
 		super(block);
 	}
 
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
-		tooltip.add(I18n.format("tooltip.correlated.rf_usage", stack.getItemDamage() == 0 ? Correlated.inst.receiverRfUsage : Correlated.inst.transmitterRfUsage));
-	}
-	
-	@Override
-	public String getUnlocalizedName(ItemStack stack) {
-		return stack.getItemDamage() == 0 ? 
-				"tile.correlated.wireless_receiver" :
-				"tile.correlated.wireless_transmitter";
+		tooltip.add(I18n.format("tile.correlated.microwave_beam.0"));
+		tooltip.add(I18n.format("tooltip.correlated.rf_usage", Correlated.inst.beamRfUsage));
 	}
 	
 	@Override
@@ -42,23 +37,23 @@ public class ItemBlockWirelessEndpoint extends ItemBlock {
 		ItemStack stack = player.getHeldItem(hand);
 		if (stack.getMetadata() == 0) {
 			TileEntity te = world.getTileEntity(pos);
-			if (te instanceof TileEntityWirelessTransmitter) {
-				TileEntityWirelessTransmitter tewt = (TileEntityWirelessTransmitter)te;
+			if (te instanceof TileEntityMicrowaveBeam) {
 				if (!stack.hasTagCompound()) {
 					stack.setTagCompound(new NBTTagCompound());
 				}
-				stack.getTagCompound().setLong("TransmitterUUIDMost", tewt.getId().getMostSignificantBits());
-				stack.getTagCompound().setLong("TransmitterUUIDLeast", tewt.getId().getLeastSignificantBits());
+				stack.getTagCompound().setLong("OtherSide", pos.toLong());
 				if (world.isRemote) {
-					player.sendMessage(new TextComponentTranslation("msg.correlated.receiver_linked"));
+					player.sendMessage(new TextComponentTranslation("msg.correlated.position_saved"));
 				}
 				return EnumActionResult.SUCCESS;
 			}
-			if (!stack.hasTagCompound() || !stack.getTagCompound().hasKey("TransmitterUUIDMost")) {
-				if (world.isRemote) {
-					player.sendMessage(new TextComponentTranslation("msg.correlated.receiver_unlinked"));
+			if (stack.hasTagCompound() && stack.getTagCompound().hasKey("OtherSide")) {
+				BlockPos other = BlockPos.fromLong(stack.getTagCompound().getLong("OtherSide"));
+				Beam b = Correlated.getDataFor(world).getWirelessManager().getBeam(other);
+				if (b != null) {
+					player.sendMessage(new TextComponentTranslation("msg.correlated.beam_exists"));
+					return EnumActionResult.FAIL;
 				}
-				return EnumActionResult.FAIL;
 			}
 		}
 		return super.onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ);

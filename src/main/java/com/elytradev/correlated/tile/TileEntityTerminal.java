@@ -337,6 +337,23 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 		return inv.isEmpty();
 	}
 	
+	// TODO implement wireless
+	
+	@Override
+	public boolean allowAPNSelection() {
+		return false;
+	}
+	
+	@Override
+	public int getSignalStrength() {
+		return -1;
+	}
+	
+	@Override
+	public void setAPN(String apn) {
+		
+	}
+
 	private Object probeCapability;
 	
 	@Override

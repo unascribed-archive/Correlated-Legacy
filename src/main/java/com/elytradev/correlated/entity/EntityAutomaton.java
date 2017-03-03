@@ -935,5 +935,22 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	public void markUnderlyingStorageDirty() {
 		// entities are always dirty
 	}
+	
+	// TODO implement wireless
+	
+	@Override
+	public boolean allowAPNSelection() {
+		return false;
+	}
+	
+	@Override
+	public int getSignalStrength() {
+		return -1;
+	}
+	
+	@Override
+	public void setAPN(String apn) {
+		
+	}
 
 }

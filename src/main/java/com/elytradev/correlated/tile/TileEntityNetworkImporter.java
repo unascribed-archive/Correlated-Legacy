@@ -34,7 +34,7 @@ public class TileEntityNetworkImporter extends TileEntityImporter {
 			return;
 		}
 		
-		boolean justDelete = !(Correlated.inst.refundBlocks || Correlated.inst.refundContent || Correlated.inst.refundDriveComponents);
+		boolean justDelete = !(Correlated.inst.refundBlocks || Correlated.inst.refundContent || Correlated.inst.refundComponents);
 		if (justDelete) {
 			Correlated.log.info("DELETING OLD NETWORK AT {}, {}, {}, as requested in config!", getPos().getX(), getPos().getY(), getPos().getZ());
 		} else {
@@ -115,11 +115,13 @@ public class TileEntityNetworkImporter extends TileEntityImporter {
 						blockRefunds.add(new ItemStack(Correlated.terminal));
 						directions.add(world.getBlockState(pos).getValue(BlockTerminal.FACING));
 						delete.add(pos);
-					} else if (te instanceof TileEntityWirelessReceiver) {
-						blockRefunds.add(new ItemStack(Correlated.wireless_endpoint, 1, 0));
+					} else if (te instanceof TileEntityOldWirelessReceiver) {
+						refundIron += 10;
+						refundPearls++;
 						delete.add(pos);
-					} else if (te instanceof TileEntityWirelessTransmitter) {
-						blockRefunds.add(new ItemStack(Correlated.wireless_endpoint, 1, 1));
+					} else if (te instanceof TileEntityOldWirelessTransmitter) {
+						refundIron += 7;
+						refundPearls++;
 						delete.add(pos);
 					} else if (te instanceof TileEntityInterface) {
 						TileEntityInterface tei = (TileEntityInterface)te;
@@ -160,7 +162,7 @@ public class TileEntityNetworkImporter extends TileEntityImporter {
 				weight = en.getCount();
 			}
 		}
-		if (Correlated.inst.refundDriveComponents) {
+		if (Correlated.inst.refundComponents) {
 			if (refundIron > 0) chest.addItemToNetwork(new ItemStack(Items.IRON_INGOT, refundIron));
 			if (refundCeramicPlatters > 0) chest.addItemToNetwork(new ItemStack(Correlated.misc, refundCeramicPlatters, 1));
 			if (refundMetallicPlatters > 0) chest.addItemToNetwork(new ItemStack(Correlated.misc, refundMetallicPlatters, 2));

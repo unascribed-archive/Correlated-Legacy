@@ -13,14 +13,14 @@ import com.elytradev.correlated.block.BlockDriveBay;
 import com.elytradev.correlated.block.BlockImporterChest;
 import com.elytradev.correlated.block.BlockInterface;
 import com.elytradev.correlated.block.BlockMemoryBay;
+import com.elytradev.correlated.block.BlockMicrowaveBeam;
 import com.elytradev.correlated.block.BlockTerminal;
-import com.elytradev.correlated.block.BlockWirelessEndpoint;
 import com.elytradev.correlated.block.item.ItemBlockController;
 import com.elytradev.correlated.block.item.ItemBlockDriveBay;
 import com.elytradev.correlated.block.item.ItemBlockInterface;
 import com.elytradev.correlated.block.item.ItemBlockMemoryBay;
+import com.elytradev.correlated.block.item.ItemBlockMicrowaveBeam;
 import com.elytradev.correlated.block.item.ItemBlockTerminal;
-import com.elytradev.correlated.block.item.ItemBlockWirelessEndpoint;
 import com.elytradev.correlated.crafting.CRecipes;
 import com.elytradev.correlated.crafting.DriveRecipe;
 import com.elytradev.correlated.entity.EntityAutomaton;
@@ -38,6 +38,7 @@ import com.elytradev.correlated.item.ItemWeldthrower;
 import com.elytradev.correlated.item.ItemWirelessTerminal;
 import com.elytradev.correlated.network.AddStatusLineMessage;
 import com.elytradev.correlated.network.AutomatonSpeakMessage;
+import com.elytradev.correlated.network.ChangeAPNMessage;
 import com.elytradev.correlated.network.CorrelatedGuiHandler;
 import com.elytradev.correlated.network.EnterDungeonMessage;
 import com.elytradev.correlated.network.InsertAllMessage;
@@ -51,6 +52,7 @@ import com.elytradev.correlated.network.SetSearchQueryClientMessage;
 import com.elytradev.correlated.network.SetSearchQueryServerMessage;
 import com.elytradev.correlated.network.SetSlotSizeMessage;
 import com.elytradev.correlated.network.ShowTerminalErrorMessage;
+import com.elytradev.correlated.network.SignalStrengthMessage;
 import com.elytradev.correlated.network.StartWeldthrowingMessage;
 import com.elytradev.correlated.proxy.Proxy;
 import com.elytradev.correlated.tile.TileEntityController;
@@ -58,12 +60,13 @@ import com.elytradev.correlated.tile.TileEntityDriveBay;
 import com.elytradev.correlated.tile.TileEntityImporterChest;
 import com.elytradev.correlated.tile.TileEntityInterface;
 import com.elytradev.correlated.tile.TileEntityMemoryBay;
+import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
 import com.elytradev.correlated.tile.TileEntityNetworkImporter;
+import com.elytradev.correlated.tile.TileEntityOldWirelessReceiver;
+import com.elytradev.correlated.tile.TileEntityOldWirelessTransmitter;
 import com.elytradev.correlated.tile.TileEntityPotentialisticsImporter;
 import com.elytradev.correlated.tile.TileEntityTerminal;
 import com.elytradev.correlated.tile.TileEntityVTImporter;
-import com.elytradev.correlated.tile.TileEntityWirelessReceiver;
-import com.elytradev.correlated.tile.TileEntityWirelessTransmitter;
 import com.elytradev.correlated.world.LimboProvider;
 import com.google.common.base.Predicates;
 import com.google.common.base.Supplier;
@@ -97,6 +100,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.LootTableLoadEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -134,8 +138,8 @@ public class Correlated {
 	public static BlockMemoryBay memory_bay;
 	public static BlockTerminal terminal;
 	public static BlockInterface iface;
-	public static BlockWirelessEndpoint wireless_endpoint;
 	public static BlockImporterChest importer_chest;
+	public static BlockMicrowaveBeam microwave_beam;
 
 	public static ItemMisc misc;
 	public static ItemDrive drive;
@@ -186,8 +190,7 @@ public class Correlated {
 	public int memoryBayRfUsage;
 	public int terminalRfUsage;
 	public int interfaceRfUsage;
-	public int transmitterRfUsage;
-	public int receiverRfUsage;
+	public int beamRfUsage;
 	
 	public int controllerCapacity;
 	public int controllerCap;
@@ -203,7 +206,7 @@ public class Correlated {
 	
 	public boolean refundContent;
 	public boolean refundBlocks;
-	public boolean refundDriveComponents;
+	public boolean refundComponents;
 	public boolean importNetworks;
 	
 	public boolean jeiAvailable = false;
@@ -229,8 +232,7 @@ public class Correlated {
 		memoryBayRfUsage = config.getInt("memoryBay", "PowerUsage", 4, 0, 640, "The FU/t used by the Memory Bay.");
 		terminalRfUsage = config.getInt("terminal", "PowerUsage", 4, 0, 640, "The FU/t used by the Terminal.");
 		interfaceRfUsage = config.getInt("interface", "PowerUsage", 8, 0, 640, "The FU/t used by the Interface.");
-		transmitterRfUsage = config.getInt("transmitter", "PowerUsage", 16, 0, 640, "The FU/t used by the Wireless Transmitter.");
-		receiverRfUsage = config.getInt("receiver", "PowerUsage", 16, 0, 640, "The FU/t used by the Wireless Receiver.");
+		beamRfUsage = config.getInt("beam", "PowerUsage", 24, 0, 640, "The FU/t used by the Microwave Beam.");
 		
 		controllerCapacity = config.getInt("controllerCapacity", "PowerFineTuning", 64000, 0, Integer.MAX_VALUE, "The Tesla stored by the controller.");
 		controllerCap = config.getInt("controllerCap", "PowerFineTuning", 640, 0, Integer.MAX_VALUE, "The maximum FU/t the controller can use, and therefore a network.");
@@ -247,31 +249,31 @@ public class Correlated {
 		String importModeStr = config.getString("mode", "Import", "refund_all",
 				"The mode for the old network importer, which will run on any 1.x networks loaded with Correlated 2.x. Possible values are:\n"
 				+ "refund_all: Refund components, convert drives into Data Cores, and refund Interface contents. [default]\n"
-				+ "refund_some: Convert drives into Data Cores and refund Interface contents, but do not refund drive crafting ingredients. Useful if you used MineTweaker to change the recipes. Blocks will still be refunded.\n"
+				+ "refund_some: Convert drives into Data Cores and refund Interface contents, but do not refund crafting ingredients. Useful if you used MineTweaker to change the recipes. Blocks will still be refunded.\n"
 				+ "refund_content: Convert drives into Data Cores and refund Interface contents, but do not refund anything else.\n"
 				+ "destroy: Outright delete the network, and all items that were contained in it. If you use this option, PLEASE state it prominently on your modpack page, and warn people.\n"
-				+ "leave: Leave the network alone. May result in glitchy drives holding more data than they should be able to, crashes, and general strangeness. Not recommended.");
+				+ "leave: Leave the network alone. May result in glitchy drives holding more data than they should be able to, crashes, and general strangeness. Not recommended.\n\n");
 		switch (importModeStr.toLowerCase(Locale.ROOT).trim()) {
 			default:
 				log.warn("Import mode set to unknown value {}, assuming refund_all", importModeStr);
 			case "refund_all": {
 				refundContent = true;
 				refundBlocks = true;
-				refundDriveComponents = true;
+				refundComponents = true;
 				importNetworks = true;
 				break;
 			}
 			case "refund_some": {
 				refundContent = true;
 				refundBlocks = true;
-				refundDriveComponents = false;
+				refundComponents = false;
 				importNetworks = true;
 				break;
 			}
 			case "refund_content": {
 				refundContent = true;
 				refundBlocks = false;
-				refundDriveComponents = false;
+				refundComponents = false;
 				importNetworks = true;
 				break;
 			}
@@ -279,7 +281,7 @@ public class Correlated {
 				log.warn("Network importer mode is set to DESTROY. Old CoPo 1.x networks WILL BE LOST FOREVER.");
 				refundContent = false;
 				refundBlocks = false;
-				refundDriveComponents = false;
+				refundComponents = false;
 				importNetworks = true;
 				break;
 			}
@@ -308,6 +310,8 @@ public class Correlated {
 		network.register(RecipeTransferMessage.class);
 		network.register(ShowTerminalErrorMessage.class);
 		network.register(InsertAllMessage.class);
+		network.register(ChangeAPNMessage.class);
+		network.register(SignalStrengthMessage.class);
 
 		EntityRegistry.registerModEntity(new ResourceLocation("correlated", "thrown_item"), EntityThrownItem.class, "thrown_item", 0, this, 64, 10, true);
 		EntityRegistry.registerModEntity(new ResourceLocation("correlated", "automaton"), EntityAutomaton.class, "automaton", 1, this, 64, 1, true);
@@ -359,8 +363,8 @@ public class Correlated {
 		register(new BlockMemoryBay().setHardness(2), ItemBlockMemoryBay.class, "memory_bay", 0);
 		register(new BlockTerminal().setHardness(2), ItemBlockTerminal.class, "terminal", 0);
 		register(new BlockInterface().setHardness(2), ItemBlockInterface.class, "iface", 0);
-		register(new BlockWirelessEndpoint().setHardness(2), ItemBlockWirelessEndpoint.class, "wireless_endpoint", -4);
 		register(new BlockImporterChest().setHardness(2), null, "importer_chest", 0);
+		register(new BlockMicrowaveBeam().setHardness(2), ItemBlockMicrowaveBeam.class, "microwave_beam", 0);
 
 		register(new ItemMisc(), "misc", -2);
 		register(new ItemDrive(), "drive", -1);
@@ -379,12 +383,14 @@ public class Correlated {
 		GameRegistry.registerTileEntity(TileEntityMemoryBay.class, "correlated:memory_bay");
 		GameRegistry.registerTileEntity(TileEntityTerminal.class, "correlated:terminal");
 		GameRegistry.registerTileEntity(TileEntityInterface.class, "correlated:interface");
-		GameRegistry.registerTileEntity(TileEntityWirelessReceiver.class, "correlated:wireless_receiver");
-		GameRegistry.registerTileEntity(TileEntityWirelessTransmitter.class, "correlated:wireless_transmitter");
 		GameRegistry.registerTileEntity(TileEntityImporterChest.class, "correlated:importer_chest");
+		GameRegistry.registerTileEntity(TileEntityMicrowaveBeam.class, "correlated:microwave_beam");
 		
 		GameRegistry.registerTileEntity(TileEntityNetworkImporter.class, "correlatedpotentialistics:controller");
 		GameRegistry.registerTileEntity(TileEntityVTImporter.class, "correlatedpotentialistics:vt");
+		
+		GameRegistry.registerTileEntity(TileEntityOldWirelessReceiver.class, "correlated:wireless_receiver");
+		GameRegistry.registerTileEntity(TileEntityOldWirelessTransmitter.class, "correlated:wireless_transmitter");
 		
 		GameRegistry.registerTileEntity(TileEntityPotentialisticsImporter.A.class, "correlatedpotentialistics:controller_new");
 		GameRegistry.registerTileEntity(TileEntityPotentialisticsImporter.B.class, "correlatedpotentialistics:drive_bay");
@@ -442,12 +448,20 @@ public class Correlated {
 		}
 	}
 	
+	@SubscribeEvent
+	public void onWorldLoad(WorldEvent.Load e) {
+		if (!e.getWorld().isRemote) {
+			e.getWorld().addEventListener(new WorldEventListener());
+		}
+	}
+	
 	public static CorrelatedWorldData getDataFor(World w) {
 		CorrelatedWorldData data = (CorrelatedWorldData)w.getPerWorldStorage().getOrLoadData(CorrelatedWorldData.class, "correlated");
 		if (data == null) {
 			data = new CorrelatedWorldData("correlated");
 			w.getPerWorldStorage().setData("correlated", data);
 		}
+		data.setWorld(w);
 		return data;
 	}
 
@@ -534,4 +548,5 @@ public class Correlated {
 	}
 
 }
+
 
