@@ -1,0 +1,74 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"model": "minecraft:half_slab",
+		"transform": "forge:default-block"
+	},
+	"variants": {
+		"half": {
+			"top": {
+				"x": 180,
+				"uvlock": true
+			},
+			"bottom": {}
+		},
+		"variant": {
+			"off": {
+				"textures": {
+					"bottom": "correlated:blocks/dungeon/lithographene.off",
+					"top": "correlated:blocks/dungeon/lithographene.off",
+					"side": "correlated:blocks/dungeon/lithographene.off"
+				}
+			},
+			"off_variant": {
+				"textures": {
+					"bottom": "correlated:blocks/dungeon/lithographene.off.variant",
+					"top": "correlated:blocks/dungeon/lithographene.off.variant",
+					"side": "correlated:blocks/dungeon/lithographene.off.variant"
+				}
+			},
+			"on": {
+				"textures": {
+					"bottom": "correlated:blocks/dungeon/lithographene.on",
+					"top": "correlated:blocks/dungeon/lithographene.on",
+					"side": "correlated:blocks/dungeon/lithographene.on"
+				}
+			},
+			"on_variant": {
+				"textures": {
+					"bottom": "correlated:blocks/dungeon/lithographene.on.variant",
+					"top": "correlated:blocks/dungeon/lithographene.on.variant",
+					"side": "correlated:blocks/dungeon/lithographene.on.variant"
+				}
+			}
+		},
+		"inventory0": [{
+			"textures": {
+				"bottom": "correlated:blocks/dungeon/lithographene.off",
+				"top": "correlated:blocks/dungeon/lithographene.off",
+				"side": "correlated:blocks/dungeon/lithographene.off"
+			}
+		}],
+		"inventory1": [{
+			"textures": {
+				"bottom": "correlated:blocks/dungeon/lithographene.off.variant",
+				"top": "correlated:blocks/dungeon/lithographene.off.variant",
+				"side": "correlated:blocks/dungeon/lithographene.off.variant"
+			}
+		}],
+		"inventory2": [{
+			"textures": {
+				"bottom": "correlated:blocks/dungeon/lithographene.on",
+				"top": "correlated:blocks/dungeon/lithographene.on",
+				"side": "correlated:blocks/dungeon/lithographene.on"
+			}
+		}],
+		"inventory3": [{
+			"textures": {
+				"bottom": "correlated:blocks/dungeon/lithographene.on.variant",
+				"top": "correlated:blocks/dungeon/lithographene.on.variant",
+				"side": "correlated:blocks/dungeon/lithographene.on.variant"
+			}
+		}]
+	}
+}

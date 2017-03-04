@@ -1,0 +1,126 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"model": "minecraft:half_slab",
+		"transform": "forge:default-block"
+	},
+	"variants": {
+		"half": {
+			"top": {
+				"x": 180,
+				"uvlock": true
+			},
+			"bottom": {}
+		},
+		"variant": {
+			"dungeoncrete": {
+				"textures": {
+					"bottom": "correlated:blocks/dungeon/dungeoncrete",
+					"top": "correlated:blocks/dungeon/dungeoncrete",
+					"side": "correlated:blocks/dungeon/dungeoncrete"
+				}
+			},
+			"dungeoncrete_grate": {
+				"textures": {
+					"bottom": "correlated:blocks/dungeon/dungeoncrete.grate",
+					"top": "correlated:blocks/dungeon/dungeoncrete.grate",
+					"side": "correlated:blocks/dungeon/dungeoncrete.grate"
+				}
+			},
+			"dungeoncrete_largetile": {
+				"textures": {
+					"bottom": "correlated:blocks/dungeon/dungeoncrete.largetile",
+					"top": "correlated:blocks/dungeon/dungeoncrete.largetile",
+					"side": "correlated:blocks/dungeon/dungeoncrete.largetile"
+				}
+			},
+			"dungeoncrete_vertical": {
+				"textures": {
+					"bottom": "correlated:blocks/dungeon/dungeoncrete.vertical",
+					"top": "correlated:blocks/dungeon/dungeoncrete.vertical",
+					"side": "correlated:blocks/dungeon/dungeoncrete.vertical"
+				}
+			},
+			
+			"elucid_brick": {
+				"textures": {
+					"bottom": "correlated:blocks/dungeon/elucid.brick",
+					"top": "correlated:blocks/dungeon/elucid.brick",
+					"side": "correlated:blocks/dungeon/elucid.brick"
+				}
+			},
+			"elucid_grit": {
+				"textures": {
+					"bottom": "correlated:blocks/dungeon/elucid.grit",
+					"top": "correlated:blocks/dungeon/elucid.grit",
+					"side": "correlated:blocks/dungeon/elucid.grit"
+				}
+			},
+			"elucid_scale": {
+				"textures": {
+					"bottom": "correlated:blocks/dungeon/elucid.scale",
+					"top": "correlated:blocks/dungeon/elucid.scale",
+					"side": "correlated:blocks/dungeon/elucid.scale"
+				}
+			}
+		},
+		"inventory": [{
+			"textures": {
+				"bottom": "correlated:blocks/dungeon/dungeoncrete",
+				"top": "correlated:blocks/dungeon/dungeoncrete",
+				"side": "correlated:blocks/dungeon/dungeoncrete"
+			}
+		}],
+		
+		"inventory0": [{
+			"textures": {
+				"bottom": "correlated:blocks/dungeon/dungeoncrete",
+				"top": "correlated:blocks/dungeon/dungeoncrete",
+				"side": "correlated:blocks/dungeon/dungeoncrete"
+			}
+		}],
+		"inventory1": [{
+			"textures": {
+				"bottom": "correlated:blocks/dungeon/dungeoncrete.grate",
+				"top": "correlated:blocks/dungeon/dungeoncrete.grate",
+				"side": "correlated:blocks/dungeon/dungeoncrete.grate"
+			}
+		}],
+		"inventory2": [{
+			"textures": {
+				"bottom": "correlated:blocks/dungeon/dungeoncrete.largetile",
+				"top": "correlated:blocks/dungeon/dungeoncrete.largetile",
+				"side": "correlated:blocks/dungeon/dungeoncrete.largetile"
+			}
+		}],
+		"inventory3": [{
+			"textures": {
+				"bottom": "correlated:blocks/dungeon/dungeoncrete.vertical",
+				"top": "correlated:blocks/dungeon/dungeoncrete.vertical",
+				"side": "correlated:blocks/dungeon/dungeoncrete.vertical"
+			}
+		}],
+		
+		"inventory4": [{
+			"textures": {
+				"bottom": "correlated:blocks/dungeon/elucid.brick",
+				"top": "correlated:blocks/dungeon/elucid.brick",
+				"side": "correlated:blocks/dungeon/elucid.brick"
+			}
+		}],
+		"inventory5": [{
+			"textures": {
+				"bottom": "correlated:blocks/dungeon/elucid.grit",
+				"top": "correlated:blocks/dungeon/elucid.grit",
+				"side": "correlated:blocks/dungeon/elucid.grit"
+			}
+		}],
+		"inventory6": [{
+			"textures": {
+				"bottom": "correlated:blocks/dungeon/elucid.scale",
+				"top": "correlated:blocks/dungeon/elucid.scale",
+				"side": "correlated:blocks/dungeon/elucid.scale"
+			}
+		}]
+	}
+}

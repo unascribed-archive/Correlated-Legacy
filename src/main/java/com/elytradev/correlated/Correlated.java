@@ -10,6 +10,11 @@ import org.apache.logging.log4j.Logger;
 
 import com.elytradev.correlated.block.BlockController;
 import com.elytradev.correlated.block.BlockDriveBay;
+import com.elytradev.correlated.block.BlockDungeon;
+import com.elytradev.correlated.block.BlockDungeonLithographene;
+import com.elytradev.correlated.block.BlockDungeonLithographeneSlab;
+import com.elytradev.correlated.block.BlockDungeonSlab;
+import com.elytradev.correlated.block.BlockDungeonStairs;
 import com.elytradev.correlated.block.BlockImporterChest;
 import com.elytradev.correlated.block.BlockInterface;
 import com.elytradev.correlated.block.BlockMemoryBay;
@@ -17,6 +22,8 @@ import com.elytradev.correlated.block.BlockMicrowaveBeam;
 import com.elytradev.correlated.block.BlockTerminal;
 import com.elytradev.correlated.block.item.ItemBlockController;
 import com.elytradev.correlated.block.item.ItemBlockDriveBay;
+import com.elytradev.correlated.block.item.ItemBlockDungeon;
+import com.elytradev.correlated.block.item.ItemBlockDungeonLithographene;
 import com.elytradev.correlated.block.item.ItemBlockInterface;
 import com.elytradev.correlated.block.item.ItemBlockMemoryBay;
 import com.elytradev.correlated.block.item.ItemBlockMicrowaveBeam;
@@ -81,6 +88,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemSlab;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
@@ -140,6 +148,25 @@ public class Correlated {
 	public static BlockInterface iface;
 	public static BlockImporterChest importer_chest;
 	public static BlockMicrowaveBeam microwave_beam;
+	public static BlockDungeon dungeon_block;
+	public static BlockDungeonLithographene lithographene_block;
+	
+	public static BlockDungeonStairs dungeoncrete_stairs;
+	public static BlockDungeonStairs dungeoncrete_grate_stairs;
+	public static BlockDungeonStairs dungeoncrete_largetile_stairs;
+	public static BlockDungeonStairs dungeoncrete_vertical_stairs;
+	public static BlockDungeonStairs elucid_brick_stairs;
+	public static BlockDungeonStairs elucid_grit_stairs;
+	public static BlockDungeonStairs elucid_scale_stairs;
+	public static BlockDungeonStairs lithographene_off_stairs;
+	public static BlockDungeonStairs lithographene_off_variant_stairs;
+	public static BlockDungeonStairs lithographene_on_stairs;
+	public static BlockDungeonStairs lithographene_on_variant_stairs;
+	
+	public static BlockDungeonSlab dungeon_slab;
+	public static BlockDungeonLithographeneSlab lithographene_slab;
+	public static BlockDungeonSlab dungeon_double_slab;
+	public static BlockDungeonLithographeneSlab lithographene_double_slab;
 
 	public static ItemMisc misc;
 	public static ItemDrive drive;
@@ -364,7 +391,33 @@ public class Correlated {
 		register(new BlockTerminal().setHardness(2), ItemBlockTerminal.class, "terminal", 0);
 		register(new BlockInterface().setHardness(2), ItemBlockInterface.class, "iface", 0);
 		register(new BlockImporterChest().setHardness(2), null, "importer_chest", 0);
-		register(new BlockMicrowaveBeam().setHardness(2), ItemBlockMicrowaveBeam.class, "microwave_beam", 0);
+		register(new BlockMicrowaveBeam().setHardness(2), ItemBlockMicrowaveBeam.class, "microwave_beam", -1);
+		
+		register(new BlockDungeon().setHardness(2), ItemBlockDungeon.class, "dungeon_block", BlockDungeon.Variant.VALUES.length);
+		register(new BlockDungeonLithographene().setHardness(2), ItemBlockDungeonLithographene.class, "lithographene_block", BlockDungeonLithographene.Variant.VALUES.length);
+		
+		for (BlockDungeon.Variant v : BlockDungeon.Variant.VALUES) {
+			register(new BlockDungeonStairs(dungeon_block.getDefaultState().withProperty(BlockDungeon.variant, v)), ItemBlock.class, v.getName()+"_stairs", 0);
+		}
+		for (BlockDungeonLithographene.Variant v : BlockDungeonLithographene.Variant.VALUES) {
+			register(new BlockDungeonStairs(lithographene_block.getDefaultState().withProperty(BlockDungeonLithographene.variant, v)), ItemBlock.class, "lithographene_"+v.getName()+"_stairs", 0);
+		}
+		
+		register(new BlockDungeonSlab(false).setHardness(2), null, "dungeon_slab", BlockDungeon.Variant.VALUES.length);
+		register(new BlockDungeonLithographeneSlab(false).setHardness(2), null, "lithographene_slab", BlockDungeonLithographene.Variant.VALUES.length);
+		
+		register(new BlockDungeonSlab(true).setHardness(2), null, "dungeon_double_slab", BlockDungeon.Variant.VALUES.length);
+		register(new BlockDungeonLithographeneSlab(true).setHardness(2), null, "lithographene_double_slab", BlockDungeonLithographene.Variant.VALUES.length);
+		
+		Item dungeonslabitem = new ItemSlab(dungeon_slab, dungeon_slab, dungeon_double_slab)
+				.setHasSubtypes(true).setRegistryName(dungeon_slab.getRegistryName());
+		GameRegistry.register(dungeonslabitem);
+		proxy.registerItemModel(dungeonslabitem, BlockDungeon.Variant.VALUES.length);
+		
+		Item lithographeneslabitem = new ItemSlab(lithographene_slab, lithographene_slab, lithographene_double_slab)
+				.setHasSubtypes(true).setRegistryName(lithographene_slab.getRegistryName());
+		GameRegistry.register(lithographeneslabitem);
+		proxy.registerItemModel(lithographeneslabitem, BlockDungeonLithographene.Variant.VALUES.length);
 
 		register(new ItemMisc(), "misc", -2);
 		register(new ItemDrive(), "drive", -1);

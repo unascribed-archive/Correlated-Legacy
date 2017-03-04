@@ -1,0 +1,29 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"transform": "forge:default-block",
+		"model": "minecraft:cube_all"
+	},
+	"variants": {
+		"variant": {
+			"dungeoncrete": {"textures":{"all":"correlated:blocks/dungeon/dungeoncrete"}},
+			"dungeoncrete_grate": {"textures":{"all":"correlated:blocks/dungeon/dungeoncrete.grate"}},
+			"dungeoncrete_largetile": {"textures":{"all":"correlated:blocks/dungeon/dungeoncrete.largetile"}},
+			"dungeoncrete_vertical": {"textures":{"all":"correlated:blocks/dungeon/dungeoncrete.vertical"}},
+			
+			"elucid_brick": {"textures":{"all":"correlated:blocks/dungeon/elucid.brick"}},
+			"elucid_grit": {"textures":{"all":"correlated:blocks/dungeon/elucid.grit"}},
+			"elucid_scale": {"textures":{"all":"correlated:blocks/dungeon/elucid.scale"}}
+		},
+		"inventory": [{"textures":{"all":"correlated:blocks/dungeon/dungeoncrete"}}],
+		
+		"inventory0": [{"textures":{"all":"correlated:blocks/dungeon/dungeoncrete"}}],
+		"inventory1": [{"textures":{"all":"correlated:blocks/dungeon/dungeoncrete.grate"}}],
+		"inventory2": [{"textures":{"all":"correlated:blocks/dungeon/dungeoncrete.largetile"}}],
+		"inventory3": [{"textures":{"all":"correlated:blocks/dungeon/dungeoncrete.vertical"}}],
+		
+		"inventory4": [{"textures":{"all":"correlated:blocks/dungeon/elucid.brick"}}],
+		"inventory5": [{"textures":{"all":"correlated:blocks/dungeon/elucid.grit"}}],
+		"inventory6": [{"textures":{"all":"correlated:blocks/dungeon/elucid.scale"}}]
+	}
+}
