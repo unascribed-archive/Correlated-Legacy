@@ -75,10 +75,8 @@ public class WirelessManager implements INBTSerializable<NBTTagCompound> {
 	
 	public void add(Beam b) {
 		if (b == null) return;
-		System.out.println("Add beam "+b.getStart().getX()+", "+b.getStart().getY()+", "+b.getStart().getZ()+" - "+b.getEnd().getX()+", "+b.getEnd().getY()+", "+b.getEnd().getZ());
 		if (data.getWorld().getBlockState(b.getStart()).getBlock() != Correlated.microwave_beam) return;
 		if (data.getWorld().getBlockState(b.getEnd()).getBlock() != Correlated.microwave_beam) return;
-		System.out.println("Start and end look good, continue");
 		for (Vec2i chunk : b.chunks()) {
 			beamsByChunk.put(chunk, b);
 		}

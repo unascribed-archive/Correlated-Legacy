@@ -52,7 +52,6 @@ import net.minecraft.init.Enchantments;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -917,13 +916,18 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	}
 
 	@Override
-	public boolean supportsDumpSlot() {
+	public ItemStack getMaintenanceSlotContent() {
+		return ItemStack.EMPTY;
+	}
+	
+	@Override
+	public boolean hasMaintenanceSlot() {
 		return false;
 	}
-
+	
 	@Override
-	public IInventory getDumpSlotInventory() {
-		return null;
+	public void setMaintenanceSlotContent(ItemStack stack) {
+		
 	}
 
 	@Override

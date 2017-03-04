@@ -7,7 +7,6 @@ import com.elytradev.correlated.network.ChangeAPNMessage;
 import com.elytradev.correlated.wifi.Station;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
@@ -51,13 +50,18 @@ public class WirelessTerminal implements ITerminal {
 	}
 
 	@Override
-	public boolean supportsDumpSlot() {
+	public boolean hasMaintenanceSlot() {
 		return false;
 	}
-
+	
 	@Override
-	public IInventory getDumpSlotInventory() {
-		return null;
+	public void setMaintenanceSlotContent(ItemStack stack) {
+		
+	}
+	
+	@Override
+	public ItemStack getMaintenanceSlotContent() {
+		return ItemStack.EMPTY;
 	}
 
 	@Override

@@ -303,13 +303,18 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 	}
 
 	@Override
-	public boolean supportsDumpSlot() {
+	public boolean hasMaintenanceSlot() {
 		return false;
 	}
-
+	
 	@Override
-	public IInventory getDumpSlotInventory() {
-		return null;
+	public ItemStack getMaintenanceSlotContent() {
+		return ItemStack.EMPTY;
+	}
+	
+	@Override
+	public void setMaintenanceSlotContent(ItemStack stack) {
+		
 	}
 
 	@Override

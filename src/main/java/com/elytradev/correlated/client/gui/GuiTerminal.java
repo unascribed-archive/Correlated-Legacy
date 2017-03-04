@@ -44,6 +44,8 @@ public class GuiTerminal extends GuiContainer {
 	private GuiButtonExt clearGrid;
 	private GuiButtonExt focusByDefault;
 	private GuiButtonExt jeiSync;
+	private GuiButtonExt dump;
+	private GuiButtonExt partition;
 	
 	private String lastJeiQuery;
 	
@@ -84,9 +86,11 @@ public class GuiTerminal extends GuiContainer {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate((width - xSize) / 2, (height - ySize) / 2, 0);
 		mc.getTextureManager().bindTexture(getBackground());
-		drawTexturedModalRect(0, 0, 0, 0, 256, 222);
-		if (container.terminal.supportsDumpSlot()) {
-			drawTexturedModalRect(17, 153, 200, 224, 32, 32);
+		drawTexturedModalRect(0, 0, 0, 0, 256, 136);
+		drawTexturedModalRect(61, 136, 61, 136, 176, 87);
+		drawTexturedModalRect(237, 135, 237, 135, 19, 11);
+		if (container.terminal.hasMaintenanceSlot()) {
+			drawTexturedModalRect(8, 152, 8, 152, 44, 34);
 		}
 		GlStateManager.popMatrix();
 	}
@@ -159,17 +163,26 @@ public class GuiTerminal extends GuiContainer {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(-(width - xSize) / 2, -(height - ySize) / 2, 0);
 		if (container.hasCraftingMatrix) {
-			drawTexturedModalRect(clearGrid.xPosition+2, clearGrid.yPosition+2, 0, 222, 2, 10);
-			drawTexturedModalRect(craftingTarget.xPosition+2, craftingTarget.yPosition+2, container.craftingTarget.ordinal()*8, 232, 8, 8);
-			drawTexturedModalRect(craftingAmount.xPosition+2, craftingAmount.yPosition+2, container.craftingAmount.ordinal()*8, 240, 8, 8);			
+			drawTexturedModalRect(clearGrid.xPosition+2, clearGrid.yPosition+2, 0, 190, 2, 10);
+			drawTexturedModalRect(craftingTarget.xPosition+2, craftingTarget.yPosition+2, container.craftingTarget.ordinal()*8, 200, 8, 8);
+			drawTexturedModalRect(craftingAmount.xPosition+2, craftingAmount.yPosition+2, container.craftingAmount.ordinal()*8, 208, 8, 8);			
+		}
+		
+		if (container.terminal.hasMaintenanceSlot()) {
+			if (container.isDumping || container.isFilling) {
+				GlStateManager.color(1, 1, 0.25f);
+			}
+			drawTexturedModalRect(dump.xPosition+2, dump.yPosition+2, 16, (container.isFilling || isShiftKeyDown()) ? 232 : 240, 8, 8);
+			GlStateManager.color(1, 1, 1);
+			drawTexturedModalRect(partition.xPosition+2, partition.yPosition+2, 16, 248, 8, 8);
 		}
 		
 		if (hasSearchAndSort()) {
-			drawTexturedModalRect(sortDirection.xPosition+2, sortDirection.yPosition+2, container.sortAscending ? 0 : 8, 248, 8, 8);
-			drawTexturedModalRect(sortMode.xPosition+2, sortMode.yPosition+2, 16+(container.sortMode.ordinal()*8), 248, 8, 8);
-			drawTexturedModalRect(focusByDefault.xPosition+2, focusByDefault.yPosition+2, container.searchFocusedByDefault ? 192 : 184, 240, 8, 8);
+			drawTexturedModalRect(sortDirection.xPosition+2, sortDirection.yPosition+2, container.sortAscending ? 0 : 8, 216, 8, 8);
+			drawTexturedModalRect(sortMode.xPosition+2, sortMode.yPosition+2, 16+(container.sortMode.ordinal()*8), 216, 8, 8);
+			drawTexturedModalRect(focusByDefault.xPosition+2, focusByDefault.yPosition+2, container.searchFocusedByDefault ? 8 : 0, 240, 8, 8);
 			if (jeiSync != null) {
-				drawTexturedModalRect(jeiSync.xPosition+2, jeiSync.yPosition+2, container.jeiSyncEnabled ? 192 : 184, 248, 8, 8);
+				drawTexturedModalRect(jeiSync.xPosition+2, jeiSync.yPosition+2, container.jeiSyncEnabled ? 8 : 0, 248, 8, 8);
 			}
 			searchField.drawTextBox();
 			if (sortMode.isMouseOver()) {
@@ -215,6 +228,26 @@ public class GuiTerminal extends GuiContainer {
 				}
 			}
 		}
+		if (container.terminal.hasMaintenanceSlot()) {
+			if (dump.isMouseOver()) {
+				if (isShiftKeyDown() || container.isFilling) {
+					drawHoveringText(Lists.newArrayList(
+							I18n.format("tooltip.correlated.fill"),
+							"\u00A77"+I18n.format("tooltip.correlated.release_shift_to_dump")
+						), mouseX, mouseY);
+				} else {
+					drawHoveringText(Lists.newArrayList(
+							I18n.format("tooltip.correlated.dump"),
+							"\u00A77"+I18n.format("tooltip.correlated.shift_to_fill")
+						), mouseX, mouseY);
+				}
+			}
+			if (partition.isMouseOver()) {
+				drawHoveringText(Lists.newArrayList(
+						I18n.format("tooltip.correlated.partition")
+					), mouseX, mouseY);
+			}
+		}
 		GlStateManager.popMatrix();
 
 	}
@@ -244,6 +277,10 @@ public class GuiTerminal extends GuiContainer {
 			buttonList.add(craftingAmount = new GuiButtonExt(2, x+51, y+99, 12, 12, ""));
 			buttonList.add(craftingTarget = new GuiButtonExt(3, x+51, y+113, 12, 12, ""));
 			buttonList.add(clearGrid = new GuiButtonExt(4, x+61, y+37, 6, 14, ""));
+		}
+		if (container.terminal.hasMaintenanceSlot()) {
+			buttonList.add(dump = new GuiButtonExt(7, x+35, y+156, 12, 12, ""));
+			buttonList.add(partition = new GuiButtonExt(8, x+35, y+170, 12, 12, ""));
 		}
 	}
 	
@@ -322,6 +359,24 @@ public class GuiTerminal extends GuiContainer {
 		} else if (button.id == 6) {
 			mc.playerController.sendEnchantPacket(container.windowId, container.jeiSyncEnabled ? -27 : -26);
 			container.jeiSyncEnabled = !container.jeiSyncEnabled;
+		} else if (button.id == 7) {
+			if (container.isDumping || container.isFilling) {
+				mc.playerController.sendEnchantPacket(container.windowId, -29);
+				container.isDumping = false;
+				container.isFilling = false;
+			} else {
+				if (isShiftKeyDown()) {
+					mc.playerController.sendEnchantPacket(container.windowId, -61);
+					container.isDumping = false;
+					container.isFilling = true;
+				} else {
+					mc.playerController.sendEnchantPacket(container.windowId, -28);
+					container.isDumping = true;
+					container.isFilling = false;
+				}
+			}
+		} else if (button.id == 8) {
+			mc.playerController.sendEnchantPacket(container.windowId, -62);
 		}
 	}
 

@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.block.BlockTerminal;
-import com.elytradev.correlated.item.ItemDrive;
 import com.elytradev.correlated.storage.ITerminal;
 import com.elytradev.correlated.storage.SimpleUserPreferences;
 import com.elytradev.correlated.storage.UserPreferences;
@@ -64,30 +63,6 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 					}
 				} else {
 					setError(null);
-				}
-				if (controller.isPowered() && !controller.error && !controller.booting && getDumpDrive() != null) {
-					if (getDumpDrive().getItem() instanceof ItemDrive) {
-						ItemDrive id = (ItemDrive)getDumpDrive().getItem();
-						List<ItemStack> prototypes = id.getPrototypes(getDumpDrive());
-						int moved = 0;
-						while (moved < 100) {
-							if (prototypes.isEmpty()) break;
-							ItemStack prototype = prototypes.get(0);
-							ItemStack split = id.removeItems(getDumpDrive(), prototype, prototype.getMaxStackSize());
-							if (split.isEmpty()) {
-								prototypes.remove(0);
-								continue;
-							}
-							controller.addItemToNetwork(split);
-							moved += split.getCount();
-							if (!split.isEmpty()) {
-								// no more room for this item in the network, skip it this tick
-								prototypes.remove(0);
-								moved -= split.getCount();
-								id.addItem(getDumpDrive(), split, false);
-							}
-						}
-					}
 				}
 			}
 		}
@@ -183,10 +158,6 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 			int slot = tag.getInteger("Slot");
 			setInventorySlotContents(slot, is);
 		}
-	}
-
-	public ItemStack getDumpDrive() {
-		return getStackInSlot(0);
 	}
 	
 	private InventoryBasic inv = new InventoryBasic("gui.correlated.terminal", false, 2);
@@ -313,13 +284,18 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 	}
 
 	@Override
-	public boolean supportsDumpSlot() {
+	public boolean hasMaintenanceSlot() {
 		return true;
 	}
-
+	
 	@Override
-	public IInventory getDumpSlotInventory() {
-		return this;
+	public void setMaintenanceSlotContent(ItemStack stack) {
+		setInventorySlotContents(0, stack);
+	}
+	
+	@Override
+	public ItemStack getMaintenanceSlotContent() {
+		return getStackInSlot(0);
 	}
 
 	@Override

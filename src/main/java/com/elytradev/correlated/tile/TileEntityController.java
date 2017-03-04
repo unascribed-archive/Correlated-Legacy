@@ -404,7 +404,7 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 			TileEntityController other = beam.getOtherSide();
 			if (alreadyChecked.contains(other)) continue;
 			if (other != null) {
-				InsertResult ir = other.addItemToNetwork(stack);
+				InsertResult ir = other.addItemToNetwork(alreadyChecked, stack);
 				results.add(ir.result);
 				stack = ir.stack;
 				insufficientMemory = false;

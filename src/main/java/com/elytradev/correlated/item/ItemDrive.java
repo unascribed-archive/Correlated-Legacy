@@ -32,6 +32,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.RayTraceResult.Type;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.world.World;
@@ -55,7 +56,7 @@ public class ItemDrive extends Item {
 		}
 	}
 	public enum PartitioningMode {
-		/*BLACKLIST, TODO*/ NONE, WHITELIST;
+		BLACKLIST, NONE, WHITELIST;
 		public final String lowerName = name().toLowerCase(Locale.ROOT);
 	}
 
@@ -289,7 +290,9 @@ public class ItemDrive extends Item {
 					return ActionResult.newResult(EnumActionResult.FAIL, itemStackIn);
 				}
 			}
-			playerIn.openGui(Correlated.inst, 1, worldIn, playerIn.inventory.currentItem, 0, 0);
+			if (!worldIn.isRemote) {
+				playerIn.sendMessage(new TextComponentTranslation("msg.correlated.no_rightclick_editor"));
+			}
 			return ActionResult.newResult(EnumActionResult.SUCCESS, itemStackIn);
 		}
 	}
@@ -344,11 +347,12 @@ public class ItemDrive extends Item {
 
 	public int getKilobitsFreeFor(ItemStack drive, ItemStack item) {
 		if (getMaxKilobits(drive) == -1) return Integer.MAX_VALUE;
+		if (isBlacklisted(drive, item)) return 0;
 		NBTTagCompound prototype = createPrototype(item);
 		NBTTagCompound data = findDataForPrototype(drive, prototype);
 		if (data != null) {
 			return getKilobitsFree(drive);
-		} else if (getPartitioningMode(drive) == PartitioningMode.NONE) {
+		} else if (getPartitioningMode(drive) != PartitioningMode.WHITELIST) {
 			return Math.max(0, getKilobitsFree(drive) - getTypeAllocationKilobits(drive, prototype));
 		}
 		return 0;
@@ -370,6 +374,7 @@ public class ItemDrive extends Item {
 		if (item == null || item.isEmpty()) {
 			return InsertResult.success(item);
 		}
+		if (isBlacklisted(drive, item)) return InsertResult.itemIncompatible(item);
 		if (getMaxKilobits(drive) == -1) {
 			if (getPartitioningMode(drive) == PartitioningMode.NONE || findDataIndexForPrototype(drive, createPrototype(item)) != -1) {
 				if (!simulate) {
@@ -379,7 +384,7 @@ public class ItemDrive extends Item {
 				return InsertResult.successVoided(item);
 			}
 		}
-		if (getPartitioningMode(drive) != PartitioningMode.NONE && findDataForPrototype(drive, createPrototype(item)) == null) {
+		if (getPartitioningMode(drive) == PartitioningMode.WHITELIST && findDataForPrototype(drive, createPrototype(item)) == null) {
 			return InsertResult.itemIncompatible(item);
 		}
 		int bitsFree = getKilobitsFreeFor(drive, item);
@@ -439,7 +444,7 @@ public class ItemDrive extends Item {
 		if (index == -1) {
 			allocateType(drive, item, item.getCount());
 		} else {
-			if (amount <= 0 && getPartitioningMode(drive) == PartitioningMode.NONE) {
+			if (amount <= 0 && getPartitioningMode(drive) != PartitioningMode.WHITELIST) {
 				deallocateType(drive, item);
 			} else {
 				list.getCompoundTagAt(index).setInteger("Count", amount);
@@ -527,6 +532,64 @@ public class ItemDrive extends Item {
 			ItemStacks.getCompoundList(drive, "Data").removeTag(idx);
 			markDirty(drive);
 		}
+	}
+	
+	
+	protected NBTTagCompound findBlacklistForPrototype(ItemStack drive, NBTTagCompound prototype) {
+		int index = findBlacklistIndexForPrototype(drive, prototype);
+		if (index == -1) return null;
+		return ItemStacks.getCompoundList(drive, "Blacklist").getCompoundTagAt(index);
+	}
+	protected int findBlacklistIndexForPrototype(ItemStack drive, NBTTagCompound prototype) {
+		if (prototype == null)
+			return -1;
+		NBTTagList list = ItemStacks.getCompoundList(drive, "Blacklist");
+		for (int i = 0; i < list.tagCount(); i++) {
+			NBTTagCompound tag = list.getCompoundTagAt(i);
+			if (tag.getCompoundTag("Prototype").equals(prototype)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	
+	public void blacklistType(ItemStack drive, ItemStack item) {
+		NBTTagCompound prototype = createPrototype(item);
+		int idx = findBlacklistIndexForPrototype(drive, prototype);
+		if (idx == -1) {
+			NBTTagCompound data = new NBTTagCompound();
+			data.setTag("Prototype", prototype);
+			ItemStacks.getCompoundList(drive, "Blacklist").appendTag(data);
+			markDirty(drive);
+		}
+	}
+	
+	public void unblacklistType(ItemStack drive, ItemStack item) {
+		NBTTagCompound prototype = createPrototype(item);
+		int idx = findBlacklistIndexForPrototype(drive, prototype);
+		if (idx != -1) {
+			ItemStacks.getCompoundList(drive, "Blacklist").removeTag(idx);
+			markDirty(drive);
+		}
+	}
+	
+	public boolean isBlacklisted(ItemStack drive, ItemStack item) {
+		if (getPartitioningMode(drive) != PartitioningMode.BLACKLIST) return false;
+		return findBlacklistIndexForPrototype(drive, createPrototype(item)) != -1;
+	}
+	
+	public List<ItemStack> getBlacklistedTypes(ItemStack drive) {
+		if (getPartitioningMode(drive) != PartitioningMode.BLACKLIST) return Lists.newArrayList();
+		NBTTagList list = ItemStacks.getCompoundList(drive, "Blacklist");
+		List<ItemStack> rtrn = Lists.newArrayList();
+		for (int i = 0; i < list.tagCount(); i++) {
+			NBTTagCompound tag = list.getCompoundTagAt(i);
+			ItemStack is = new ItemStack(tag.getCompoundTag("Prototype"));
+			is.setCount(1);
+			rtrn.add(is);
+		}
+		return rtrn;
 	}
 
 }

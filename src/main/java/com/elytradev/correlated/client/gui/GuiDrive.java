@@ -25,9 +25,12 @@ public class GuiDrive extends GuiContainer {
 
 	private GuiButton priority;
 	private GuiButton partition;
-
-	public GuiDrive(ContainerDrive container) {
+	
+	private GuiTerminal gt;
+	
+	public GuiDrive(GuiTerminal gt, ContainerDrive container) {
 		super(container);
+		this.gt = gt;
 		this.container = container;
 		xSize = 212;
 		ySize = 222;
@@ -54,7 +57,20 @@ public class GuiDrive extends GuiContainer {
 	public void updateScreen() {
 		super.updateScreen();
 	}
-
+	
+	@Override
+	protected void keyTyped(char typedChar, int keyCode) throws IOException {
+		if (keyCode == 1 || mc.gameSettings.keyBindInventory.isActiveAndMatches(keyCode)) {
+			mc.playerController.sendEnchantPacket(container.windowId, 3);
+			if (mc.player != null && gt != null) {
+				mc.player.openContainer = gt.inventorySlots;
+			}
+			mc.displayGuiScreen(gt);
+		} else {
+			super.keyTyped(typedChar, keyCode);
+		}
+	}
+	
 	@Override
 	protected void actionPerformed(GuiButton button) throws IOException {
 		if (button == priority) {
@@ -126,8 +142,7 @@ public class GuiDrive extends GuiContainer {
 		GlStateManager.translate(-(width - xSize) / 2, -(height - ySize) / 2, 0);
 
 		PartitioningMode part = container.getItemDrive().getPartitioningMode(container.getDrive());
-		// TODO when blacklist is implemented, remove the 13 from the U calculation below
-		drawTexturedModalRect(partition.xPosition+4, partition.yPosition+2, 246, 13+(part.ordinal()*13), 10, 13);
+		drawTexturedModalRect(partition.xPosition+4, partition.yPosition+2, 246, part.ordinal()*13, 10, 13);
 
 		Priority pri = container.getItemDrive().getPriority(container.getDrive());
 		drawTexturedModalRect(priority.xPosition+4, priority.yPosition+2, 246, 39+(pri.ordinal()*13), 10, 13);

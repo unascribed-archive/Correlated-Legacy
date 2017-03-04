@@ -11,6 +11,7 @@ import com.google.common.primitives.Ints;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.client.gui.GuiTerminal;
 import com.elytradev.correlated.helper.Numbers;
+import com.elytradev.correlated.item.ItemDrive;
 import com.elytradev.correlated.network.AddStatusLineMessage;
 import com.elytradev.correlated.network.SetSearchQueryClientMessage;
 import com.elytradev.correlated.network.SetSlotSizeMessage;
@@ -130,6 +131,10 @@ public class ContainerTerminal extends Container {
 	public int playerInventoryOffsetY;
 	public boolean hasCraftingMatrix = true;
 	private int lastSignal = -1;
+	public boolean isDumping = false;
+	public boolean isFilling = false;
+	
+	public Slot maintenanceSlot;
 
 	public class SlotVirtual extends Slot {
 		private ItemStack stack = ItemStack.EMPTY;
@@ -222,8 +227,17 @@ public class ContainerTerminal extends Container {
 			jeiSyncEnabled = prefs.isJeiSyncEnabled();
 		}
 
-		if (terminal.supportsDumpSlot()) {
-			addSlotToContainer(new Slot(terminal.getDumpSlotInventory(), 0, 25, 161));
+		if (terminal.hasMaintenanceSlot()) {
+			addSlotToContainer(maintenanceSlot = new Slot(new InventoryAdapter() {
+				@Override
+				protected ItemStack get() {
+					return terminal.getMaintenanceSlotContent();
+				}
+				@Override
+				protected void set(ItemStack stack) {
+					terminal.setMaintenanceSlotContent(stack);
+				}
+			}, 0, 16, 161));
 		}
 		if (terminal instanceof TileEntityTerminal) {
 			TileEntityTerminal te = ((TileEntityTerminal)terminal);
@@ -406,9 +420,27 @@ public class ContainerTerminal extends Container {
 				jeiSyncEnabled = false;
 				break;
 				
+			case -28:
+				isDumping = true;
+				isFilling = false;
+				break;
+			case -29:
+				isDumping = false;
+				isFilling = false;
+				break;
+				
 			/*
 			 * -30 (inclusive) through -60 (inclusive) are for subclass use
 			 */
+				
+			case -61:
+				isDumping = false;
+				isFilling = true;
+				break;
+				
+			case -62:
+				player.openGui(Correlated.inst, 1, world, 0, 0, 0);
+				break;
 			
 			case -128:
 				for (int i = 0; i < 9; i++) {
@@ -436,7 +468,7 @@ public class ContainerTerminal extends Container {
 		if (terminal.getStorage() instanceof TileEntityController) {
 			startingMem = ((TileEntityController)terminal.getStorage()).getUsedTypeMemory();
 		}
-		InsertResult ir = terminal.getStorage().addItemToNetwork(stack);
+		InsertResult ir = addItemToNetworkSilently(stack);
 		if (!ir.wasSuccessful()) {
 			addStatusLine(new TextComponentTranslation("msg.correlated.insertFailed", new TextComponentTranslation("msg.correlated.insertFailed."+ir.result.name().toLowerCase(Locale.ROOT))));
 		} else {
@@ -458,6 +490,11 @@ public class ContainerTerminal extends Container {
 		}
 		return ir;
 	}
+	
+	public InsertResult addItemToNetworkSilently(ItemStack stack) {
+		if (player.world.isRemote) return InsertResult.success(ItemStack.EMPTY);
+		return terminal.getStorage().addItemToNetwork(stack);
+	}
 
 	private void addStatusLine(ITextComponent line) {
 		status.add(line);
@@ -476,7 +513,7 @@ public class ContainerTerminal extends Container {
 		if (terminal.getStorage() instanceof TileEntityController) {
 			startingMem = ((TileEntityController)terminal.getStorage()).getUsedTypeMemory();
 		}
-		ItemStack res = terminal.getStorage().removeItemsFromNetwork(prototype, amount, true);
+		ItemStack res = removeItemsFromNetworkSilently(prototype, amount);
 		long endingMem = 0;
 		long endingDiskFree = terminal.getStorage().getKilobitsStorageFree();
 		if (terminal.getStorage() instanceof TileEntityController) {
@@ -490,6 +527,11 @@ public class ContainerTerminal extends Container {
 		}
 		return res;
 	}
+	
+	public ItemStack removeItemsFromNetworkSilently(ItemStack prototype, int amount) {
+		if (player.world.isRemote) return ItemStack.EMPTY;
+		return terminal.getStorage().removeItemsFromNetwork(prototype, amount, true);
+	}
 
 	private List<Integer> oldStackSizes = Lists.newArrayList();
 	public List<ITextComponent> status = Lists.newArrayList();
@@ -502,6 +544,41 @@ public class ContainerTerminal extends Container {
 
 	@Override
 	public void detectAndSendChanges() {
+		if (terminal.hasMaintenanceSlot() && (isDumping || isFilling)) {
+			if (terminal.getMaintenanceSlotContent().getItem() instanceof ItemDrive) {
+				ItemDrive id = (ItemDrive)terminal.getMaintenanceSlotContent().getItem();
+				List<ItemStack> prototypes = isFilling ? terminal.getStorage().getTypes() : id.getPrototypes(terminal.getMaintenanceSlotContent());
+				for (int i = 0; i < 100; i++) {
+					if (prototypes.isEmpty()) break;
+					ItemStack prototype = prototypes.get(0);
+					ItemStack split;
+					if (isFilling) {
+						split = removeItemsFromNetworkSilently(prototype, prototype.getMaxStackSize());
+					} else {
+						split = id.removeItems(terminal.getMaintenanceSlotContent(), prototype, prototype.getMaxStackSize());
+					}
+					if (split.isEmpty()) {
+						prototypes.remove(0);
+						continue;
+					}
+					if (isFilling) {
+						id.addItem(terminal.getMaintenanceSlotContent(), split, false);
+					} else {
+						addItemToNetworkSilently(split);
+					}
+					if (!split.isEmpty()) {
+						// no more room for this item in the target, skip it this tick
+						prototypes.remove(0);
+						if (isFilling) {
+							addItemToNetworkSilently(split);
+						} else {
+							id.addItem(terminal.getMaintenanceSlotContent(), split, false);
+						}
+					}
+				}
+			}
+		}
+		
 		super.detectAndSendChanges();
 		for (int i = 0; i < this.inventorySlots.size(); i++) {
 			ItemStack stack = inventorySlots.get(i).getStack();
@@ -733,3 +810,4 @@ public class ContainerTerminal extends Container {
 	}
 
 }
+

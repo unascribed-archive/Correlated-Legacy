@@ -19,8 +19,11 @@ import com.elytradev.correlated.tile.TileEntityImporterChest;
 import com.elytradev.correlated.tile.TileEntityInterface;
 import com.elytradev.correlated.tile.TileEntityTerminal;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -42,11 +45,17 @@ public class CorrelatedGuiHandler implements IGuiHandler {
 				}
 			}
 			case 1: {
-				ItemStack drive = player.inventory.getStackInSlot(x);
-				if (drive.getItem() instanceof ItemDrive) {
-					return new ContainerDrive(player.inventory, x, player);
+				Container open = player.openContainer;
+				if (open != null && open instanceof ContainerTerminal) {
+					ItemStack drive = ((ContainerTerminal)open).terminal.getMaintenanceSlotContent();
+					if (drive.getItem() instanceof ItemDrive) {
+						return new ContainerDrive((ContainerTerminal)open, player.inventory, player);
+					} else {
+						Correlated.log.warn("Expected a drive, got {} instead", drive);
+						break;
+					}
 				} else {
-					Correlated.log.warn("Expected a drive, got {} instead", drive);
+					Correlated.log.warn("Expected a ContainerTerminal, got {} instead", open == null ? "null" : open.getClass());
 					break;
 				}
 			}
@@ -103,11 +112,18 @@ public class CorrelatedGuiHandler implements IGuiHandler {
 				}
 			}
 			case 1: {
-				ItemStack drive = player.inventory.getStackInSlot(x);
-				if (drive.getItem() instanceof ItemDrive) {
-					return new GuiDrive(new ContainerDrive(player.inventory, x, player));
+				GuiScreen open = Minecraft.getMinecraft().currentScreen;
+				if (open != null && open instanceof GuiTerminal) {
+					ContainerTerminal ct = ((ContainerTerminal)((GuiTerminal)open).inventorySlots);
+					ItemStack drive = ct.maintenanceSlot.getStack();
+					if (drive.getItem() instanceof ItemDrive) {
+						return new GuiDrive((GuiTerminal)open, new ContainerDrive(ct, player.inventory, player));
+					} else {
+						Correlated.log.warn("Expected a drive, got {} instead", drive);
+						break;
+					}
 				} else {
-					Correlated.log.warn("Expected a drive, got {} instead", drive);
+					Correlated.log.warn("Expected a GuiTerminal, got {} instead", open == null ? "null" : open.getClass());
 					break;
 				}
 			}

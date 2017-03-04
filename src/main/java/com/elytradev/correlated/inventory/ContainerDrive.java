@@ -73,21 +73,28 @@ public class ContainerDrive extends Container {
 		@Override
 		public void onSlotChanged() {
 			getItemDrive().markDirty(getDrive());
-			player.inventory.setInventorySlotContents(driveSlotId, getDrive());
 		}
 	}
 
-	private final int driveSlotId;
-	public final Slot driveSlot;
 	private final EntityPlayer player;
 	private List<ItemStack> prototypes;
-	public ContainerDrive(IInventory playerInventory, int driveSlotId, EntityPlayer player) {
-		this.driveSlotId = driveSlotId;
-		ItemStack drive = playerInventory.getStackInSlot(driveSlotId);
+	private ContainerTerminal ct;
+	
+	private int oldX;
+	private int oldY;
+	
+	public ContainerDrive(ContainerTerminal ct, IInventory playerInventory, EntityPlayer player) {
+		this.ct = ct;
 		this.player = player;
-		driveSlot = new SlotStatic(0, -8000, -8000, drive);
-		addSlotToContainer(driveSlot);
 
+		oldX = ct.maintenanceSlot.xPos;
+		oldY = ct.maintenanceSlot.yPos;
+		
+		ct.maintenanceSlot.xPos = -2000;
+		ct.maintenanceSlot.yPos = -2000;
+		
+		addSlotToContainer(ct.maintenanceSlot);
+		
 		for (int i = 0; i < 64; i++) {
 			SlotFake slot = new SlotFake(i, (((i % 11)*18)+8)+(i > 54 ? 18 : 0), ((i/11)*18)+18);
 			addSlotToContainer(slot);
@@ -103,21 +110,12 @@ public class ContainerDrive extends Container {
 		}
 
 		for (int i = 0; i < 9; ++i) {
-			Slot slot;
-			if (i == driveSlotId) {
-				slot = new Slot(playerInventory, i, x + i * 18, 161 + y) {
-					@Override
-					public boolean canTakeStack(EntityPlayer playerIn) { return false; }
-				};
-			} else {
-				slot = new Slot(playerInventory, i, x + i * 18, 161 + y);
-			}
-			addSlotToContainer(slot);
+			addSlotToContainer(new Slot(playerInventory, i, x + i * 18, 161 + y));
 		}
 	}
 
 	public void updateSlots() {
-		prototypes = getItemDrive().getPrototypes(getDrive());
+		prototypes = getItemDrive().getPartitioningMode(getDrive()) == PartitioningMode.BLACKLIST ? getItemDrive().getBlacklistedTypes(getDrive()) : getItemDrive().getPrototypes(getDrive());
 		for (int i = 1; i < 65; i++) {
 			Slot slot = inventorySlots.get(i);
 			if (slot instanceof SlotFake) {
@@ -149,11 +147,22 @@ public class ContainerDrive extends Container {
 			int idx = (cur.ordinal()+1)%values.length;
 			PartitioningMode nxt = values[idx];
 			getItemDrive().setPartitioningMode(getDrive(), nxt);
+			updateSlots();
+		} else if (id == 3) {
+			ct.maintenanceSlot.xPos = oldX;
+			ct.maintenanceSlot.yPos = oldY;
+			player.openContainer = ct;
 		}
-		player.inventory.setInventorySlotContents(driveSlotId, getDrive());
 		return true;
 	}
 
+	@Override
+	public void onContainerClosed(EntityPlayer playerIn) {
+		super.onContainerClosed(playerIn);
+		ct.maintenanceSlot.xPos = oldX;
+		ct.maintenanceSlot.yPos = oldY;
+	}
+	
 	@Override
 	public void updateProgressBar(int id, int data) {
 
@@ -176,7 +185,6 @@ public class ContainerDrive extends Container {
 						if (stored <= 0) {
 							getItemDrive().deallocateType(getDrive(), slot.getStack());
 							updateSlots();
-							player.inventory.setInventorySlotContents(driveSlotId, getDrive());
 						}
 						return ItemStack.EMPTY;
 					} else {
@@ -185,9 +193,16 @@ public class ContainerDrive extends Container {
 						if (cursor != null) {
 							if (slot.isItemValid(cursor)) {
 								if (cursor != getDrive()) {
-									getItemDrive().allocateType(getDrive(), cursor, 0);
-									updateSlots();
-									player.inventory.setInventorySlotContents(driveSlotId, getDrive());
+									if (getItemDrive().getPartitioningMode(getDrive()) == PartitioningMode.BLACKLIST) {
+										int stored = getItemDrive().getAmountStored(getDrive(), cursor);
+										if (stored <= 0) {
+											getItemDrive().blacklistType(getDrive(), cursor);
+											updateSlots();
+										}
+									} else {
+										getItemDrive().allocateType(getDrive(), cursor, 0);
+										updateSlots();
+									}
 								}
 							}
 						}
@@ -199,9 +214,16 @@ public class ContainerDrive extends Container {
 				if (getItemDrive().getPartitioningMode(getDrive()) == PartitioningMode.NONE) return stack;
 				if (getSlot(1).isItemValid(stack)) {
 					if (stack != getDrive()) {
-						getItemDrive().allocateType(getDrive(), stack, 0);
-						updateSlots();
-						player.inventory.setInventorySlotContents(driveSlotId, getDrive());
+						if (getItemDrive().getPartitioningMode(getDrive()) == PartitioningMode.BLACKLIST) {
+							int stored = getItemDrive().getAmountStored(getDrive(), stack);
+							if (stored <= 0) {
+								getItemDrive().blacklistType(getDrive(), stack);
+								updateSlots();
+							}
+						} else {
+							getItemDrive().allocateType(getDrive(), stack, 0);
+							updateSlots();
+						}
 					}
 				}
 				return stack;
@@ -211,7 +233,7 @@ public class ContainerDrive extends Container {
 	}
 
 	public ItemStack getDrive() {
-		return driveSlot.getStack();
+		return ct.maintenanceSlot.getStack();
 	}
 
 	public ItemDrive getItemDrive() {
