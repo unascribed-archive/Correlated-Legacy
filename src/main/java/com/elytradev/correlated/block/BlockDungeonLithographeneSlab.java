@@ -32,7 +32,7 @@ public class BlockDungeonLithographeneSlab extends BlockSlab {
 	
 	@Override
 	public Item getItemDropped(IBlockState state, Random rand, int fortune) {
-		return Item.getItemFromBlock(Correlated.dungeon_slab);
+		return Item.getItemFromBlock(Correlated.lithographene_slab);
 	}
 	
 	@Override
