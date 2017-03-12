@@ -627,10 +627,7 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	
 	@Override
 	public NBTTagCompound getUpdateTag() {
-		NBTTagCompound nbt = new NBTTagCompound();
-		nbt.setInteger("x", getPos().getX());
-		nbt.setInteger("y", getPos().getY());
-		nbt.setInteger("z", getPos().getZ());
+		NBTTagCompound nbt = super.getUpdateTag();
 		nbt.setLong("MemoryUsed", clientMemoryUsed = getTotalUsedMemory());
 		nbt.setLong("MemoryMax", clientMemoryMax = getMaxMemory());
 		nbt.setInteger("Energy", clientEnergy = getEnergyStored());
@@ -640,10 +637,15 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	
 	@Override
 	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
-		clientMemoryUsed = pkt.getNbtCompound().getLong("MemoryUsed");
-		clientMemoryMax = pkt.getNbtCompound().getLong("MemoryMax");
-		clientEnergy = pkt.getNbtCompound().getInteger("Energy");
-		clientEnergyMax = pkt.getNbtCompound().getInteger("EnergyMax");
+		handleUpdateTag(pkt.getNbtCompound());
+	}
+	
+	@Override
+	public void handleUpdateTag(NBTTagCompound nbt) {
+		clientMemoryUsed = nbt.getLong("MemoryUsed");
+		clientMemoryMax = nbt.getLong("MemoryMax");
+		clientEnergy = nbt.getInteger("Energy");
+		clientEnergyMax = nbt.getInteger("EnergyMax");
 	}
 	
 	public int getClientEnergy() {

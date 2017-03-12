@@ -234,7 +234,7 @@ public class CRecipes {
 				"oo",
 				"oo",
 				
-				'o', luminousPearl));
+				'o', new ItemStack(Correlated.misc, 1, 5)));
 		
 		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(Correlated.plating_stairs, 4),
 				"#  ",

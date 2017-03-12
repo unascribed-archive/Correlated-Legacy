@@ -83,9 +83,9 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 	
 	@Override
 	public NBTTagCompound getUpdateTag() {
-		NBTTagCompound tag = new NBTTagCompound();
-		if (error != null) tag.setString("Error", error);
-		return tag;
+		NBTTagCompound nbt = super.getUpdateTag();
+		if (error != null) nbt.setString("Error", error);
+		return nbt;
 	}
 	
 	@Override
@@ -95,7 +95,12 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 	
 	@Override
 	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
-		error = pkt.getNbtCompound().hasKey("Error", NBT.TAG_STRING) ? pkt.getNbtCompound().getString("Error") : null;
+		handleUpdateTag(pkt.getNbtCompound());
+	}
+	
+	@Override
+	public void handleUpdateTag(NBTTagCompound nbt) {
+		error = nbt.hasKey("Error", NBT.TAG_STRING) ? nbt.getString("Error") : null;
 	}
 	
 	@Override

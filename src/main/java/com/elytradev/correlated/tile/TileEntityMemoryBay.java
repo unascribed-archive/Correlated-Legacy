@@ -80,10 +80,7 @@ public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITic
 	
 	@Override
 	public NBTTagCompound getUpdateTag() {
-		NBTTagCompound nbt = new NBTTagCompound();
-		nbt.setInteger("x", getPos().getX());
-		nbt.setInteger("y", getPos().getY());
-		nbt.setInteger("z", getPos().getZ());
+		NBTTagCompound nbt = super.getUpdateTag();
 		for (int i = 0; i < memory.length; i++) {
 			ItemStack stack = memory[i];
 			if (stack.isEmpty()) continue;
@@ -94,9 +91,14 @@ public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITic
 	
 	@Override
 	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+		handleUpdateTag(pkt.getNbtCompound());
+	}
+	
+	@Override
+	public void handleUpdateTag(NBTTagCompound nbt) {
 		for (int i = 0; i < memory.length; i++) {
-			if (pkt.getNbtCompound().hasKey("Memory"+i)) {
-				NBTTagCompound tag = pkt.getNbtCompound().getCompoundTag("Memory"+i);
+			if (nbt.hasKey("Memory"+i)) {
+				NBTTagCompound tag = nbt.getCompoundTag("Memory"+i);
 				if (tag.hasNoTags()) {
 					memory[i] = ItemStack.EMPTY;
 				} else {

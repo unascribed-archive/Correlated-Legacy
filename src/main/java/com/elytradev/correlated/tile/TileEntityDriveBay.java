@@ -81,10 +81,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 	
 	@Override
 	public NBTTagCompound getUpdateTag() {
-		NBTTagCompound nbt = new NBTTagCompound();
-		nbt.setInteger("x", getPos().getX());
-		nbt.setInteger("y", getPos().getY());
-		nbt.setInteger("z", getPos().getZ());
+		NBTTagCompound nbt = super.getUpdateTag();
 		for (int i = 0; i < drives.length; i++) {
 			ItemStack drive = drives[i];
 			if (!(drive.getItem() instanceof ItemDrive)) continue;
@@ -99,17 +96,22 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 	
 	@Override
 	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
-		if (pkt.getNbtCompound().getBoolean("UpdateUsedBits")) {
-			int slot = pkt.getNbtCompound().getInteger("Slot");
+		handleUpdateTag(pkt.getNbtCompound());
+	}
+	
+	@Override
+	public void handleUpdateTag(NBTTagCompound nbt) {
+		if (nbt.getBoolean("UpdateUsedBits")) {
+			int slot = nbt.getInteger("Slot");
 			ItemStack stack = drives[slot];
 			if (!stack.isEmpty()) {
 				ItemStacks.ensureHasTag(stack).getTagCompound().setBoolean("Dirty", true);
-				ItemStacks.ensureHasTag(stack).getTagCompound().setInteger("UsedBits", pkt.getNbtCompound().getInteger("UsedBits"));
+				ItemStacks.ensureHasTag(stack).getTagCompound().setInteger("UsedBits", nbt.getInteger("UsedBits"));
 			}
 		} else {
 			for (int i = 0; i < drives.length; i++) {
-				if (pkt.getNbtCompound().hasKey("Drive"+i)) {
-					NBTTagCompound tag = pkt.getNbtCompound().getCompoundTag("Drive"+i);
+				if (nbt.hasKey("Drive"+i)) {
+					NBTTagCompound tag = nbt.getCompoundTag("Drive"+i);
 					if (tag.hasNoTags()) {
 						drives[i] = ItemStack.EMPTY;
 					} else {

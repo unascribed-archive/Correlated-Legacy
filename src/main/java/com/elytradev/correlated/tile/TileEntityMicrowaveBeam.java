@@ -47,7 +47,6 @@ public class TileEntityMicrowaveBeam extends TileEntityNetworkMember implements 
 		IBlockState ibs = world.getBlockState(getPos());
 		if (ibs.getBlock() == Correlated.microwave_beam) {
 			if (ibs.getValue(BlockMicrowaveBeam.state) != newState) {
-				Correlated.sendUpdatePacket(this);
 				world.setBlockState(getPos(), ibs.withProperty(BlockMicrowaveBeam.state, newState));
 			}
 		}
@@ -67,16 +66,21 @@ public class TileEntityMicrowaveBeam extends TileEntityNetworkMember implements 
 	
 	@Override
 	public NBTTagCompound getUpdateTag() {
-		NBTTagCompound tag = new NBTTagCompound();
-		tag.setFloat("Yaw", getYaw(0));
-		tag.setFloat("Pitch", getPitch(0));
-		return tag;
+		NBTTagCompound nbt = super.getUpdateTag();
+		nbt.setFloat("Yaw", getYaw(0));
+		nbt.setFloat("Pitch", getPitch(0));
+		return nbt;
 	}
 	
 	@Override
 	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
-		syncedYaw = pkt.getNbtCompound().getFloat("Yaw");
-		syncedPitch = pkt.getNbtCompound().getFloat("Pitch");
+		handleUpdateTag(pkt.getNbtCompound());
+	}
+	
+	@Override
+	public void handleUpdateTag(NBTTagCompound nbt) {
+		syncedYaw = nbt.getFloat("Yaw");
+		syncedPitch = nbt.getFloat("Pitch");
 	}
 	
 	public TileEntityController getOtherSide() {
