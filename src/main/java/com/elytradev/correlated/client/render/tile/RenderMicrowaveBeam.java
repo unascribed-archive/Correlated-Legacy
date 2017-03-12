@@ -146,15 +146,15 @@ public class RenderMicrowaveBeam extends TileEntitySpecialRenderer<TileEntityMic
 			wr.pos(1, 1, 1).tex(top.getInterpolatedU(16), top.getInterpolatedV(13)).normal(-nXF, -nYF, -nZF).endVertex();
 			wr.pos(0, 1, 1).tex(top.getInterpolatedU(15.5), top.getInterpolatedV(13)).normal(-nXF, -nYF, -nZF).endVertex();
 			
-			wr.pos(0, 0, 0).tex(top.getInterpolatedU(3), top.getInterpolatedV(16)).normal(-nXU, -nYU, -nZU).endVertex();
-			wr.pos(1, 0, 0).tex(top.getInterpolatedU(13), top.getInterpolatedV(16)).normal(-nXU, -nYU, -nZU).endVertex();
-			wr.pos(1, 0, 1).tex(top.getInterpolatedU(13), top.getInterpolatedV(14)).normal(-nXU, -nYU, -nZU).endVertex();
-			wr.pos(0, 0, 1).tex(top.getInterpolatedU(3), top.getInterpolatedV(14)).normal(-nXU, -nYU, -nZU).endVertex();
+			wr.pos(0, 0, 0).tex(top.getInterpolatedU(3), top.getInterpolatedV(14)).normal(-nXU, -nYU, -nZU).endVertex();
+			wr.pos(1, 0, 0).tex(top.getInterpolatedU(13), top.getInterpolatedV(14)).normal(-nXU, -nYU, -nZU).endVertex();
+			wr.pos(1, 0, 1).tex(top.getInterpolatedU(13), top.getInterpolatedV(16)).normal(-nXU, -nYU, -nZU).endVertex();
+			wr.pos(0, 0, 1).tex(top.getInterpolatedU(3), top.getInterpolatedV(16)).normal(-nXU, -nYU, -nZU).endVertex();
 			
-			wr.pos(0, 1, 1).tex(top.getInterpolatedU(3), top.getInterpolatedV(2)).normal(nXU, nYU, nZU).endVertex();
-			wr.pos(1, 1, 1).tex(top.getInterpolatedU(13), top.getInterpolatedV(2)).normal(nXU, nYU, nZU).endVertex();
-			wr.pos(1, 1, 0).tex(top.getInterpolatedU(13), top.getInterpolatedV(0)).normal(nXU, nYU, nZU).endVertex();
-			wr.pos(0, 1, 0).tex(top.getInterpolatedU(3), top.getInterpolatedV(0)).normal(nXU, nYU, nZU).endVertex();
+			wr.pos(0, 1, 1).tex(top.getInterpolatedU(3), top.getInterpolatedV(0)).normal(nXU, nYU, nZU).endVertex();
+			wr.pos(1, 1, 1).tex(top.getInterpolatedU(13), top.getInterpolatedV(0)).normal(nXU, nYU, nZU).endVertex();
+			wr.pos(1, 1, 0).tex(top.getInterpolatedU(13), top.getInterpolatedV(2)).normal(nXU, nYU, nZU).endVertex();
+			wr.pos(0, 1, 0).tex(top.getInterpolatedU(3), top.getInterpolatedV(2)).normal(nXU, nYU, nZU).endVertex();
 			
 			wr.pos(1, 0, 1).tex(top.getInterpolatedU(0), top.getInterpolatedV(3)).normal(nXR, nYR, nZR).endVertex();
 			wr.pos(1, 0, 0).tex(top.getInterpolatedU(2), top.getInterpolatedV(3)).normal(nXR, nYR, nZR).endVertex();
