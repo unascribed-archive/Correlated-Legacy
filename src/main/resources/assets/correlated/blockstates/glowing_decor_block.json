@@ -9,13 +9,15 @@
 			"lithographene_off": {"textures":{"all":"correlated:blocks/dungeon/lithographene.off"}},
 			"lithographene_off_variant": {"textures":{"all":"correlated:blocks/dungeon/lithographene.off.variant"}},
 			"lithographene_on": {"textures":{"all":"correlated:blocks/dungeon/lithographene.on"}},
-			"lithographene_on_variant": {"textures":{"all":"correlated:blocks/dungeon/lithographene.on.variant"}}
+			"lithographene_on_variant": {"textures":{"all":"correlated:blocks/dungeon/lithographene.on.variant"}},
+			"lantern": {"textures":{"all":"correlated:blocks/lumlantern"}}
 		},
 		"inventory": [{"textures":{"all":"correlated:blocks/dungeon/lithographene.off"}}],
 		
 		"inventory0": [{"textures":{"all":"correlated:blocks/dungeon/lithographene.off"}}],
 		"inventory1": [{"textures":{"all":"correlated:blocks/dungeon/lithographene.on"}}],
 		"inventory2": [{"textures":{"all":"correlated:blocks/dungeon/lithographene.off.variant"}}],
-		"inventory3": [{"textures":{"all":"correlated:blocks/dungeon/lithographene.on.variant"}}]
+		"inventory3": [{"textures":{"all":"correlated:blocks/dungeon/lithographene.on.variant"}}],
+		"inventory4": [{"textures":{"all":"correlated:blocks/lumlantern"}}]
 	}
 }

@@ -64,12 +64,12 @@ public class Beam implements INBTSerializable<NBTTagCompound> {
 			cast(dist,  0.00,  0.00,  0.00, planck);
 			
 			// thanks Falkreon!
-			cast(dist,  0.38,  0.08,  0.08, planck);
-			cast(dist, -0.38, -0.08, -0.08, planck);
-			cast(dist,  0.08,  0.02, -0.39, planck);
-			cast(dist, -0.08, -0.02,  0.39, planck);
-			cast(dist,  0.08, -0.39,  0.00, planck);
-			cast(dist, -0.08,  0.39,  0.00, planck);
+			cast(dist,  0.095,  0.02,  0.02, planck);
+			cast(dist, -0.095, -0.02, -0.02, planck);
+			cast(dist,  0.02,  0.005, -0.0975, planck);
+			cast(dist, -0.02, -0.005,  0.0975, planck);
+			cast(dist,  0.02, -0.0975,  0.00, planck);
+			cast(dist, -0.02,  0.075,  0.00, planck);
 			
 			sw.stop();
 			if (sw.elapsed(TimeUnit.MILLISECONDS) > 50) {

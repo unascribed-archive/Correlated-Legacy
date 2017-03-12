@@ -40,6 +40,13 @@
 					"top": "correlated:blocks/dungeon/lithographene.on.variant",
 					"side": "correlated:blocks/dungeon/lithographene.on.variant"
 				}
+			},
+			"lantern": {
+				"textures": {
+					"bottom": "correlated:blocks/lumlantern",
+					"top": "correlated:blocks/lumlantern",
+					"side": "correlated:blocks/lumlantern_slab_side"
+				}
 			}
 		},
 		"inventory0": [{
@@ -68,6 +75,13 @@
 				"bottom": "correlated:blocks/dungeon/lithographene.on.variant",
 				"top": "correlated:blocks/dungeon/lithographene.on.variant",
 				"side": "correlated:blocks/dungeon/lithographene.on.variant"
+			}
+		}],
+		"inventory4": [{
+			"textures": {
+				"bottom": "correlated:blocks/lumlantern",
+				"top": "correlated:blocks/lumlantern",
+				"side": "correlated:blocks/lumlantern_slab_side"
 			}
 		}]
 	}

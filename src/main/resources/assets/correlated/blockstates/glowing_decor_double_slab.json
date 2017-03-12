@@ -13,7 +13,19 @@
 			"lithographene_off": {"textures":{"all":"correlated:blocks/dungeon/lithographene.off"}},
 			"lithographene_off_variant": {"textures":{"all":"correlated:blocks/dungeon/lithographene.off.variant"}},
 			"lithographene_on": {"textures":{"all":"correlated:blocks/dungeon/lithographene.on"}},
-			"lithographene_on_variant": {"textures":{"all":"correlated:blocks/dungeon/lithographene.on.variant"}}
+			"lithographene_on_variant": {"textures":{"all":"correlated:blocks/dungeon/lithographene.on.variant"}},
+			"lantern": {
+				"model": "minecraft:cube",
+				"textures": {
+					"particle": "correlated:blocks/lumlantern",
+					"up": "correlated:blocks/lumlantern",
+					"down": "correlated:blocks/lumlantern",
+					"north": "correlated:blocks/lumlantern_slab_side",
+					"east": "correlated:blocks/lumlantern_slab_side",
+					"south": "correlated:blocks/lumlantern_slab_side",
+					"west": "correlated:blocks/lumlantern_slab_side"
+				}
+			}
 		},
 		"inventory": [{}]
 	}

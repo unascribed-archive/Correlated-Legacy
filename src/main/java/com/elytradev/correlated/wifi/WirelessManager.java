@@ -8,6 +8,7 @@ import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.CorrelatedWorldData;
 import com.elytradev.correlated.math.Vec2i;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -100,21 +101,21 @@ public class WirelessManager implements INBTSerializable<NBTTagCompound> {
 		if (c == null || c.getWorld() != data.getWorld()) return Collections.emptySet();
 		goat.x = c.xPosition;
 		goat.y = c.zPosition;
-		return opticalsByChunk.get(goat);
+		return ImmutableList.copyOf(opticalsByChunk.get(goat));
 	}
 	
 	public Iterable<Tower> allTowersInChunk(Chunk c) {
 		if (c == null || c.getWorld() != data.getWorld()) return Collections.emptySet();
 		goat.x = c.xPosition;
 		goat.y = c.zPosition;
-		return towersByChunk.get(goat);
+		return ImmutableList.copyOf(towersByChunk.get(goat));
 	}
 	
 	public Iterable<Beam> allBeamsInChunk(Chunk c) {
 		if (c == null || c.getWorld() != data.getWorld()) return Collections.emptySet();
 		goat.x = c.xPosition;
 		goat.y = c.zPosition;
-		return beamsByChunk.get(goat);
+		return ImmutableList.copyOf(beamsByChunk.get(goat));
 	}
 	
 	public Iterable<Station> allStationsInChunk(Chunk c) {

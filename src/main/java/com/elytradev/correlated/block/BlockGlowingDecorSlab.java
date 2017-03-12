@@ -13,6 +13,8 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 
 public class BlockGlowingDecorSlab extends BlockSlab {
 
@@ -48,6 +50,11 @@ public class BlockGlowingDecorSlab extends BlockSlab {
 	@Override
 	public boolean isDouble() {
 		return dbl;
+	}
+	
+	@Override
+	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
+		return state.getValue(BlockGlowingDecor.variant).glow ? 15 : 2;
 	}
 
 	@Override

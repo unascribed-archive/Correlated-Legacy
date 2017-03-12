@@ -631,9 +631,9 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 			} else {
 				if (player.isSneaking()) {
 					EntityEquipmentSlot slot;
-					if (getItemStackFromSlot(EntityEquipmentSlot.CHEST) != null) {
+					if (!getItemStackFromSlot(EntityEquipmentSlot.CHEST).isEmpty()) {
 						slot = EntityEquipmentSlot.CHEST;
-					} else if (getItemStackFromSlot(EntityEquipmentSlot.LEGS) != null) {
+					} else if (!getItemStackFromSlot(EntityEquipmentSlot.LEGS).isEmpty()) {
 						slot = EntityEquipmentSlot.LEGS;
 					} else {
 						slot = null;
@@ -641,13 +641,13 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 					}
 					if (slot != null) {
 						entityDropItem(getItemStackFromSlot(slot), 0.2f);
-						setItemStackToSlot(slot, null);
+						setItemStackToSlot(slot, ItemStack.EMPTY);
 					}
 				} else if (stack != null && stack.getItem() instanceof ItemDrive) {
 					EntityEquipmentSlot slot;
-					if (getItemStackFromSlot(EntityEquipmentSlot.LEGS) == null) {
+					if (getItemStackFromSlot(EntityEquipmentSlot.LEGS).isEmpty()) {
 						slot = EntityEquipmentSlot.LEGS;
-					} else if (getItemStackFromSlot(EntityEquipmentSlot.CHEST) == null) {
+					} else if (getItemStackFromSlot(EntityEquipmentSlot.CHEST).isEmpty()) {
 						slot = EntityEquipmentSlot.CHEST;
 					} else {
 						slot = null;

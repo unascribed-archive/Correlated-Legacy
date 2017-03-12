@@ -12,6 +12,7 @@ import com.elytradev.correlated.block.BlockController;
 import com.elytradev.correlated.block.BlockDriveBay;
 import com.elytradev.correlated.block.BlockDecor;
 import com.elytradev.correlated.block.BlockGlowingDecor;
+import com.elytradev.correlated.block.BlockGlowingDecor.Variant;
 import com.elytradev.correlated.block.BlockGlowingDecorSlab;
 import com.elytradev.correlated.block.BlockDecorSlab;
 import com.elytradev.correlated.block.BlockDecorStairs;
@@ -401,6 +402,7 @@ public class Correlated {
 			register(new BlockDecorStairs(decor_block.getDefaultState().withProperty(BlockDecor.variant, v)), ItemBlock.class, v.getName()+"_stairs", 0);
 		}
 		for (BlockGlowingDecor.Variant v : BlockGlowingDecor.Variant.VALUES) {
+			if (v == Variant.LANTERN) continue;
 			register(new BlockDecorStairs(glowing_decor_block.getDefaultState().withProperty(BlockGlowingDecor.variant, v)), ItemBlock.class, v.getName()+"_stairs", 0);
 		}
 		

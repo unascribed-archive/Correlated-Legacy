@@ -18,16 +18,20 @@ import net.minecraft.world.IBlockAccess;
 public class BlockGlowingDecor extends Block {
 	
 	public enum Variant implements IStringSerializable {
-		LITHOGRAPHENE_OFF,
-		LITHOGRAPHENE_ON,
-		LITHOGRAPHENE_OFF_VARIANT,
-		LITHOGRAPHENE_ON_VARIANT;
+		LITHOGRAPHENE_OFF(false),
+		LITHOGRAPHENE_ON(true),
+		LITHOGRAPHENE_OFF_VARIANT(false),
+		LITHOGRAPHENE_ON_VARIANT(true),
+		LANTERN(true);
 		
 		public static final Variant[] VALUES = values();
 		private final String lower;
 		
-		private Variant() {
+		public final boolean glow;
+		
+		private Variant(boolean glow) {
 			lower = name().toLowerCase(Locale.ROOT);
+			this.glow = glow;
 		}
 
 		@Override
@@ -44,7 +48,7 @@ public class BlockGlowingDecor extends Block {
 	
 	@Override
 	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
-		return state.getValue(variant).ordinal()%2 == 1 ? 15 : 2;
+		return state.getValue(variant).glow ? 15 : 2;
 	}
 	
 	@Override
