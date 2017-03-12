@@ -13,28 +13,28 @@
 			"bottom": {}
 		},
 		"variant": {
-			"off": {
+			"lithographene_off": {
 				"textures": {
 					"bottom": "correlated:blocks/dungeon/lithographene.off",
 					"top": "correlated:blocks/dungeon/lithographene.off",
 					"side": "correlated:blocks/dungeon/lithographene.off"
 				}
 			},
-			"off_variant": {
+			"lithographene_off_variant": {
 				"textures": {
 					"bottom": "correlated:blocks/dungeon/lithographene.off.variant",
 					"top": "correlated:blocks/dungeon/lithographene.off.variant",
 					"side": "correlated:blocks/dungeon/lithographene.off.variant"
 				}
 			},
-			"on": {
+			"lithographene_on": {
 				"textures": {
 					"bottom": "correlated:blocks/dungeon/lithographene.on",
 					"top": "correlated:blocks/dungeon/lithographene.on",
 					"side": "correlated:blocks/dungeon/lithographene.on"
 				}
 			},
-			"on_variant": {
+			"lithographene_on_variant": {
 				"textures": {
 					"bottom": "correlated:blocks/dungeon/lithographene.on.variant",
 					"top": "correlated:blocks/dungeon/lithographene.on.variant",
@@ -51,16 +51,16 @@
 		}],
 		"inventory1": [{
 			"textures": {
-				"bottom": "correlated:blocks/dungeon/lithographene.off.variant",
-				"top": "correlated:blocks/dungeon/lithographene.off.variant",
-				"side": "correlated:blocks/dungeon/lithographene.off.variant"
+				"bottom": "correlated:blocks/dungeon/lithographene.on",
+				"top": "correlated:blocks/dungeon/lithographene.on",
+				"side": "correlated:blocks/dungeon/lithographene.on"
 			}
 		}],
 		"inventory2": [{
 			"textures": {
-				"bottom": "correlated:blocks/dungeon/lithographene.on",
-				"top": "correlated:blocks/dungeon/lithographene.on",
-				"side": "correlated:blocks/dungeon/lithographene.on"
+				"bottom": "correlated:blocks/dungeon/lithographene.off.variant",
+				"top": "correlated:blocks/dungeon/lithographene.off.variant",
+				"side": "correlated:blocks/dungeon/lithographene.off.variant"
 			}
 		}],
 		"inventory3": [{

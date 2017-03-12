@@ -62,6 +62,13 @@
 					"top": "correlated:blocks/dungeon/elucid.scale",
 					"side": "correlated:blocks/dungeon/elucid.scale"
 				}
+			},
+			"plating": {
+				"textures": {
+					"bottom": "correlated:blocks/top",
+					"top": "correlated:blocks/top",
+					"side": "correlated:blocks/plating_slab_side"
+				}
 			}
 		},
 		"inventory": [{
@@ -120,6 +127,13 @@
 				"bottom": "correlated:blocks/dungeon/elucid.scale",
 				"top": "correlated:blocks/dungeon/elucid.scale",
 				"side": "correlated:blocks/dungeon/elucid.scale"
+			}
+		}],
+		"inventory7": [{
+			"textures": {
+				"bottom": "correlated:blocks/top",
+				"top": "correlated:blocks/top",
+				"side": "correlated:blocks/plating_slab_side"
 			}
 		}]
 	}

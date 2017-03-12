@@ -1,0 +1,20 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"transform": "forge:default-block",
+		"model": "minecraft:cube_all"
+	},
+	"variants": {
+		"half": {
+			"top": {},
+			"bottom": {}
+		},
+		"variant": {
+			"lithographene_off": {"textures":{"all":"correlated:blocks/dungeon/lithographene.off"}},
+			"lithographene_off_variant": {"textures":{"all":"correlated:blocks/dungeon/lithographene.off.variant"}},
+			"lithographene_on": {"textures":{"all":"correlated:blocks/dungeon/lithographene.on"}},
+			"lithographene_on_variant": {"textures":{"all":"correlated:blocks/dungeon/lithographene.on.variant"}}
+		},
+		"inventory": [{}]
+	}
+}

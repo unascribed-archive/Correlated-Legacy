@@ -13,7 +13,9 @@
 			
 			"elucid_brick": {"textures":{"all":"correlated:blocks/dungeon/elucid.brick"}},
 			"elucid_grit": {"textures":{"all":"correlated:blocks/dungeon/elucid.grit"}},
-			"elucid_scale": {"textures":{"all":"correlated:blocks/dungeon/elucid.scale"}}
+			"elucid_scale": {"textures":{"all":"correlated:blocks/dungeon/elucid.scale"}},
+			
+			"plating": {"textures":{"all":"correlated:blocks/top"}}
 		},
 		"inventory": [{"textures":{"all":"correlated:blocks/dungeon/dungeoncrete"}}],
 		
@@ -24,6 +26,8 @@
 		
 		"inventory4": [{"textures":{"all":"correlated:blocks/dungeon/elucid.brick"}}],
 		"inventory5": [{"textures":{"all":"correlated:blocks/dungeon/elucid.grit"}}],
-		"inventory6": [{"textures":{"all":"correlated:blocks/dungeon/elucid.scale"}}]
+		"inventory6": [{"textures":{"all":"correlated:blocks/dungeon/elucid.scale"}}],
+		
+		"inventory7": [{"textures":{"all":"correlated:blocks/top"}}]
 	}
 }

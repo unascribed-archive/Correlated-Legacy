@@ -14,11 +14,11 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 
-public class BlockDungeonLithographeneSlab extends BlockSlab {
+public class BlockDecorSlab extends BlockSlab {
 
 	private boolean dbl;
 	
-	public BlockDungeonLithographeneSlab(boolean dbl) {
+	public BlockDecorSlab(boolean dbl) {
 		super(Material.IRON);
 		this.dbl = dbl;
 		IBlockState ibs = blockState.getBaseState();
@@ -27,22 +27,22 @@ public class BlockDungeonLithographeneSlab extends BlockSlab {
 			ibs = ibs.withProperty(HALF, BlockSlab.EnumBlockHalf.BOTTOM);
 		}
 
-		setDefaultState(ibs.withProperty(BlockDungeonLithographene.variant, BlockDungeonLithographene.Variant.OFF));
+		setDefaultState(ibs.withProperty(BlockDecor.variant, BlockDecor.Variant.DUNGEONCRETE));
 	}
 	
 	@Override
 	public Item getItemDropped(IBlockState state, Random rand, int fortune) {
-		return Item.getItemFromBlock(Correlated.lithographene_slab);
+		return Item.getItemFromBlock(Correlated.decor_slab);
 	}
 	
 	@Override
 	public int damageDropped(IBlockState state) {
-		return state.getValue(BlockDungeonLithographene.variant).ordinal();
+		return state.getValue(BlockDecor.variant).ordinal();
 	}
 	
 	@Override
 	public String getUnlocalizedName(int meta) {
-		return "tile.correlated.lithographene_"+getTypeForMeta(meta).getName()+"_slab";
+		return "tile.correlated."+getTypeForMeta(meta).getName()+"_slab";
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class BlockDungeonLithographeneSlab extends BlockSlab {
 
 	@Override
 	public IProperty<?> getVariantProperty() {
-		return BlockDungeonLithographene.variant;
+		return BlockDecor.variant;
 	}
 	
 	@Override
@@ -65,14 +65,14 @@ public class BlockDungeonLithographeneSlab extends BlockSlab {
 							: BlockSlab.EnumBlockHalf.TOP);
 		}
 		
-		iblockstate = iblockstate.withProperty(BlockDungeonLithographene.variant, BlockDungeonLithographene.Variant.VALUES[(meta & 7)%BlockDungeonLithographene.Variant.VALUES.length]);
+		iblockstate = iblockstate.withProperty(BlockDecor.variant, BlockDecor.Variant.VALUES[(meta & 7)%BlockDecor.Variant.VALUES.length]);
 		
 		return iblockstate;
 	}
 
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		int i = state.getValue(BlockDungeonLithographene.variant).ordinal();
+		int i = state.getValue(BlockDecor.variant).ordinal();
 
 		if (!isDouble() && state.getValue(HALF) == BlockSlab.EnumBlockHalf.TOP) {
 			i |= 8;
@@ -84,22 +84,22 @@ public class BlockDungeonLithographeneSlab extends BlockSlab {
 	@Override
 	protected BlockStateContainer createBlockState() {
 		return isDouble()
-				? new BlockStateContainer(this, BlockDungeonLithographene.variant)
-				: new BlockStateContainer(this, HALF, BlockDungeonLithographene.variant);
+				? new BlockStateContainer(this, BlockDecor.variant)
+				: new BlockStateContainer(this, HALF, BlockDecor.variant);
 	}
 
 	@Override
-	public BlockDungeonLithographene.Variant getTypeForItem(ItemStack stack) {
+	public BlockDecor.Variant getTypeForItem(ItemStack stack) {
 		return getTypeForMeta(stack.getMetadata());
 	}
 	
-	public BlockDungeonLithographene.Variant getTypeForMeta(int meta) {
-		return BlockDungeonLithographene.Variant.VALUES[meta%BlockDungeonLithographene.Variant.VALUES.length];
+	public BlockDecor.Variant getTypeForMeta(int meta) {
+		return BlockDecor.Variant.VALUES[meta%BlockDecor.Variant.VALUES.length];
 	}
 	
 	@Override
 	public void getSubBlocks(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> list) {
-		for (BlockDungeonLithographene.Variant v : BlockDungeonLithographene.Variant.VALUES) {
+		for (BlockDecor.Variant v : BlockDecor.Variant.VALUES) {
 			list.add(new ItemStack(itemIn, 1, v.ordinal()));
 		}
 	}

@@ -3,9 +3,9 @@ package com.elytradev.correlated.block;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.state.IBlockState;
 
-public class BlockDungeonStairs extends BlockStairs {
+public class BlockDecorStairs extends BlockStairs {
 
-	public BlockDungeonStairs(IBlockState modelState) {
+	public BlockDecorStairs(IBlockState modelState) {
 		super(modelState);
 	}
 

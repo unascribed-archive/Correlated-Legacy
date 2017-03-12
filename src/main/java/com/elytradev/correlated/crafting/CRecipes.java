@@ -221,6 +221,31 @@ public class CRecipes {
 				'_', Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE
 				));
 		
+		// Plating
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(Correlated.decor_block, 64, 7),
+				"III",
+				"IoI",
+				"III",
+				
+				'I', "ingotIron",
+				'o', luminousPearl));
+		
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(Correlated.plating_stairs, 4),
+				"#  ",
+				"## ",
+				"###",
+				'#', new ItemStack(Correlated.decor_block, 1, 7)));
+		
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(Correlated.plating_stairs, 4),
+				"  #",
+				" ##",
+				"###",
+				'#', new ItemStack(Correlated.decor_block, 1, 7)));
+		
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(Correlated.decor_slab, 6, 7),
+				"###",
+				'#', new ItemStack(Correlated.decor_block, 1, 7)));
+		
 		// Wireless Terminal
 		GameRegistry.addRecipe(new ShapelessOreRecipe(Correlated.wireless_terminal,
 				Correlated.terminal

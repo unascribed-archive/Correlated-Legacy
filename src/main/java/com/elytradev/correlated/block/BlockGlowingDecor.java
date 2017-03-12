@@ -12,18 +12,16 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 
-public class BlockDungeon extends Block {
+public class BlockGlowingDecor extends Block {
 	
 	public enum Variant implements IStringSerializable {
-		DUNGEONCRETE,
-		DUNGEONCRETE_GRATE,
-		DUNGEONCRETE_LARGETILE,
-		DUNGEONCRETE_VERTICAL,
-		
-		ELUCID_BRICK,
-		ELUCID_GRIT,
-		ELUCID_SCALE;
+		LITHOGRAPHENE_OFF,
+		LITHOGRAPHENE_ON,
+		LITHOGRAPHENE_OFF_VARIANT,
+		LITHOGRAPHENE_ON_VARIANT;
 		
 		public static final Variant[] VALUES = values();
 		private final String lower;
@@ -40,8 +38,13 @@ public class BlockDungeon extends Block {
 	
 	public static final PropertyEnum<Variant> variant = PropertyEnum.create("variant", Variant.class);
 	
-	public BlockDungeon() {
+	public BlockGlowingDecor() {
 		super(Material.IRON);
+	}
+	
+	@Override
+	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
+		return state.getValue(variant).ordinal()%2 == 1 ? 15 : 2;
 	}
 	
 	@Override

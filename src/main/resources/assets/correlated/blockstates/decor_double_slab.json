@@ -17,7 +17,20 @@
 			
 			"elucid_brick": {"textures":{"all":"correlated:blocks/dungeon/elucid.brick"}},
 			"elucid_grit": {"textures":{"all":"correlated:blocks/dungeon/elucid.grit"}},
-			"elucid_scale": {"textures":{"all":"correlated:blocks/dungeon/elucid.scale"}}
+			"elucid_scale": {"textures":{"all":"correlated:blocks/dungeon/elucid.scale"}},
+			
+			"plating": {
+				"model": "minecraft:cube",
+				"textures": {
+					"particle": "correlated:blocks/top",
+					"up": "correlated:blocks/top",
+					"down": "correlated:blocks/top",
+					"north": "correlated:blocks/plating_slab_side",
+					"east": "correlated:blocks/plating_slab_side",
+					"south": "correlated:blocks/plating_slab_side",
+					"west": "correlated:blocks/plating_slab_side"
+				}
+			}
 		},
 		"inventory": [{}]
 	}

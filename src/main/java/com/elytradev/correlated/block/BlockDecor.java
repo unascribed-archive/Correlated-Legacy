@@ -13,13 +13,19 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
 
-public class BlockDungeonLithographene extends Block {
+public class BlockDecor extends Block {
 	
 	public enum Variant implements IStringSerializable {
-		OFF,
-		OFF_VARIANT,
-		ON,
-		ON_VARIANT;
+		DUNGEONCRETE,
+		DUNGEONCRETE_GRATE,
+		DUNGEONCRETE_LARGETILE,
+		DUNGEONCRETE_VERTICAL,
+		
+		ELUCID_BRICK,
+		ELUCID_GRIT,
+		ELUCID_SCALE,
+		
+		PLATING;
 		
 		public static final Variant[] VALUES = values();
 		private final String lower;
@@ -36,7 +42,7 @@ public class BlockDungeonLithographene extends Block {
 	
 	public static final PropertyEnum<Variant> variant = PropertyEnum.create("variant", Variant.class);
 	
-	public BlockDungeonLithographene() {
+	public BlockDecor() {
 		super(Material.IRON);
 	}
 	
