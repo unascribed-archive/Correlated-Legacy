@@ -121,8 +121,8 @@
 				"west_overlay": "correlated:blocks/controller_creative_side"
 			}
 		},
-		"inventory1": [{}],
-		"inventory2": {
+		"inventory9": [{}],
+		"inventory10": {
 			"model": "correlated:double_cube",
 			"textures": {
 				"up_base": "correlated:blocks/controller_off",
@@ -139,7 +139,7 @@
 				"west_overlay": "correlated:blocks/controller_error_side"
 			}
 		},
-		"inventory3": {
+		"inventory11": {
 			"model": "correlated:double_cube",
 			"textures": {
 				"up_base": "correlated:blocks/controller_off",

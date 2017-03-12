@@ -16,7 +16,8 @@
 			"linked": {}
 		},
 		"inventory": {
-			"transform": "forge:default-block"
+			"transform": "forge:default-block",
+			"model": "correlated:microwave_beam_inventory"
 		}
 	}
 }
