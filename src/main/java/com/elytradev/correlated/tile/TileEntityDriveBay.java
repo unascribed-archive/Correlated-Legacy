@@ -137,7 +137,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 			IBlockState state = getWorld().getBlockState(getPos());
 			if (state.getBlock() == Correlated.drive_bay) {
 				boolean lit;
-				if (hasStorage() && getStorage().isPowered()) {
+				if (hasController() && getController().isPowered()) {
 					lit = true;
 				} else {
 					lit = false;
@@ -185,9 +185,9 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 				consumedPerTick += ((ItemDrive)is.getItem()).getRFConsumptionRate(is);
 			}
 		}
-		if (hasWorld() && !world.isRemote && hasStorage()) {
-			getStorage().updateConsumptionRate(consumedPerTick-old);
-			getStorage().updateDrivesCache();
+		if (hasWorld() && !world.isRemote && hasController()) {
+			getController().updateConsumptionRate(consumedPerTick-old);
+			getController().updateDrivesCache();
 		}
 	}
 

@@ -3,6 +3,7 @@ package com.elytradev.correlated.entity;
 import java.util.AbstractList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -819,8 +820,7 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	}
 
 	@Override
-	public List<ItemStack> getTypes() {
-		List<ItemStack> li = Lists.newArrayList();
+	public void getTypes(Set<IDigitalStorage> alreadyChecked, List<ItemStack> li) {
 		for (EntityEquipmentSlot slot : slots) {
 			ItemStack drive = getItemStackFromSlot(slot);
 			if (drive.getItem() instanceof ItemDrive) {
@@ -828,11 +828,10 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 				li.addAll(itemDrive.getTypes(drive));
 			}
 		}
-		return li;
 	}
 
 	@Override
-	public int getKilobitsStorageFree() {
+	public int getKilobitsStorageFree(Set<IDigitalStorage> alreadyChecked) {
 		int accum = 0;
 		for (EntityEquipmentSlot slot : slots) {
 			if (getItemStackFromSlot(slot) != null) {
@@ -846,7 +845,7 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	}
 	
 	@Override
-	public InsertResult addItemToNetwork(ItemStack stack) {
+	public InsertResult addItemToNetwork(ItemStack stack, Set<IDigitalStorage> alreadyChecked) {
 		if (stack.isEmpty()) return InsertResult.success(stack);
 		Multiset<Result> results = EnumMultiset.create(Result.class);
 		for (EntityEquipmentSlot slot : slots) {
@@ -875,7 +874,7 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	}
 
 	@Override
-	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount, boolean b) {
+	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount, boolean b, Set<IDigitalStorage> alreadyChecked) {
 		if (prototype.isEmpty()) return ItemStack.EMPTY;
 		ItemStack stack = prototype.copy();
 		stack.setCount(0);
@@ -932,7 +931,7 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 
 	@Override
 	public boolean canContinueInteracting(EntityPlayer player) {
-		return player.getDistanceSqToEntity(this) < 8*8;
+		return hasStorage() && getStorage().isPowered() && player.getDistanceSqToEntity(this) < 8*8;
 	}
 
 	@Override
@@ -955,6 +954,11 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	@Override
 	public void setAPN(String apn) {
 		
+	}
+	
+	@Override
+	public String getAPN() {
+		return null;
 	}
 
 }

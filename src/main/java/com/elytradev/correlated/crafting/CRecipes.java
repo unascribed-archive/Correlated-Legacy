@@ -211,7 +211,7 @@ public class CRecipes {
 				));
 		
 		// Microwave Beam
-		GameRegistry.addRecipe(new ShapedOreRecipe(Correlated.microwave_beam,
+		GameRegistry.addRecipe(new ShapedOreRecipe(Correlated.wireless,
 				" | ",
 				"___",
 				"idi",
@@ -267,8 +267,8 @@ public class CRecipes {
 				));
 		
 		// Reset Microwave Beam
-		GameRegistry.addRecipe(new ShapelessOreRecipe(Correlated.microwave_beam,
-				Correlated.microwave_beam
+		GameRegistry.addRecipe(new ShapelessOreRecipe(Correlated.wireless,
+				Correlated.wireless
 				));
 		
 		// Weldthrower Fuel

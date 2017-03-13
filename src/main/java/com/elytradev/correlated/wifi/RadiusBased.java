@@ -3,37 +3,53 @@ package com.elytradev.correlated.wifi;
 import java.util.Collections;
 import java.util.Set;
 
+import com.elytradev.correlated.CorrelatedWorldData;
 import com.elytradev.correlated.math.Vec2i;
 import com.google.common.collect.Sets;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 
 public abstract class RadiusBased {
+	protected CorrelatedWorldData data;
 	protected BlockPos position;
-	protected double radius;
 	
 	private transient Set<Vec2i> chunks;
 	
-	public RadiusBased() {
+	public RadiusBased(CorrelatedWorldData data) {
+		this.data = data;
 	}
 	
 	public BlockPos getPosition() {
 		return position;
 	}
 	
-	public double getRadius() {
-		return radius;
+	public double getX() {
+		return getPosition().getX()+0.5;
 	}
 	
-	public double distanceTo(Entity e) {
-		return e.getDistance(position.getX()+0.5, position.getY()+0.5, position.getZ()+0.5);
+	public double getY() {
+		return getPosition().getY()+0.5;
+	}
+	
+	public double getZ() {
+		return getPosition().getZ()+0.5;
+	}
+	
+	public abstract double getRadius();
+	
+	public double distanceTo(double x, double y, double z) {
+		return Math.sqrt(position.distanceSqToCenter(x, y, z));
+	}
+	
+	protected void invalidateCache() {
+		chunks = null;
+		data.getWirelessManager().update(this);
 	}
 	
 	public Iterable<Vec2i> chunks() {
 		if (chunks == null) {
 			chunks = Sets.newHashSet();
-			int chunkRadius = (int)Math.ceil(radius/16d);
+			int chunkRadius = (int)Math.ceil(getRadius()/16d);
 			int chunkOriginX = position.getX()/16;
 			int chunkOriginZ = position.getZ()/16;
 			int radiusSq = chunkRadius*chunkRadius;
@@ -46,7 +62,6 @@ public abstract class RadiusBased {
 					int zDist = chunkZ-chunkOriginZ;
 					
 					if ((xDist*xDist)+(zDist*zDist) <= radiusSq) {
-						System.out.println(chunkX+", "+chunkZ+" is within range");
 						chunks.add(new Vec2i(chunkX, chunkZ));
 					}
 				}

@@ -69,7 +69,7 @@ public class CorrelatedGuiHandler implements IGuiHandler {
 				}
 			}
 			case 3: {
-				ItemStack terminal = player.inventory.getStackInSlot(x);
+				ItemStack terminal = x == -1 ? player.inventory.offHandInventory.get(0) : player.inventory.getStackInSlot(x);
 				if (terminal.getItem() instanceof ItemWirelessTerminal) {
 					return new ContainerTerminal(player.inventory, player, new WirelessTerminal(world, player, (ItemWirelessTerminal)terminal.getItem(), terminal));
 				} else {
@@ -137,7 +137,7 @@ public class CorrelatedGuiHandler implements IGuiHandler {
 				}
 			}
 			case 3: {
-				ItemStack terminal = player.inventory.getStackInSlot(x);
+				ItemStack terminal = x == -1 ? player.inventory.offHandInventory.get(0) : player.inventory.getStackInSlot(x);
 				if (terminal.getItem() instanceof ItemWirelessTerminal) {
 					return new GuiTerminal(new ContainerTerminal(player.inventory, player, new WirelessTerminal(world, player, (ItemWirelessTerminal)terminal.getItem(), terminal)));
 				} else {

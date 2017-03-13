@@ -3,6 +3,8 @@ package com.elytradev.correlated.block.item;
 import java.util.List;
 
 import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.block.BlockWireless;
+import com.elytradev.correlated.block.BlockWireless.Variant;
 import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
 import com.elytradev.correlated.wifi.Beam;
 
@@ -20,16 +22,36 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 
-public class ItemBlockMicrowaveBeam extends ItemBlock {
+public class ItemBlockWireless extends ItemBlock {
 
-	public ItemBlockMicrowaveBeam(Block block) {
+	public ItemBlockWireless(Block block) {
 		super(block);
 	}
 
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
-		tooltip.add(I18n.format("tile.correlated.microwave_beam.0"));
-		tooltip.add(I18n.format("tooltip.correlated.rf_usage", Correlated.inst.beamRfUsage));
+		if (stack.getMetadata() == 0) {
+			tooltip.add(I18n.format("tile.correlated.microwave_beam.0"));
+			tooltip.add(I18n.format("tile.correlated.microwave_beam.1"));
+			tooltip.add(I18n.format("tooltip.correlated.rf_usage", Correlated.inst.beamRfUsage));
+		} else if (stack.getMetadata() == 1) {
+			tooltip.add(I18n.format("tile.correlated.optical.0"));
+			tooltip.add(I18n.format("tooltip.correlated.rf_usage", Correlated.inst.opticalRfUsage));
+		} else if (stack.getMetadata() == 2) {
+			tooltip.add(I18n.format("tile.correlated.beacon_lens.0"));
+		}
+	}
+	
+	@Override
+	public String getUnlocalizedName(ItemStack stack) {
+		if (stack.getMetadata() == 0) {
+			return "tile.correlated.microwave_beam";
+		} else if (stack.getMetadata() == 1) {
+			return "tile.correlated.optical";
+		} else if (stack.getMetadata() == 2) {
+			return "tile.correlated.beacon_lens";
+		}
+		return super.getUnlocalizedName(stack);
 	}
 	
 	@Override
@@ -66,7 +88,7 @@ public class ItemBlockMicrowaveBeam extends ItemBlock {
 	
 	@Override
 	public int getMetadata(int damage) {
-		return damage;
+		return Correlated.wireless.getMetaFromState(Correlated.wireless.getDefaultState().withProperty(BlockWireless.variant, Variant.VALUES[damage%Variant.VALUES.length]));
 	}
 	
 }

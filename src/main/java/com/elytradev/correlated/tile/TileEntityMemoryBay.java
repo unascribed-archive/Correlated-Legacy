@@ -114,7 +114,7 @@ public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITic
 			IBlockState state = getWorld().getBlockState(getPos());
 			if (state.getBlock() == Correlated.memory_bay) {
 				boolean lit;
-				if (hasStorage() && getStorage().isPowered()) {
+				if (hasController() && getController().isPowered()) {
 					lit = true;
 				} else {
 					lit = false;
@@ -148,8 +148,8 @@ public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITic
 	}
 
 	private void onMemoryChange() {
-		if (hasWorld() && !world.isRemote && hasStorage()) {
-			getStorage().updateMemoryCache();
+		if (hasWorld() && !world.isRemote && hasController()) {
+			getController().updateMemoryCache();
 		}
 	}
 

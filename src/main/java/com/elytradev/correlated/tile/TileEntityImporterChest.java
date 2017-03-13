@@ -2,6 +2,7 @@ package com.elytradev.correlated.tile;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.inventory.ContainerTerminal.SortMode;
@@ -143,12 +144,12 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 	}
 
 	@Override
-	public List<ItemStack> getTypes() {
-		return storage;
+	public void getTypes(Set<IDigitalStorage> alreadyChecked, List<ItemStack> target) {
+		target.addAll(storage);
 	}
-
+	
 	@Override
-	public InsertResult addItemToNetwork(ItemStack stack) {
+	public InsertResult addItemToNetwork(ItemStack stack, Set<IDigitalStorage> alreadyChecked) {
 		for (ItemStack is : storage) {
 			if (areCompatible(is, stack)) {
 				is.setCount(is.getCount()+stack.getCount());
@@ -162,7 +163,7 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 	}
 
 	@Override
-	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount, boolean checkInterfaces) {
+	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount, boolean checkInterfaces, Set<IDigitalStorage> alreadyChecked) {
 		if (prototype == null) return null;
 		ItemStack res = prototype.copy();
 		res.setCount(0);
@@ -190,7 +191,7 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 	}
 
 	@Override
-	public int getKilobitsStorageFree() {
+	public int getKilobitsStorageFree(Set<IDigitalStorage> alreadyChecked) {
 		return 0;
 	}
 	
@@ -350,6 +351,16 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 	@Override
 	public void setAPN(String apn) {
 		
+	}
+	
+	@Override
+	public String getAPN() {
+		return null;
+	}
+	
+	@Override
+	public BlockPos getPosition() {
+		return getPos();
 	}
 
 }

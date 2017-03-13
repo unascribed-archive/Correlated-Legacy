@@ -2,6 +2,7 @@ package com.elytradev.correlated.storage;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
 
 public interface ITerminal {
 
@@ -19,6 +20,9 @@ public interface ITerminal {
 	
 	boolean allowAPNSelection();
 	void setAPN(String apn);
+	String getAPN();
+	
+	BlockPos getPosition();
 	
 	int getSignalStrength();
 	

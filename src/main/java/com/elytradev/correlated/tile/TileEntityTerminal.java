@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.block.BlockTerminal;
+import com.elytradev.correlated.storage.IDigitalStorage;
 import com.elytradev.correlated.storage.ITerminal;
 import com.elytradev.correlated.storage.SimpleUserPreferences;
 import com.elytradev.correlated.storage.UserPreferences;
@@ -27,6 +28,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants.NBT;
@@ -41,7 +43,7 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 			IBlockState state = getWorld().getBlockState(getPos());
 			if (state.getBlock() == Correlated.terminal) {
 				boolean lit;
-				if (hasStorage() && getStorage().isPowered()) {
+				if (hasController() && getController().isPowered()) {
 					lit = true;
 				} else {
 					lit = false;
@@ -55,8 +57,8 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 				}
 			}
 			
-			if (hasStorage()) {
-				TileEntityController controller = getStorage();
+			if (hasController()) {
+				TileEntityController controller = getController();
 				if (controller.error) {
 					if (!Objects.equal(error, controller.errorReason)) {
 						setError(controller.errorReason);
@@ -174,7 +176,17 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 	public void removeInventoryChangeListener(IInventoryChangedListener listener) {
 		inv.removeInventoryChangeListener(listener);
 	}
+	
+	@Override
+	public boolean hasStorage() {
+		return hasController();
+	}
 
+	@Override
+	public IDigitalStorage getStorage() {
+		return getController();
+	}
+	
 	@Override
 	public ItemStack getStackInSlot(int index) {
 		return inv.getStackInSlot(index);
@@ -305,7 +317,7 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 
 	@Override
 	public boolean canContinueInteracting(EntityPlayer player) {
-		return true;
+		return hasStorage() && getStorage().isPowered();
 	}
 
 	@Override
@@ -333,6 +345,16 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 	@Override
 	public void setAPN(String apn) {
 		
+	}
+	
+	@Override
+	public String getAPN() {
+		return null;
+	}
+	
+	@Override
+	public BlockPos getPosition() {
+		return getPos();
 	}
 
 	private Object probeCapability;

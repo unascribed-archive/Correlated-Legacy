@@ -1,16 +1,21 @@
 package com.elytradev.correlated.storage;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.helper.ItemStacks;
 import com.elytradev.correlated.item.ItemWirelessTerminal;
 import com.elytradev.correlated.network.ChangeAPNMessage;
 import com.elytradev.correlated.wifi.Station;
+import com.elytradev.correlated.wifi.WirelessManager;
+import com.google.common.base.Strings;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.util.Constants.NBT;
 
 public class WirelessTerminal implements ITerminal {
@@ -19,14 +24,11 @@ public class WirelessTerminal implements ITerminal {
 	private ItemWirelessTerminal iwt;
 	private ItemStack stack = ItemStack.EMPTY;
 	
-	private String apn;
-	
 	public WirelessTerminal(World world, EntityPlayer player, ItemWirelessTerminal iwt, ItemStack stack) {
 		this.world = world;
 		this.player = player;
 		this.iwt = iwt;
 		this.stack = stack;
-		this.apn = stack.getTagCompound().getString("APN");
 	}
 
 	@Override
@@ -41,12 +43,25 @@ public class WirelessTerminal implements ITerminal {
 
 	@Override
 	public IDigitalStorage getStorage() {
+		String apn = getAPN();
+		if (apn == null) return null;
+		Iterable<Station> li = Correlated.getDataFor(world).getWirelessManager().allStationsInChunk(world.getChunkFromBlockCoords(player.getPosition()));
+		for (Station s : li) {
+			if (s.getAPNs().contains(apn) && s.isInRange(player.posX, player.posY+player.getEyeHeight(), player.posZ)) {
+				List<IDigitalStorage> storages = s.getStorages(apn);
+				if (storages.size() == 1) {
+					return storages.get(0);
+				} else {
+					return new CompoundDigitalStorage(storages);
+				}
+			}
+		}
 		return null;
 	}
 
 	@Override
 	public boolean hasStorage() {
-		return false;
+		return getStorage() != null;
 	}
 
 	@Override
@@ -80,34 +95,28 @@ public class WirelessTerminal implements ITerminal {
 	
 	@Override
 	public int getSignalStrength() {
-		Chunk c = player.world.getChunkFromBlockCoords(player.getPosition());
-		double minDist = Double.POSITIVE_INFINITY;
-		Station closest = null;
-		for (Station s : Correlated.getDataFor(player.world).getWirelessManager().allStationsInChunk(c)) {
-			if (s.getAPNs().contains(apn) && s.isInRange(player)) {
-				double dist = s.distanceTo(player);
-				if (dist < minDist) {
-					minDist = dist;
-					closest = s;
-				}
-			}
-		}
-		if (closest != null) {
-			double div = 1-(minDist/closest.getRadius());
-			return (int)(Math.log10(div*100)*2.5);
-		}
-		return 0;
+		WirelessManager wm = Correlated.getDataFor(player.world).getWirelessManager();
+		return wm.getSignalStrength(player.posX, player.posY+player.getEyeHeight(), player.posZ, getAPN());
 	}
 	
 	@Override
 	public void setAPN(String apn) {
 		if (world.isRemote) {
-			new ChangeAPNMessage(apn).sendToServer();
+			new ChangeAPNMessage(apn == null ? Collections.emptyList() : Collections.singleton(apn)).sendToServer();
 		} else {
 			ItemStacks.ensureHasTag(stack);
 			stack.getTagCompound().setString("APN", apn);
-			this.apn = apn;
 		}
+	}
+	
+	@Override
+	public String getAPN() {
+		return stack.hasTagCompound() ? Strings.emptyToNull(stack.getTagCompound().getString("APN")) : null;
+	}
+	
+	@Override
+	public BlockPos getPosition() {
+		return player.getPosition();
 	}
 
 }

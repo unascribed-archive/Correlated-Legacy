@@ -13,6 +13,9 @@ import com.elytradev.correlated.item.ItemMemory;
 import com.elytradev.correlated.storage.IDigitalStorage;
 import com.elytradev.correlated.storage.InsertResult;
 import com.elytradev.correlated.storage.InsertResult.Result;
+import com.elytradev.correlated.wifi.IWirelessClient;
+import com.elytradev.correlated.wifi.Station;
+import com.elytradev.correlated.wifi.WirelessManager;
 import com.elytradev.probe.api.IProbeData;
 import com.elytradev.probe.api.IProbeDataProvider;
 import com.elytradev.probe.api.UnitDictionary;
@@ -37,10 +40,11 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 
-public class TileEntityController extends TileEntityNetworkMember implements ITickable, IDigitalStorage, IEnergyStorage {
+public class TileEntityController extends TileEntityNetworkMember implements ITickable, IDigitalStorage, IEnergyStorage, IWirelessClient {
 	
 	public boolean error = false;
 	public boolean booting = true;
@@ -68,6 +72,8 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	
 	// Measured in FUs
 	private int energy;
+	
+	private String apn;
 	
 	public TileEntityController() {
 		prototypes = new TCustomHashSet<>(new HashingStrategy<ItemStack>() {
@@ -113,12 +119,20 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 		super.readFromNBT(compound);
 		energy = compound.getInteger("Energy");
 		if (energy > energyCapacity) energy = energyCapacity;
+		if (compound.hasKey("APN", NBT.TAG_STRING)) {
+			apn = compound.getString("APN");
+		} else {
+			apn = null;
+		}
 	}
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
 		compound.setLong("Energy", energy);
+		if (apn != null) {
+			compound.setString("APN", apn);
+		}
 		return compound;
 	}
 
@@ -167,12 +181,12 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	}
 
 	@Override
-	public boolean hasStorage() {
+	public boolean hasController() {
 		return true;
 	}
 
 	@Override
-	public TileEntityController getStorage() {
+	public TileEntityController getController() {
 		return this;
 	}
 
@@ -362,10 +376,7 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	}
 
 	@Override
-	public InsertResult addItemToNetwork(ItemStack stack) {
-		return addItemToNetwork(Sets.newHashSet(), stack);
-	}
-	public InsertResult addItemToNetwork(Set<TileEntityController> alreadyChecked, ItemStack stack) {
+	public InsertResult addItemToNetwork(ItemStack stack, Set<IDigitalStorage> alreadyChecked) {
 		if (error) return InsertResult.refused(stack);
 		if (stack == null || stack.isEmpty()) return InsertResult.success(stack);
 		boolean hasCheckedMemory = false;
@@ -399,12 +410,10 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 			}
 		}
 		alreadyChecked.add(this);
-		for (TileEntityMicrowaveBeam beam : beams) {
+		for (IDigitalStorage other : getRemotes(alreadyChecked)) {
 			if (stack.isEmpty()) break;
-			TileEntityController other = beam.getOtherSide();
-			if (alreadyChecked.contains(other)) continue;
 			if (other != null) {
-				InsertResult ir = other.addItemToNetwork(alreadyChecked, stack);
+				InsertResult ir = other.addItemToNetwork(stack, alreadyChecked);
 				results.add(ir.result);
 				stack = ir.stack;
 				insufficientMemory = false;
@@ -430,11 +439,7 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	}
 
 	@Override
-	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount, boolean checkInterfaces) {
-		return removeItemsFromNetwork(Sets.newHashSet(), prototype, amount, checkInterfaces);
-	}
-	
-	public ItemStack removeItemsFromNetwork(Set<TileEntityController> alreadyChecked, ItemStack prototype, int amount, boolean checkInterfaces) {
+	public ItemStack removeItemsFromNetwork(ItemStack prototype, int amount, boolean checkInterfaces, Set<IDigitalStorage> alreadyChecked) {
 		if (error) return ItemStack.EMPTY;
 		ItemStack stack = prototype.copy();
 		stack.setCount(0);
@@ -453,15 +458,11 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 			}
 		}
 		alreadyChecked.add(this);
-		for (TileEntityMicrowaveBeam beam : beams) {
+		for (IDigitalStorage other : getRemotes(alreadyChecked)) {
 			if (stack.getCount() >= amount) break;
-			TileEntityController other = beam.getOtherSide();
-			if (alreadyChecked.contains(other)) continue;
-			if (other != null) {
-				ItemStack remote = other.removeItemsFromNetwork(alreadyChecked, prototype, amount-stack.getCount(), checkInterfaces);
-				if (remote != null) {
-					stack.grow(remote.getCount());
-				}
+			ItemStack remote = other.removeItemsFromNetwork(prototype, amount-stack.getCount(), checkInterfaces, alreadyChecked);
+			if (remote != null) {
+				stack.grow(remote.getCount());
 			}
 		}
 		if (checkInterfaces) {
@@ -487,12 +488,45 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 		return stack;
 	}
 	
-	@Override
-	public int getKilobitsStorageFree() {
-		return getKilobitsStorageFree(Sets.newHashSet());
+	public List<IDigitalStorage> getRemotes() {
+		return getRemotes(Sets.newHashSet(this));
 	}
 	
-	public int getKilobitsStorageFree(Set<TileEntityController> alreadyChecked) {
+	public List<IDigitalStorage> getRemotes(Set<IDigitalStorage> alreadyChecked) {
+		List<IDigitalStorage> li = Lists.newArrayList();
+		getRemotes(alreadyChecked, li);
+		return li;
+	}
+	
+	public void getRemotes(Set<IDigitalStorage> alreadyChecked, List<IDigitalStorage> li) {
+		for (TileEntityMicrowaveBeam beam : beams) {
+			TileEntityController other = beam.getOtherSide();
+			if (alreadyChecked.contains(other)) continue;
+			if (other != null) {
+				li.add(other);
+				other.getRemotes(alreadyChecked, li);
+			}
+		}
+		if (apn != null) {
+			WirelessManager wm = Correlated.getDataFor(getWorld()).getWirelessManager();
+			for (Station s : wm.allStationsInChunk(getWorld().getChunkFromBlockCoords(getPos()))) {
+				if (s.getAPNs().contains(apn) && s.isInRange(getPos().getX()+0.5, getPos().getY()+0.5, getPos().getZ()+0.5)) {
+					for (IDigitalStorage other : s.getStorages(apn)) {
+						if (alreadyChecked.contains(other)) continue;
+						if (other != null) {
+							li.add(other);
+							if (other instanceof TileEntityController) {
+								((TileEntityController)other).getRemotes(alreadyChecked, li);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	@Override
+	public int getKilobitsStorageFree(Set<IDigitalStorage> alreadyChecked) {
 		int accum = 0;
 		for (ItemStack drive : drives) {
 			if (drive != null && drive.getItem() instanceof ItemDrive) {
@@ -500,12 +534,8 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 			}
 		}
 		alreadyChecked.add(this);
-		for (TileEntityMicrowaveBeam beam : beams) {
-			TileEntityController other = beam.getOtherSide();
-			if (alreadyChecked.contains(other)) continue;
-			if (other != null) {
-				accum += other.getKilobitsStorageFree(alreadyChecked);
-			}
+		for (IDigitalStorage other : getRemotes(alreadyChecked)) {
+			accum += other.getKilobitsStorageFree(alreadyChecked);
 		}
 		return accum;
 	}
@@ -543,11 +573,7 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 	}
 
 	@Override
-	public List<ItemStack> getTypes() {
-		return getTypes(Sets.newHashSet(), Lists.newArrayList());
-	}
-	
-	public List<ItemStack> getTypes(Set<TileEntityController> alreadyChecked, List<ItemStack> li) {
+	public void getTypes(Set<IDigitalStorage> alreadyChecked, List<ItemStack> li) {
 		for (ItemStack drive : drives) {
 			if (drive != null && drive.getItem() instanceof ItemDrive) {
 				li.addAll(((ItemDrive)drive.getItem()).getTypes(drive));
@@ -570,14 +596,9 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 			}
 		}
 		alreadyChecked.add(this);
-		for (TileEntityMicrowaveBeam beam : beams) {
-			TileEntityController other = beam.getOtherSide();
-			if (alreadyChecked.contains(other)) continue;
-			if (other != null) {
-				other.getTypes(alreadyChecked, li);
-			}
+		for (IDigitalStorage other : getRemotes(alreadyChecked)) {
+			other.getTypes(alreadyChecked, li);
 		}
-		return li;
 	}
 
 	public void onNetworkPatched(TileEntityNetworkMember tenm) {
@@ -711,6 +732,37 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 		return true;
 	}
 	
+	@Override
+	public void setAPNs(Set<String> apn) {
+		if (apn.size() > 1) throw new IllegalArgumentException("Only supports 1 APN");
+		this.apn = apn.isEmpty() ? null : apn.iterator().next();
+	}
+
+	@Override
+	public Set<String> getAPNs() {
+		return this.apn == null ? Collections.emptySet() : Collections.singleton(this.apn);
+	}
+	
+	@Override
+	public BlockPos getPosition() {
+		return getPos();
+	}
+	
+	@Override
+	public double getX() {
+		return getPos().getX()+0.5;
+	}
+	
+	@Override
+	public double getY() {
+		return getPos().getY()+0.5;
+	}
+	
+	@Override
+	public double getZ() {
+		return getPos().getZ()+0.5;
+	}
+	
 	private Object probeCapability;
 	
 	@Override
@@ -759,5 +811,6 @@ public class TileEntityController extends TileEntityNetworkMember implements ITi
 					.withBar(0, storage, maxStorage, UnitDictionary.BYTES));
 		}
 	}
+
 
 }

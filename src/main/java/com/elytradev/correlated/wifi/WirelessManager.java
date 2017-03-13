@@ -26,10 +26,12 @@ public class WirelessManager implements INBTSerializable<NBTTagCompound> {
 	private final CorrelatedWorldData data;
 	
 	private final Multimap<Vec2i, Optical> opticalsByChunk = HashMultimap.create();
-	private final Multimap<Vec2i, Tower> towersByChunk = HashMultimap.create();
+	private final Multimap<Vec2i, Beacon> beaconsByChunk = HashMultimap.create();
 	private final Multimap<Vec2i, Beam> beamsByChunk = HashMultimap.create();
 	
 	private final Map<BlockPos, Beam> beamsByEnd = Maps.newHashMap();
+	private final Map<BlockPos, Optical> opticals = Maps.newHashMap();
+	private final Map<BlockPos, Beacon> beacons = Maps.newHashMap();
 	
 	private final Vec2i goat = new Vec2i(0, 0);
 	
@@ -40,19 +42,21 @@ public class WirelessManager implements INBTSerializable<NBTTagCompound> {
 		this.data = data;
 	}
 	
-	public void add(Tower t) {
+	public void add(Beacon t) {
 		if (t == null) return;
 		for (Vec2i chunk : t.chunks()) {
-			towersByChunk.put(chunk, t);
+			beaconsByChunk.put(chunk, t);
 		}
+		beacons.put(t.getPosition(), t);
 		if (!loading) data.markDirty();
 	}
 	
-	public void remove(Tower t) {
+	public void remove(Beacon t) {
 		if (t == null) return;
 		for (Vec2i chunk : t.chunks()) {
-			towersByChunk.remove(chunk, t);
+			beaconsByChunk.remove(chunk, t);
 		}
+		beacons.remove(t.getPosition());
 		if (!loading) data.markDirty();
 	}
 	
@@ -62,6 +66,7 @@ public class WirelessManager implements INBTSerializable<NBTTagCompound> {
 		for (Vec2i chunk : o.chunks()) {
 			opticalsByChunk.put(chunk, o);
 		}
+		opticals.put(o.getPosition(), o);
 		if (!loading) data.markDirty();
 	}
 	
@@ -70,14 +75,15 @@ public class WirelessManager implements INBTSerializable<NBTTagCompound> {
 		for (Vec2i chunk : o.chunks()) {
 			opticalsByChunk.remove(chunk, o);
 		}
+		opticals.remove(o.getPosition());
 		if (!loading) data.markDirty();
 	}
 	
 	
 	public void add(Beam b) {
 		if (b == null) return;
-		if (data.getWorld().getBlockState(b.getStart()).getBlock() != Correlated.microwave_beam) return;
-		if (data.getWorld().getBlockState(b.getEnd()).getBlock() != Correlated.microwave_beam) return;
+		if (data.getWorld().getBlockState(b.getStart()).getBlock() != Correlated.wireless) return;
+		if (data.getWorld().getBlockState(b.getEnd()).getBlock() != Correlated.wireless) return;
 		for (Vec2i chunk : b.chunks()) {
 			beamsByChunk.put(chunk, b);
 		}
@@ -104,11 +110,11 @@ public class WirelessManager implements INBTSerializable<NBTTagCompound> {
 		return ImmutableList.copyOf(opticalsByChunk.get(goat));
 	}
 	
-	public Iterable<Tower> allTowersInChunk(Chunk c) {
+	public Iterable<Beacon> allBeaconsInChunk(Chunk c) {
 		if (c == null || c.getWorld() != data.getWorld()) return Collections.emptySet();
 		goat.x = c.xPosition;
 		goat.y = c.zPosition;
-		return ImmutableList.copyOf(towersByChunk.get(goat));
+		return ImmutableList.copyOf(beaconsByChunk.get(goat));
 	}
 	
 	public Iterable<Beam> allBeamsInChunk(Chunk c) {
@@ -119,11 +125,33 @@ public class WirelessManager implements INBTSerializable<NBTTagCompound> {
 	}
 	
 	public Iterable<Station> allStationsInChunk(Chunk c) {
-		return Iterables.concat(allTowersInChunk(c), allOpticalsInChunk(c));
+		return Iterables.concat(allBeaconsInChunk(c), allOpticalsInChunk(c));
 	}
 	
 	public Beam getBeam(BlockPos end) {
 		return beamsByEnd.get(end);
+	}
+	
+	public Optical getOptical(BlockPos pos) {
+		return opticals.get(pos);
+	}
+	
+	public Beacon getBeacon(BlockPos pos) {
+		return beacons.get(pos);
+	}
+	
+	public Station getStation(BlockPos pos) {
+		return getOptical(pos) == null ? getBeacon(pos) : getOptical(pos);
+	}
+	
+	protected void update(RadiusBased rb) {
+		if (rb instanceof Optical) {
+			remove((Optical)rb);
+			add((Optical)rb);
+		} else if (rb instanceof Beacon) {
+			remove((Beacon)rb);
+			add((Beacon)rb);
+		}
 	}
 	
 	@Override
@@ -136,12 +164,12 @@ public class WirelessManager implements INBTSerializable<NBTTagCompound> {
 			optical.appendTag(o.serializeNBT());
 		}
 		nbt.setTag("Optical", optical);
-		NBTTagList tower = new NBTTagList();
-		for (Tower t : towersByChunk.values()) {
-			if (!serialized.add(t)) continue;
-			tower.appendTag(t.serializeNBT());
+		NBTTagList beacon = new NBTTagList();
+		for (Beacon b : beaconsByChunk.values()) {
+			if (!serialized.add(b)) continue;
+			beacon.appendTag(b.serializeNBT());
 		}
-		nbt.setTag("Tower", tower);
+		nbt.setTag("Beacon", beacon);
 		NBTTagList beam = new NBTTagList();
 		for (Beam b : beamsByChunk.values()) {
 			if (!serialized.add(b)) continue;
@@ -156,19 +184,19 @@ public class WirelessManager implements INBTSerializable<NBTTagCompound> {
 		try {
 			loading = true;
 			opticalsByChunk.clear();
-			towersByChunk.clear();
+			beaconsByChunk.clear();
 			beamsByChunk.clear();
 			NBTTagList optical = nbt.getTagList("Optical", NBT.TAG_COMPOUND);
 			for (int i = 0; i < optical.tagCount(); i++) {
-				Optical o = new Optical();
+				Optical o = new Optical(data);
 				o.deserializeNBT(optical.getCompoundTagAt(i));
 				add(o);
 			}
-			NBTTagList tower = nbt.getTagList("Tower", NBT.TAG_COMPOUND);
-			for (int i = 0; i < tower.tagCount(); i++) {
-				Tower t = new Tower();
-				t.deserializeNBT(tower.getCompoundTagAt(i));
-				add(t);
+			NBTTagList beacon = nbt.getTagList("Beacon", NBT.TAG_COMPOUND);
+			for (int i = 0; i < beacon.tagCount(); i++) {
+				Beacon b = new Beacon(data);
+				b.deserializeNBT(beacon.getCompoundTagAt(i));
+				add(b);
 			}
 			NBTTagList beam = nbt.getTagList("Beam", NBT.TAG_COMPOUND);
 			for (int i = 0; i < beam.tagCount(); i++) {
@@ -180,7 +208,26 @@ public class WirelessManager implements INBTSerializable<NBTTagCompound> {
 			loading = false;
 		}
 	}
-	
-	
+
+	public int getSignalStrength(double x, double y, double z, String apn) {
+		Chunk c = data.getWorld().getChunkFromBlockCoords(new BlockPos((int)x, (int)y, (int)z));
+		double minDist = Double.POSITIVE_INFINITY;
+		Station closest = null;
+		for (Station s : allStationsInChunk(c)) {
+			if (s.getAPNs().contains(apn) && !s.getStorages(apn).isEmpty() && s.isInRange(x, y, z)) {
+				double dist = s.distanceTo(x, y, z);
+				if (dist < minDist) {
+					minDist = dist;
+					closest = s;
+				}
+			}
+		}
+		if (closest != null) {
+			double div = 1-(minDist/closest.getRadius());
+			return Math.max(0, Math.min(5, (int)(Math.log10(div*100)*3)));
+		}
+		return 0;
+	}
+
 	
 }

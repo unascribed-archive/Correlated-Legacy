@@ -19,7 +19,7 @@ import com.elytradev.correlated.block.BlockDecorStairs;
 import com.elytradev.correlated.block.BlockImporterChest;
 import com.elytradev.correlated.block.BlockInterface;
 import com.elytradev.correlated.block.BlockMemoryBay;
-import com.elytradev.correlated.block.BlockMicrowaveBeam;
+import com.elytradev.correlated.block.BlockWireless;
 import com.elytradev.correlated.block.BlockTerminal;
 import com.elytradev.correlated.block.item.ItemBlockController;
 import com.elytradev.correlated.block.item.ItemBlockDriveBay;
@@ -27,7 +27,7 @@ import com.elytradev.correlated.block.item.ItemBlockDecor;
 import com.elytradev.correlated.block.item.ItemBlockGlowingDecor;
 import com.elytradev.correlated.block.item.ItemBlockInterface;
 import com.elytradev.correlated.block.item.ItemBlockMemoryBay;
-import com.elytradev.correlated.block.item.ItemBlockMicrowaveBeam;
+import com.elytradev.correlated.block.item.ItemBlockWireless;
 import com.elytradev.correlated.block.item.ItemBlockTerminal;
 import com.elytradev.correlated.crafting.CRecipes;
 import com.elytradev.correlated.crafting.DriveRecipe;
@@ -44,6 +44,8 @@ import com.elytradev.correlated.item.ItemMisc;
 import com.elytradev.correlated.item.ItemModule;
 import com.elytradev.correlated.item.ItemWeldthrower;
 import com.elytradev.correlated.item.ItemWirelessTerminal;
+import com.elytradev.correlated.network.APNRequestMessage;
+import com.elytradev.correlated.network.APNResponseMessage;
 import com.elytradev.correlated.network.AddStatusLineMessage;
 import com.elytradev.correlated.network.AutomatonSpeakMessage;
 import com.elytradev.correlated.network.ChangeAPNMessage;
@@ -63,6 +65,7 @@ import com.elytradev.correlated.network.ShowTerminalErrorMessage;
 import com.elytradev.correlated.network.SignalStrengthMessage;
 import com.elytradev.correlated.network.StartWeldthrowingMessage;
 import com.elytradev.correlated.proxy.Proxy;
+import com.elytradev.correlated.tile.TileEntityBeaconLens;
 import com.elytradev.correlated.tile.TileEntityController;
 import com.elytradev.correlated.tile.TileEntityDriveBay;
 import com.elytradev.correlated.tile.TileEntityImporterChest;
@@ -72,6 +75,7 @@ import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
 import com.elytradev.correlated.tile.TileEntityNetworkImporter;
 import com.elytradev.correlated.tile.TileEntityOldWirelessReceiver;
 import com.elytradev.correlated.tile.TileEntityOldWirelessTransmitter;
+import com.elytradev.correlated.tile.TileEntityOpticalReceiver;
 import com.elytradev.correlated.tile.TileEntityPotentialisticsImporter;
 import com.elytradev.correlated.tile.TileEntityTerminal;
 import com.elytradev.correlated.tile.TileEntityVTImporter;
@@ -148,7 +152,7 @@ public class Correlated {
 	public static BlockTerminal terminal;
 	public static BlockInterface iface;
 	public static BlockImporterChest importer_chest;
-	public static BlockMicrowaveBeam microwave_beam;
+	public static BlockWireless wireless;
 	public static BlockDecor decor_block;
 	public static BlockGlowingDecor glowing_decor_block;
 	
@@ -220,6 +224,7 @@ public class Correlated {
 	public int terminalRfUsage;
 	public int interfaceRfUsage;
 	public int beamRfUsage;
+	public int opticalRfUsage;
 	
 	public int controllerCapacity;
 	public int controllerCap;
@@ -262,8 +267,9 @@ public class Correlated {
 		terminalRfUsage = config.getInt("terminal", "PowerUsage", 4, 0, 640, "The FU/t used by the Terminal.");
 		interfaceRfUsage = config.getInt("interface", "PowerUsage", 8, 0, 640, "The FU/t used by the Interface.");
 		beamRfUsage = config.getInt("beam", "PowerUsage", 24, 0, 640, "The FU/t used by the Microwave Beam.");
+		opticalRfUsage = config.getInt("optical", "PowerUsage", 24, 0, 640, "The FU/t used by the Optical Receiver.");
 		
-		controllerCapacity = config.getInt("controllerCapacity", "PowerFineTuning", 64000, 0, Integer.MAX_VALUE, "The Tesla stored by the controller.");
+		controllerCapacity = config.getInt("controllerCapacity", "PowerFineTuning", 64000, 0, Integer.MAX_VALUE, "The FU stored by the controller.");
 		controllerCap = config.getInt("controllerCap", "PowerFineTuning", 640, 0, Integer.MAX_VALUE, "The maximum FU/t the controller can use, and therefore a network.");
 		controllerErrorUsage_MultipleControllers = config.getInt("controllerErrorUsage_MultipleControllers", "PowerFineTuning", 4, 0, Integer.MAX_VALUE, "The FU/t used by the controller when it detects another controller in its network and is erroring.");
 		controllerErrorUsage_NetworkTooBig = config.getInt("controllerErrorUsage_NetworkTooBig", "PowerFineTuning", 640, 0, Integer.MAX_VALUE, "The FU/t used by the controller when it reaches the network scan limit.");
@@ -341,6 +347,8 @@ public class Correlated {
 		network.register(InsertAllMessage.class);
 		network.register(ChangeAPNMessage.class);
 		network.register(SignalStrengthMessage.class);
+		network.register(APNRequestMessage.class);
+		network.register(APNResponseMessage.class);
 
 		EntityRegistry.registerModEntity(new ResourceLocation("correlated", "thrown_item"), EntityThrownItem.class, "thrown_item", 0, this, 64, 10, true);
 		EntityRegistry.registerModEntity(new ResourceLocation("correlated", "automaton"), EntityAutomaton.class, "automaton", 1, this, 64, 1, true);
@@ -393,7 +401,7 @@ public class Correlated {
 		register(new BlockTerminal().setHardness(2), ItemBlockTerminal.class, "terminal", 0);
 		register(new BlockInterface().setHardness(2), ItemBlockInterface.class, "iface", 0);
 		register(new BlockImporterChest().setHardness(2), null, "importer_chest", 0);
-		register(new BlockMicrowaveBeam().setHardness(2), ItemBlockMicrowaveBeam.class, "microwave_beam", -1);
+		register(new BlockWireless().setHardness(2), ItemBlockWireless.class, "wireless", 3);
 		
 		register(new BlockDecor().setHardness(2), ItemBlockDecor.class, "decor_block", BlockDecor.Variant.VALUES.length);
 		register(new BlockGlowingDecor().setHardness(2), ItemBlockGlowingDecor.class, "glowing_decor_block", BlockGlowingDecor.Variant.VALUES.length);
@@ -441,6 +449,8 @@ public class Correlated {
 		GameRegistry.registerTileEntity(TileEntityInterface.class, "correlated:interface");
 		GameRegistry.registerTileEntity(TileEntityImporterChest.class, "correlated:importer_chest");
 		GameRegistry.registerTileEntity(TileEntityMicrowaveBeam.class, "correlated:microwave_beam");
+		GameRegistry.registerTileEntity(TileEntityOpticalReceiver.class, "correlated:optical");
+		GameRegistry.registerTileEntity(TileEntityBeaconLens.class, "correlated:beacon_lens");
 		
 		GameRegistry.registerTileEntity(TileEntityNetworkImporter.class, "correlatedpotentialistics:controller");
 		GameRegistry.registerTileEntity(TileEntityVTImporter.class, "correlatedpotentialistics:vt");

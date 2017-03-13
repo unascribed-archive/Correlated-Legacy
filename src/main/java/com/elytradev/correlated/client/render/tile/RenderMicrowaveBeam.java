@@ -3,8 +3,8 @@ package com.elytradev.correlated.client.render.tile;
 import org.lwjgl.opengl.GL11;
 
 import com.elytradev.correlated.Correlated;
-import com.elytradev.correlated.block.BlockMicrowaveBeam;
-import com.elytradev.correlated.block.BlockMicrowaveBeam.State;
+import com.elytradev.correlated.block.BlockWireless;
+import com.elytradev.correlated.block.BlockWireless.State;
 import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
 
 import net.minecraft.block.state.IBlockState;
@@ -24,15 +24,15 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 
 public class RenderMicrowaveBeam extends TileEntitySpecialRenderer<TileEntityMicrowaveBeam> {
-	private final IBlockState beamBlockState = Correlated.microwave_beam.getDefaultState();
+	private final IBlockState beamBlockState = Correlated.wireless.getDefaultState();
 	@Override
 	public void renderTileEntityAt(TileEntityMicrowaveBeam te, double x, double y, double z, float partialTicks, int destroyStage) {
 		State state = State.DEAD;
 		if (te != null) {
 			if (te.hasWorld()) {
 				IBlockState bs = te.getWorld().getBlockState(te.getPos());
-				if (bs.getBlock() != Correlated.microwave_beam) return;
-				state = bs.getValue(BlockMicrowaveBeam.state);
+				if (bs.getBlock() != Correlated.wireless) return;
+				state = bs.getValue(BlockWireless.state);
 			} else {
 				return;
 			}
@@ -43,7 +43,7 @@ public class RenderMicrowaveBeam extends TileEntitySpecialRenderer<TileEntityMic
 		float yaw;
 		float pitch;
 		if (te == null) {
-			yaw = -90;
+			yaw = 270;
 			pitch = 30;
 			facing = new Vec3d(0, 0, 0);
 		} else {
@@ -252,7 +252,7 @@ public class RenderMicrowaveBeam extends TileEntitySpecialRenderer<TileEntityMic
 			case ERROR:
 				tas = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("correlated:blocks/wireless_endpoint_error");
 				break;
-			case LINKED:
+			case OK:
 				tas = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("correlated:blocks/wireless_endpoint_linked");
 				break;
 			default:

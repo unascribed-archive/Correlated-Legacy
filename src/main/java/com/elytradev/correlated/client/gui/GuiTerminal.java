@@ -23,6 +23,8 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.GlStateManager.DestFactor;
+import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -63,7 +65,7 @@ public class GuiTerminal extends GuiContainer {
 			if (Math.random() == 0.5) {
 				container.status.add(new TextComponentTranslation("correlated.shell.readyEgg"));
 			} else {
-				container.status.add(new TextComponentTranslation("correlated.shell.ready"));
+				container.status.add(container.terminal.allowAPNSelection() ? new TextComponentTranslation("correlated.shell.ready_wireless") : new TextComponentTranslation("correlated.shell.ready"));
 			}
 		}
 		lastJeiQuery = Correlated.inst.jeiQueryReader.get();
@@ -142,7 +144,6 @@ public class GuiTerminal extends GuiContainer {
 			}
 		}
 		GlStateManager.popMatrix();
-		GlStateManager.enableDepth();
 
 		int u = 232;
 		if (container.rows <= container.slotsTall) {
@@ -151,12 +152,21 @@ public class GuiTerminal extends GuiContainer {
 		int y = 18;
 		mc.getTextureManager().bindTexture(getBackground());
 		if (hasStatusLine() && signalStrength != -1) {
-			GlStateManager.color(0, 0.5587f, 0.4413f);
+			int color = Correlated.proxy.getColor("other", 64);
+			float r = ((color >> 16)&0xFF)/255f;
+			float g = ((color >> 8)&0xFF)/255f;
+			float b = (color&0xFF)/255f;
+			
+			GlStateManager.color(r, g, b);
 			int right = 162+68+container.playerInventoryOffsetX;
 			int top = 90+container.playerInventoryOffsetY;
-			drawTexturedModalRect(right-20, top+1, 184, 224, 16, 8);
-			drawTexturedModalRect(right-20, top+1, 184, 232, 5+(signalStrength*2), 8);
+			GlStateManager.enableBlend();
+			GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+			drawTexturedModalRect(right-18, top+1, 0, 224, 16, 8);
+			drawTexturedModalRect(right-18, top+1, 0, 232, 5+(signalStrength*2), 8);
+			GlStateManager.disableBlend();
 		}
+		GlStateManager.enableDepth();
 		GlStateManager.color(1, 1, 1);
 		drawTexturedModalRect(getScrollTrackX(), getScrollTrackY()+y+(scrollKnobY-6), u, 241, 12, 15);
 
@@ -456,7 +466,11 @@ public class GuiTerminal extends GuiContainer {
 		if (hasStatusLine() && mouseButton == 0
 				&& mouseX >= x+left && mouseX <= x+right
 				&& mouseY >= y+top && mouseY <= y+bottom) {
-			Minecraft.getMinecraft().displayGuiScreen(new GuiTerminalShell(this, container));
+			if (container.terminal.allowAPNSelection()) {
+				Minecraft.getMinecraft().displayGuiScreen(new GuiSelectAPN(this, true, false, container));
+			} else {
+				Minecraft.getMinecraft().displayGuiScreen(new GuiTerminalShell(this, container));
+			}
 		}
 		
 		int width = 12;

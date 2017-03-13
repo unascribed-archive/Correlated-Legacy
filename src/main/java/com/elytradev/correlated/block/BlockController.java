@@ -2,6 +2,7 @@ package com.elytradev.correlated.block;
 
 import java.util.Locale;
 
+import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.helper.Blocks;
 import com.elytradev.correlated.tile.TileEntityController;
 import com.elytradev.correlated.tile.TileEntityNetworkMember;
@@ -101,11 +102,8 @@ public class BlockController extends Block {
 		if (Blocks.tryWrench(worldIn, pos, playerIn, hand, side, hitZ, hitZ, hitZ)) {
 			return true;
 		}
-		TileEntity te = worldIn.getTileEntity(pos);
-		if (te instanceof TileEntityController) {
-			((TileEntityController) te).scanNetwork();
-		}
-		return super.onBlockActivated(worldIn, pos, state, playerIn, hand, side, hitX, hitY, hitZ);
+		Correlated.proxy.showAPNChangeMenu(pos, false, true);
+		return true;
 	}
 
 	@Override

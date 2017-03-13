@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import com.google.common.primitives.Ints;
 import com.elytradev.correlated.Correlated;
@@ -22,7 +23,9 @@ import com.elytradev.correlated.storage.InsertResult.Result;
 import com.elytradev.correlated.storage.UserPreferences;
 import com.elytradev.correlated.tile.TileEntityController;
 import com.elytradev.correlated.tile.TileEntityTerminal;
+import com.elytradev.correlated.wifi.IWirelessClient;
 import com.google.common.base.Function;
+import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Booleans;
 
@@ -41,6 +44,7 @@ import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -49,7 +53,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 // Yes, this class is a huge hardcoded mess and I'm sorry.
-public class ContainerTerminal extends Container {
+public class ContainerTerminal extends Container implements IWirelessClient {
 	public enum SortMode {
 		QUANTITY((a, b) -> {
 			int quantityComp = Ints.compare(a.getCount(), b.getCount());
@@ -133,6 +137,7 @@ public class ContainerTerminal extends Container {
 	private int lastSignal = -1;
 	public boolean isDumping = false;
 	public boolean isFilling = false;
+	private String lastApn;
 	
 	public Slot maintenanceSlot;
 
@@ -297,8 +302,8 @@ public class ContainerTerminal extends Container {
 
 	public void updateSlots() {
 		if (world.isRemote) return;
-		lastChangeId = terminal.getStorage().getChangeId();
-		List<ItemStack> typesAll = terminal.getStorage().getTypes();
+		lastChangeId = terminal.hasStorage() ? terminal.getStorage().getChangeId() : 0;
+		List<ItemStack> typesAll = terminal.hasStorage() ? terminal.getStorage().getTypes() : Collections.emptyList();
 		if (!searchQuery.isEmpty()) {
 			Iterator<ItemStack> itr = typesAll.iterator();
 			while (itr.hasNext()) {
@@ -609,8 +614,12 @@ public class ContainerTerminal extends Container {
 			if (terminal.hasStorage() && terminal.getStorage().getChangeId() != lastChangeId) {
 				updateSlots();
 			}
+			if (!Objects.equal(lastApn, terminal.getAPN())) {
+				lastApn = terminal.getAPN();
+				updateSlots();
+			}
 		}
-		boolean b = player == this.player && terminal.hasStorage() && terminal.getStorage().isPowered() && terminal.canContinueInteracting(player);
+		boolean b = player == this.player && terminal.canContinueInteracting(player);
 		if (b) {
 			int signal = terminal.getSignalStrength();
 			if (signal != lastSignal) {
@@ -807,6 +816,37 @@ public class ContainerTerminal extends Container {
 	@Override
 	public boolean canMergeSlot(ItemStack stack, Slot slot) {
 		return slot.inventory != craftResult && !(slot instanceof SlotVirtual) && super.canMergeSlot(stack, slot);
+	}
+
+	@Override
+	public void setAPNs(Set<String> apn) {
+		if (apn.size() > 1) throw new IllegalArgumentException("Only supports 1 APN");
+		terminal.setAPN(apn.isEmpty() ? null : apn.iterator().next());
+	}
+
+	@Override
+	public Set<String> getAPNs() {
+		return terminal.getAPN() == null ? Collections.emptySet() : Collections.singleton(terminal.getAPN());
+	}
+	
+	@Override
+	public BlockPos getPosition() {
+		return terminal.getPosition();
+	}
+	
+	@Override
+	public double getX() {
+		return terminal.getPosition().getX()+0.5;
+	}
+	
+	@Override
+	public double getY() {
+		return terminal.getPosition().getY()+0.5;
+	}
+	
+	@Override
+	public double getZ() {
+		return terminal.getPosition().getZ()+0.5;
 	}
 
 }

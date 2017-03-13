@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -27,6 +28,7 @@ import com.elytradev.correlated.client.ParticleWeldthrower;
 import com.elytradev.correlated.client.gui.GuiAbortRetryFail;
 import com.elytradev.correlated.client.gui.GuiFakeReboot;
 import com.elytradev.correlated.client.gui.GuiGlitchedMainMenu;
+import com.elytradev.correlated.client.gui.GuiSelectAPN;
 import com.elytradev.correlated.client.render.entity.RenderAutomaton;
 import com.elytradev.correlated.client.render.entity.RenderThrownItem;
 import com.elytradev.correlated.client.render.tile.RenderController;
@@ -34,6 +36,7 @@ import com.elytradev.correlated.client.render.tile.RenderDriveBay;
 import com.elytradev.correlated.client.render.tile.RenderImporterChest;
 import com.elytradev.correlated.client.render.tile.RenderMemoryBay;
 import com.elytradev.correlated.client.render.tile.RenderMicrowaveBeam;
+import com.elytradev.correlated.client.render.tile.RenderOpticalReceiver;
 import com.elytradev.correlated.client.render.tile.RenderTerminal;
 import com.elytradev.correlated.entity.EntityAutomaton;
 import com.elytradev.correlated.entity.EntityThrownItem;
@@ -42,12 +45,15 @@ import com.elytradev.correlated.item.ItemKeycard;
 import com.elytradev.correlated.item.ItemMemory;
 import com.elytradev.correlated.item.ItemMisc;
 import com.elytradev.correlated.item.ItemModule;
+import com.elytradev.correlated.network.ChangeAPNMessage;
 import com.elytradev.correlated.tile.TileEntityController;
 import com.elytradev.correlated.tile.TileEntityDriveBay;
 import com.elytradev.correlated.tile.TileEntityImporterChest;
 import com.elytradev.correlated.tile.TileEntityMemoryBay;
 import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
+import com.elytradev.correlated.tile.TileEntityOpticalReceiver;
 import com.elytradev.correlated.tile.TileEntityTerminal;
+import com.elytradev.correlated.wifi.IWirelessClient;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -88,6 +94,7 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ScreenShotHelper;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.ForgeHooksClient;
@@ -153,8 +160,9 @@ public class ClientProxy extends Proxy {
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTerminal.class, new RenderTerminal());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityImporterChest.class, new RenderImporterChest());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityMicrowaveBeam.class, new RenderMicrowaveBeam());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityOpticalReceiver.class, new RenderOpticalReceiver());
 		
-		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(Correlated.microwave_beam), 0, TileEntityMicrowaveBeam.class);
+		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(Correlated.wireless), 0, TileEntityMicrowaveBeam.class);
 		
 		RenderingRegistry.registerEntityRenderingHandler(EntityThrownItem.class, (rm) -> new RenderThrownItem(rm, Minecraft.getMinecraft().getRenderItem()));
 		RenderingRegistry.registerEntityRenderingHandler(EntityAutomaton.class, RenderAutomaton::new);
@@ -203,6 +211,42 @@ public class ClientProxy extends Proxy {
 		int[] rgb = colors.get(group);
 		if (rgb == null || index >= rgb.length) return rand.nextInt();
 		return rgb[index] | 0xFF000000;
+	}
+	@Override
+	public void showAPNChangeMenu(BlockPos pos, boolean multiple, boolean client) {
+		Minecraft.getMinecraft().displayGuiScreen(new GuiSelectAPN(null, client, multiple, new IWirelessClient() {
+			
+			@Override
+			public void setAPNs(Set<String> apn) {
+				new ChangeAPNMessage(pos, apn).sendToServer();
+			}
+			
+			@Override
+			public Set<String> getAPNs() {
+				return Collections.emptySet();
+			}
+			
+			@Override
+			public BlockPos getPosition() {
+				return pos;
+			}
+			
+			@Override
+			public double getX() {
+				return pos.getX()+0.5;
+			}
+			
+			@Override
+			public double getY() {
+				return pos.getY()+0.5;
+			}
+			
+			@Override
+			public double getZ() {
+				return pos.getZ()+0.5;
+			}
+			
+		}));
 	}
 	@Override
 	public void postInit() {
@@ -499,6 +543,8 @@ public class ClientProxy extends Proxy {
 		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/terminal_error_glow"));
 		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/controller_power_light"));
 		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/controller_memory_light"));
+		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/optical_linked"));
+		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/optical_error"));
 		e.getMap().registerSprite(new ResourceLocation("correlated", "items/wireless_terminal_glow"));
 		e.getMap().registerSprite(new ResourceLocation("correlated", "items/wireless_terminal_glow_error"));
 		e.getMap().registerSprite(new ResourceLocation("correlated", "items/doc_tablet_glow"));
@@ -686,3 +732,4 @@ public class ClientProxy extends Proxy {
 		tess.draw();
 	}
 }
+

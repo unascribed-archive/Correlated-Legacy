@@ -2,8 +2,8 @@ package com.elytradev.correlated.tile;
 
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.CorrelatedWorldData;
-import com.elytradev.correlated.block.BlockMicrowaveBeam;
-import com.elytradev.correlated.block.BlockMicrowaveBeam.State;
+import com.elytradev.correlated.block.BlockWireless;
+import com.elytradev.correlated.block.BlockWireless.State;
 import com.elytradev.correlated.wifi.Beam;
 
 import net.minecraft.block.state.IBlockState;
@@ -31,23 +31,23 @@ public class TileEntityMicrowaveBeam extends TileEntityNetworkMember implements 
 		if (!hasWorld() || getWorld().isRemote) return;
 		Beam b = Correlated.getDataFor(world).getWirelessManager().getBeam(getPos());
 		State newState = State.DEAD;
-		if (!hasStorage() || !getStorage().isPowered()) {
+		if (!hasController() || !getController().isPowered()) {
 			newState = State.DEAD;
 		} else {
 			if (b != null) {
 				if (b.isObstructed()) {
 					newState = State.ERROR;
 				} else {
-					newState = State.LINKED;
+					newState = State.OK;
 				}
 			} else {
 				newState = State.ERROR;
 			}
 		}
 		IBlockState ibs = world.getBlockState(getPos());
-		if (ibs.getBlock() == Correlated.microwave_beam) {
-			if (ibs.getValue(BlockMicrowaveBeam.state) != newState) {
-				world.setBlockState(getPos(), ibs.withProperty(BlockMicrowaveBeam.state, newState));
+		if (ibs.getBlock() == Correlated.wireless) {
+			if (ibs.getValue(BlockWireless.state) != newState) {
+				world.setBlockState(getPos(), ibs.withProperty(BlockWireless.state, newState));
 			}
 		}
 		float yaw = getYaw(0);
@@ -98,8 +98,8 @@ public class TileEntityMicrowaveBeam extends TileEntityNetworkMember implements 
 		TileEntity te = world.getTileEntity(other);
 		if (te instanceof TileEntityMicrowaveBeam) {
 			TileEntityMicrowaveBeam temb = (TileEntityMicrowaveBeam)te;
-			if (temb.hasStorage()) {
-				return temb.getStorage();
+			if (temb.hasController()) {
+				return temb.getController();
 			}
 		}
 		return null;
