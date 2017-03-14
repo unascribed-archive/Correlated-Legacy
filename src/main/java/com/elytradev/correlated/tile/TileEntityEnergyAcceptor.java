@@ -116,6 +116,14 @@ public abstract class TileEntityEnergyAcceptor extends TileEntityNetworkMember i
 		return Integer.MAX_VALUE;
 	}
 	
+	@Override
+	public double injectEnergy(EnumFacing directionFrom, double amount, double voltage) {
+		int p = Correlated.convertToPotential((int)amount, EnergyUnit.ENERGY_UNITS);
+		double leftover = amount-(Correlated.convertFromPotential(p, EnergyUnit.ENERGY_UNITS));
+		int excess = p-receivePotential(p, false);
+		return leftover+Correlated.convertFromPotential(excess, EnergyUnit.ENERGY_UNITS);
+	}
+	
 	// IC2 END
 	
 	// MEKANISM BEGIN
@@ -147,14 +155,6 @@ public abstract class TileEntityEnergyAcceptor extends TileEntityNetworkMember i
 	}
 	
 	// MEKANISM END
-	
-	@Override
-	public double injectEnergy(EnumFacing directionFrom, double amount, double voltage) {
-		int p = Correlated.convertToPotential((int)amount, EnergyUnit.ENERGY_UNITS);
-		double leftover = amount-(Correlated.convertFromPotential(p, EnergyUnit.ENERGY_UNITS));
-		int excess = p-receivePotential(p, false);
-		return leftover+Correlated.convertFromPotential(excess, EnergyUnit.ENERGY_UNITS);
-	}
 	
 	private class TeslaConsumer implements ITeslaConsumer {
 
