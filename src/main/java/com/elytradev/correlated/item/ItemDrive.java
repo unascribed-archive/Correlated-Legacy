@@ -113,7 +113,7 @@ public class ItemDrive extends Item {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
-		tooltip.add(I18n.format("tooltip.correlated.rf_usage", getRFConsumptionRate(stack)));
+		tooltip.add(Correlated.formatPotentialUsage(getPotentialConsumptionRate(stack)));
 		if (stack.getItemDamage() == 4) {
 			int i = 0;
 			while (I18n.hasKey("tooltip.correlated.void_drive." + i)) {
@@ -131,7 +131,7 @@ public class ItemDrive extends Item {
 		}
 	}
 
-	public int getRFConsumptionRate(ItemStack stack) {
+	public int getPotentialConsumptionRate(ItemStack stack) {
 		if (stack.getItemDamage() == 4) {
 			return Correlated.inst.voidDriveUsage;
 		}
@@ -139,7 +139,7 @@ public class ItemDrive extends Item {
 		if (stack.getItemDamage() == 6) {
 			dmg = 8;
 		}
-		return ((int) Math.pow(Correlated.inst.driveRfUsagePow, dmg))/Correlated.inst.driveRfUsageDiv;
+		return ((int) Math.pow(Correlated.inst.drivePUsagePow, dmg))/Correlated.inst.drivePUsageDiv;
 	}
 
 	@Override

@@ -182,7 +182,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 		consumedPerTick = Correlated.inst.driveBayPUsage;
 		for (ItemStack is : drives) {
 			if (is.getItem() instanceof ItemDrive) {
-				consumedPerTick += ((ItemDrive)is.getItem()).getRFConsumptionRate(is);
+				consumedPerTick += ((ItemDrive)is.getItem()).getPotentialConsumptionRate(is);
 			}
 		}
 		if (hasWorld() && !world.isRemote && hasController()) {

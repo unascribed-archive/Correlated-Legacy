@@ -245,8 +245,8 @@ public class Correlated {
 	public int controllerErrorUsage_MultipleControllers;
 	public int controllerErrorUsage_NetworkTooBig;
 	
-	public int driveRfUsagePow;
-	public int driveRfUsageDiv;
+	public int drivePUsagePow;
+	public int drivePUsageDiv;
 	
 	public int voidDriveUsage;
 	
@@ -327,8 +327,8 @@ public class Correlated {
 		controllerErrorUsage_MultipleControllers = config.getInt("controllerErrorUsage_MultipleControllers", "PowerFineTuning", 4, 0, Integer.MAX_VALUE, "The P/t used by the controller when it detects another controller in its network and is erroring.");
 		controllerErrorUsage_NetworkTooBig = config.getInt("controllerErrorUsage_NetworkTooBig", "PowerFineTuning", 640, 0, Integer.MAX_VALUE, "The P/t used by the controller when it reaches the network scan limit.");
 		
-		driveRfUsagePow = config.getInt("drivePow", "PowerUsage", 2, 0, 8, "Drive power usage is (pow**tier)/div");
-		driveRfUsageDiv = config.getInt("driveDiv", "PowerUsage", 2, 0, 8, "Drive power usage is (pow**tier)/div");
+		drivePUsagePow = config.getInt("drivePow", "PowerUsage", 2, 0, 8, "Drive power usage is (pow**tier)/div");
+		drivePUsageDiv = config.getInt("driveDiv", "PowerUsage", 2, 0, 8, "Drive power usage is (pow**tier)/div");
 		
 		voidDriveUsage = config.getInt("voidDrive", "PowerUsage", 4, 0, 640, "The P/t used by the Void Drive.");
 		
