@@ -28,7 +28,7 @@ import java.util.Arrays;
 public class TileEntityDriveBay extends TileEntityNetworkMember implements ITickable, Iterable<ItemStack> {
 
 	private ItemStack[] drives = new ItemStack[8];
-	private int consumedPerTick = Correlated.inst.driveBayRfUsage;
+	private int consumedPerTick = Correlated.inst.driveBayPUsage;
 	
 	public TileEntityDriveBay() {
 		Arrays.fill(drives, ItemStack.EMPTY);
@@ -70,7 +70,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 	}
 
 	@Override
-	public int getEnergyConsumedPerTick() {
+	public int getPotentialConsumedPerTick() {
 		return consumedPerTick;
 	}
 
@@ -179,7 +179,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 
 	private void onDriveChange() {
 		int old = consumedPerTick;
-		consumedPerTick = Correlated.inst.driveBayRfUsage;
+		consumedPerTick = Correlated.inst.driveBayPUsage;
 		for (ItemStack is : drives) {
 			if (is.getItem() instanceof ItemDrive) {
 				consumedPerTick += ((ItemDrive)is.getItem()).getRFConsumptionRate(is);

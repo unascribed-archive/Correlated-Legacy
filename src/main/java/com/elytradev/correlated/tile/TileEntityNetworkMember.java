@@ -73,7 +73,7 @@ public abstract class TileEntityNetworkMember extends TileEntity {
 					TileEntityNetworkMember tenm = (TileEntityNetworkMember)neighbor;
 					if (!tenm.hasController() && this.hasController()) {
 						tenm.setController(controller);
-						controller.updateConsumptionRate(tenm.getEnergyConsumedPerTick());
+						controller.updateConsumptionRate(tenm.getPotentialConsumedPerTick());
 						controller.onNetworkPatched(tenm);
 					}
 				}
@@ -87,7 +87,7 @@ public abstract class TileEntityNetworkMember extends TileEntity {
 		return oldState.getBlock() != newState.getBlock();
 	}
 
-	public abstract int getEnergyConsumedPerTick();
+	public abstract int getPotentialConsumedPerTick();
 
 	public void handleNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
 		TileEntity te = world.getTileEntity(neighbor);
@@ -95,7 +95,7 @@ public abstract class TileEntityNetworkMember extends TileEntity {
 			TileEntityNetworkMember tenm = (TileEntityNetworkMember)te;
 			if (!tenm.hasController() && this.hasController()) {
 				tenm.setController(this.getController());
-				getController().updateConsumptionRate(tenm.getEnergyConsumedPerTick());
+				getController().updateConsumptionRate(tenm.getPotentialConsumedPerTick());
 				getController().onNetworkPatched(tenm);
 			}
 		} else {

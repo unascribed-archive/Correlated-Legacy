@@ -89,11 +89,6 @@ public class WirelessTerminal implements ITerminal {
 	}
 	
 	@Override
-	public boolean allowAPNSelection() {
-		return true;
-	}
-	
-	@Override
 	public int getSignalStrength() {
 		WirelessManager wm = Correlated.getDataFor(player.world).getWirelessManager();
 		return wm.getSignalStrength(player.posX, player.posY+player.getEyeHeight(), player.posZ, getAPN());

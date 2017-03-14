@@ -22,8 +22,8 @@ public class TileEntityMicrowaveBeam extends TileEntityNetworkMember implements 
 	private float syncedPitch;
 	
 	@Override
-	public int getEnergyConsumedPerTick() {
-		return Correlated.inst.beamRfUsage;
+	public int getPotentialConsumedPerTick() {
+		return Correlated.inst.beamPUsage;
 	}
 	
 	@Override

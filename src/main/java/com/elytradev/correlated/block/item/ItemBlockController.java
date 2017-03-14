@@ -5,7 +5,6 @@ import java.util.List;
 import com.elytradev.correlated.Correlated;
 
 import net.minecraft.block.Block;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -19,9 +18,9 @@ public class ItemBlockController extends ItemBlock {
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
 		if (stack.getMetadata() == 8) {
-			tooltip.add(I18n.format("tooltip.correlated.rf_usage", 0));
+			tooltip.add(Correlated.formatPotentialUsage(0));
 		} else {
-			tooltip.add(I18n.format("tooltip.correlated.rf_usage", Correlated.inst.controllerRfUsage));
+			tooltip.add(Correlated.formatPotentialUsage(Correlated.inst.controllerPUsage));
 		}
 	}
 	

@@ -18,7 +18,7 @@ public class ItemBlockMemoryBay extends ItemBlock {
 
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
-		tooltip.add(I18n.format("tooltip.correlated.rf_usage", Correlated.inst.memoryBayRfUsage));
+		tooltip.add(I18n.format("tooltip.correlated.energy_usage", Correlated.inst.memoryBayPUsage, Correlated.inst.preferredUnit.abbreviation));
 	}
 
 }

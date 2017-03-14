@@ -942,11 +942,6 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	// TODO implement wireless
 	
 	@Override
-	public boolean allowAPNSelection() {
-		return false;
-	}
-	
-	@Override
 	public int getSignalStrength() {
 		return -1;
 	}

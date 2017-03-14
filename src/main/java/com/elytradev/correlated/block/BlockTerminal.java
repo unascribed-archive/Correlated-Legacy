@@ -147,6 +147,9 @@ public class BlockTerminal extends Block {
 						}
 					}
 					return true;
+				} else if (!world.isRemote && tet.getPotentialStored() > tet.getPotentialConsumedPerTick()) {
+					player.openGui(Correlated.inst, 0, world, pos.getX(), pos.getY(), pos.getZ());
+					return true;
 				}
 			}
 			if (!world.isRemote) {

@@ -279,8 +279,8 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 	}
 
 	@Override
-	public int getEnergyConsumedPerTick() {
-		return Correlated.inst.interfaceRfUsage;
+	public int getPotentialConsumedPerTick() {
+		return Correlated.inst.interfacePUsage;
 	}
 
 	@Override

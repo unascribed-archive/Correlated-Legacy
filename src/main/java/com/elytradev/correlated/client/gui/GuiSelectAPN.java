@@ -112,7 +112,8 @@ public class GuiSelectAPN extends GuiScreen {
 			mc.getTextureManager().bindTexture(WIDGETS);
 			boolean hover = false;
 			int rawColor = -1;
-			if (mouseX > x && mouseX < x+144 &&
+			if (mouseY < end &&
+					mouseX > x && mouseX < x+144 &&
 					mouseY > y && mouseY <= y+19) {
 				hover = true;
 				rawColor = 0xFFFFFFA0;

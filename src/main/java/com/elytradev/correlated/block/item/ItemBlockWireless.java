@@ -33,10 +33,10 @@ public class ItemBlockWireless extends ItemBlock {
 		if (stack.getMetadata() == 0) {
 			tooltip.add(I18n.format("tile.correlated.microwave_beam.0"));
 			tooltip.add(I18n.format("tile.correlated.microwave_beam.1"));
-			tooltip.add(I18n.format("tooltip.correlated.rf_usage", Correlated.inst.beamRfUsage));
+			tooltip.add(Correlated.formatPotentialUsage(Correlated.inst.beamPUsage));
 		} else if (stack.getMetadata() == 1) {
 			tooltip.add(I18n.format("tile.correlated.optical.0"));
-			tooltip.add(I18n.format("tooltip.correlated.rf_usage", Correlated.inst.opticalRfUsage));
+			tooltip.add(Correlated.formatPotentialUsage(Correlated.inst.opticalPUsage));
 		} else if (stack.getMetadata() == 2) {
 			tooltip.add(I18n.format("tile.correlated.beacon_lens.0"));
 		}

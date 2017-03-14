@@ -18,7 +18,6 @@ public interface ITerminal {
 	// this ridiculous name is to avoid conflict with markDirty in TileEntity
 	void markUnderlyingStorageDirty();
 	
-	boolean allowAPNSelection();
 	void setAPN(String apn);
 	String getAPN();
 	

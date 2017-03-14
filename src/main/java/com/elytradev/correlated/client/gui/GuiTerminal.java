@@ -5,6 +5,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.EnergyUnit;
 import com.elytradev.correlated.client.IBMFontRenderer;
 import com.elytradev.correlated.client.gui.shell.GuiTerminalShell;
 import com.elytradev.correlated.helper.Numbers;
@@ -35,6 +36,7 @@ import net.minecraftforge.fml.client.config.GuiButtonExt;
 
 public class GuiTerminal extends GuiContainer {
 	private static final ResourceLocation background = new ResourceLocation("correlated", "textures/gui/container/terminal.png");
+	private static final ResourceLocation ENERGY = new ResourceLocation("correlated", "textures/misc/energy.png");
 
 	private ContainerTerminal container;
 	private GuiTextField searchField = new GuiTextField(0, Minecraft.getMinecraft().fontRenderer, 0, 0, 85, 8);
@@ -48,6 +50,7 @@ public class GuiTerminal extends GuiContainer {
 	private GuiButtonExt jeiSync;
 	private GuiButtonExt dump;
 	private GuiButtonExt partition;
+	private GuiButtonExt preferredEnergySystem;
 	
 	private String lastJeiQuery;
 	
@@ -61,13 +64,6 @@ public class GuiTerminal extends GuiContainer {
 		this.container = container;
 		xSize = 256;
 		ySize = 222;
-		if (container.status.isEmpty()) {
-			if (Math.random() == 0.5) {
-				container.status.add(new TextComponentTranslation("correlated.shell.readyEgg"));
-			} else {
-				container.status.add(container.terminal.allowAPNSelection() ? new TextComponentTranslation("correlated.shell.ready_wireless") : new TextComponentTranslation("correlated.shell.ready"));
-			}
-		}
 		lastJeiQuery = Correlated.inst.jeiQueryReader.get();
 	}
 
@@ -85,6 +81,13 @@ public class GuiTerminal extends GuiContainer {
 	
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+		if (container.status.isEmpty()) {
+			if (Math.random() == 0.5) {
+				container.status.add(new TextComponentTranslation("correlated.shell.readyEgg"));
+			} else {
+				container.status.add(signalStrength != -1 ? new TextComponentTranslation("correlated.shell.ready_wireless") : new TextComponentTranslation("correlated.shell.ready"));
+			}
+		}
 		GlStateManager.pushMatrix();
 		GlStateManager.translate((width - xSize) / 2, (height - ySize) / 2, 0);
 		mc.getTextureManager().bindTexture(getBackground());
@@ -213,6 +216,12 @@ public class GuiTerminal extends GuiContainer {
 						I18n.format("tooltip.correlated.focus_search_by_default."+container.searchFocusedByDefault)
 					), mouseX, mouseY);
 			}
+			if (preferredEnergySystem.isMouseOver()) {
+				drawHoveringText(Lists.newArrayList(
+						I18n.format("tooltip.correlated.preferred_energy"),
+						"\u00A77"+Correlated.inst.preferredUnit.displayName
+					), mouseX, mouseY);
+			}
 			if (jeiSync != null && jeiSync.isMouseOver()) {
 				drawHoveringText(Lists.newArrayList(
 						I18n.format("tooltip.correlated.jei_sync."+container.jeiSyncEnabled)
@@ -258,6 +267,10 @@ public class GuiTerminal extends GuiContainer {
 					), mouseX, mouseY);
 			}
 		}
+		GlStateManager.disableLighting();
+		mc.renderEngine.bindTexture(ENERGY);
+		GlStateManager.color(1, 1, 1);
+		drawModalRectWithCustomSizedTexture(preferredEnergySystem.xPosition+2, preferredEnergySystem.yPosition+2, 0, Correlated.inst.preferredUnit.ordinal()*8, 8, 8, 8, 80);
 		GlStateManager.popMatrix();
 
 	}
@@ -279,6 +292,7 @@ public class GuiTerminal extends GuiContainer {
 			buttonList.add(sortDirection = new GuiButtonExt(0, x+236, y+4, 12, 12, ""));
 			buttonList.add(sortMode = new GuiButtonExt(1, x+128, y+4, 12, 12, ""));
 			buttonList.add(focusByDefault = new GuiButtonExt(5, x+114, y+4, 12, 12, ""));
+			buttonList.add(preferredEnergySystem = new GuiButtonExt(9, x+100, y+4, 12, 12, ""));
 			if (Correlated.inst.jeiAvailable) {
 				buttonList.add(jeiSync = new GuiButtonExt(6, x-getXOffset()+getJeiSyncX(), y-getYOffset()+getJeiSyncY(), 12, 12, ""));
 			}
@@ -387,6 +401,16 @@ public class GuiTerminal extends GuiContainer {
 			}
 		} else if (button.id == 8) {
 			mc.playerController.sendEnchantPacket(container.windowId, -62);
+		} else if (button.id == 9) {
+			int ordinal = Correlated.inst.preferredUnit.ordinal();
+			ordinal = (ordinal + 1) % EnergyUnit.values().length;
+			EnergyUnit eu = EnergyUnit.values()[ordinal];
+			if (eu == EnergyUnit.GLYPHS) {
+				eu = EnergyUnit.DANKS;
+			}
+			Correlated.inst.preferredUnit = eu;
+			Correlated.inst.config.get("Display", "preferredUnit", "Potential", Correlated.PREFERRED_UNIT_DESC).set(eu.displayName);
+			Correlated.inst.config.save();
 		}
 	}
 
@@ -466,7 +490,7 @@ public class GuiTerminal extends GuiContainer {
 		if (hasStatusLine() && mouseButton == 0
 				&& mouseX >= x+left && mouseX <= x+right
 				&& mouseY >= y+top && mouseY <= y+bottom) {
-			if (container.terminal.allowAPNSelection()) {
+			if (signalStrength != -1) {
 				Minecraft.getMinecraft().displayGuiScreen(new GuiSelectAPN(this, true, false, container));
 			} else {
 				Minecraft.getMinecraft().displayGuiScreen(new GuiTerminalShell(this, container));

@@ -211,7 +211,7 @@ public class CRecipes {
 				));
 		
 		// Microwave Beam
-		GameRegistry.addRecipe(new ShapedOreRecipe(Correlated.wireless,
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(Correlated.wireless, 1, 0),
 				" | ",
 				"___",
 				"idi",
@@ -219,6 +219,26 @@ public class CRecipes {
 				'd', "gemDiamond",
 				'|', luminousTorch,
 				'_', Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE
+				));
+		
+		// Optical Receiver
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(Correlated.wireless, 1, 1),
+				"igi",
+				"gpg",
+				"igi",
+				'i', "ingotIron",
+				'p', luminousPearl,
+				'g', "blockGlass"
+				));
+		
+		// Beacon Lens
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(Correlated.wireless, 1, 2),
+				"ipi",
+				"pgp",
+				"ipi",
+				'i', "ingotIron",
+				'p', luminousPearl,
+				'g', "paneGlass"
 				));
 		
 		// Decorative Blocks

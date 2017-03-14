@@ -28,6 +28,7 @@ import com.elytradev.correlated.block.item.ItemBlockGlowingDecor;
 import com.elytradev.correlated.block.item.ItemBlockInterface;
 import com.elytradev.correlated.block.item.ItemBlockMemoryBay;
 import com.elytradev.correlated.block.item.ItemBlockWireless;
+import com.elytradev.correlated.compat.probe.UnitPotential;
 import com.elytradev.correlated.block.item.ItemBlockTerminal;
 import com.elytradev.correlated.crafting.CRecipes;
 import com.elytradev.correlated.crafting.DriveRecipe;
@@ -84,10 +85,15 @@ import com.google.common.base.Predicates;
 import com.google.common.base.Supplier;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Ints;
+
+import buildcraft.api.mj.IMjReceiver;
 
 import com.elytradev.probe.api.IProbeDataProvider;
 
 import com.elytradev.concrete.NetworkContext;
+
+import net.darkhax.tesla.api.ITeslaConsumer;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -100,6 +106,7 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -114,6 +121,7 @@ import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -144,6 +152,10 @@ public class Correlated {
 	
 	@CapabilityInject(IProbeDataProvider.class)
 	public static Capability<?> PROBE;
+	@CapabilityInject(IMjReceiver.class)
+	public static Capability<?> MJ_RECEIVER;
+	@CapabilityInject(ITeslaConsumer.class)
+	public static Capability<?> TESLA_CONSUMER;
 	
 
 	public static BlockController controller;
@@ -215,16 +227,18 @@ public class Correlated {
 
 	public NetworkContext network;
 	
+	public Configuration config;
+	
 	public boolean easyProcessors;
 	public double defaultWirelessRange;
 	
-	public int controllerRfUsage;
-	public int driveBayRfUsage;
-	public int memoryBayRfUsage;
-	public int terminalRfUsage;
-	public int interfaceRfUsage;
-	public int beamRfUsage;
-	public int opticalRfUsage;
+	public int controllerPUsage;
+	public int driveBayPUsage;
+	public int memoryBayPUsage;
+	public int terminalPUsage;
+	public int interfacePUsage;
+	public int beamPUsage;
+	public int opticalPUsage;
 	
 	public int controllerCapacity;
 	public int controllerCap;
@@ -235,6 +249,15 @@ public class Correlated {
 	public int driveRfUsageDiv;
 	
 	public int voidDriveUsage;
+	
+	public float rfConversionRate;
+	public float fuConversionRate;
+	public float teslaConversionRate;
+	public float euConversionRate;
+	public float jConversionRate;
+	public float mjConversionRate;
+	
+	public EnergyUnit preferredUnit;
 	
 	public boolean weldthrowerHurts;
 	
@@ -248,6 +271,17 @@ public class Correlated {
 	public Consumer<String> jeiQueryUpdater = (s) -> {};
 	public Supplier<String> jeiQueryReader = () -> "";
 	
+	public static final String PREFERRED_UNIT_DESC = "The preferred energy unit to show in GUIs. Case insensitive. Possible values:\n"
+			+ "Potential / P: Correlated's native energy system [default]\n"
+			+ "Redstone Flux / RF: Thermal Expansion's energy system\n"
+			+ "Energy Units / EU: IndustrialCraft's energy system\n"
+			+ "Tesla / T: The Tesla energy system\n"
+			+ "Minecraft Joules / MJ: BuildCraft's energy system\n"
+			+ "Joules / J: Mekanism's energy system\n"
+			+ "Danks / Dk: Alternate name for Tesla\n"
+			+ "Forge Units / FU: The Forge energy system\n"
+			+ "Forge Energy / FE: Alternate name for Forge Units";
+	
 
 	@EventHandler
 	public void onPreInit(FMLPreInitializationEvent e) {
@@ -255,29 +289,48 @@ public class Correlated {
 
 		// TODO this badly needs cleanup
 		
-		Configuration config = new Configuration(e.getSuggestedConfigurationFile());
-		easyProcessors = config.getBoolean("easyProcessors", "Crafting", false, "If true, processors can be crafted without going to the limbo dungeon. Not recommended.");
+		config = new Configuration(e.getSuggestedConfigurationFile());
+		easyProcessors = config.getBoolean("easyProcessors", "Crafting", false, "If true, processors can be crafted without finding them in vanilla dungeons. Will be removed when the limbo dungeon is added.");
 		
-		defaultWirelessRange = config.getFloat("defaultWirelessRange", "Balance", 64, 1, 65536, "The default radius of wireless transmitters, in blocks.");
 		weldthrowerHurts = config.getBoolean("weldthrowerHurts", "Balance", true, "If enabled, the Weldthrower will damage mobs and set them on fire.");
 		
-		controllerRfUsage = config.getInt("controller", "PowerUsage", 32, 0, Integer.MAX_VALUE, "The FU/t used by the Controller.");
-		driveBayRfUsage = config.getInt("driveBay", "PowerUsage", 8, 0, 640, "The FU/t used by the Drive Bay.");
-		memoryBayRfUsage = config.getInt("memoryBay", "PowerUsage", 4, 0, 640, "The FU/t used by the Memory Bay.");
-		terminalRfUsage = config.getInt("terminal", "PowerUsage", 4, 0, 640, "The FU/t used by the Terminal.");
-		interfaceRfUsage = config.getInt("interface", "PowerUsage", 8, 0, 640, "The FU/t used by the Interface.");
-		beamRfUsage = config.getInt("beam", "PowerUsage", 24, 0, 640, "The FU/t used by the Microwave Beam.");
-		opticalRfUsage = config.getInt("optical", "PowerUsage", 24, 0, 640, "The FU/t used by the Optical Receiver.");
+		rfConversionRate = config.getFloat("rf", "PowerConversion", 1, 0, Integer.MAX_VALUE, "RF (Thermal Expansion) to Potential conversion rate. Can be fractional. Only used for input, energy cannot be taken out of a Correlated system.");
+		euConversionRate = config.getFloat("eu", "PowerConversion", 0.25f, 0, Integer.MAX_VALUE, "EU (IndustrialCraft) to Potential conversion rate. Can be fractional. Only used for input, energy cannot be taken out of a Correlated system.");
+		teslaConversionRate = config.getFloat("t", "PowerConversion", -1, -1, Integer.MAX_VALUE, "Tesla to Potential conversion rate. Can be fractional. Set to -1 to use the RF rate as recommended by the Tesla devs. Only used for input, energy cannot be taken out of a Correlated system.");
+		fuConversionRate = config.getFloat("fu", "PowerConversion", -1, -1, Integer.MAX_VALUE, "Forge to Potential conversion rate. Can be fractional. Set to -1 to use the RF rate as recommended by the Forge devs. Only used for input, energy cannot be taken out of a Correlated system.");
+		jConversionRate = config.getFloat("j", "PowerConversion", 2.5f, 0, Integer.MAX_VALUE, "Joule (Mekanism) to Potential conversion rate. Can be fractional. Only used for input, energy cannot be taken out of a Correlated system.");
+		mjConversionRate = config.getFloat("mj", "PowerConversion", 0.1f, 0, Integer.MAX_VALUE, "MJ (BuildCraft) to Potential conversion rate. Can be fractional. Only used for input, energy cannot be taken out of a Correlated system.");
 		
-		controllerCapacity = config.getInt("controllerCapacity", "PowerFineTuning", 64000, 0, Integer.MAX_VALUE, "The FU stored by the controller.");
-		controllerCap = config.getInt("controllerCap", "PowerFineTuning", 640, 0, Integer.MAX_VALUE, "The maximum FU/t the controller can use, and therefore a network.");
-		controllerErrorUsage_MultipleControllers = config.getInt("controllerErrorUsage_MultipleControllers", "PowerFineTuning", 4, 0, Integer.MAX_VALUE, "The FU/t used by the controller when it detects another controller in its network and is erroring.");
-		controllerErrorUsage_NetworkTooBig = config.getInt("controllerErrorUsage_NetworkTooBig", "PowerFineTuning", 640, 0, Integer.MAX_VALUE, "The FU/t used by the controller when it reaches the network scan limit.");
+		if (teslaConversionRate < 0) teslaConversionRate = rfConversionRate;
+		if (fuConversionRate < 0) fuConversionRate = rfConversionRate;
+		
+		String preferredUnitStr = config.getString("preferredUnit", "Display", "Potential", PREFERRED_UNIT_DESC).trim().toUpperCase(Locale.ROOT).replace(' ', '_');
+		
+		for (EnergyUnit eu : EnergyUnit.values()) {
+			if (preferredUnitStr.equals(eu.name()) || preferredUnitStr.equals(eu.abbreviation)) {
+				preferredUnit = eu;
+				log.info("Formatting energy as {} ({})", eu.displayName, eu.abbreviation);
+				break;
+			}
+		}
+		
+		controllerPUsage = config.getInt("controller", "PowerUsage", 32, 0, Integer.MAX_VALUE, "The P/t used by the Controller.");
+		driveBayPUsage = config.getInt("driveBay", "PowerUsage", 8, 0, 640, "The P/t used by the Drive Bay.");
+		memoryBayPUsage = config.getInt("memoryBay", "PowerUsage", 4, 0, 640, "The P/t used by the Memory Bay.");
+		terminalPUsage = config.getInt("terminal", "PowerUsage", 4, 0, 640, "The P/t used by the Terminal.");
+		interfacePUsage = config.getInt("interface", "PowerUsage", 8, 0, 640, "The P/t used by the Interface.");
+		beamPUsage = config.getInt("beam", "PowerUsage", 24, 0, 640, "The P/t used by the Microwave Beam.");
+		opticalPUsage = config.getInt("optical", "PowerUsage", 8, 0, 640, "The P/t used by the Optical Receiver.");
+		
+		controllerCapacity = config.getInt("controllerCapacity", "PowerFineTuning", 64000, 0, Integer.MAX_VALUE, "The P stored by the controller.");
+		controllerCap = config.getInt("controllerCap", "PowerFineTuning", 640, 0, Integer.MAX_VALUE, "The maximum P/t the controller can use, and therefore a network.");
+		controllerErrorUsage_MultipleControllers = config.getInt("controllerErrorUsage_MultipleControllers", "PowerFineTuning", 4, 0, Integer.MAX_VALUE, "The P/t used by the controller when it detects another controller in its network and is erroring.");
+		controllerErrorUsage_NetworkTooBig = config.getInt("controllerErrorUsage_NetworkTooBig", "PowerFineTuning", 640, 0, Integer.MAX_VALUE, "The P/t used by the controller when it reaches the network scan limit.");
 		
 		driveRfUsagePow = config.getInt("drivePow", "PowerUsage", 2, 0, 8, "Drive power usage is (pow**tier)/div");
 		driveRfUsageDiv = config.getInt("driveDiv", "PowerUsage", 2, 0, 8, "Drive power usage is (pow**tier)/div");
 		
-		voidDriveUsage = config.getInt("voidDrive", "PowerUsage", 4, 0, 640, "The FU/t used by the Void Drive.");
+		voidDriveUsage = config.getInt("voidDrive", "PowerUsage", 4, 0, 640, "The P/t used by the Void Drive.");
 		
 		limboDimId = config.getInt("limboDimId", "IDs", -31, -256, 256, "The dimension ID for the glitch dungeon.");
 		
@@ -469,6 +522,10 @@ public class Correlated {
 		
 		Opcode.init();
 		
+		if (Loader.isModLoaded("probedataprovider")) {
+			UnitPotential.register();
+		}
+		
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, new CorrelatedGuiHandler());
 		MinecraftForge.EVENT_BUS.register(this);
 		proxy.preInit();
@@ -611,6 +668,62 @@ public class Correlated {
 				player.connection.sendPacket(packet);
 			}
 		}
+	}
+	
+	public static int convertToPotential(long input, EnergyUnit unit) {
+		return convertToPotential(Ints.saturatedCast(input), unit);
+	}
+	
+	public static int convertToPotential(int input, EnergyUnit unit) {
+		switch (unit) {
+			case DANKS:
+			case TESLA:
+				return (int)(input / inst.teslaConversionRate);
+			case ENERGY_UNITS:
+				return (int)(input / inst.euConversionRate);
+			case FORGE_UNITS:
+			case FORGE_ENERGY:
+				return (int)(input / inst.fuConversionRate);
+			case JOULES:
+				return (int)(input / inst.jConversionRate); 
+			case MINECRAFT_JOULES:
+				return (int)(input / inst.mjConversionRate);
+			case REDSTONE_FLUX:
+				return (int)(input / inst.rfConversionRate);
+			case GLYPHS:
+			case POTENTIAL:
+			default:
+				return input;
+			
+		}
+	}
+	
+	public static int convertFromPotential(int input, EnergyUnit unit) {
+		switch (unit) {
+			case DANKS:
+			case TESLA:
+				return (int)(input * inst.teslaConversionRate);
+			case ENERGY_UNITS:
+				return (int)(input * inst.euConversionRate);
+			case FORGE_UNITS:
+			case FORGE_ENERGY:
+				return (int)(input * inst.fuConversionRate);
+			case JOULES:
+				return (int)(input * inst.jConversionRate); 
+			case MINECRAFT_JOULES:
+				return (int)(input * inst.mjConversionRate);
+			case REDSTONE_FLUX:
+				return (int)(input * inst.rfConversionRate);
+			case GLYPHS:
+			case POTENTIAL:
+			default:
+				return input;
+			
+		}
+	}
+
+	public static String formatPotentialUsage(int p) {
+		return I18n.translateToLocalFormatted("tooltip.correlated.energy_usage_tip", convertFromPotential(p, inst.preferredUnit), inst.preferredUnit.abbreviation);
 	}
 
 }

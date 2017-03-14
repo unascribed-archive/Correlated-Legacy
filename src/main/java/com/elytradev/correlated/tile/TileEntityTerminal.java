@@ -1,20 +1,30 @@
 package com.elytradev.correlated.tile;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.block.BlockTerminal;
+import com.elytradev.correlated.compat.probe.UnitPotential;
+import com.elytradev.correlated.network.ChangeAPNMessage;
+import com.elytradev.correlated.storage.CompoundDigitalStorage;
 import com.elytradev.correlated.storage.IDigitalStorage;
 import com.elytradev.correlated.storage.ITerminal;
 import com.elytradev.correlated.storage.SimpleUserPreferences;
 import com.elytradev.correlated.storage.UserPreferences;
+import com.elytradev.correlated.wifi.IWirelessClient;
+import com.elytradev.correlated.wifi.Station;
+import com.elytradev.correlated.wifi.WirelessManager;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 
 import com.elytradev.probe.api.IProbeData;
 import com.elytradev.probe.api.IProbeDataProvider;
+import com.elytradev.probe.api.impl.ProbeData;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -30,12 +40,14 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants.NBT;
 
-public class TileEntityTerminal extends TileEntityNetworkMember implements ITickable, IInventory, ITerminal, ISidedInventory {
+public class TileEntityTerminal extends TileEntityEnergyAcceptor implements ITickable, IInventory, ITerminal, ISidedInventory, IWirelessClient {
 	private Map<UUID, SimpleUserPreferences> preferences = Maps.newHashMap();
 	private String error;
+	private String apn;
 	
 	@Override
 	public void update() {
@@ -43,10 +55,10 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 			IBlockState state = getWorld().getBlockState(getPos());
 			if (state.getBlock() == Correlated.terminal) {
 				boolean lit;
-				if (hasController() && getController().isPowered()) {
-					lit = true;
+				if (hasController()) {
+					lit = getController().isPowered();
 				} else {
-					lit = false;
+					lit = getPotentialStored() > getPotentialConsumedPerTick();
 				}
 				if (lit != state.getValue(BlockTerminal.LIT)) {
 					getWorld().setBlockState(getPos(), state = state.withProperty(BlockTerminal.LIT, lit));
@@ -66,6 +78,8 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 				} else {
 					setError(null);
 				}
+			} else {
+				modifyEnergyStored(-getPotentialConsumedPerTick());
 			}
 		}
 	}
@@ -106,8 +120,8 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 	}
 	
 	@Override
-	public int getEnergyConsumedPerTick() {
-		return Correlated.inst.terminalRfUsage;
+	public int getPotentialConsumedPerTick() {
+		return Correlated.inst.terminalPUsage;
 	}
 
 	public UserPreferences getPreferences(UUID uuid) {
@@ -144,6 +158,9 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 			invList.appendTag(tag);
 		}
 		compound.setTag("Inventory", invList);
+		if (apn != null) {
+			compound.setString("APN", apn);
+		}
 		return compound;
 	}
 
@@ -165,6 +182,11 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 			int slot = tag.getInteger("Slot");
 			setInventorySlotContents(slot, is);
 		}
+		if (compound.hasKey("APN", NBT.TAG_STRING)) {
+			apn = compound.getString("APN");
+		} else {
+			apn = null;
+		}
 	}
 	
 	private InventoryBasic inv = new InventoryBasic("gui.correlated.terminal", false, 2);
@@ -179,12 +201,26 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 	
 	@Override
 	public boolean hasStorage() {
-		return hasController();
+		if (hasController()) return true;
+		return getStorage() != null;
 	}
 
 	@Override
 	public IDigitalStorage getStorage() {
-		return getController();
+		if (hasController()) return getController();
+		if (apn == null) return null;
+		Iterable<Station> li = Correlated.getDataFor(world).getWirelessManager().allStationsInChunk(world.getChunkFromBlockCoords(getPosition()));
+		for (Station s : li) {
+			if (s.getAPNs().contains(apn) && s.isInRange(getX(), getY(), getZ())) {
+				List<IDigitalStorage> storages = s.getStorages(apn);
+				if (storages.size() == 1) {
+					return storages.get(0);
+				} else {
+					return new CompoundDigitalStorage(storages);
+				}
+			}
+		}
+		return null;
 	}
 	
 	@Override
@@ -317,7 +353,7 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 
 	@Override
 	public boolean canContinueInteracting(EntityPlayer player) {
-		return hasStorage() && getStorage().isPowered();
+		return hasController() ? getController().isPowered() : getPotentialStored() > getPotentialConsumedPerTick();
 	}
 
 	@Override
@@ -330,31 +366,71 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 		return inv.isEmpty();
 	}
 	
-	// TODO implement wireless
-	
-	@Override
-	public boolean allowAPNSelection() {
-		return false;
-	}
-	
 	@Override
 	public int getSignalStrength() {
-		return -1;
+		if (hasController()) return -1;
+		WirelessManager wm = Correlated.getDataFor(getWorld()).getWirelessManager();
+		return wm.getSignalStrength(getX(), getY(), getZ(), getAPN());
 	}
 	
 	@Override
 	public void setAPN(String apn) {
-		
+		if (world.isRemote) {
+			new ChangeAPNMessage(getPos(), apn == null ? Collections.emptyList() : Collections.singleton(apn)).sendToServer();
+		} else {
+			this.apn = apn;
+		}
 	}
 	
 	@Override
 	public String getAPN() {
-		return null;
+		return this.apn;
+	}
+	
+	@Override
+	public void setAPNs(Set<String> apn) {
+		if (apn.size() > 1) throw new IllegalArgumentException("Only supports 1 APN");
+		this.apn = apn.isEmpty() ? null : apn.iterator().next();
+	}
+
+	@Override
+	public Set<String> getAPNs() {
+		return this.apn == null ? Collections.emptySet() : Collections.singleton(this.apn);
+	}
+	
+	@Override
+	public double getX() {
+		return getPos().getX()+0.5;
+	}
+	
+	@Override
+	public double getY() {
+		return getPos().getY()+0.5;
+	}
+	
+	@Override
+	public double getZ() {
+		return getPos().getZ()+0.5;
 	}
 	
 	@Override
 	public BlockPos getPosition() {
 		return getPos();
+	}
+	
+	@Override
+	public int getMaxPotential() {
+		return getPotentialConsumedPerTick()*40;
+	}
+
+	@Override
+	public int getReceiveCap() {
+		return getPotentialConsumedPerTick()*2;
+	}
+
+	@Override
+	public boolean canReceivePotential() {
+		return !hasController();
 	}
 
 	private Object probeCapability;
@@ -381,7 +457,9 @@ public class TileEntityTerminal extends TileEntityNetworkMember implements ITick
 	private final class ProbeCapability implements IProbeDataProvider {
 		@Override
 		public void provideProbeData(List<IProbeData> data) {
-			// do nothing, just suppress the default behavior
+			if (hasController()) return;
+			data.add(new ProbeData(new TextComponentTranslation("tooltip.correlated.energy_stored"))
+					.withBar(0, getPotentialStored(), getMaxPotential(), UnitPotential.INSTANCE));
 		}
 	}
 
