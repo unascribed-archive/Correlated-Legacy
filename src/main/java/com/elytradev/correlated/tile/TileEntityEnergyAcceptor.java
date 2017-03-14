@@ -16,7 +16,10 @@ import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.common.Optional;
 
-@Optional.Interface(modid="ic2", iface="ic2.api.energy.tile.IEnergySink")
+@Optional.InterfaceList(value={
+	@Optional.Interface(modid="ic2", iface="ic2.api.energy.tile.IEnergySink"),
+	@Optional.Interface(modid="mekanism", iface="mekanism.api.energy.IStrictEnergyAcceptor")
+})
 public abstract class TileEntityEnergyAcceptor extends TileEntityNetworkMember implements IEnergySink, IStrictEnergyAcceptor {
 
 	protected int potential;
