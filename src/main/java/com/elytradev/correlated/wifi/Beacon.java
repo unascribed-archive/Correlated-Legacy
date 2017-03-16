@@ -1,5 +1,6 @@
 package com.elytradev.correlated.wifi;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -79,11 +80,12 @@ public class Beacon extends RadiusBased implements INBTSerializable<NBTTagCompou
 	
 	@Override
 	public List<IDigitalStorage> getStorages(String apn, Set<Station> alreadyChecked) {
+		if (!apns.contains(apn)) return Collections.emptyList();
 		alreadyChecked.add(this);
 		List<IDigitalStorage> li = Lists.newArrayList();
 		for (Station s : data.getWirelessManager().allStationsInChunk(data.getWorld().getChunkFromBlockCoords(getPosition()))) {
 			if (alreadyChecked.contains(s)) continue;
-			if (s.getAPNs().contains(apn)) {
+			if (s.isInRange(getX(), getY(), getZ()) && s.getAPNs().contains(apn)) {
 				li.addAll(s.getStorages(apn, alreadyChecked));
 			}
 			alreadyChecked.add(s);

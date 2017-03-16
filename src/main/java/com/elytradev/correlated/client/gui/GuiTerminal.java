@@ -20,6 +20,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -27,6 +28,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.GlStateManager.DestFactor;
 import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -517,7 +519,21 @@ public class GuiTerminal extends GuiContainer {
 				if (container.jeiSyncEnabled) {
 					Correlated.inst.jeiQueryUpdater.accept("");
 				}
-			}					 
+			} else if (mouseButton == 1 && preferredEnergySystem.isMouseOver()) {
+				mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1));
+				int ordinal = Correlated.inst.preferredUnit.ordinal();
+				ordinal = (ordinal - 1) % EnergyUnit.values().length;
+				if (ordinal < 0) {
+					ordinal += EnergyUnit.values().length;
+				}
+				EnergyUnit eu = EnergyUnit.values()[ordinal];
+				if (eu == EnergyUnit.GLYPHS) {
+					eu = EnergyUnit.JOULES;
+				}
+				Correlated.inst.preferredUnit = eu;
+				Correlated.inst.config.get("Display", "preferredUnit", "Potential", Correlated.PREFERRED_UNIT_DESC).set(eu.displayName);
+				Correlated.inst.config.save();
+			}
 			searchField.mouseClicked(mouseX, mouseY, mouseButton);
 		}
 		super.mouseClicked(mouseX, mouseY, mouseButton);

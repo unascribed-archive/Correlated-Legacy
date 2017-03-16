@@ -37,6 +37,8 @@ public class RenderMicrowaveBeam extends TileEntitySpecialRenderer<TileEntityMic
 				return;
 			}
 		}
+		float oldX = OpenGlHelper.lastBrightnessX;
+		float oldY = OpenGlHelper.lastBrightnessY;
 		Tessellator tess = Tessellator.getInstance();
 		VertexBuffer wr = tess.getBuffer();
 		Vec3d facing;
@@ -223,6 +225,7 @@ public class RenderMicrowaveBeam extends TileEntitySpecialRenderer<TileEntityMic
 			tess.draw();
 		GlStateManager.popMatrix();
 		drawGlow(state);
+		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, oldX, oldY);
 		GlStateManager.enableRescaleNormal();
 		GlStateManager.enableLighting();
 		GlStateManager.popMatrix();

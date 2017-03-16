@@ -7,6 +7,7 @@ import java.util.Set;
 import com.elytradev.correlated.CorrelatedWorldData;
 import com.elytradev.correlated.storage.IDigitalStorage;
 import com.elytradev.correlated.tile.TileEntityOpticalReceiver;
+import com.google.common.collect.Lists;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -86,6 +87,16 @@ public class Optical extends RadiusBased implements INBTSerializable<NBTTagCompo
 			TileEntityOpticalReceiver teor = ((TileEntityOpticalReceiver)te);
 			if (teor.hasController()) {
 				return Collections.singletonList(teor.getController());
+			} else {
+				List<IDigitalStorage> li = Lists.newArrayList();
+				for (Station s : data.getWirelessManager().allStationsInChunk(data.getWorld().getChunkFromBlockCoords(getPosition()))) {
+					if (alreadyChecked.contains(s)) continue;
+					if (s.isInRange(getX(), getY(), getZ()) && s.getAPNs().contains(apn)) {
+						li.addAll(s.getStorages(apn, alreadyChecked));
+					}
+					alreadyChecked.add(s);
+				}
+				return li;
 			}
 		}
 		return Collections.emptyList();
@@ -96,7 +107,9 @@ public class Optical extends RadiusBased implements INBTSerializable<NBTTagCompo
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setLong("Position", position.toLong());
 		nbt.setInteger("Radius", (int)(radius*2));
-		nbt.setString("APN", apn);
+		if (apn != null) {
+			nbt.setString("APN", apn);
+		}
 		return nbt;
 	}
 
@@ -104,6 +117,6 @@ public class Optical extends RadiusBased implements INBTSerializable<NBTTagCompo
 	public void deserializeNBT(NBTTagCompound nbt) {
 		position = BlockPos.fromLong(nbt.getLong("Position"));
 		radius = nbt.getInteger("Radius")/2D;
-		apn = nbt.getString("APN");
+		apn = nbt.hasKey("APN") ? nbt.getString("APN") : null;
 	}
 }

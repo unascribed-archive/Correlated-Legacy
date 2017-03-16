@@ -135,12 +135,26 @@ public class BlockWireless extends Block {
 	
 	@Override
 	public float[] getBeaconColorMultiplier(IBlockState state, World world, BlockPos pos, BlockPos beaconPos) {
-		int c = Correlated.proxy.getColor("other", 64);
-		return state.getValue(variant) == Variant.BEACON ? new float[] {
-			((c >> 16) & 0xFF) / 255f,
-			((c >> 8) & 0xFF) / 255f,
-			(c & 0xFF) / 255f
-		} : null;
+		TileEntity te = world.getTileEntity(pos);
+		if (te instanceof TileEntityBeaconLens) {
+			int idx = 64;
+			switch (state.getValue(BlockWireless.state)) {
+				case DEAD:
+					return null;
+				case ERROR:
+					idx = 65;
+					break;
+				default:
+					break;
+			}
+			int c = Correlated.proxy.getColor("other", idx);
+			return new float[] {
+				((c >> 16) & 0xFF) / 255f,
+				((c >> 8) & 0xFF) / 255f,
+				(c & 0xFF) / 255f
+			};
+		}
+		return null;
 	}
 	
 	@Override

@@ -31,6 +31,7 @@ import com.elytradev.correlated.client.gui.GuiGlitchedMainMenu;
 import com.elytradev.correlated.client.gui.GuiSelectAPN;
 import com.elytradev.correlated.client.render.entity.RenderAutomaton;
 import com.elytradev.correlated.client.render.entity.RenderThrownItem;
+import com.elytradev.correlated.client.render.tile.RenderBeaconLens;
 import com.elytradev.correlated.client.render.tile.RenderController;
 import com.elytradev.correlated.client.render.tile.RenderDriveBay;
 import com.elytradev.correlated.client.render.tile.RenderImporterChest;
@@ -46,6 +47,7 @@ import com.elytradev.correlated.item.ItemMemory;
 import com.elytradev.correlated.item.ItemMisc;
 import com.elytradev.correlated.item.ItemModule;
 import com.elytradev.correlated.network.ChangeAPNMessage;
+import com.elytradev.correlated.tile.TileEntityBeaconLens;
 import com.elytradev.correlated.tile.TileEntityController;
 import com.elytradev.correlated.tile.TileEntityDriveBay;
 import com.elytradev.correlated.tile.TileEntityImporterChest;
@@ -161,6 +163,7 @@ public class ClientProxy extends Proxy {
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityImporterChest.class, new RenderImporterChest());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityMicrowaveBeam.class, new RenderMicrowaveBeam());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityOpticalReceiver.class, new RenderOpticalReceiver());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityBeaconLens.class, new RenderBeaconLens());
 		
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(Correlated.wireless), 0, TileEntityMicrowaveBeam.class);
 		

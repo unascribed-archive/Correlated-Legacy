@@ -7,6 +7,7 @@ import java.util.Set;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.block.BlockWireless;
 import com.elytradev.correlated.block.BlockWireless.State;
+import com.elytradev.correlated.compat.probe.UnitPotential;
 import com.elytradev.correlated.wifi.IWirelessClient;
 import com.elytradev.correlated.wifi.Optical;
 import com.elytradev.probe.api.IProbeData;
@@ -23,7 +24,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.Capability;
 
-public class TileEntityOpticalReceiver extends TileEntityNetworkMember implements ITickable, IWirelessClient {
+public class TileEntityOpticalReceiver extends TileEntityEnergyAcceptor implements ITickable, IWirelessClient {
 
 	@Override
 	public int getPotentialConsumedPerTick() {
@@ -31,14 +32,29 @@ public class TileEntityOpticalReceiver extends TileEntityNetworkMember implement
 	}
 	
 	@Override
+	public int getMaxPotential() {
+		return getPotentialConsumedPerTick()*40;
+	}
+
+	@Override
+	public int getReceiveCap() {
+		return getPotentialConsumedPerTick()*2;
+	}
+
+	@Override
+	public boolean canReceivePotential() {
+		return !hasController();
+	}
+	
+	@Override
 	public void update() {
 		if (!hasWorld() || getWorld().isRemote) return;
 		Optical o = Correlated.getDataFor(world).getWirelessManager().getOptical(getPos());
 		State newState = State.DEAD;
-		if (!hasController() || !getController().isPowered()) {
+		if (hasController() ? !getController().isPowered() : getPotentialStored() < getPotentialConsumedPerTick()) {
 			newState = State.DEAD;
 		} else {
-			if (o != null) {
+			if (o != null && !o.getStorages(o.getAPN()).isEmpty()) {
 				newState = State.OK;
 			} else {
 				newState = State.ERROR;
@@ -50,10 +66,13 @@ public class TileEntityOpticalReceiver extends TileEntityNetworkMember implement
 				world.setBlockState(getPos(), ibs.withProperty(BlockWireless.state, newState));
 			}
 		}
+		if (!hasController()) {
+			modifyEnergyStored(-getPotentialConsumedPerTick());
+		}
 	}
 	
 	public boolean isOperational() {
-		return hasController() && getController().isPowered();
+		return hasController() ? getController().isPowered() : getPotentialStored() >= getPotentialConsumedPerTick();
 	}
 	
 	@Override
@@ -136,6 +155,10 @@ public class TileEntityOpticalReceiver extends TileEntityNetworkMember implement
 			Optical o = Correlated.getDataFor(world).getWirelessManager().getOptical(getPos());
 			if (o != null) {
 				data.add(new ProbeData(new TextComponentTranslation("tooltip.correlated.apn", o.getAPN())));
+			}
+			if (!hasController()) {
+				data.add(new ProbeData(new TextComponentTranslation("tooltip.correlated.energy_stored"))
+						.withBar(0, getPotentialStored(), getMaxPotential(), UnitPotential.INSTANCE));
 			}
 		}
 	}
