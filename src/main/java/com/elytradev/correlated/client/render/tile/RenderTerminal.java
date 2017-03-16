@@ -79,10 +79,10 @@ public class RenderTerminal extends TileEntitySpecialRenderer<TileEntityTerminal
 			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
 			GlStateManager.disableLighting();
 	
-			String path = "correlated:blocks/terminal_glow";
+			String path = "correlated:blocks/accessory/terminal_glow";
 			
 			if (te.isErroring()) {
-				path = "correlated:blocks/terminal_error_glow";
+				path = "correlated:blocks/accessory/terminal_error_glow";
 			}
 			
 			TextureAtlasSprite tas = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(path);

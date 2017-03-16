@@ -25,10 +25,10 @@
 					"particle": "correlated:blocks/top",
 					"up": "correlated:blocks/top",
 					"down": "correlated:blocks/top",
-					"north": "correlated:blocks/plating_slab_side",
-					"east": "correlated:blocks/plating_slab_side",
-					"south": "correlated:blocks/plating_slab_side",
-					"west": "correlated:blocks/plating_slab_side"
+					"north": "correlated:blocks/decor/plating_slab_side",
+					"east": "correlated:blocks/decor/plating_slab_side",
+					"south": "correlated:blocks/decor/plating_slab_side",
+					"west": "correlated:blocks/decor/plating_slab_side"
 				}
 			}
 		},

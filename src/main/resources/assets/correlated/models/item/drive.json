@@ -1,13 +1,13 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "correlated:items/drive",
-		"layer1": "correlated:items/drive_fullness_light",
-		"layer2": "correlated:items/drive_tier_light",
-		"layer3": "correlated:items/drive_partition_light",
-		"layer4": "correlated:items/drive_priority_light_left",
-		"layer5": "correlated:items/drive_priority_light_middle",
-		"layer6": "correlated:items/drive_priority_light_right"
+		"layer0": "correlated:items/drive/base",
+		"layer1": "correlated:items/drive/fullness_light",
+		"layer2": "correlated:items/drive/tier_light",
+		"layer3": "correlated:items/drive/partition_light",
+		"layer4": "correlated:items/drive/priority_light_left",
+		"layer5": "correlated:items/drive/priority_light_middle",
+		"layer6": "correlated:items/drive/priority_light_right"
 	},
 	"display": {
 		"ground": {

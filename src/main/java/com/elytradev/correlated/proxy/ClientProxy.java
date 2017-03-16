@@ -538,17 +538,17 @@ public class ClientProxy extends Proxy {
 	
 	@SubscribeEvent
 	public void onStitch(TextureStitchEvent.Pre e) {
-		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/wireless_endpoint_error"));
-		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/wireless_endpoint_linked"));
-		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/terminal_error_glow"));
-		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/controller_power_light"));
-		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/controller_memory_light"));
-		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/optical_linked"));
-		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/optical_error"));
-		e.getMap().registerSprite(new ResourceLocation("correlated", "items/wireless_terminal_glow"));
-		e.getMap().registerSprite(new ResourceLocation("correlated", "items/wireless_terminal_glow_error"));
-		e.getMap().registerSprite(new ResourceLocation("correlated", "items/doc_tablet_glow"));
-		e.getMap().registerSprite(new ResourceLocation("correlated", "items/keycard_glow"));
+		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/accessory/wireless_endpoint_error"));
+		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/accessory/wireless_endpoint_linked"));
+		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/accessory/terminal_error_glow"));
+		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/controller/controller_power_light"));
+		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/controller/controller_memory_light"));
+		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/accessory/optical_linked"));
+		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/accessory/optical_error"));
+		e.getMap().registerSprite(new ResourceLocation("correlated", "items/tool/wireless_terminal_glow"));
+		e.getMap().registerSprite(new ResourceLocation("correlated", "items/tool/wireless_terminal_glow_error"));
+		e.getMap().registerSprite(new ResourceLocation("correlated", "items/tool/doc_tablet_glow"));
+		e.getMap().registerSprite(new ResourceLocation("correlated", "items/keycard/glow"));
 	}
 	@SubscribeEvent
 	public void onSoundLoad(SoundLoadEvent e) {
@@ -652,15 +652,15 @@ public class ClientProxy extends Proxy {
 				GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
 				if (item == Correlated.wireless_terminal) {
 					if (!terminalUnlinked) {
-						drawSprite(mc.getTextureMapBlocks().getAtlasSprite("correlated:items/wireless_terminal_glow"+(terminalError ? "_error" : "")));
+						drawSprite(mc.getTextureMapBlocks().getAtlasSprite("correlated:items/tool/wireless_terminal_glow"+(terminalError ? "_error" : "")));
 					}
 				} else if (item == Correlated.drive) {
-					TextureAtlasSprite fullness = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/drive_fullness_light");
-					TextureAtlasSprite tier = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/drive_tier_light");
-					TextureAtlasSprite partition = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/drive_partition_light");
-					TextureAtlasSprite priority_left = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/drive_priority_light_left");
-					TextureAtlasSprite priority_mid = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/drive_priority_light_middle");
-					TextureAtlasSprite priority_right = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/drive_priority_light_right");
+					TextureAtlasSprite fullness = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/drive/fullness_light");
+					TextureAtlasSprite tier = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/drive/tier_light");
+					TextureAtlasSprite partition = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/drive/partition_light");
+					TextureAtlasSprite priority_left = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/drive/priority_light_left");
+					TextureAtlasSprite priority_mid = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/drive/priority_light_middle");
+					TextureAtlasSprite priority_right = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/drive/priority_light_right");
 					
 					int uncolored;
 					if (is.getItemDamage() == 4) {
@@ -695,11 +695,11 @@ public class ClientProxy extends Proxy {
 						drawSprite(priority_right);
 					}
 				} else if (item == Correlated.memory) {
-					TextureAtlasSprite tier = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/ram_tier_light");
+					TextureAtlasSprite tier = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/accessory/ram_tier_light");
 					color(mc.getItemColors().getColorFromItemstack(is, 1));
 					drawSprite(tier);
 				} else if (item == Correlated.keycard) {
-					drawSprite(mc.getTextureMapBlocks().getAtlasSprite("correlated:items/keycard_glow"));
+					drawSprite(mc.getTextureMapBlocks().getAtlasSprite("correlated:items/keycard/glow"));
 				}
 				GL11.glEnable(GL11.GL_LIGHTING);
 				GlStateManager.enableLighting();

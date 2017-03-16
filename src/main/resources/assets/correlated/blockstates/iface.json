@@ -10,13 +10,13 @@
 	"variants": {
 		"top": {
 			"none": {
-				"textures": { "up": "correlated:blocks/interface_passive" }
+				"textures": { "up": "correlated:blocks/accessory/interface_passive" }
 			},
 			"push": {
-				"textures": { "up": "correlated:blocks/interface_active_push" }
+				"textures": { "up": "correlated:blocks/accessory/interface_active_push" }
 			},
 			"pull": {
-				"textures": { "up": "correlated:blocks/interface_active_pull" }
+				"textures": { "up": "correlated:blocks/accessory/interface_active_pull" }
 			},
 			"disabled": {
 				"textures": { "up": "correlated:blocks/top" }
@@ -24,13 +24,13 @@
 		},
 		"bottom": {
 			"none": {
-				"textures": { "down": "correlated:blocks/interface_passive" }
+				"textures": { "down": "correlated:blocks/accessory/interface_passive" }
 			},
 			"push": {
-				"textures": { "down": "correlated:blocks/interface_active_push" }
+				"textures": { "down": "correlated:blocks/accessory/interface_active_push" }
 			},
 			"pull": {
-				"textures": { "down": "correlated:blocks/interface_active_pull" }
+				"textures": { "down": "correlated:blocks/accessory/interface_active_pull" }
 			},
 			"disabled": {
 				"textures": { "down": "correlated:blocks/top" }
@@ -38,13 +38,13 @@
 		},
 		"north": {
 			"none": {
-				"textures": { "north": "correlated:blocks/interface_passive" }
+				"textures": { "north": "correlated:blocks/accessory/interface_passive" }
 			},
 			"push": {
-				"textures": { "north": "correlated:blocks/interface_active_push" }
+				"textures": { "north": "correlated:blocks/accessory/interface_active_push" }
 			},
 			"pull": {
-				"textures": { "north": "correlated:blocks/interface_active_pull" }
+				"textures": { "north": "correlated:blocks/accessory/interface_active_pull" }
 			},
 			"disabled": {
 				"textures": { "north": "correlated:blocks/top" }
@@ -52,13 +52,13 @@
 		},
 		"east": {
 			"none": {
-				"textures": { "east": "correlated:blocks/interface_passive" }
+				"textures": { "east": "correlated:blocks/accessory/interface_passive" }
 			},
 			"push": {
-				"textures": { "east": "correlated:blocks/interface_active_push" }
+				"textures": { "east": "correlated:blocks/accessory/interface_active_push" }
 			},
 			"pull": {
-				"textures": { "east": "correlated:blocks/interface_active_pull" }
+				"textures": { "east": "correlated:blocks/accessory/interface_active_pull" }
 			},
 			"disabled": {
 				"textures": { "east": "correlated:blocks/top" }
@@ -66,13 +66,13 @@
 		},
 		"south": {
 			"none": {
-				"textures": { "south": "correlated:blocks/interface_passive" }
+				"textures": { "south": "correlated:blocks/accessory/interface_passive" }
 			},
 			"push": {
-				"textures": { "south": "correlated:blocks/interface_active_push" }
+				"textures": { "south": "correlated:blocks/accessory/interface_active_push" }
 			},
 			"pull": {
-				"textures": { "south": "correlated:blocks/interface_active_pull" }
+				"textures": { "south": "correlated:blocks/accessory/interface_active_pull" }
 			},
 			"disabled": {
 				"textures": { "south": "correlated:blocks/top" }
@@ -80,13 +80,13 @@
 		},
 		"west": {
 			"none": {
-				"textures": { "west": "correlated:blocks/interface_passive" }
+				"textures": { "west": "correlated:blocks/accessory/interface_passive" }
 			},
 			"push": {
-				"textures": { "west": "correlated:blocks/interface_active_push" }
+				"textures": { "west": "correlated:blocks/accessory/interface_active_push" }
 			},
 			"pull": {
-				"textures": { "west": "correlated:blocks/interface_active_pull" }
+				"textures": { "west": "correlated:blocks/accessory/interface_active_pull" }
 			},
 			"disabled": {
 				"textures": { "west": "correlated:blocks/top" }
@@ -94,12 +94,12 @@
 		},
 		"inventory": [{
 			"textures": {
-				"up": "correlated:blocks/interface_passive",
-				"down": "correlated:blocks/interface_passive",
-				"north": "correlated:blocks/interface_passive",
-				"east": "correlated:blocks/interface_passive",
-				"south": "correlated:blocks/interface_passive",
-				"west": "correlated:blocks/interface_passive"
+				"up": "correlated:blocks/accessory/interface_passive",
+				"down": "correlated:blocks/accessory/interface_passive",
+				"north": "correlated:blocks/accessory/interface_passive",
+				"east": "correlated:blocks/accessory/interface_passive",
+				"south": "correlated:blocks/accessory/interface_passive",
+				"west": "correlated:blocks/accessory/interface_passive"
 			}
 		}]
 	}

@@ -41,7 +41,15 @@ public class ItemMisc extends Item {
 			"data_core",
 			"logo",
 			"chrysocolla",
-			"chrysocolla_ingot"
+			"chrysocolla_ingot",
+			"impure_chrysocolla",
+			"ingot_yttrium",
+			"ingot_cerium",
+			"ingot_praseodymium",
+			"ingot_neodymium",
+			"ingot_holmium",
+			"ingot_lutetium",
+			"ingot_mixed"
 		};
 
 	public ItemMisc() {

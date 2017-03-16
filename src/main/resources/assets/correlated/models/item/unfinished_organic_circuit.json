@@ -1,7 +1,7 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "correlated:items/unfinished_organic_circuit"
+		"layer0": "correlated:items/dungeon/unfinished_organic_circuit"
 	},
 	"display": {
 		"ground": {

@@ -1,7 +1,7 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "correlated:items/wireless_terminal_ingui"
+		"layer0": "correlated:items/tool/wireless_terminal_ingui"
 	},
 	"display": {
 		"ground": {

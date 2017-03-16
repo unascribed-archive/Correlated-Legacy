@@ -15,13 +15,13 @@
 					"particle": "correlated:blocks/top",
 					"top": "correlated:blocks/top",
 					"pole": "correlated:blocks/side",
-					"side": "correlated:blocks/wireless_endpoint_base"
+					"side": "correlated:blocks/accessory/wireless_endpoint_base"
 				}
 			},
 			"optical": {
 				"model": "minecraft:cube_all",
 				"textures": {
-					"all": "correlated:blocks/optical"
+					"all": "correlated:blocks/accessory/optical"
 				}
 			},
 			"beacon": {
@@ -35,7 +35,7 @@
 			"transform": "forge:default-block",
 			"model": "minecraft:cube_all",
 			"textures": {
-				"all": "correlated:blocks/optical"
+				"all": "correlated:blocks/accessory/optical"
 			}
 		},
 		"inventory2": {

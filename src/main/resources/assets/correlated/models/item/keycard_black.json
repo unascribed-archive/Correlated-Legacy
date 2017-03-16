@@ -1,7 +1,7 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "correlated:items/keycard_black"
+		"layer0": "correlated:items/keycard/black"
 	},
 	"display": {
 		"ground": {

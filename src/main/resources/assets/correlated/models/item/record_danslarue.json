@@ -1,7 +1,7 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "correlated:items/danslarue_record"
+		"layer0": "correlated:items/record/danslarue"
 	},
 	"display": {
 		"ground": {

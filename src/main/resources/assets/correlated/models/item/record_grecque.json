@@ -1,7 +1,7 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "correlated:items/grecque_record"
+		"layer0": "correlated:items/record/grecque"
 	},
 	"display": {
 		"ground": {

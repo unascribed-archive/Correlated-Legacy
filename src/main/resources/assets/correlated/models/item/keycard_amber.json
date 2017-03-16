@@ -1,7 +1,7 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "correlated:items/keycard_amber"
+		"layer0": "correlated:items/keycard/amber"
 	},
 	"display": {
 		"ground": {

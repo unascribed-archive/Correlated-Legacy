@@ -36,10 +36,10 @@ public class RenderOpticalReceiver extends TileEntitySpecialRenderer<TileEntityO
 			case DEAD:
 				return;
 			case OK:
-				texStr = "correlated:blocks/optical_linked";
+				texStr = "correlated:blocks/accessory/optical_linked";
 				break;
 			case ERROR:
-				texStr = "correlated:blocks/optical_error";
+				texStr = "correlated:blocks/accessory/optical_error";
 				break;
 			default:
 				return;

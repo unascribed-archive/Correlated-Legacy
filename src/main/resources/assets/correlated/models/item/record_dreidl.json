@@ -1,7 +1,7 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "correlated:items/dreidl_record"
+		"layer0": "correlated:items/record/dreidl"
 	},
 	"display": {
 		"ground": {

@@ -1,7 +1,7 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "correlated:items/weldthrower"
+		"layer0": "correlated:items/tool/weldthrower"
 	},
 	"display": {
 		"ground": {

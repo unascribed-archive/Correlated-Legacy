@@ -1,7 +1,7 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "correlated:items/data_core"
+		"layer0": "correlated:items/crafting/data_core"
 	},
 	"display": {
 		"ground": {

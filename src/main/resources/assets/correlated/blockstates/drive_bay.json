@@ -6,7 +6,7 @@
 		"textures": {
 			"top": "correlated:blocks/top",
 			"side": "correlated:blocks/side",
-			"front": "correlated:blocks/drive_bay"
+			"front": "correlated:blocks/accessory/drive_bay"
 		}
 	},
 	"variants": {

@@ -5,7 +5,7 @@
 		"textures": {
 			"top": "correlated:blocks/top",
 			"side": "correlated:blocks/side",
-			"front": "correlated:blocks/terminal"
+			"front": "correlated:blocks/accessory/terminal"
 		}
 	},
 	"variants": {
@@ -27,13 +27,13 @@
 			"transform": "forge:default-block",
 			"model": "correlated:double_cube",
 			"textures": {
-				"north_base": "correlated:blocks/terminal",
+				"north_base": "correlated:blocks/accessory/terminal",
 				"east_base": "correlated:blocks/top",
 				"south_base": "correlated:blocks/top",
 				"west_base": "correlated:blocks/top",
 				"up_base": "correlated:blocks/top",
 				"down_base": "correlated:blocks/top",
-				"north_overlay": "correlated:blocks/terminal_glow",
+				"north_overlay": "correlated:blocks/accessory/terminal_glow",
 				"east_overlay": "correlated:blocks/top",
 				"south_overlay": "correlated:blocks/top",
 				"west_overlay": "correlated:blocks/top",

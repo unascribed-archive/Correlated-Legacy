@@ -1,7 +1,7 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "correlated:items/weldthrower_fuel"
+		"layer0": "correlated:items/tool/weldthrower_fuel"
 	},
 	"display": {
 		"ground": {

@@ -1,7 +1,7 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "correlated:items/ngenracer_record"
+		"layer0": "correlated:items/record/ngenracer"
 	},
 	"display": {
 		"ground": {

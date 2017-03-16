@@ -118,7 +118,7 @@ public class GuiSelectAPN extends GuiScreen {
 				hover = true;
 				rawColor = 0xFFFFFFA0;
 			}
-			if (selected.contains(pair.getLeft())) {
+			if (pair.getLeft().equals("§r<None>") ? selected.isEmpty() : selected.contains(pair.getLeft())) {
 				rawColor = hover ? 0xFFA0DBAD : 0xFF00DBAD;
 			}
 			int shadow = (rawColor & 16579836) >> 2 | rawColor & -16777216;
@@ -130,7 +130,7 @@ public class GuiSelectAPN extends GuiScreen {
 			y += 1;
 			for (int i = 0; i < 2; i++) {
 				fontRenderer.drawString(pair.getLeft(), x+5, y+6, color);
-				if (client) {
+				if (client && pair.getRight() != -1) {
 					GlStateManager.enableBlend();
 					GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
 					mc.getTextureManager().bindTexture(BG);
@@ -264,10 +264,12 @@ public class GuiSelectAPN extends GuiScreen {
 						if (!multiple) {
 							selected.clear();
 						}
-						if (selected.contains(pair.getLeft())) {
-							selected.remove(pair.getLeft());
-						} else {
-							selected.add(pair.getLeft());
+						if (!pair.getLeft().equals("§r<None>")) {
+							if (selected.contains(pair.getLeft())) {
+								selected.remove(pair.getLeft());
+							} else {
+								selected.add(pair.getLeft());
+							}
 						}
 						break;
 					}
@@ -328,6 +330,7 @@ public class GuiSelectAPN extends GuiScreen {
 		} else {
 			Collections.sort(this.apns, (a, b) -> a.getLeft().compareTo(b.getLeft()));
 		}
+		this.apns.add(0, Pair.of("§r<None>", -1));
 		this.selected = Sets.newHashSet(selected);
 	}
 

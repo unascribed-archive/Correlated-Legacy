@@ -6,7 +6,7 @@
 		"textures": {
 			"top": "correlated:blocks/top",
 			"side": "correlated:blocks/side",
-			"front": "correlated:blocks/ram_bay"
+			"front": "correlated:blocks/accessory/ram_bay"
 		}
 	},
 	"variants": {

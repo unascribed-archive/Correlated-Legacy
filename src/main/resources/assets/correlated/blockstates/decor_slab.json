@@ -67,7 +67,7 @@
 				"textures": {
 					"bottom": "correlated:blocks/top",
 					"top": "correlated:blocks/top",
-					"side": "correlated:blocks/plating_slab_side"
+					"side": "correlated:blocks/decor/plating_slab_side"
 				}
 			}
 		},
@@ -133,7 +133,7 @@
 			"textures": {
 				"bottom": "correlated:blocks/top",
 				"top": "correlated:blocks/top",
-				"side": "correlated:blocks/plating_slab_side"
+				"side": "correlated:blocks/decor/plating_slab_side"
 			}
 		}]
 	}

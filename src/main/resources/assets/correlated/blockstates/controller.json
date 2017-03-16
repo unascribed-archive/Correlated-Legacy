@@ -4,13 +4,13 @@
 		"transform": "forge:default-block",
 		"model": "minecraft:cube",
 		"textures": {
-			"up": "correlated:blocks/controller_off",
+			"up": "correlated:blocks/controller/controller_off",
 			"down": "correlated:blocks/top",
-			"north": "correlated:blocks/controller_off_side",
-			"east": "correlated:blocks/controller_off_side",
-			"south": "correlated:blocks/controller_off_side",
-			"west": "correlated:blocks/controller_off_side",
-			"particle": "correlated:blocks/controller_off"
+			"north": "correlated:blocks/controller/controller_off_side",
+			"east": "correlated:blocks/controller/controller_off_side",
+			"south": "correlated:blocks/controller/controller_off_side",
+			"west": "correlated:blocks/controller/controller_off_side",
+			"particle": "correlated:blocks/controller/controller_off"
 		}
 	},
 	"variants": {
@@ -27,161 +27,161 @@
 		"inventory0": {
 			"model": "correlated:double_cube",
 			"textures": {
-				"up_base": "correlated:blocks/controller_off",
+				"up_base": "correlated:blocks/controller/controller_off",
 				"down_base": "correlated:blocks/top",
-				"north_base": "correlated:blocks/controller_off_side",
-				"east_base": "correlated:blocks/controller_off_side",
-				"south_base": "correlated:blocks/controller_off_side",
-				"west_base": "correlated:blocks/controller_off_side",
-				"up_overlay": "correlated:blocks/controller",
+				"north_base": "correlated:blocks/controller/controller_off_side",
+				"east_base": "correlated:blocks/controller/controller_off_side",
+				"south_base": "correlated:blocks/controller/controller_off_side",
+				"west_base": "correlated:blocks/controller/controller_off_side",
+				"up_overlay": "correlated:blocks/controller/controller",
 				"down_overlay": "correlated:blocks/top",
-				"north_overlay": "correlated:blocks/controller_side",
-				"east_overlay": "correlated:blocks/controller_side",
-				"south_overlay": "correlated:blocks/controller_side",
-				"west_overlay": "correlated:blocks/controller_side"
+				"north_overlay": "correlated:blocks/controller/controller_side",
+				"east_overlay": "correlated:blocks/controller/controller_side",
+				"south_overlay": "correlated:blocks/controller/controller_side",
+				"west_overlay": "correlated:blocks/controller/controller_side"
 			}
 		},
 		"inventory1": [{}],
 		"inventory2": {
 			"model": "correlated:double_cube",
 			"textures": {
-				"up_base": "correlated:blocks/controller_off",
+				"up_base": "correlated:blocks/controller/controller_off",
 				"down_base": "correlated:blocks/top",
-				"north_base": "correlated:blocks/controller_off_side",
-				"east_base": "correlated:blocks/controller_off_side",
-				"south_base": "correlated:blocks/controller_off_side",
-				"west_base": "correlated:blocks/controller_off_side",
-				"up_overlay": "correlated:blocks/controller_error",
+				"north_base": "correlated:blocks/controller/controller_off_side",
+				"east_base": "correlated:blocks/controller/controller_off_side",
+				"south_base": "correlated:blocks/controller/controller_off_side",
+				"west_base": "correlated:blocks/controller/controller_off_side",
+				"up_overlay": "correlated:blocks/controller/controller_error",
 				"down_overlay": "correlated:blocks/top",
-				"north_overlay": "correlated:blocks/controller_error_side",
-				"east_overlay": "correlated:blocks/controller_error_side",
-				"south_overlay": "correlated:blocks/controller_error_side",
-				"west_overlay": "correlated:blocks/controller_error_side"
+				"north_overlay": "correlated:blocks/controller/controller_error_side",
+				"east_overlay": "correlated:blocks/controller/controller_error_side",
+				"south_overlay": "correlated:blocks/controller/controller_error_side",
+				"west_overlay": "correlated:blocks/controller/controller_error_side"
 			}
 		},
 		"inventory3": {
 			"model": "correlated:double_cube",
 			"textures": {
-				"up_base": "correlated:blocks/controller_off",
+				"up_base": "correlated:blocks/controller/controller_off",
 				"down_base": "correlated:blocks/top",
-				"north_base": "correlated:blocks/controller_off_side",
-				"east_base": "correlated:blocks/controller_off_side",
-				"south_base": "correlated:blocks/controller_off_side",
-				"west_base": "correlated:blocks/controller_off_side",
-				"up_overlay": "correlated:blocks/controller_booting",
+				"north_base": "correlated:blocks/controller/controller_off_side",
+				"east_base": "correlated:blocks/controller/controller_off_side",
+				"south_base": "correlated:blocks/controller/controller_off_side",
+				"west_base": "correlated:blocks/controller/controller_off_side",
+				"up_overlay": "correlated:blocks/controller/controller_booting",
 				"down_overlay": "correlated:blocks/top",
-				"north_overlay": "correlated:blocks/controller_booting_side",
-				"east_overlay": "correlated:blocks/controller_booting_side",
-				"south_overlay": "correlated:blocks/controller_booting_side",
-				"west_overlay": "correlated:blocks/controller_booting_side"
+				"north_overlay": "correlated:blocks/controller/controller_booting_side",
+				"east_overlay": "correlated:blocks/controller/controller_booting_side",
+				"south_overlay": "correlated:blocks/controller/controller_booting_side",
+				"west_overlay": "correlated:blocks/controller/controller_booting_side"
 			}
 		},
 		"inventory4": {
 			"model": "correlated:double_cube_all",
 			"textures": {
 				"base": "correlated:blocks/top",
-				"overlay": "correlated:items/ceramic_drive_platter"
+				"overlay": "correlated:items/crafting/ceramic_drive_platter"
 			}
 		},
 		"inventory5": {
 			"model": "correlated:double_cube_all",
 			"textures": {
 				"base": "correlated:blocks/top",
-				"overlay": "correlated:items/drive"
+				"overlay": "correlated:items/drive/base"
 			}
 		},
 		"inventory6": {
 			"model": "correlated:double_cube_all",
 			"textures": {
 				"base": "correlated:blocks/top",
-				"overlay": "correlated:items/keycard_amber"
+				"overlay": "correlated:items/keycard/amber"
 			}
 		},
 		"inventory7": {
 			"model": "correlated:double_cube_all",
 			"textures": {
 				"base": "correlated:blocks/top",
-				"overlay": "correlated:items/irokos_record"
+				"overlay": "correlated:items/record/irokos"
 			}
 		},
 		"inventory8": {
 			"model": "correlated:double_cube",
 			"textures": {
-				"up_base": "correlated:blocks/controller_off",
+				"up_base": "correlated:blocks/controller/controller_off",
 				"down_base": "correlated:blocks/top",
-				"north_base": "correlated:blocks/controller_off_side",
-				"east_base": "correlated:blocks/controller_off_side",
-				"south_base": "correlated:blocks/controller_off_side",
-				"west_base": "correlated:blocks/controller_off_side",
-				"up_overlay": "correlated:blocks/controller_creative",
+				"north_base": "correlated:blocks/controller/controller_off_side",
+				"east_base": "correlated:blocks/controller/controller_off_side",
+				"south_base": "correlated:blocks/controller/controller_off_side",
+				"west_base": "correlated:blocks/controller/controller_off_side",
+				"up_overlay": "correlated:blocks/controller/controller_creative",
 				"down_overlay": "correlated:blocks/top",
-				"north_overlay": "correlated:blocks/controller_creative_side",
-				"east_overlay": "correlated:blocks/controller_creative_side",
-				"south_overlay": "correlated:blocks/controller_creative_side",
-				"west_overlay": "correlated:blocks/controller_creative_side"
+				"north_overlay": "correlated:blocks/controller/controller_creative_side",
+				"east_overlay": "correlated:blocks/controller/controller_creative_side",
+				"south_overlay": "correlated:blocks/controller/controller_creative_side",
+				"west_overlay": "correlated:blocks/controller/controller_creative_side"
 			}
 		},
 		"inventory9": [{}],
 		"inventory10": {
 			"model": "correlated:double_cube",
 			"textures": {
-				"up_base": "correlated:blocks/controller_off",
+				"up_base": "correlated:blocks/controller/controller_off",
 				"down_base": "correlated:blocks/top",
-				"north_base": "correlated:blocks/controller_off_side",
-				"east_base": "correlated:blocks/controller_off_side",
-				"south_base": "correlated:blocks/controller_off_side",
-				"west_base": "correlated:blocks/controller_off_side",
-				"up_overlay": "correlated:blocks/controller_error",
+				"north_base": "correlated:blocks/controller/controller_off_side",
+				"east_base": "correlated:blocks/controller/controller_off_side",
+				"south_base": "correlated:blocks/controller/controller_off_side",
+				"west_base": "correlated:blocks/controller/controller_off_side",
+				"up_overlay": "correlated:blocks/controller/controller_error",
 				"down_overlay": "correlated:blocks/top",
-				"north_overlay": "correlated:blocks/controller_error_side",
-				"east_overlay": "correlated:blocks/controller_error_side",
-				"south_overlay": "correlated:blocks/controller_error_side",
-				"west_overlay": "correlated:blocks/controller_error_side"
+				"north_overlay": "correlated:blocks/controller/controller_error_side",
+				"east_overlay": "correlated:blocks/controller/controller_error_side",
+				"south_overlay": "correlated:blocks/controller/controller_error_side",
+				"west_overlay": "correlated:blocks/controller/controller_error_side"
 			}
 		},
 		"inventory11": {
 			"model": "correlated:double_cube",
 			"textures": {
-				"up_base": "correlated:blocks/controller_off",
+				"up_base": "correlated:blocks/controller/controller_off",
 				"down_base": "correlated:blocks/top",
-				"north_base": "correlated:blocks/controller_off_side",
-				"east_base": "correlated:blocks/controller_off_side",
-				"south_base": "correlated:blocks/controller_off_side",
-				"west_base": "correlated:blocks/controller_off_side",
-				"up_overlay": "correlated:blocks/controller_booting",
+				"north_base": "correlated:blocks/controller/controller_off_side",
+				"east_base": "correlated:blocks/controller/controller_off_side",
+				"south_base": "correlated:blocks/controller/controller_off_side",
+				"west_base": "correlated:blocks/controller/controller_off_side",
+				"up_overlay": "correlated:blocks/controller/controller_booting",
 				"down_overlay": "correlated:blocks/top",
-				"north_overlay": "correlated:blocks/controller_booting_side",
-				"east_overlay": "correlated:blocks/controller_booting_side",
-				"south_overlay": "correlated:blocks/controller_booting_side",
-				"west_overlay": "correlated:blocks/controller_booting_side"
+				"north_overlay": "correlated:blocks/controller/controller_booting_side",
+				"east_overlay": "correlated:blocks/controller/controller_booting_side",
+				"south_overlay": "correlated:blocks/controller/controller_booting_side",
+				"west_overlay": "correlated:blocks/controller/controller_booting_side"
 			}
 		},
 		"inventory12": {
 			"model": "correlated:double_cube_all",
 			"textures": {
 				"base": "correlated:blocks/top",
-				"overlay": "correlated:items/metallic_drive_platter"
+				"overlay": "correlated:items/crafting/metallic_drive_platter"
 			}
 		},
 		"inventory13": {
 			"model": "correlated:double_cube_all",
 			"textures": {
 				"base": "correlated:blocks/top",
-				"overlay": "correlated:items/ram"
+				"overlay": "correlated:items/accessory/ram"
 			}
 		},
 		"inventory14": {
 			"model": "correlated:double_cube_all",
 			"textures": {
 				"base": "correlated:blocks/top",
-				"overlay": "correlated:items/keycard_black"
+				"overlay": "correlated:items/keycard/black"
 			}
 		},
 		"inventory15": {
 			"model": "correlated:double_cube_all",
 			"textures": {
 				"base": "correlated:blocks/top",
-				"overlay": "correlated:items/greyatari_record"
+				"overlay": "correlated:items/record/greyatari"
 			}
 		}
 	}

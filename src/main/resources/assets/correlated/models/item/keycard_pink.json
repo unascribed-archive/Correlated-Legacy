@@ -1,7 +1,7 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "correlated:items/keycard_pink"
+		"layer0": "correlated:items/keycard/pink"
 	},
 	"display": {
 		"ground": {

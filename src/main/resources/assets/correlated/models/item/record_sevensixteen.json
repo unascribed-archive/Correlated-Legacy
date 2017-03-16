@@ -1,7 +1,7 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "correlated:items/sevensixteen_record"
+		"layer0": "correlated:items/record/sevensixteen"
 	},
 	"display": {
 		"ground": {

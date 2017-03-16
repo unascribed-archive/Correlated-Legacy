@@ -43,9 +43,9 @@
 			},
 			"lantern": {
 				"textures": {
-					"bottom": "correlated:blocks/lumlantern",
-					"top": "correlated:blocks/lumlantern",
-					"side": "correlated:blocks/lumlantern_slab_side"
+					"bottom": "correlated:blocks/decor/lumlantern",
+					"top": "correlated:blocks/decor/lumlantern",
+					"side": "correlated:blocks/decor/lumlantern_slab_side"
 				}
 			}
 		},
@@ -79,9 +79,9 @@
 		}],
 		"inventory4": [{
 			"textures": {
-				"bottom": "correlated:blocks/lumlantern",
-				"top": "correlated:blocks/lumlantern",
-				"side": "correlated:blocks/lumlantern_slab_side"
+				"bottom": "correlated:blocks/decor/lumlantern",
+				"top": "correlated:blocks/decor/lumlantern",
+				"side": "correlated:blocks/decor/lumlantern_slab_side"
 			}
 		}]
 	}

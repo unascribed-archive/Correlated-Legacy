@@ -1,7 +1,7 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "correlated:items/keycard_red"
+		"layer0": "correlated:items/keycard/red"
 	},
 	"display": {
 		"ground": {

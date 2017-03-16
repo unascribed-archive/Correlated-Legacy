@@ -16,12 +16,9 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.ResourceLocation;
 
 public class RenderController extends TileEntitySpecialRenderer<TileEntityController> {
 
-	private static final ResourceLocation LIGHT = new ResourceLocation("correlated", "textures/misc/controller_light.png");
-	
 	@Override
 	public void renderTileEntityAt(TileEntityController te, double x, double y, double z, float partialTicks, int destroyStage) {
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
@@ -35,15 +32,15 @@ public class RenderController extends TileEntitySpecialRenderer<TileEntityContro
 		String topTex;
 		switch (state) {
 			case BOOTING:
-				topTex = "correlated:blocks/controller_booting";
+				topTex = "correlated:blocks/controller/controller_booting";
 				break;
 			case ERROR:
-				topTex = "correlated:blocks/controller_error";
+				topTex = "correlated:blocks/controller/controller_error";
 				break;
 			case OFF:
 				return;
 			case POWERED:
-				topTex = cheaty ? "correlated:blocks/controller_creative" : "correlated:blocks/controller";
+				topTex = cheaty ? "correlated:blocks/controller/controller_creative" : "correlated:blocks/controller/controller";
 				break;
 			default:
 				return;
@@ -51,8 +48,8 @@ public class RenderController extends TileEntitySpecialRenderer<TileEntityContro
 		String sideTex = topTex+"_side";
 		TextureAtlasSprite top = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(topTex);
 		TextureAtlasSprite side = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(sideTex);
-		TextureAtlasSprite powerLight = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("correlated:blocks/controller_power_light");
-		TextureAtlasSprite memoryLight = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("correlated:blocks/controller_memory_light");
+		TextureAtlasSprite powerLight = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("correlated:blocks/controller/controller_power_light");
+		TextureAtlasSprite memoryLight = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("correlated:blocks/controller/controller_memory_light");
 		
 		float minUTop = top.getMinU();
 		float maxUTop = top.getMaxU();

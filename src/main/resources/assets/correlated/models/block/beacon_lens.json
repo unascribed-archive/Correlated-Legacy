@@ -1,9 +1,9 @@
 {
 	"__comment": "Model generated using MrCrayfish's Model Creator (http://mrcrayfish.com/modelcreator/)",
 	"textures": {
-		"0": "correlated:blocks/wireless_endpoint_base",
-		"1": "correlated:blocks/beacon_lens",
-		"particle": "correlated:blocks/beacon_lens"
+		"0": "correlated:blocks/accessory/wireless_endpoint_base",
+		"1": "correlated:blocks/accessory/beacon_lens",
+		"particle": "correlated:blocks/accessory/beacon_lens"
 	},
 	"elements": [
 		{

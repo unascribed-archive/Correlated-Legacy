@@ -1,7 +1,7 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "correlated:items/keycard_sky"
+		"layer0": "correlated:items/keycard/sky"
 	},
 	"display": {
 		"ground": {

@@ -1,7 +1,7 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "correlated:items/devenirmondefi_record"
+		"layer0": "correlated:items/record/devenirmondefi"
 	},
 	"display": {
 		"ground": {

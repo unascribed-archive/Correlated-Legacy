@@ -99,8 +99,14 @@ public class WirelessTerminal implements ITerminal {
 		if (world.isRemote) {
 			new ChangeAPNMessage(apn == null ? Collections.emptyList() : Collections.singleton(apn)).sendToServer();
 		} else {
-			ItemStacks.ensureHasTag(stack);
-			stack.getTagCompound().setString("APN", apn);
+			if (apn == null) {
+				if (stack.hasTagCompound()) {
+					stack.getTagCompound().removeTag("APN");
+				}
+			} else {
+				ItemStacks.ensureHasTag(stack);
+				stack.getTagCompound().setString("APN", apn);
+			}
 		}
 	}
 	

@@ -1,7 +1,7 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "correlated:items/sacrecharlemagne_record"
+		"layer0": "correlated:items/record/sacrecharlemagne"
 	},
 	"display": {
 		"ground": {

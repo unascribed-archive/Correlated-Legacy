@@ -10,7 +10,7 @@
 			"lithographene_off_variant": {"textures":{"all":"correlated:blocks/dungeon/lithographene.off.variant"}},
 			"lithographene_on": {"textures":{"all":"correlated:blocks/dungeon/lithographene.on"}},
 			"lithographene_on_variant": {"textures":{"all":"correlated:blocks/dungeon/lithographene.on.variant"}},
-			"lantern": {"textures":{"all":"correlated:blocks/lumlantern"}}
+			"lantern": {"textures":{"all":"correlated:blocks/decor/lumlantern"}}
 		},
 		"inventory": [{"textures":{"all":"correlated:blocks/dungeon/lithographene.off"}}],
 		
@@ -18,6 +18,6 @@
 		"inventory1": [{"textures":{"all":"correlated:blocks/dungeon/lithographene.on"}}],
 		"inventory2": [{"textures":{"all":"correlated:blocks/dungeon/lithographene.off.variant"}}],
 		"inventory3": [{"textures":{"all":"correlated:blocks/dungeon/lithographene.on.variant"}}],
-		"inventory4": [{"textures":{"all":"correlated:blocks/lumlantern"}}]
+		"inventory4": [{"textures":{"all":"correlated:blocks/decor/lumlantern"}}]
 	}
 }

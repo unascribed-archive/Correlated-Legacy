@@ -250,10 +250,10 @@ public class RenderMicrowaveBeam extends TileEntitySpecialRenderer<TileEntityMic
 		TextureAtlasSprite tas = null;
 		switch (state) {
 			case ERROR:
-				tas = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("correlated:blocks/wireless_endpoint_error");
+				tas = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("correlated:blocks/accessory/wireless_endpoint_error");
 				break;
 			case OK:
-				tas = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("correlated:blocks/wireless_endpoint_linked");
+				tas = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("correlated:blocks/accessory/wireless_endpoint_linked");
 				break;
 			default:
 				break;
