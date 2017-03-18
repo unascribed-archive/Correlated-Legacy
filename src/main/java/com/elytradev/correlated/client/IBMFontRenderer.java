@@ -13,7 +13,7 @@ import net.minecraft.util.ResourceLocation;
 public class IBMFontRenderer {
 	private static final Pattern COLOR_CODE = Pattern.compile("\u00A7.");
 	private static final ResourceLocation BIOS = new ResourceLocation("correlated", "textures/gui/bios.png");
-	private static final String CP437 =
+	public static final String CP437 =
 			  "\0☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼"
 			+ " !\"#$%&'()*+,-./0123456789:;<=>?"
 			+ "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"

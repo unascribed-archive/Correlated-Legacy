@@ -16,7 +16,7 @@ public class ItemDocTablet extends Item {
 	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn) {
 		if (!worldIn.isRemote) {
 			boolean unlocked = playerIn.getEntityData().getBoolean("correlated:fullDocs");
-			boolean seenAnimation = playerIn.getEntityData().getBoolean("correlated:seenAnimation");
+			boolean seenAnimation = !playerIn.isSneaking() && playerIn.getEntityData().getBoolean("correlated:seenAnimation");
 			new OpenDocumentationMessage("index", unlocked ? "full" : "abridged", !seenAnimation).sendTo(playerIn);
 		}
 		return ActionResult.newResult(EnumActionResult.SUCCESS, playerIn.getHeldItem(handIn));

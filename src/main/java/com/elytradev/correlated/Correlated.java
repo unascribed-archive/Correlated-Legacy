@@ -142,9 +142,13 @@ import net.minecraftforge.fml.common.registry.GameRegistry.Type;
 import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.RecipeSorter.Category;
 
-@Mod(modid="correlated", name="Correlated", version="@VERSION@",
+@Mod(modid=Correlated.MODID, name=Correlated.NAME, version=Correlated.VERSION,
 	updateJSON="http://unascribed.com/update-check/correlated.json")
 public class Correlated {
+	public static final String MODID = "correlated";
+	public static final String NAME = "Correlated";
+	public static final String VERSION = "@VERSION@";
+	
 	public static Logger log;
 
 	@Instance
