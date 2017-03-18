@@ -37,6 +37,7 @@ import com.elytradev.correlated.entity.EntityThrownItem;
 import com.elytradev.correlated.entity.automaton.Opcode;
 import com.elytradev.correlated.function.Consumer;
 import com.elytradev.correlated.item.ItemCorrelatedRecord;
+import com.elytradev.correlated.item.ItemDocTablet;
 import com.elytradev.correlated.item.ItemDrive;
 import com.elytradev.correlated.item.ItemFloppy;
 import com.elytradev.correlated.item.ItemKeycard;
@@ -48,12 +49,14 @@ import com.elytradev.correlated.item.ItemWirelessTerminal;
 import com.elytradev.correlated.network.APNRequestMessage;
 import com.elytradev.correlated.network.APNResponseMessage;
 import com.elytradev.correlated.network.AddStatusLineMessage;
+import com.elytradev.correlated.network.AnimationSeenMessage;
 import com.elytradev.correlated.network.AutomatonSpeakMessage;
 import com.elytradev.correlated.network.ChangeAPNMessage;
 import com.elytradev.correlated.network.CorrelatedGuiHandler;
 import com.elytradev.correlated.network.EnterDungeonMessage;
 import com.elytradev.correlated.network.InsertAllMessage;
 import com.elytradev.correlated.network.LeaveDungeonMessage;
+import com.elytradev.correlated.network.OpenDocumentationMessage;
 import com.elytradev.correlated.network.RecipeTransferMessage;
 import com.elytradev.correlated.network.SaveProgramMessage;
 import com.elytradev.correlated.network.SetAutomatonNameMessage;
@@ -194,6 +197,7 @@ public class Correlated {
 	public static ItemWirelessTerminal wireless_terminal;
 	public static ItemWeldthrower weldthrower;
 	public static ItemKeycard keycard;
+	public static ItemDocTablet doc_tablet;
 	
 	
 	public static SoundEvent weldthrow;
@@ -402,6 +406,8 @@ public class Correlated {
 		network.register(SignalStrengthMessage.class);
 		network.register(APNRequestMessage.class);
 		network.register(APNResponseMessage.class);
+		network.register(OpenDocumentationMessage.class);
+		network.register(AnimationSeenMessage.class);
 
 		EntityRegistry.registerModEntity(new ResourceLocation("correlated", "thrown_item"), EntityThrownItem.class, "thrown_item", 0, this, 64, 10, true);
 		EntityRegistry.registerModEntity(new ResourceLocation("correlated", "automaton"), EntityAutomaton.class, "automaton", 1, this, 64, 1, true);
@@ -491,6 +497,7 @@ public class Correlated {
 		register(new ItemWirelessTerminal(), "wireless_terminal", 0);
 		register(new ItemWeldthrower(), "weldthrower", 0);
 		register(new ItemKeycard(), "keycard", -2);
+		register(new ItemDocTablet(), "doc_tablet", 0);
 
 		RecipeSorter.register("correlated:drive", DriveRecipe.class, Category.SHAPED, "after:minecraft:shaped");
 		CRecipes.register();

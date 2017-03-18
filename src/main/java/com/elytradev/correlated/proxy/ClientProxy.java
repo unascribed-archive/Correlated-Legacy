@@ -5,11 +5,16 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.BitSet;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -18,12 +23,15 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import javax.imageio.ImageIO;
 
 import org.lwjgl.opengl.GL11;
 
 import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.client.DocumentationManager;
 import com.elytradev.correlated.client.ParticleWeldthrower;
 import com.elytradev.correlated.client.gui.GuiAbortRetryFail;
 import com.elytradev.correlated.client.gui.GuiFakeReboot;
@@ -153,6 +161,8 @@ public class ClientProxy extends Proxy {
 		}
 	};
 	
+	public static DocumentationManager documentationManager;
+	
 	@SuppressWarnings("deprecation")
 	@Override
 	public void preInit() {
@@ -205,6 +215,62 @@ public class ClientProxy extends Proxy {
 		idx = 0;
 		for (String s : ItemKeycard.colors) {
 			ModelLoader.setCustomModelResourceLocation(Correlated.keycard, idx++, new ModelResourceLocation(new ResourceLocation("correlated", "keycard_"+s), "inventory"));
+		}
+		
+		List<String> pages = Lists.newArrayList();
+		
+		URL url = getClass().getProtectionDomain().getCodeSource().getLocation();
+		String src = url.toString();
+		
+		if (src.startsWith("jar:file:")) {
+			try {
+				File f = new File(URLDecoder.decode(src.substring(9), "UTF-8"));
+				JarFile jf = new JarFile(f);
+				for (JarEntry en : Collections.list(jf.entries())) {
+					String path = en.getName();
+					if (path.startsWith("documentation/en_US/") && path.endsWith(".md")) {
+						String str = path.substring(20).replace('/', '.');
+						str = str.substring(0, str.length()-3);
+						pages.add(str);
+					}
+				}
+				jf.close();
+			} catch (UnsupportedEncodingException e) {
+				throw new AssertionError(e);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		} else if (src.startsWith("file:")) {
+			try {
+				String path = URLDecoder.decode(src.substring(5), "UTF-8");
+				String us = getClass().getName().replace('.', '/')+".class";
+				if (!path.endsWith(us)) throw new RuntimeException("Loaded from a directory, but we can't find ourselves! "+src);
+				File root = new File(path.substring(0, path.length()-us.length()));
+				File enUS = new File(root, "documentation/en_US");
+				search(enUS, enUS, pages);
+			} catch (UnsupportedEncodingException e) {
+				throw new AssertionError(e);
+			}
+		} else {
+			throw new RuntimeException("No idea what we've been loaded from! "+src);
+		}
+		
+		documentationManager = new DocumentationManager(pages);
+	}
+	private void search(File root, File f, List<String> pages) {
+		String prefix = root.getAbsolutePath()+"/";
+		for (File child : f.listFiles()) {
+			String abs = child.getAbsolutePath();
+			if (!abs.startsWith(prefix)) {
+				Correlated.log.warn("Walked outside of documentation root - {}", child.getAbsolutePath());
+				continue;
+			}
+			if (child.isDirectory()) {
+				search(root, child, pages);
+			} else if (child.getName().endsWith(".md")) {
+				String trunc = abs.substring(prefix.length());
+				pages.add(trunc.replace('/', '.').substring(0, trunc.length()-3));
+			}
 		}
 	}
 	@Override
