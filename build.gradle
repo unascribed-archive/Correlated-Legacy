@@ -137,8 +137,6 @@ processResources {
 	inputs.property "version", project.version
 	inputs.property "mcversion", project.minecraft.version
 	
-	List<String> resources = new ArrayList<String>();
-
 	// replace stuff in mcmod.info, nothing else
 	from(sourceSets.main.resources.srcDirs) {
 		include 'mcmod.info'
@@ -150,7 +148,6 @@ processResources {
 	// copy everything else, thats not the mcmod.info
 	from(sourceSets.main.resources.srcDirs) {
 		exclude 'mcmod.info'
-		exclude 'documentation/**'
 		exclude '*.xcf'
 		exclude '*.wav'
 	}
