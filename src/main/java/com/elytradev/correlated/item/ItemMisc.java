@@ -83,14 +83,14 @@ public class ItemMisc extends Item {
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
 		int i = 0;
-		while (I18n.hasKey("tooltip.correlated.misc." + getItemName(stack) + "." + i)) {
-			tooltip.add(I18n.format("tooltip.correlated.misc." + getItemName(stack) + "." + i));
+		while (I18n.canTranslate("tooltip.correlated.misc." + getItemName(stack) + "." + i)) {
+			tooltip.add(I18n.translateToLocal("tooltip.correlated.misc." + getItemName(stack) + "." + i));
 			i++;
 		}
 		if (stack.getMetadata() == 8) {
 			int bitsUsed = Correlated.drive.getKilobitsUsed(stack)*1024;
 
-			tooltip.add(I18n.format("tooltip.correlated.bytes_contained", Numbers.humanReadableBits(bitsUsed)));
+			tooltip.add(I18n.translateToLocalFormatted("tooltip.correlated.bytes_contained", Numbers.humanReadableBits(bitsUsed)));
 		}
 	}
 
