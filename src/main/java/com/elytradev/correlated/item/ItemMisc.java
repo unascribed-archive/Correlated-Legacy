@@ -7,7 +7,6 @@ import com.elytradev.correlated.entity.EntityThrownItem;
 import com.elytradev.correlated.helper.Numbers;
 
 import net.minecraft.block.BlockDispenser;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,6 +22,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.relauncher.Side;
@@ -140,7 +140,7 @@ public class ItemMisc extends Item {
 	
 	@Override
 	public String getItemStackDisplayName(ItemStack stack) {
-		String raw = I18n.format(this.getUnlocalizedName(stack) + ".name");
+		String raw = I18n.translateToLocal(this.getUnlocalizedName(stack) + ".name");
 		if (stack.getMetadata() != 6) return raw;
 		StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < raw.length(); i++) {
