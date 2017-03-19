@@ -224,7 +224,11 @@ public class ClientProxy extends Proxy {
 		
 		if (src.startsWith("jar:file:")) {
 			try {
-				File f = new File(URLDecoder.decode(src.substring(9), "UTF-8"));
+				String sub = src.substring(9);
+				if (sub.contains("!")) {
+					sub = sub.substring(0, sub.lastIndexOf('!'));
+				}
+				File f = new File(URLDecoder.decode(sub, "UTF-8"));
 				JarFile jf = new JarFile(f);
 				for (JarEntry en : Collections.list(jf.entries())) {
 					String path = en.getName();
