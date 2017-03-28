@@ -76,7 +76,7 @@ public class DocumentationManager {
 								))
 							.build();
 						Node node = parser.parse(s);
-						return new DocumentationPage(node);
+						return new DocumentationPage(key, node);
 					});
 				}
 			});

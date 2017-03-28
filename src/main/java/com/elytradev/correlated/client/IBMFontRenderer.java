@@ -3,6 +3,8 @@ package com.elytradev.correlated.client;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.lwjgl.opengl.GL11;
+
 import com.google.common.collect.ImmutableMap;
 
 import net.minecraft.client.Minecraft;
@@ -48,6 +50,7 @@ public class IBMFontRenderer {
 		// this is kind of magic, so I'll explain it for anyone who happens to
 		// be reading this that is curious
 		GlStateManager.enableDepth();
+			GlStateManager.depthFunc(GL11.GL_LEQUAL);
 		
 			// enable depth writes
 			GlStateManager.depthMask(true);

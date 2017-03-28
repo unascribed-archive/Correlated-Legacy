@@ -1,7 +1,9 @@
 package com.elytradev.correlated.client;
 
-import org.apache.commons.lang3.mutable.MutableFloat;
-import org.apache.commons.lang3.mutable.MutableInt;
+import java.util.Deque;
+import java.util.List;
+import java.util.Random;
+
 import org.commonmark.ext.gfm.strikethrough.Strikethrough;
 import org.commonmark.ext.gfm.tables.TableBlock;
 import org.commonmark.node.AbstractVisitor;
@@ -29,8 +31,12 @@ import org.commonmark.node.StrongEmphasis;
 import org.commonmark.node.Text;
 import org.commonmark.node.ThematicBreak;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.Rectangle;
 
-import com.google.common.base.Strings;
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Queues;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -41,23 +47,144 @@ import net.minecraft.client.shader.Framebuffer;
 
 public class DocumentationPage {
 
+	public abstract class Action {}
+	
+	public class NavigateAction extends Action {
+		public final String target;
+		
+		public NavigateAction(String target) {
+			this.target = target;
+		}
+	}
+
+	public class ClickRegion {
+		public final Action action;
+		public final int x;
+		public final int y;
+		public final int width;
+		public final int height;
+		
+		public ClickRegion(Action action, int x, int y, int width, int height) {
+			this.action = action;
+			this.x = x;
+			this.y = y;
+			this.width = width;
+			this.height = height;
+		}
+		
+		public boolean intersects(int x, int y) {
+			return x >= (this.x) && y >= (this.y) &&
+					x < (this.x + this.width) && y < (this.y + this.height);
+		}
+		
+		
+	}
+
+	public class PageRenderContext implements Cloneable {
+		public int width = 0;
+		public int height = 0;
+		public int x = 0;
+		public int y = 0;
+		public int indent = 0;
+		public float scale = 1;
+		
+		private Deque<PageRenderContext> stack = Queues.newArrayDeque();
+		
+		public void wrap() {
+			x = indent;
+			down();
+		}
+		
+		public void down() {
+			y += measureY();
+			stretch();
+		}
+		
+		public void indent() {
+			indent += 24;
+			x += 24;
+		}
+		
+		public void outdent() {
+			indent -= 24;
+			x -= 24;
+			if (indent < 0) indent = 0;
+			if (x < 0) x = 0;
+		}
+		
+		public void stretch() {
+			if (width < x) {
+				width = x;
+			}
+			if (height < y+measureY()) {
+				height = y+measureY();
+			}
+		}
+		
+		public int measure(String str) {
+			return (int)(IBMFontRenderer.measure(str)*scale);
+		}
+		
+		public int measureY() {
+			return (int)(8*scale);
+		}
+		
+		public void push() {
+			stack.addLast(clone());
+		}
+		
+		public void pop() {
+			PageRenderContext that = stack.removeLast();
+			this.width = that.width;
+			this.height = that.height;
+			this.x = that.x;
+			this.y = that.y;
+			this.indent = that.indent;
+			this.scale = that.scale;
+		}
+		
+		@Override
+		public PageRenderContext clone() {
+			try {
+				return (PageRenderContext) super.clone();
+			} catch (CloneNotSupportedException e) {
+				throw new AssertionError(e);
+			}
+		}
+	}
+
+	private static final Splitter WHITESPACE_SPLITTER = Splitter.on(CharMatcher.BREAKING_WHITESPACE);
+	
+	private final String key;
 	private final Node node;
-	private Framebuffer fb;
+	public Framebuffer fb;
 	
 	private int width;
 	private int height;
 	
-	public DocumentationPage(Node node) {
+	private List<ClickRegion> clickRegions = Lists.newArrayList();
+	
+	public DocumentationPage(String key, Node node) {
+		this.key = key;
 		this.node = node;
-		measure();
+	}
+	
+	public ClickRegion getRegionClicked(int mouseX, int mouseY) {
+		for (ClickRegion cr : clickRegions) {
+			if (cr.intersects(mouseX, mouseY)) {
+				return cr;
+			}
+		}
+		return null;
 	}
 	
 	public void measure() {
-		doRender(true);
+		Rectangle r = doRender(true);
+		width = r.getWidth();
+		height = r.getHeight();
 	}
 	
 	public void render(int x, int y, int viewportX, int viewportY, int viewportWidth, int viewportHeight, int color) {
-		destroy();
 		if (fb == null) {
 			measure();
 			fb = new Framebuffer(getWidth()*2, getHeight()*2, false);
@@ -107,16 +234,13 @@ public class DocumentationPage {
 		GlStateManager.popMatrix();
 	}
 	
-	private void doRender(boolean simulate) {
-		width = 480;
-		height = 0;
-		MutableInt x = new MutableInt(0);
-		MutableInt y = new MutableInt(0);
-		MutableFloat scale = new MutableFloat(1);
+	private Rectangle doRender(boolean simulate) {
+		Random rand = new Random(key.hashCode());
+		PageRenderContext prc = new PageRenderContext();
+		clickRegions.clear();
 		node.accept(new AbstractVisitor() {
 			@Override
 			public void visit(Text text) {
-				String str = text.getLiteral();
 				Node parent = text.getParent();
 				int listItem = 0;
 				int idx = 0;
@@ -144,30 +268,33 @@ public class DocumentationPage {
 					parent = parent.getParent();
 				}
 				if (listItem > 0) {
+					String prefix = null;
 					if (unordered) {
-						str = Strings.repeat(" ", listItem)+"• "+str;
+						prefix = "• ";
 					} else if (numbered) {
-						str = Strings.repeat(" ", listItem)+idx+". "+str;
+						prefix = idx+". ";
+					}
+					if (prefix != null && !simulate) {
+						IBMFontRenderer.drawString(prc.x-prc.measure(prefix), prc.y, prefix, -1);
 					}
 				}
-				drawStringWrapped(x, y, scale, str, simulate);
+				drawStringWrapped(prc, text.getLiteral(), simulate);
 				super.visit(text);
 			}
 			
 			@Override
 			public void visit(Heading heading) {
-				float oldValue = scale.floatValue();
-				scale.setValue(((6-heading.getLevel())*0.25f)+1);
+				prc.down();
+				float oldScale = prc.scale;
+				prc.scale = ((6-heading.getLevel())*0.2f)+1;
 				super.visit(heading);
-				x.setValue(0);
-				y.add(8*scale.floatValue());
-				scale.setValue(oldValue);
+				prc.wrap();
+				prc.scale = oldScale;
 			}
 			
 			@Override
 			public void visit(HardLineBreak hardLineBreak) {
-				x.setValue(0);
-				y.add(8*scale.floatValue());
+				prc.wrap();
 				super.visit(hardLineBreak);
 			}
 			
@@ -178,16 +305,16 @@ public class DocumentationPage {
 			
 			@Override
 			public void visit(BulletList bulletList) {
+				prc.indent();
 				super.visit(bulletList);
+				prc.outdent();
 				if (!(bulletList.getParent().getParent() instanceof BulletList)) {
-					x.setValue(0);
-					y.add(8*scale.floatValue());
+					prc.wrap();
 				}
 			}
 			
 			@Override
 			public void visit(Code code) {
-				// TODO Auto-generated method stub
 				super.visit(code);
 			}
 			
@@ -202,12 +329,12 @@ public class DocumentationPage {
 			
 			@Override
 			public void visit(CustomNode customNode) {
-				int startX = x.intValue();
-				int startY = y.intValue();
+				int startX = prc.x;
+				int startY = prc.y;
 				super.visit(customNode);
 				if (customNode instanceof Strikethrough) {
 					if (!simulate) {
-						Gui.drawRect(startX, startY+4, x.intValue()-1, y.intValue()+5, -1);
+						Gui.drawRect(startX, startY+4, prc.x-1, prc.y+5, -1);
 					}
 				}
 			}
@@ -238,7 +365,20 @@ public class DocumentationPage {
 			
 			@Override
 			public void visit(HtmlInline htmlInline) {
-				// TODO Auto-generated method stub
+				if (htmlInline.getLiteral().startsWith("<!--") &&
+						htmlInline.getLiteral().endsWith("-->")) {
+					String comment = htmlInline.getLiteral().substring(4, htmlInline.getLiteral().length()-3).trim();
+					if (comment.startsWith("fuzz")) {
+						int amt = Integer.parseInt(comment.substring(5));
+						for (int i = 0; i < amt; i++) {
+							char c = IBMFontRenderer.CP437.charAt(rand.nextInt(IBMFontRenderer.CP437.length()));
+							if (prc.x+4 >= 225) {
+								prc.wrap();
+							}
+							drawString(prc, Character.toString(c), simulate);
+						}
+					}
+				}
 				super.visit(htmlInline);
 			}
 			
@@ -254,41 +394,51 @@ public class DocumentationPage {
 			
 			@Override
 			public void visit(Link link) {
-				// TODO Auto-generated method stub
+				int startX = prc.x;
+				int startY = prc.y;
 				super.visit(link);
+				if (!simulate) {
+					Gui.drawRect(startX, startY+7, prc.x-4, prc.y+8, -1);
+				}
+				clickRegions.add(new ClickRegion(new NavigateAction(link.getDestination()), startX, startY, prc.x-startX, (prc.y-startY)+8));
 			}
 			
 			@Override
 			public void visit(ListItem listItem) {
-				// TODO Auto-generated method stub
 				super.visit(listItem);
+				prc.y -= prc.measureY();
 			}
 			
 			@Override
 			public void visit(OrderedList orderedList) {
+				prc.indent();
 				super.visit(orderedList);
-				x.setValue(0);
-				y.add(8*scale.floatValue());
+				prc.wrap();
+				prc.outdent();
 			}
 			
 			@Override
 			public void visit(Paragraph paragraph) {
-				x.setValue(0);
-				y.add(8*scale.floatValue());
 				super.visit(paragraph);
+				prc.wrap();
+				prc.wrap();
 			}
 			
 			@Override
 			public void visit(SoftLineBreak softLineBreak) {
-				// TODO Auto-generated method stub
+				if (prc.x > 225) {
+					prc.wrap();
+				}
 				super.visit(softLineBreak);
 			}
 			
 			@Override
 			public void visit(StrongEmphasis strongEmphasis) {
-				int oldX = x.intValue();
+				int oldX = prc.x;
+				int oldY = prc.y;
 				super.visit(strongEmphasis);
-				x.setValue(oldX+1);
+				prc.x = oldX+1;
+				prc.y = oldY;
 				super.visit(strongEmphasis);
 			}
 			
@@ -297,41 +447,39 @@ public class DocumentationPage {
 				// TODO Auto-generated method stub
 				super.visit(thematicBreak);
 			}
+			
 		});
+		return new Rectangle(0, 0, prc.width, prc.height);
+	}
+	
+	public String getKey() {
+		return key;
 	}
 
-	protected void drawStringWrapped(MutableInt x, MutableInt y, MutableFloat scale, String literal, boolean simulate) {
-		int itr = 0;
-		while (true) {
-			itr++;
-			if (itr > 200) {
-				System.err.println("INFINITE LOOP");
-				break;
+	protected void drawStringWrapped(PageRenderContext prc, String literal, boolean simulate) {
+		for (String s : WHITESPACE_SPLITTER.split(literal)) {
+			int w = (int)(IBMFontRenderer.measure(s)*prc.scale);
+			if (prc.x+w+8 >= 225) {
+				prc.wrap();
 			}
-			if (literal.isEmpty()) break;
-			int maxW = 210;
-			if (x.intValue() >= maxW-2) {
-				x.setValue(0);
-				y.add(8*scale.floatValue());
-			}
-			String str = literal.substring(0, Math.min(literal.length(), (int)Math.ceil((maxW-x.intValue())/(8*scale.floatValue()))));
-			literal = literal.substring(str.length());
-			drawString(x, y, scale, str, simulate);
+			drawString(prc, s, simulate);
+			prc.x += 4;
 		}
 	}
 
-	private void drawString(MutableInt x, MutableInt y, MutableFloat scale, String str, boolean simulate) {
-		int w = (int)(IBMFontRenderer.measure(str)*scale.floatValue());
-		int h = (int)(8*scale.floatValue());
-		if (width < x.intValue()+w) width = x.intValue()+w;
-		if (height < y.intValue()+h) height = y.intValue()+h;
+	private void drawString(PageRenderContext prc, String str, boolean simulate) {
+		int w = prc.measure(str);
+		int h = prc.measureY();
+		if (width < prc.x+w) width = prc.x+w;
+		if (height < prc.y+h) height = prc.y+h;
 		if (!simulate) {
 			GlStateManager.pushMatrix();
-			GlStateManager.scale(scale.floatValue(), scale.floatValue(), 1);
-			IBMFontRenderer.drawString((int)(x.intValue()/scale.floatValue()), (int)(y.intValue()/scale.floatValue()), str, -1);
+			GlStateManager.scale(prc.scale, prc.scale, 1);
+			IBMFontRenderer.drawString((int)(prc.x/prc.scale), (int)(prc.y/prc.scale), str, -1);
 			GlStateManager.popMatrix();
 		}
-		x.add(w);
+		prc.x += w;
+		prc.stretch();
 	}
 
 	public int getWidth() {

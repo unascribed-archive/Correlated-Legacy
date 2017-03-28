@@ -322,7 +322,9 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 					continue outer;
 				}
 			}
-			types.add(is);
+			if (!is.isEmpty()) {
+				types.add(is);
+			}
 		}
 		if (sortAscending) {
 			Collections.sort(types, sortMode.comparator);
