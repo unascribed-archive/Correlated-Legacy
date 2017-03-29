@@ -13,11 +13,11 @@ public abstract class Program {
 	public abstract String getName();
 	public abstract void update();
 	
-	protected void drawString(int x, int y, String str) {
+	protected void drawString(float x, float y, String str) {
 		IBMFontRenderer.drawString(x, y, str, Correlated.proxy.getColor("terminal", (parent.palette*4)+1));
 	}
 	
-	protected void drawStringInverseVideo(int x, int y, String str) {
+	protected void drawStringInverseVideo(float x, float y, String str) {
 		IBMFontRenderer.drawStringInverseVideo(x, y, str, Correlated.proxy.getColor("terminal", (parent.palette*4)+1));
 	}
 }

@@ -47,6 +47,8 @@ import net.minecraft.client.shader.Framebuffer;
 
 public class DocumentationPage {
 
+	public static final int MAX_WIDTH = 212;
+	
 	public abstract class Action {}
 	
 	public class NavigateAction extends Action {
@@ -59,12 +61,12 @@ public class DocumentationPage {
 
 	public class ClickRegion {
 		public final Action action;
-		public final int x;
-		public final int y;
-		public final int width;
-		public final int height;
+		public final float x;
+		public final float y;
+		public final float width;
+		public final float height;
 		
-		public ClickRegion(Action action, int x, int y, int width, int height) {
+		public ClickRegion(Action action, float x, float y, float width, float height) {
 			this.action = action;
 			this.x = x;
 			this.y = y;
@@ -72,7 +74,7 @@ public class DocumentationPage {
 			this.height = height;
 		}
 		
-		public boolean intersects(int x, int y) {
+		public boolean intersects(float x, float y) {
 			return x >= (this.x) && y >= (this.y) &&
 					x < (this.x + this.width) && y < (this.y + this.height);
 		}
@@ -81,12 +83,17 @@ public class DocumentationPage {
 	}
 
 	public class PageRenderContext implements Cloneable {
-		public int width = 0;
-		public int height = 0;
-		public int x = 0;
-		public int y = 0;
-		public int indent = 0;
+		public float width = 0;
+		public float height = 0;
+		public float x = 0;
+		public float y = 0;
+		public float indent = 0;
 		public float scale = 1;
+		
+		public boolean underline = false;
+		public boolean strikethrough = false;
+		
+		public Action paint = null;
 		
 		private Deque<PageRenderContext> stack = Queues.newArrayDeque();
 		
@@ -121,12 +128,12 @@ public class DocumentationPage {
 			}
 		}
 		
-		public int measure(String str) {
-			return (int)(IBMFontRenderer.measure(str)*scale);
+		public float measure(String str) {
+			return IBMFontRenderer.measure(str)*scale;
 		}
 		
-		public int measureY() {
-			return (int)(8*scale);
+		public float measureY() {
+			return 8*scale;
 		}
 		
 		public void push() {
@@ -135,10 +142,9 @@ public class DocumentationPage {
 		
 		public void pop() {
 			PageRenderContext that = stack.removeLast();
-			this.width = that.width;
-			this.height = that.height;
-			this.x = that.x;
-			this.y = that.y;
+			this.strikethrough = that.strikethrough;
+			this.underline = that.underline;
+			this.paint = that.paint;
 			this.indent = that.indent;
 			this.scale = that.scale;
 		}
@@ -169,7 +175,7 @@ public class DocumentationPage {
 		this.node = node;
 	}
 	
-	public ClickRegion getRegionClicked(int mouseX, int mouseY) {
+	public ClickRegion getRegionClicked(float mouseX, float mouseY) {
 		for (ClickRegion cr : clickRegions) {
 			if (cr.intersects(mouseX, mouseY)) {
 				return cr;
@@ -284,12 +290,11 @@ public class DocumentationPage {
 			
 			@Override
 			public void visit(Heading heading) {
-				prc.down();
-				float oldScale = prc.scale;
+				prc.push();
 				prc.scale = ((6-heading.getLevel())*0.2f)+1;
 				super.visit(heading);
 				prc.wrap();
-				prc.scale = oldScale;
+				prc.pop();
 			}
 			
 			@Override
@@ -329,14 +334,12 @@ public class DocumentationPage {
 			
 			@Override
 			public void visit(CustomNode customNode) {
-				int startX = prc.x;
-				int startY = prc.y;
-				super.visit(customNode);
+				prc.push();
 				if (customNode instanceof Strikethrough) {
-					if (!simulate) {
-						Gui.drawRect(startX, startY+4, prc.x-1, prc.y+5, -1);
-					}
+					prc.strikethrough = true;
 				}
+				super.visit(customNode);
+				prc.pop();
 			}
 			
 			@Override
@@ -372,7 +375,7 @@ public class DocumentationPage {
 						int amt = Integer.parseInt(comment.substring(5));
 						for (int i = 0; i < amt; i++) {
 							char c = IBMFontRenderer.CP437.charAt(rand.nextInt(IBMFontRenderer.CP437.length()));
-							if (prc.x+4 >= 225) {
+							if (prc.x+4 >= MAX_WIDTH) {
 								prc.wrap();
 							}
 							drawString(prc, Character.toString(c), simulate);
@@ -394,13 +397,11 @@ public class DocumentationPage {
 			
 			@Override
 			public void visit(Link link) {
-				int startX = prc.x;
-				int startY = prc.y;
+				prc.push();
+				prc.underline = true;
+				prc.paint = new NavigateAction(link.getDestination());
 				super.visit(link);
-				if (!simulate) {
-					Gui.drawRect(startX, startY+7, prc.x-4, prc.y+8, -1);
-				}
-				clickRegions.add(new ClickRegion(new NavigateAction(link.getDestination()), startX, startY, prc.x-startX, (prc.y-startY)+8));
+				prc.pop();
 			}
 			
 			@Override
@@ -426,7 +427,7 @@ public class DocumentationPage {
 			
 			@Override
 			public void visit(SoftLineBreak softLineBreak) {
-				if (prc.x > 225) {
+				if (prc.x > MAX_WIDTH) {
 					prc.wrap();
 				}
 				super.visit(softLineBreak);
@@ -434,8 +435,8 @@ public class DocumentationPage {
 			
 			@Override
 			public void visit(StrongEmphasis strongEmphasis) {
-				int oldX = prc.x;
-				int oldY = prc.y;
+				float oldX = prc.x;
+				float oldY = prc.y;
 				super.visit(strongEmphasis);
 				prc.x = oldX+1;
 				prc.y = oldY;
@@ -444,12 +445,16 @@ public class DocumentationPage {
 			
 			@Override
 			public void visit(ThematicBreak thematicBreak) {
-				// TODO Auto-generated method stub
+				if (prc.x > 0) {
+					prc.wrap();
+				}
+				IBMFontRenderer.drawRect(prc.x+4.5f, prc.y, MAX_WIDTH-4.5f, prc.y+1, -1);
+				prc.wrap();
 				super.visit(thematicBreak);
 			}
 			
 		});
-		return new Rectangle(0, 0, prc.width, prc.height);
+		return new Rectangle(0, 0, (int)Math.ceil(prc.width), (int)Math.ceil(prc.height));
 	}
 	
 	public String getKey() {
@@ -457,26 +462,39 @@ public class DocumentationPage {
 	}
 
 	protected void drawStringWrapped(PageRenderContext prc, String literal, boolean simulate) {
+		boolean skipNextSpace = true;
 		for (String s : WHITESPACE_SPLITTER.split(literal)) {
-			int w = (int)(IBMFontRenderer.measure(s)*prc.scale);
-			if (prc.x+w+8 >= 225) {
+			float w = IBMFontRenderer.measure(s)*prc.scale;
+			if (prc.x+w+(skipNextSpace ? 0 : (4*prc.scale)) >= MAX_WIDTH) {
 				prc.wrap();
+				skipNextSpace = true;
+			}
+			if (skipNextSpace) {
+				skipNextSpace = false;
+			} else {
+				drawString(prc, " ", simulate);
 			}
 			drawString(prc, s, simulate);
-			prc.x += 4;
 		}
 	}
 
 	private void drawString(PageRenderContext prc, String str, boolean simulate) {
-		int w = prc.measure(str);
-		int h = prc.measureY();
-		if (width < prc.x+w) width = prc.x+w;
-		if (height < prc.y+h) height = prc.y+h;
+		float w = prc.measure(str);
+		float h = prc.measureY();
 		if (!simulate) {
 			GlStateManager.pushMatrix();
 			GlStateManager.scale(prc.scale, prc.scale, 1);
-			IBMFontRenderer.drawString((int)(prc.x/prc.scale), (int)(prc.y/prc.scale), str, -1);
+			IBMFontRenderer.drawString(prc.x/prc.scale, prc.y/prc.scale, str, -1);
 			GlStateManager.popMatrix();
+			if (prc.underline) {
+				IBMFontRenderer.drawRect(prc.x, prc.y+h-1, prc.x+w, prc.y+h, -1);
+			}
+			if (prc.strikethrough) {
+				IBMFontRenderer.drawRect(prc.x, prc.y+(h/2)-1, prc.x+w, prc.y+(h/2), -1);
+			}
+			if (prc.paint != null) {
+				clickRegions.add(new ClickRegion(prc.paint, prc.x, prc.y, w, h));
+			}
 		}
 		prc.x += w;
 		prc.stretch();

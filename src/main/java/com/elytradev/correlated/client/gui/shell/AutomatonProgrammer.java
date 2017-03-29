@@ -289,7 +289,7 @@ public class AutomatonProgrammer extends Program {
 	}
 
 	@Override
-	protected void drawStringInverseVideo(int x, int y, String str) {
+	protected void drawStringInverseVideo(float x, float y, String str) {
 		if (y < scrollOffset) return;
 		y -= scrollOffset;
 		if (y >= totalRows) return;
@@ -297,21 +297,21 @@ public class AutomatonProgrammer extends Program {
 	}
 	
 	@Override
-	protected void drawString(int x, int y, String str) {
+	protected void drawString(float x, float y, String str) {
 		if (y < scrollOffset) return;
 		y -= scrollOffset;
 		if (y >= totalRows) return;
 		drawStringAbsolute(x, y, str);
 	}
 	
-	private void drawStringInverseVideoAbsolute(int x, int y, String str) {
+	private void drawStringInverseVideoAbsolute(float x, float y, String str) {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x*4.5f, y*8f, 0);
 		super.drawStringInverseVideo(0, 0, str);
 		GlStateManager.popMatrix();
 	}
 	
-	private void drawStringAbsolute(int x, int y, String str) {
+	private void drawStringAbsolute(float x, float y, String str) {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x*4.5f, y*8f, 0);
 		super.drawString(0, 0, str);

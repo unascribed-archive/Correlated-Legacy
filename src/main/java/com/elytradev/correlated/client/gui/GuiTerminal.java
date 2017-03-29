@@ -112,12 +112,12 @@ public class GuiTerminal extends GuiContainer {
 		if (hasStatusLine()) {
 			String lastLine = signalStrength == 0 ? I18n.format("gui.correlated.noSignal") : container.status.get(container.status.size()-1).getFormattedText().trim();
 			int maxLength = signalStrength == -1 ? 160 : 144;
-			int len = IBMFontRenderer.measure(lastLine);
+			int len = (int)IBMFontRenderer.measure(lastLine);
 			if (len > maxLength) {
 				String s = lastLine;
 				for (int i = 0; i < lastLine.length(); i++) {
 					String str = lastLine.substring(0, i)+"...";
-					int slen = IBMFontRenderer.measure(str);
+					int slen = (int)IBMFontRenderer.measure(str);
 					if (slen > maxLength) break;
 					s = str;
 				}

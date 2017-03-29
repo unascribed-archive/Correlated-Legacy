@@ -210,8 +210,8 @@ public class GuiDocumentation extends GuiScreen {
 							GlStateManager.color(1, 1, 1);
 							GlStateManager.translate(11, 12, 0);
 							if (bootIdx < bootText.length) {
-								int x = 0;
-								int y = 0;
+								float x = 0;
+								float y = 0;
 								int skip = anim.size() < 25 ? 0 : anim.size()-25;
 								for (String str : anim) {
 									if (skip > 0) {
@@ -251,7 +251,7 @@ public class GuiDocumentation extends GuiScreen {
 											} else {
 												page.render(0, 0, 0, (int)lagScroll, Math.min(page.getWidth(), ySize), Math.min(page.getHeight(), xSize-30), fg);
 												GlStateManager.enableAlpha();
-												if (page.getHeight() > 144) {
+												if (page.getHeight() > 136) {
 													float knobH = 12;
 													float knobY = (lagScroll/(page.getHeight()-128))*(xSize-5-24-knobH);
 													
@@ -390,10 +390,10 @@ public class GuiDocumentation extends GuiScreen {
 			if (future.isDone() && !future.isCancelled()) {
 				try {
 					DocumentationPage page = future.get();
-					BufferedImage img = ScreenShotHelper.createScreenshot(page.getWidth()*2, page.getHeight()*2, page.fb);
-					BufferedImage target = new BufferedImage(page.getWidth()*2, page.getHeight()*2, BufferedImage.TYPE_INT_ARGB);
+					BufferedImage img = ScreenShotHelper.createScreenshot(page.fb.framebufferWidth, page.fb.framebufferHeight, page.fb);
+					BufferedImage target = new BufferedImage(page.fb.framebufferWidth, page.fb.framebufferHeight, BufferedImage.TYPE_INT_ARGB);
 					Graphics2D g2d = target.createGraphics();
-					g2d.drawImage(img, 0, page.getHeight()*2, page.getWidth()*2, -page.getHeight()*2, null);
+					g2d.drawImage(img, 0, page.fb.framebufferHeight, page.fb.framebufferWidth, page.fb.framebufferHeight, null);
 					g2d.dispose();
 					String fname = "correlated_doc-"+page.getKey()+".md.png";
 					File f = new File(new File(mc.mcDataDir, "screenshots"), fname);
@@ -425,18 +425,18 @@ public class GuiDocumentation extends GuiScreen {
 				|| keyCode == Keyboard.KEY_Z) {
 			// f  ^F  ^V  SPACE  *  Forward  one window (or N lines).
 			// z                 *  Forward  one window (and set window to N).
-			scroll += 144;
+			scroll += 136;
 		} else if (keyCode == Keyboard.KEY_B || keyCode == Keyboard.KEY_W
 				|| keyCode == Keyboard.KEY_PRIOR) {
 			// b  ^B  ESC-v      *  Backward one window (or N lines).
 			// w                 *  Backward one window (and set window to N).
-			scroll -= 144;
+			scroll -= 136;
 		} else if (keyCode == Keyboard.KEY_D) {
 			// d  ^D             *  Forward  one half-window (and set half-window to N).
-			scroll += 72;
+			scroll += 68;
 		} else if (keyCode == Keyboard.KEY_U) {
 			// u  ^U             *  Backward one half-window (and set half-window to N).
-			scroll -= 72;
+			scroll -= 68;
 		} else if (keyCode == Keyboard.KEY_HOME) {
 			scroll = 0;
 		} else if (keyCode == Keyboard.KEY_END) {
@@ -564,7 +564,7 @@ public class GuiDocumentation extends GuiScreen {
 		if (future.isDone() && !future.isCancelled()) {
 			try {
 				DocumentationPage page = future.get();
-				if (page.getHeight() > 144) {
+				if (page.getHeight() > 136) {
 					if (scroll > (page.getHeight()-128)) {
 						scroll = ((scroll-(page.getHeight()-128))/4f)+(page.getHeight()-128);
 					}

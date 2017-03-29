@@ -218,7 +218,7 @@ public class BlockWireless extends Block {
 				}
 			} else if (te instanceof TileEntityOpticalReceiver) {
 				CorrelatedWorldData data = Correlated.getDataFor(world);
-				Optical o = new Optical(data, pos, 16, placer.getName());
+				Optical o = new Optical(data, pos, 32, placer.getName());
 				data.getWirelessManager().add(o);
 			} else if (te instanceof TileEntityBeaconLens) {
 				CorrelatedWorldData data = Correlated.getDataFor(world);

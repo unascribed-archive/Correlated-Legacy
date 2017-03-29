@@ -24,7 +24,7 @@ public class RSOD extends Program {
 		drawStringInverseVideo((w/2)-(len/2), (h/2)-16, header);
 		String key = "tooltip.correlated.controller_error."+error;
 		String errorLocal = I18n.format(key);
-		int errLen = IBMFontRenderer.measure(errorLocal);
+		float errLen = IBMFontRenderer.measure(errorLocal);
 		drawString((w/2)-(errLen/2), (h/2), errorLocal);
 	}
 

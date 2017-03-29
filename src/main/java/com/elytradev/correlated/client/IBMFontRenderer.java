@@ -10,6 +10,11 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.GlStateManager.DestFactor;
+import net.minecraft.client.renderer.GlStateManager.SourceFactor;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 
 public class IBMFontRenderer {
@@ -45,7 +50,7 @@ public class IBMFontRenderer {
 	
 	public static final int DIM_WHITE = 0xFFA8A8A8;
 	
-	public static void drawStringInverseVideo(int x, int y, String str, int color) {
+	public static void drawStringInverseVideo(float x, float y, String str, int color) {
 		str = COLOR_CODE.matcher(str).replaceAll("");
 		// this is kind of magic, so I'll explain it for anyone who happens to
 		// be reading this that is curious
@@ -72,18 +77,18 @@ public class IBMFontRenderer {
 				GlStateManager.scale(0.5f, 0.5f, 1);
 				// due to depth test, the parts of the rectangle that are
 				// "behind" our invisible text will not be rendered 
-				Gui.drawRect(x*2, y*2, (x*2)+measureHalf(str), (y*2)+16, color);
+				drawRect(x*2, y*2, (x*2)+measureDirect(str), (y*2)+16, color);
 			GlStateManager.popMatrix();
 			
 		GlStateManager.disableDepth();
 	}
-	public static void drawString(int x, int y, String str, int color) {
+	public static void drawString(float x, float y, String str, int color) {
 		str = COLOR_CODE.matcher(str).replaceAll("");
 		if (!canRender(str)) {
 			// fall back to unicode font - this usually happens when rendering non-english text
 			boolean oldUnicode = Minecraft.getMinecraft().fontRenderer.getUnicodeFlag();
 			Minecraft.getMinecraft().fontRenderer.setUnicodeFlag(true);
-			Minecraft.getMinecraft().fontRenderer.drawString(str, x, y, color);
+			Minecraft.getMinecraft().fontRenderer.drawString(str, x, y, color, false);
 			Minecraft.getMinecraft().fontRenderer.setUnicodeFlag(oldUnicode);
 			return;
 		}
@@ -93,6 +98,7 @@ public class IBMFontRenderer {
 		GlStateManager.pushMatrix();
 		GlStateManager.color(((color >> 16)&0xFF)/255f, ((color >> 8)&0xFF)/255f, (color&0xFF)/255f);
 		GlStateManager.scale(0.5, 0.5, 1);
+		GlStateManager.translate(x, y, 0);
 		for (int i = 0; i < str.length(); i++) {
 			char c = str.charAt(i);
 			if (substitutes.containsKey(c)) {
@@ -102,7 +108,8 @@ public class IBMFontRenderer {
 			if (pos == -1) continue;
 			int u = (pos%32)*9;
 			int v = (pos/32)*16;
-			Gui.drawModalRectWithCustomSizedTexture(x+(i*9), y, u, v, 9, 16, 288, 147);
+			Gui.drawModalRectWithCustomSizedTexture(0, 0, u, v, 9, 16, 288, 147);
+			GlStateManager.translate(9, 0, 0);
 		}
 		GlStateManager.popMatrix();
 	}
@@ -120,19 +127,19 @@ public class IBMFontRenderer {
 		}
 		return true;
 	}
-	public static int measureHalf(String str) {
+	public static int measureDirect(String str) {
 		str = COLOR_CODE.matcher(str).replaceAll("");
 		if (!canRender(str)) {
 			return measureUnicode(str)*2;
 		}
 		return str.length()*9;
 	}
-	public static int measure(String str) {
+	public static float measure(String str) {
 		str = COLOR_CODE.matcher(str).replaceAll("");
 		if (!canRender(str)) {
 			measureUnicode(str);
 		}
-		return (int)(measureHalf(str)/2f);
+		return measureDirect(str)/2f;
 	}
 	private static int measureUnicode(String str) {
 		boolean oldUnicode = Minecraft.getMinecraft().fontRenderer.getUnicodeFlag();
@@ -140,5 +147,39 @@ public class IBMFontRenderer {
 		int len = Minecraft.getMinecraft().fontRenderer.getStringWidth(str);
 		Minecraft.getMinecraft().fontRenderer.setUnicodeFlag(oldUnicode);
 		return len;
+	}
+	public static void drawRect(float left, float top, float right, float bottom, int color) {
+		if (left < right) {
+			float swap = left;
+			left = right;
+			right = swap;
+		}
+
+		if (top < bottom) {
+			float swap = top;
+			top = bottom;
+			bottom = swap;
+		}
+
+		float a = (color >> 24 & 255) / 255f;
+		float r = (color >> 16 & 255) / 255f;
+		float g = (color >> 8 & 255) / 255f;
+		float b = (color & 255) / 255f;
+		Tessellator tess = Tessellator.getInstance();
+		VertexBuffer vb = tess.getBuffer();
+		GlStateManager.enableBlend();
+		GlStateManager.disableTexture2D();
+		GlStateManager.tryBlendFuncSeparate(
+				SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA,
+				SourceFactor.ONE, DestFactor.ZERO);
+		GlStateManager.color(r, g, b, a);
+		vb.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+		vb.pos(left, bottom, 0).endVertex();
+		vb.pos(right, bottom, 0).endVertex();
+		vb.pos(right, top, 0).endVertex();
+		vb.pos(left, top, 0).endVertex();
+		tess.draw();
+		GlStateManager.enableTexture2D();
+		GlStateManager.disableBlend();
 	}
 }
