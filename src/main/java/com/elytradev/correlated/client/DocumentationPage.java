@@ -92,6 +92,7 @@ public class DocumentationPage {
 		
 		public boolean underline = false;
 		public boolean strikethrough = false;
+		public boolean disableWrap = false;
 		
 		public Action paint = null;
 		
@@ -147,6 +148,7 @@ public class DocumentationPage {
 			this.paint = that.paint;
 			this.indent = that.indent;
 			this.scale = that.scale;
+			this.disableWrap = that.disableWrap;
 		}
 		
 		@Override
@@ -291,6 +293,7 @@ public class DocumentationPage {
 			@Override
 			public void visit(Heading heading) {
 				prc.push();
+				prc.disableWrap = true;
 				prc.scale = ((6-heading.getLevel())*0.2f)+1;
 				super.visit(heading);
 				prc.wrap();
@@ -465,7 +468,7 @@ public class DocumentationPage {
 		boolean skipNextSpace = true;
 		for (String s : WHITESPACE_SPLITTER.split(literal)) {
 			float w = IBMFontRenderer.measure(s)*prc.scale;
-			if (prc.x+w+(skipNextSpace ? 0 : (4*prc.scale)) >= MAX_WIDTH) {
+			if (!prc.disableWrap && prc.x+w+(skipNextSpace ? 0 : (4*prc.scale)) >= MAX_WIDTH) {
 				prc.wrap();
 				skipNextSpace = true;
 			}
