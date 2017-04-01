@@ -98,6 +98,8 @@ public class GuiTerminal extends GuiContainer {
 		drawTexturedModalRect(237, 135, 237, 135, 19, 11);
 		if (container.terminal.hasMaintenanceSlot()) {
 			drawTexturedModalRect(8, 152, 8, 152, 44, 34);
+			dump.enabled = !container.terminal.getMaintenanceSlotContent().isEmpty();
+			partition.enabled = !container.terminal.getMaintenanceSlotContent().isEmpty();
 		}
 		GlStateManager.popMatrix();
 	}
@@ -184,12 +186,19 @@ public class GuiTerminal extends GuiContainer {
 		}
 		
 		if (container.terminal.hasMaintenanceSlot()) {
-			if (container.isDumping || container.isFilling) {
+			if (!dump.enabled) {
+				GlStateManager.color(0.5f, 0.5f, 0.5f);
+			} else if (container.isDumping || container.isFilling) {
 				GlStateManager.color(1, 1, 0.25f);
 			}
 			drawTexturedModalRect(dump.xPosition+2, dump.yPosition+2, 16, (container.isFilling || isShiftKeyDown()) ? 232 : 240, 8, 8);
-			GlStateManager.color(1, 1, 1);
+			if (!partition.enabled) {
+				GlStateManager.color(0.5f, 0.5f, 0.5f);
+			} else {
+				GlStateManager.color(1, 1, 1);
+			}
 			drawTexturedModalRect(partition.xPosition+2, partition.yPosition+2, 16, 248, 8, 8);
+			GlStateManager.color(1, 1, 1);
 		}
 		
 		if (hasSearchAndSort()) {
@@ -250,7 +259,7 @@ public class GuiTerminal extends GuiContainer {
 			}
 		}
 		if (container.terminal.hasMaintenanceSlot()) {
-			if (dump.isMouseOver()) {
+			if (dump.enabled && dump.isMouseOver()) {
 				if (isShiftKeyDown() || container.isFilling) {
 					drawHoveringText(Lists.newArrayList(
 							I18n.format("tooltip.correlated.fill"),
@@ -263,7 +272,7 @@ public class GuiTerminal extends GuiContainer {
 						), mouseX, mouseY);
 				}
 			}
-			if (partition.isMouseOver()) {
+			if (partition.enabled && partition.isMouseOver()) {
 				drawHoveringText(Lists.newArrayList(
 						I18n.format("tooltip.correlated.partition")
 					), mouseX, mouseY);

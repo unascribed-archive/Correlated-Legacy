@@ -66,6 +66,7 @@ public class GuiSelectAPN extends GuiScreen {
 		}
 		drawDefaultBackground();
 		GlStateManager.pushMatrix();
+		GlStateManager.color(1, 1, 1);
 		int transX = (width-176)/2;
 		int transY = (height-147)/2;
 		GlStateManager.translate(transX, transY, 0);
