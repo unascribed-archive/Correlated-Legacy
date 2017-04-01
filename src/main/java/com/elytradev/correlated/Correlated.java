@@ -214,6 +214,7 @@ public class Correlated {
 	public static SoundEvent automaton_hurt;
 	public static SoundEvent drive_disassemble;
 	public static SoundEvent data_core_shatter;
+	public static SoundEvent enceladus;
 	
 	
 	public static List<ItemCorrelatedRecord> recordItems = Lists.newArrayList();
@@ -232,7 +233,7 @@ public class Correlated {
 
 	public static int limboDimId;
 	public static DimensionType limbo;
-
+	
 	public NetworkContext network;
 	
 	public Configuration config;
@@ -431,6 +432,7 @@ public class Correlated {
 		registerSound("automaton_idle");
 		registerSound("drive_disassemble");
 		registerSound("data_core_shatter");
+		registerSound("enceladus");
 		
 		registerRecord("danslarue.xm");
 		registerRecord("jesuisbaguette.xm");
@@ -535,6 +537,16 @@ public class Correlated {
 		
 		if (Loader.isModLoaded("probedataprovider")) {
 			UnitPotential.register();
+		}
+		if (Loader.isModLoaded("thermionics")) {
+			log.info("Thermionics, are you thinking what I'm thinking?");
+			try {
+				Class.forName("com.elytradev.thermionics.CorrelatedHint");
+			} catch (Throwable t) {
+				log.info("...Uh, Thermionics? Where are you?");
+			}
+		} else {
+			log.info("I hear there's this really cool mod called Thermionics, you should install it!");
 		}
 		
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, new CorrelatedGuiHandler());

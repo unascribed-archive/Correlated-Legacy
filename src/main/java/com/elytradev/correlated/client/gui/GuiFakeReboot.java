@@ -63,7 +63,9 @@ public class GuiFakeReboot extends GuiScreen {
 				}
 			}
 			int w = (int)((Math.min(ticks, 8)/8f)*126);
-			drawModalRectWithCustomSizedTexture(10, 10, 0, 128, 126, 19, 288, 147);
+			if (ticks > 10) {
+				drawModalRectWithCustomSizedTexture(10, 10, 0, 128, 126, 19, 288, 147);
+			}
 			drawRect(10, 10, w+10, 29, logoColor | (opacity << 24));
 		} else {
 			if (ticks < 125) drawModalRectWithCustomSizedTexture(10, 10, 0, 128, 126, 19, 288, 147);

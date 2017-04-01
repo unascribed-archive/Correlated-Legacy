@@ -150,6 +150,7 @@ processResources {
 		exclude 'mcmod.info'
 		exclude '*.xcf'
 		exclude '*.wav'
+		exclude '*.flac'
 	}
 }
 

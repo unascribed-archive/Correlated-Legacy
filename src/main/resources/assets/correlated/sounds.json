@@ -63,5 +63,14 @@
 			"correlated:data_core_shatter"
 		],
 		"subtitle": "subtitles.correlated.data_core_shatter"
+	},
+	"enceladus": {
+		"category": "music",
+		"sounds": [
+			{
+				"name": "correlated:music/enceladus",
+				"stream": true
+			}
+		]
 	}
 }

@@ -31,6 +31,7 @@ import javax.imageio.ImageIO;
 import org.lwjgl.opengl.GL11;
 
 import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.client.CorrelatedMusicTicker;
 import com.elytradev.correlated.client.DocumentationManager;
 import com.elytradev.correlated.client.ParticleWeldthrower;
 import com.elytradev.correlated.client.gui.GuiAbortRetryFail;
@@ -73,6 +74,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.Sound;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundList;
+import net.minecraft.client.audio.MusicTicker.MusicType;
 import net.minecraft.client.audio.Sound.Type;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.GuiGameOver;
@@ -104,6 +106,7 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ScreenShotHelper;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -117,6 +120,7 @@ import net.minecraftforge.client.event.sound.SoundLoadEvent;
 import net.minecraftforge.client.event.sound.SoundSetupEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -162,6 +166,8 @@ public class ClientProxy extends Proxy {
 	};
 	
 	public static DocumentationManager documentationManager;
+	
+	public static MusicType enceladusType;
 	
 	@SuppressWarnings("deprecation")
 	@Override
@@ -216,6 +222,8 @@ public class ClientProxy extends Proxy {
 		for (String s : ItemKeycard.colors) {
 			ModelLoader.setCustomModelResourceLocation(Correlated.keycard, idx++, new ModelResourceLocation(new ResourceLocation("correlated", "keycard_"+s), "inventory"));
 		}
+		
+		enceladusType = EnumHelper.addEnum(MusicType.class, "CORRELATED_ENCELADUS", new Class<?>[] {SoundEvent.class, int.class, int.class}, Correlated.enceladus, 24000, 48000);
 		
 		List<String> pages = Lists.newArrayList();
 		
@@ -410,6 +418,9 @@ public class ClientProxy extends Proxy {
 			}
 			
 		}, Correlated.drive);
+		
+		CorrelatedMusicTicker cmt = new CorrelatedMusicTicker(Minecraft.getMinecraft(), Minecraft.getMinecraft().getMusicTicker());
+		ReflectionHelper.setPrivateValue(Minecraft.class, Minecraft.getMinecraft(), cmt, "field_147126_aw", "mcMusicTicker", "aK");
 	}
 	@Override
 	public void registerItemModel(Item item, int variants) {
@@ -503,6 +514,10 @@ public class ClientProxy extends Proxy {
 				if (glitchJpeg != null && corruptionFuture == null) {
 					corruptionFuture = jpegCorruptor.submit(jpegCorruptionTask);
 				}
+			}
+			
+			if (Minecraft.getMinecraft().world != null && Minecraft.getMinecraft().world.provider.getDimension() == Correlated.limboDimId) {
+				
 			}
 		}
 	}
