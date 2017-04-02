@@ -3,9 +3,9 @@ package com.elytradev.correlated.storage;
 import java.util.Collections;
 import java.util.List;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.CorrelatedWorldData;
 import com.elytradev.correlated.helper.ItemStacks;
-import com.elytradev.correlated.item.ItemWirelessTerminal;
+import com.elytradev.correlated.item.ItemHandheldTerminal;
 import com.elytradev.correlated.network.ChangeAPNMessage;
 import com.elytradev.correlated.wifi.Station;
 import com.elytradev.correlated.wifi.WirelessManager;
@@ -21,10 +21,10 @@ import net.minecraftforge.common.util.Constants.NBT;
 public class WirelessTerminal implements ITerminal {
 	private World world;
 	private EntityPlayer player;
-	private ItemWirelessTerminal iwt;
+	private ItemHandheldTerminal iwt;
 	private ItemStack stack = ItemStack.EMPTY;
 	
-	public WirelessTerminal(World world, EntityPlayer player, ItemWirelessTerminal iwt, ItemStack stack) {
+	public WirelessTerminal(World world, EntityPlayer player, ItemHandheldTerminal iwt, ItemStack stack) {
 		this.world = world;
 		this.player = player;
 		this.iwt = iwt;
@@ -45,7 +45,7 @@ public class WirelessTerminal implements ITerminal {
 	public IDigitalStorage getStorage() {
 		String apn = getAPN();
 		if (apn == null) return null;
-		Iterable<Station> li = Correlated.getDataFor(world).getWirelessManager().allStationsInChunk(world.getChunkFromBlockCoords(player.getPosition()));
+		Iterable<Station> li = CorrelatedWorldData.getFor(world).getWirelessManager().allStationsInChunk(world.getChunkFromBlockCoords(player.getPosition()));
 		for (Station s : li) {
 			if (s.getAPNs().contains(apn) && s.isInRange(player.posX, player.posY+player.getEyeHeight(), player.posZ)) {
 				List<IDigitalStorage> storages = s.getStorages(apn);
@@ -90,7 +90,7 @@ public class WirelessTerminal implements ITerminal {
 	
 	@Override
 	public int getSignalStrength() {
-		WirelessManager wm = Correlated.getDataFor(player.world).getWirelessManager();
+		WirelessManager wm = CorrelatedWorldData.getFor(player.world).getWirelessManager();
 		return wm.getSignalStrength(player.posX, player.posY+player.getEyeHeight(), player.posZ, getAPN());
 	}
 	

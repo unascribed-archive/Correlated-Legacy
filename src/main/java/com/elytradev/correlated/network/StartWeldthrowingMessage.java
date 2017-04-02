@@ -1,9 +1,9 @@
 package com.elytradev.correlated.network;
 
 import org.apache.commons.lang3.mutable.MutableInt;
+import com.elytradev.correlated.init.CNetwork;
 
-import com.elytradev.correlated.Correlated;
-
+import com.elytradev.correlated.init.CItems;
 import com.elytradev.concrete.Message;
 import com.elytradev.concrete.NetworkContext;
 import com.elytradev.concrete.annotation.field.MarshalledAs;
@@ -23,7 +23,7 @@ public class StartWeldthrowingMessage extends Message {
 		super(ctx);
 	}
 	public StartWeldthrowingMessage(int entityId) {
-		super(Correlated.inst.network);
+		super(CNetwork.CONTEXT);
 		this.entityId = entityId;
 	}
 	
@@ -32,7 +32,7 @@ public class StartWeldthrowingMessage extends Message {
 	protected void handle(EntityPlayer sender) {
 		Entity e = Minecraft.getMinecraft().world.getEntityByID(entityId);
 		if (e instanceof EntityPlayer) {
-			Correlated.weldthrower.weldthrowing.put((EntityPlayer)e, new MutableInt());
+			CItems.WELDTHROWER.weldthrowing.put((EntityPlayer)e, new MutableInt());
 		}
 	}
 

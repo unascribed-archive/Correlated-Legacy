@@ -1,7 +1,7 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "correlated:items/tool/wireless_terminal"
+		"layer0": "correlated:items/tool/handheld_terminal"
 	},
 	"display": {
 		"ground": {

@@ -40,7 +40,7 @@ public class BlockDecor extends Block {
 		}
 	}
 	
-	public static final PropertyEnum<Variant> variant = PropertyEnum.create("variant", Variant.class);
+	public static final PropertyEnum<Variant> VARIANT = PropertyEnum.create("variant", Variant.class);
 	
 	public BlockDecor() {
 		super(Material.IRON);
@@ -48,22 +48,22 @@ public class BlockDecor extends Block {
 	
 	@Override
 	public int damageDropped(IBlockState state) {
-		return state.getValue(variant).ordinal();
+		return state.getValue(VARIANT).ordinal();
 	}
 	
 	@Override
 	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, variant);
+		return new BlockStateContainer(this, VARIANT);
 	}
 	
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		return state.getValue(variant).ordinal();
+		return state.getValue(VARIANT).ordinal();
 	}
 	
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
-		return getDefaultState().withProperty(variant, Variant.VALUES[meta%Variant.VALUES.length]);
+		return getDefaultState().withProperty(VARIANT, Variant.VALUES[meta%Variant.VALUES.length]);
 	}
 	
 	@Override

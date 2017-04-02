@@ -1,6 +1,6 @@
 package com.elytradev.correlated.network;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.init.CNetwork;
 
 import com.elytradev.concrete.Message;
 import com.elytradev.concrete.NetworkContext;
@@ -25,7 +25,7 @@ public class InsertAllMessage extends Message {
 	}
 	
 	public InsertAllMessage(int windowId, ItemStack template) {
-		super(Correlated.inst.network);
+		super(CNetwork.CONTEXT);
 		this.windowId = windowId;
 		this.template = template;
 	}

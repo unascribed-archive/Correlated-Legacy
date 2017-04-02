@@ -1,6 +1,7 @@
 package com.elytradev.correlated.compat.probe;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.EnergyHelper;
+import com.elytradev.correlated.init.CConfig;
 import com.elytradev.probe.api.UnitDictionary;
 import com.elytradev.probe.api.impl.SIUnit;
 
@@ -14,17 +15,17 @@ public class UnitPotential extends SIUnit {
 	
 	@Override
 	public int getBarColor() {
-		return Correlated.inst.preferredUnit.color;
+		return CConfig.preferredUnit.color;
 	}
 	
 	@Override
 	public String getAbbreviation() {
-		return Correlated.inst.preferredUnit.abbreviation;
+		return CConfig.preferredUnit.abbreviation;
 	}
 	
 	@Override
 	public String format(double d) {
-		return super.format(Correlated.convertFromPotential((int)d, Correlated.inst.preferredUnit));
+		return super.format(EnergyHelper.convertFromPotential((int)d, CConfig.preferredUnit));
 	}
 
 	public static void register() {

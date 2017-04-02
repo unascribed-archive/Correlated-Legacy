@@ -1,9 +1,9 @@
 package com.elytradev.correlated.network;
 
 import com.elytradev.concrete.Message;
+import com.elytradev.correlated.init.CNetwork;
 import com.elytradev.concrete.NetworkContext;
 import com.elytradev.concrete.annotation.type.ReceivedOn;
-import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.client.gui.GuiDocumentation;
 
 import net.minecraft.client.Minecraft;
@@ -23,7 +23,7 @@ public class OpenDocumentationMessage extends Message {
 	}
 	
 	public OpenDocumentationMessage(String topic, String domain, boolean playAnimation) {
-		super(Correlated.inst.network);
+		super(CNetwork.CONTEXT);
 		this.topic = topic;
 		this.domain = domain;
 		this.playAnimation = playAnimation;

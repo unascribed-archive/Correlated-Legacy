@@ -1,7 +1,7 @@
 package com.elytradev.correlated.helper;
 
-import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.ITweakable;
+import com.elytradev.correlated.init.CItems;
 
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
@@ -16,7 +16,7 @@ public class Blocks {
 
 	public static boolean tryWrench(World world, BlockPos pos, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
 		ItemStack inHand = player.getHeldItem(hand);
-		if (inHand != null && inHand.getItem() == Correlated.weldthrower) {
+		if (inHand != null && inHand.getItem() == CItems.WELDTHROWER) {
 			if (!world.isRemote) {
 				IBlockState state = world.getBlockState(pos);
 				if (player.isSneaking()) {

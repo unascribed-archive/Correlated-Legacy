@@ -1,6 +1,7 @@
 package com.elytradev.correlated.network;
 
 import java.util.List;
+import com.elytradev.correlated.init.CNetwork;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -8,7 +9,6 @@ import com.elytradev.concrete.Message;
 import com.elytradev.concrete.NetworkContext;
 import com.elytradev.concrete.annotation.field.MarshalledAs;
 import com.elytradev.concrete.annotation.type.ReceivedOn;
-import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.client.gui.GuiSelectAPN;
 import com.google.common.collect.Lists;
 
@@ -34,7 +34,7 @@ public class APNResponseMessage extends Message {
 	}
 	
 	public APNResponseMessage(Iterable<Pair<String, Number>> apns, Iterable<String> selected) {
-		super(Correlated.inst.network);
+		super(CNetwork.CONTEXT);
 		this.apns = Lists.newArrayList();
 		this.signalStrengths = Lists.newArrayList();
 		for (Pair<String, Number> apn : apns) {

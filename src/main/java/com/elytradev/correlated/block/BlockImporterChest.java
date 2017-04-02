@@ -26,6 +26,7 @@ import net.minecraft.world.World;
 
 public class BlockImporterChest extends Block {
 	public static final PropertyDirection FACING = BlockHorizontal.FACING;
+	
 	protected static final AxisAlignedBB AABB = new AxisAlignedBB(0.0625D, 0.0D, 0.0625D, 0.9375D, 0.875D, 0.9375D);
 
 	public BlockImporterChest() {

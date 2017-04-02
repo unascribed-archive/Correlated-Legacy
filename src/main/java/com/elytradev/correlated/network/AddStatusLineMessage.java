@@ -1,9 +1,8 @@
 package com.elytradev.correlated.network;
 
-import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.client.gui.GuiTerminal;
 import com.elytradev.correlated.client.gui.shell.GuiTerminalShell;
-
+import com.elytradev.correlated.init.CNetwork;
 import com.elytradev.concrete.Message;
 import com.elytradev.concrete.NetworkContext;
 import com.elytradev.concrete.annotation.field.MarshalledAs;
@@ -26,7 +25,7 @@ public class AddStatusLineMessage extends Message {
 		super(ctx);
 	}
 	public AddStatusLineMessage(int windowId, ITextComponent line) {
-		super(Correlated.inst.network);
+		super(CNetwork.CONTEXT);
 		this.windowId = windowId;
 		this.line = line;
 	}

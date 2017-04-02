@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.CorrelatedWorldData;
+import com.elytradev.correlated.init.CBlocks;
 import com.elytradev.correlated.math.Vec2i;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
@@ -82,8 +82,8 @@ public class WirelessManager implements INBTSerializable<NBTTagCompound> {
 	
 	public void add(Beam b) {
 		if (b == null) return;
-		if (data.getWorld().getBlockState(b.getStart()).getBlock() != Correlated.wireless) return;
-		if (data.getWorld().getBlockState(b.getEnd()).getBlock() != Correlated.wireless) return;
+		if (data.getWorld().getBlockState(b.getStart()).getBlock() != CBlocks.WIRELESS) return;
+		if (data.getWorld().getBlockState(b.getEnd()).getBlock() != CBlocks.WIRELESS) return;
 		for (Vec2i chunk : b.chunks()) {
 			beamsByChunk.put(chunk, b);
 		}

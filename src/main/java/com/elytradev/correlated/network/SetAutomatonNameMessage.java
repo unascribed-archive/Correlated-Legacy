@@ -1,6 +1,6 @@
 package com.elytradev.correlated.network;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.init.CNetwork;
 import com.elytradev.correlated.inventory.ContainerAutomaton;
 
 import com.elytradev.concrete.Message;
@@ -22,7 +22,7 @@ public class SetAutomatonNameMessage extends Message {
 		super(ctx);
 	}
 	public SetAutomatonNameMessage(int windowId, String name) {
-		super(Correlated.inst.network);
+		super(CNetwork.CONTEXT);
 		this.windowId = windowId;
 		this.name = name;
 	}

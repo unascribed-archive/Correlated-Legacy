@@ -1,6 +1,6 @@
 package com.elytradev.correlated.network;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.init.CNetwork;
 import com.elytradev.correlated.client.gui.GuiTerminal;
 
 import com.elytradev.concrete.Message;
@@ -23,7 +23,7 @@ public class SetSearchQueryClientMessage extends Message {
 		super(ctx);
 	}
 	public SetSearchQueryClientMessage(int windowId, String query) {
-		super(Correlated.inst.network);
+		super(CNetwork.CONTEXT);
 		this.windowId = windowId;
 		this.query = query;
 	}

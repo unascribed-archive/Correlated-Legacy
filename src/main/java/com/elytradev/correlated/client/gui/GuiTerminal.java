@@ -9,6 +9,7 @@ import com.elytradev.correlated.EnergyUnit;
 import com.elytradev.correlated.client.IBMFontRenderer;
 import com.elytradev.correlated.client.gui.shell.GuiTerminalShell;
 import com.elytradev.correlated.helper.Numbers;
+import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.inventory.ContainerTerminal;
 import com.elytradev.correlated.inventory.ContainerTerminal.CraftingAmount;
 import com.elytradev.correlated.inventory.ContainerTerminal.CraftingTarget;
@@ -230,7 +231,7 @@ public class GuiTerminal extends GuiContainer {
 			if (preferredEnergySystem.isMouseOver()) {
 				drawHoveringText(Lists.newArrayList(
 						I18n.format("tooltip.correlated.preferred_energy"),
-						"\u00A77"+Correlated.inst.preferredUnit.displayName
+						"\u00A77"+CConfig.preferredUnit.displayName
 					), mouseX, mouseY);
 			}
 			if (jeiSync != null && jeiSync.isMouseOver()) {
@@ -281,7 +282,7 @@ public class GuiTerminal extends GuiContainer {
 		GlStateManager.disableLighting();
 		mc.renderEngine.bindTexture(ENERGY);
 		GlStateManager.color(1, 1, 1);
-		drawModalRectWithCustomSizedTexture(preferredEnergySystem.xPosition+2, preferredEnergySystem.yPosition+2, 0, Correlated.inst.preferredUnit.ordinal()*8, 8, 8, 8, 80);
+		drawModalRectWithCustomSizedTexture(preferredEnergySystem.xPosition+2, preferredEnergySystem.yPosition+2, 0, CConfig.preferredUnit.ordinal()*8, 8, 8, 8, 80);
 		GlStateManager.popMatrix();
 
 	}
@@ -413,15 +414,14 @@ public class GuiTerminal extends GuiContainer {
 		} else if (button.id == 8) {
 			mc.playerController.sendEnchantPacket(container.windowId, -62);
 		} else if (button.id == 9) {
-			int ordinal = Correlated.inst.preferredUnit.ordinal();
+			int ordinal = CConfig.preferredUnit.ordinal();
 			ordinal = (ordinal + 1) % EnergyUnit.values().length;
 			EnergyUnit eu = EnergyUnit.values()[ordinal];
 			if (eu == EnergyUnit.GLYPHS) {
 				eu = EnergyUnit.DANKS;
 			}
-			Correlated.inst.preferredUnit = eu;
-			Correlated.inst.config.get("Display", "preferredUnit", "Potential", Correlated.PREFERRED_UNIT_DESC).set(eu.displayName);
-			Correlated.inst.config.save();
+			CConfig.preferredUnit = eu;
+			CConfig.save();
 		}
 	}
 
@@ -530,7 +530,7 @@ public class GuiTerminal extends GuiContainer {
 				}
 			} else if (mouseButton == 1 && preferredEnergySystem.isMouseOver()) {
 				mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1));
-				int ordinal = Correlated.inst.preferredUnit.ordinal();
+				int ordinal = CConfig.preferredUnit.ordinal();
 				ordinal = (ordinal - 1) % EnergyUnit.values().length;
 				if (ordinal < 0) {
 					ordinal += EnergyUnit.values().length;
@@ -539,9 +539,8 @@ public class GuiTerminal extends GuiContainer {
 				if (eu == EnergyUnit.GLYPHS) {
 					eu = EnergyUnit.JOULES;
 				}
-				Correlated.inst.preferredUnit = eu;
-				Correlated.inst.config.get("Display", "preferredUnit", "Potential", Correlated.PREFERRED_UNIT_DESC).set(eu.displayName);
-				Correlated.inst.config.save();
+				CConfig.preferredUnit = eu;
+				CConfig.save();
 			}
 			searchField.mouseClicked(mouseX, mouseY, mouseButton);
 		}

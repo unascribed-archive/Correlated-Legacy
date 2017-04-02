@@ -4,11 +4,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.CorrelatedWorldData;
 import com.elytradev.correlated.block.BlockController;
 import com.elytradev.correlated.block.BlockController.State;
 import com.elytradev.correlated.compat.probe.UnitPotential;
 import com.elytradev.correlated.helper.DriveComparator;
+import com.elytradev.correlated.init.CConfig;
+import com.elytradev.correlated.init.CNetwork;
 import com.elytradev.correlated.item.ItemDrive;
 import com.elytradev.correlated.item.ItemMemory;
 import com.elytradev.correlated.storage.IDigitalStorage;
@@ -46,8 +50,8 @@ public class TileEntityController extends TileEntityEnergyAcceptor implements IT
 	public boolean error = false;
 	public boolean booting = true;
 	public String errorReason;
-	private int consumedPerTick = Correlated.inst.controllerPUsage;
-	private int energyCapacity = Correlated.inst.controllerCapacity;
+	private int consumedPerTick = CConfig.controllerPUsage;
+	private int energyCapacity = CConfig.controllerCapacity;
 	public int bootTicks = 0;
 	private int totalScanned = 0;
 	private transient Set<BlockPos> networkMemberLocations = Sets.newHashSet();
@@ -115,7 +119,7 @@ public class TileEntityController extends TileEntityEnergyAcceptor implements IT
 	
 	@Override
 	public int getReceiveCap() {
-		return Correlated.inst.controllerCap;
+		return CConfig.controllerCap;
 	}
 	
 	@Override
@@ -176,7 +180,7 @@ public class TileEntityController extends TileEntityEnergyAcceptor implements IT
 				getClientEnergyMax() != getMaxPotential() ||
 				getClientMemoryMax() != getMaxMemory() ||
 				getClientMemoryUsed() != getTotalUsedMemory()) {
-			Correlated.sendUpdatePacket(this);
+			CNetwork.sendUpdatePacket(this);
 		}
 		updateState();
 	}
@@ -229,7 +233,7 @@ public class TileEntityController extends TileEntityEnergyAcceptor implements IT
 			if (itr > 100) {
 				error = true;
 				errorReason = "network_too_big";
-				consumedPerTick = Correlated.inst.controllerErrorUsage_NetworkTooBig;
+				consumedPerTick = CConfig.controllerErrorUsage_NetworkTooBig;
 				return;
 			}
 			BlockPos pos = queue.remove(0);
@@ -249,7 +253,7 @@ public class TileEntityController extends TileEntityEnergyAcceptor implements IT
 					if (te instanceof TileEntityController) {
 						error = true;
 						((TileEntityController) te).error = true;
-						Correlated.log.debug("Found other controller");
+						CLog.debug("Found other controller");
 						foundOtherController = true;
 					}
 					if (!members.contains(te)) {
@@ -275,7 +279,7 @@ public class TileEntityController extends TileEntityEnergyAcceptor implements IT
 		if (foundOtherController) {
 			error = true;
 			errorReason = "multiple_controllers";
-			consumedPerTick = Correlated.inst.controllerErrorUsage_MultipleControllers;
+			consumedPerTick = CConfig.controllerErrorUsage_MultipleControllers;
 		} else {
 			error = false;
 			errorReason = null;
@@ -284,26 +288,26 @@ public class TileEntityController extends TileEntityEnergyAcceptor implements IT
 			te.setController(this);
 		}
 		totalScanned = itr;
-		int energyUsage = Correlated.inst.controllerPUsage;
+		int energyUsage = CConfig.controllerPUsage;
 		for (TileEntityNetworkMember tenm : members) {
 			energyUsage += tenm.getPotentialConsumedPerTick();
 		}
 		consumedPerTick = energyUsage;
-		if (consumedPerTick > Correlated.inst.controllerCap) {
+		if (consumedPerTick > CConfig.controllerCap) {
 			error = true;
 			errorReason = "too_much_power";
 		}
 		updateDrivesCache();
 		updateMemoryCache();
 		booting = false;
-		Correlated.log.debug("Found "+members.size()+" network members");
+		CLog.debug("Found "+members.size()+" network members");
 	}
 
 	private void updateState() {
 		if (!hasWorld()) return;
 		if (world.isRemote) return;
-		boolean cheaty = world.getBlockState(getPos()).getValue(BlockController.cheaty);
-		State old = world.getBlockState(getPos()).getValue(BlockController.state);
+		boolean cheaty = world.getBlockState(getPos()).getValue(BlockController.CHEATY);
+		State old = world.getBlockState(getPos()).getValue(BlockController.STATE);
 		State nw;
 		if (cheaty) {
 			potential = energyCapacity;
@@ -325,7 +329,7 @@ public class TileEntityController extends TileEntityEnergyAcceptor implements IT
 		}
 		if (old != nw) {
 			world.setBlockState(getPos(), world.getBlockState(getPos())
-					.withProperty(BlockController.state, nw));
+					.withProperty(BlockController.STATE, nw));
 		}
 	}
 	
@@ -370,7 +374,7 @@ public class TileEntityController extends TileEntityEnergyAcceptor implements IT
 
 	public void updateConsumptionRate(int change) {
 		consumedPerTick += change;
-		if (consumedPerTick > Correlated.inst.controllerCap) {
+		if (consumedPerTick > CConfig.controllerCap) {
 			error = true;
 			errorReason = "too_much_power";
 		} else {
@@ -514,7 +518,7 @@ public class TileEntityController extends TileEntityEnergyAcceptor implements IT
 			}
 		}
 		if (apn != null) {
-			WirelessManager wm = Correlated.getDataFor(getWorld()).getWirelessManager();
+			WirelessManager wm = CorrelatedWorldData.getFor(getWorld()).getWirelessManager();
 			for (Station s : wm.allStationsInChunk(getWorld().getChunkFromBlockCoords(getPos()))) {
 				if (s.getAPNs().contains(apn) && s.isInRange(getPos().getX()+0.5, getPos().getY()+0.5, getPos().getZ()+0.5)) {
 					for (IDigitalStorage other : s.getStorages(apn)) {
@@ -632,7 +636,7 @@ public class TileEntityController extends TileEntityEnergyAcceptor implements IT
 			if (totalScanned > 100) {
 				error = true;
 				errorReason = "network_too_big";
-				consumedPerTick = Correlated.inst.controllerErrorUsage_NetworkTooBig;
+				consumedPerTick = CConfig.controllerErrorUsage_NetworkTooBig;
 			}
 		}
 	}
@@ -748,11 +752,11 @@ public class TileEntityController extends TileEntityEnergyAcceptor implements IT
 	private final class ProbeCapability implements IProbeDataProvider {
 		@Override
 		public void provideProbeData(List<IProbeData> data) {
-			boolean cheaty = world.getBlockState(getPos()).getValue(BlockController.cheaty);
+			boolean cheaty = world.getBlockState(getPos()).getValue(BlockController.CHEATY);
 			data.add(new ProbeData(new TextComponentTranslation("tooltip.correlated.energy_stored"))
 					.withBar(0, cheaty ? Double.POSITIVE_INFINITY : clientEnergy, clientEnergyMax, UnitPotential.INSTANCE));
 			data.add(new ProbeData(new TextComponentTranslation("tooltip.correlated.energy_usage"))
-					.withBar(0, getPotentialConsumedPerTick(), Correlated.inst.controllerCap, UnitPotential.INSTANCE));
+					.withBar(0, getPotentialConsumedPerTick(), CConfig.controllerCap, UnitPotential.INSTANCE));
 			data.add(new ProbeData(new TextComponentTranslation("tooltip.correlated.memory"))
 					.withBar(0, getTotalUsedMemory()/8D, getMaxMemory()/8D, UnitDictionary.BYTES));
 			double storage = 0;

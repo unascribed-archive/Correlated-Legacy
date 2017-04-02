@@ -1,8 +1,8 @@
 package com.elytradev.correlated.network;
 
 import java.util.List;
+import com.elytradev.correlated.init.CNetwork;
 
-import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.entity.automaton.Instruction;
 import com.elytradev.correlated.entity.automaton.Opcode;
 import com.elytradev.correlated.entity.automaton.Opcode.ArgumentSpec;
@@ -38,7 +38,7 @@ public class SaveProgramMessage extends Message {
 		super(ctx);
 	}
 	public SaveProgramMessage(List<String> opcodes, List<List<String>> arguments) {
-		super(Correlated.inst.network);
+		super(CNetwork.CONTEXT);
 		this.opcodes = opcodes;
 		this.arguments = arguments;
 	}

@@ -1,6 +1,6 @@
 package com.elytradev.correlated.network;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.init.CNetwork;
 
 import com.elytradev.concrete.Message;
 import com.elytradev.concrete.NetworkContext;
@@ -27,7 +27,7 @@ public class SetSlotSizeMessage extends Message {
 		super(ctx);
 	}
 	public SetSlotSizeMessage(int windowId, int slot, int slotSize) {
-		super(Correlated.inst.network);
+		super(CNetwork.CONTEXT);
 		this.windowId = windowId;
 		this.slot = slot;
 		this.slotSize = slotSize;

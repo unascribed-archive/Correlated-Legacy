@@ -1,6 +1,7 @@
 package com.elytradev.correlated.network;
 
 import java.util.List;
+import com.elytradev.correlated.init.CNetwork;
 
 import com.elytradev.concrete.Message;
 import com.elytradev.concrete.NetworkContext;
@@ -12,7 +13,7 @@ import net.minecraftforge.fml.relauncher.Side;
 
 import com.elytradev.concrete.annotation.field.MarshalledAs;
 import com.elytradev.concrete.annotation.type.ReceivedOn;
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.wifi.IWirelessClient;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -30,14 +31,14 @@ public class ChangeAPNMessage extends Message {
 	}
 	
 	public ChangeAPNMessage(Iterable<String> apns) {
-		super(Correlated.inst.network);
+		super(CNetwork.CONTEXT);
 		this.isBlock = false;
 		this.pos = BlockPos.ORIGIN;
 		this.apns = Lists.newArrayList(apns);
 	}
 	
 	public ChangeAPNMessage(BlockPos pos, Iterable<String> apns) {
-		super(Correlated.inst.network);
+		super(CNetwork.CONTEXT);
 		this.isBlock = true;
 		this.pos = pos;
 		this.apns = Lists.newArrayList(apns);
@@ -49,14 +50,14 @@ public class ChangeAPNMessage extends Message {
 			if (sender.openContainer instanceof IWirelessClient) {
 				((IWirelessClient)sender.openContainer).setAPNs(Sets.newHashSet(apns));
 			} else {
-				Correlated.log.warn("{} attempted to update APNs when a wireless container is not open", sender.getName());
+				CLog.warn("{} attempted to update APNs when a wireless container is not open", sender.getName());
 			}
 		} else {
 			TileEntity te = sender.world.getTileEntity(pos);
 			if (te instanceof IWirelessClient) {
 				((IWirelessClient)te).setAPNs(Sets.newHashSet(apns));
 			} else {
-				Correlated.log.warn("{} attempted to update APNs for a non-wireless block at {}, {}, {}", sender.getName(), pos.getX(), pos.getY(), pos.getZ());
+				CLog.warn("{} attempted to update APNs for a non-wireless block at {}, {}, {}", sender.getName(), pos.getX(), pos.getY(), pos.getZ());
 			}
 		}
 	}

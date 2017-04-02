@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.math.Vec2f;
 import com.elytradev.hallways.DungeonTile;
 import com.elytradev.hallways.HallwayGenerator;
@@ -73,7 +73,7 @@ public class Dungeon implements INBTSerializable<NBTTagCompound> {
 				selectedComplexity = complexity;
 			}
 		}
-		Correlated.log.info("Generated a dungeon with complexity {} (target {}), after {} trials", selectedComplexity, IDEAL_COMPLEXITY, trials);
+		CLog.info("Generated a dungeon with complexity {} (target {}), after {} trials", selectedComplexity, IDEAL_COMPLEXITY, trials);
 		plan = selected;
 	}
 	

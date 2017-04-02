@@ -1,6 +1,6 @@
 package com.elytradev.correlated.tile;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.CLog;
 
 public class TileEntityPotentialisticsImporter extends TileEntityImporter {
 
@@ -23,7 +23,7 @@ public class TileEntityPotentialisticsImporter extends TileEntityImporter {
 	protected void doImport() {
 		String old = capturedNbt.getString("id");
 		String nw = old.replace("potentialistics", "");
-		Correlated.log.info("Replacing {} with {}", old, nw);
+		CLog.info("Replacing {} with {}", old, nw);
 		substitute(nw, true);
 	}
 

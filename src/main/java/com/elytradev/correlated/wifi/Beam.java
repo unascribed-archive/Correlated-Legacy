@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.CorrelatedWorldData;
 import com.elytradev.correlated.math.Vec2i;
 import com.google.common.base.Stopwatch;
@@ -73,7 +73,7 @@ public class Beam implements INBTSerializable<NBTTagCompound> {
 			
 			sw.stop();
 			if (sw.elapsed(TimeUnit.MILLISECONDS) > 50) {
-				Correlated.log.warn("Took a long time ({} > 50 ms) to calculate all used positions for a microwave beam between {}, {}, {} and {}, {}, {} - a distance of {} blocks ({} plancks x {} raycasts = {} iterations)!",
+				CLog.warn("Took a long time ({} > 50 ms) to calculate all used positions for a microwave beam between {}, {}, {} and {}, {}, {} - a distance of {} blocks ({} plancks x {} raycasts = {} iterations)!",
 						sw,
 						start.getX(), start.getY(), start.getZ(),
 						end.getX(), end.getY(), end.getZ(),

@@ -3,7 +3,7 @@ package com.elytradev.correlated.client.gui;
 import java.io.IOException;
 import java.util.Random;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.init.CSoundEvents;
 import com.elytradev.correlated.network.EnterDungeonMessage;
 import com.elytradev.correlated.proxy.ClientProxy;
 
@@ -48,7 +48,7 @@ public class GuiGlitchedMainMenu extends GuiScreen {
 	protected void actionPerformed(GuiButton button) throws IOException {
 		if (ClientProxy.glitchTicks == -1) {
 			ClientProxy.glitchTicks = 0;
-			Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(Correlated.glitchtravel, 1f));
+			Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(CSoundEvents.GLITCHTRAVEL, 1f));
 		}
 	}
 	

@@ -13,6 +13,9 @@ import com.elytradev.correlated.entity.ai.EntityAIAutomatonAttackRangedBow;
 import com.elytradev.correlated.entity.ai.EntityAIAutomatonFollowOwner;
 import com.elytradev.correlated.entity.ai.EntityAIAutomatonOwnerHurtByTarget;
 import com.elytradev.correlated.entity.ai.EntityAIAutomatonOwnerHurtTarget;
+import com.elytradev.correlated.init.CItems;
+import com.elytradev.correlated.init.CRecords;
+import com.elytradev.correlated.init.CSoundEvents;
 import com.elytradev.correlated.item.ItemDrive;
 import com.elytradev.correlated.item.ItemModule;
 import com.elytradev.correlated.item.ItemDrive.Priority;
@@ -250,12 +253,12 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return getHealth() >= 1 && !isMuted() ? Correlated.automaton_idle : null;
+		return getHealth() >= 1 && !isMuted() ? CSoundEvents.AUTOMATON_IDLE : null;
 	}
 	
 	@Override
 	protected SoundEvent getHurtSound() {
-		return Correlated.automaton_hurt;
+		return CSoundEvents.AUTOMATON_HURT;
 	}
 	
 	@Override
@@ -320,12 +323,12 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 		boolean has64k = false;
 		List<ItemStack> drives = Lists.newArrayList();
 		if (rand.nextInt(8) == 0) {
-			ItemStack voidDrive = new ItemStack(Correlated.drive, 1, 4);
-			Correlated.drive.setPriority(voidDrive, Priority.LOW);
+			ItemStack voidDrive = new ItemStack(CItems.DRIVE, 1, 4);
+			CItems.DRIVE.setPriority(voidDrive, Priority.LOW);
 			drives.add(voidDrive);
 		}
 		if (rand.nextInt(16) == 0) {
-			drives.add(new ItemStack(Correlated.drive, 1, 3));
+			drives.add(new ItemStack(CItems.DRIVE, 1, 3));
 			has64k = true;
 		}
 		if (drives.size() < 2 && rand.nextInt(4) == 0) {
@@ -333,7 +336,7 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 			if (rand.nextFloat() < 0.15f) {
 				tier++;
 			}
-			drives.add(new ItemStack(Correlated.drive, 1, tier));
+			drives.add(new ItemStack(CItems.DRIVE, 1, tier));
 		}
 		
 		if (drives.size() >= 1) {
@@ -383,13 +386,13 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 			for (int i = 0; i < rand.nextInt(64); i++) {
 				switch (rand.nextInt(3)) {
 					case 0:
-						addItemToNetwork(new ItemStack(Correlated.recordItems.get(rand.nextInt(Correlated.recordItems.size()))));
+						addItemToNetwork(new ItemStack(CRecords.RECORD_ITEMS.get(rand.nextInt(CRecords.RECORD_ITEMS.size()))));
 						break;
 					case 1:
 						addItemToNetwork(new ItemStack(Items.COOKIE, rand.nextInt(24)+1));
 						break;
 					case 2:
-						addItemToNetwork(new ItemStack(Correlated.misc, rand.nextInt(18)+1, 3));
+						addItemToNetwork(new ItemStack(CItems.MISC, rand.nextInt(18)+1, 3));
 						break;
 				}
 			}
@@ -608,8 +611,8 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	@Override
 	public EnumActionResult applyPlayerInteraction(EntityPlayer player, Vec3d vec, EnumHand hand) {
 		ItemStack stack = player.getHeldItem(hand);
-		if (stack.getItem() == Correlated.weldthrower) return EnumActionResult.PASS;
-		if (stack.getItem() == Correlated.misc && stack.getMetadata() == 5) {
+		if (stack.getItem() == CItems.WELDTHROWER) return EnumActionResult.PASS;
+		if (stack.getItem() == CItems.MISC && stack.getMetadata() == 5) {
 			if (!world.isRemote) {
 				if (!player.capabilities.isCreativeMode) {
 					stack.setCount(stack.getCount()-1);;

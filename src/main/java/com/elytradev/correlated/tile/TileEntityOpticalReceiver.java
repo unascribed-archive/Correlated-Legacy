@@ -5,9 +5,12 @@ import java.util.List;
 import java.util.Set;
 
 import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.CorrelatedWorldData;
 import com.elytradev.correlated.block.BlockWireless;
 import com.elytradev.correlated.block.BlockWireless.State;
 import com.elytradev.correlated.compat.probe.UnitPotential;
+import com.elytradev.correlated.init.CBlocks;
+import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.wifi.IWirelessClient;
 import com.elytradev.correlated.wifi.Optical;
 import com.elytradev.probe.api.IProbeData;
@@ -28,7 +31,7 @@ public class TileEntityOpticalReceiver extends TileEntityEnergyAcceptor implemen
 
 	@Override
 	public int getPotentialConsumedPerTick() {
-		return Correlated.inst.opticalPUsage;
+		return CConfig.opticalPUsage;
 	}
 	
 	@Override
@@ -49,7 +52,7 @@ public class TileEntityOpticalReceiver extends TileEntityEnergyAcceptor implemen
 	@Override
 	public void update() {
 		if (!hasWorld() || getWorld().isRemote) return;
-		Optical o = Correlated.getDataFor(world).getWirelessManager().getOptical(getPos());
+		Optical o = CorrelatedWorldData.getFor(world).getWirelessManager().getOptical(getPos());
 		State newState = State.DEAD;
 		if (hasController() ? !getController().isPowered() : getPotentialStored() < getPotentialConsumedPerTick()) {
 			newState = State.DEAD;
@@ -61,9 +64,9 @@ public class TileEntityOpticalReceiver extends TileEntityEnergyAcceptor implemen
 			}
 		}
 		IBlockState ibs = world.getBlockState(getPos());
-		if (ibs.getBlock() == Correlated.wireless) {
-			if (ibs.getValue(BlockWireless.state) != newState) {
-				world.setBlockState(getPos(), ibs.withProperty(BlockWireless.state, newState));
+		if (ibs.getBlock() == CBlocks.WIRELESS) {
+			if (ibs.getValue(BlockWireless.STATE) != newState) {
+				world.setBlockState(getPos(), ibs.withProperty(BlockWireless.STATE, newState));
 			}
 		}
 		if (!hasController()) {
@@ -98,13 +101,13 @@ public class TileEntityOpticalReceiver extends TileEntityEnergyAcceptor implemen
 	@Override
 	public void setAPNs(Set<String> apn) {
 		if (apn.size() > 1) throw new IllegalArgumentException("Only supports 1 APN");
-		Optical o = Correlated.getDataFor(world).getWirelessManager().getOptical(getPos());
+		Optical o = CorrelatedWorldData.getFor(world).getWirelessManager().getOptical(getPos());
 		o.setAPN(apn.isEmpty() ? null : apn.iterator().next());
 	}
 
 	@Override
 	public Set<String> getAPNs() {
-		Optical o = Correlated.getDataFor(world).getWirelessManager().getOptical(getPos());
+		Optical o = CorrelatedWorldData.getFor(world).getWirelessManager().getOptical(getPos());
 		return o.getAPN() == null ? Collections.emptySet() : Collections.singleton(o.getAPN());
 	}
 
@@ -152,7 +155,7 @@ public class TileEntityOpticalReceiver extends TileEntityEnergyAcceptor implemen
 	private final class ProbeCapability implements IProbeDataProvider {
 		@Override
 		public void provideProbeData(List<IProbeData> data) {
-			Optical o = Correlated.getDataFor(world).getWirelessManager().getOptical(getPos());
+			Optical o = CorrelatedWorldData.getFor(world).getWirelessManager().getOptical(getPos());
 			if (o != null) {
 				data.add(new ProbeData(new TextComponentTranslation("tooltip.correlated.apn", o.getAPN())));
 			}

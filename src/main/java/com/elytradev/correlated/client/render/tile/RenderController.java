@@ -5,6 +5,7 @@ import org.lwjgl.opengl.GL11;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.block.BlockController;
 import com.elytradev.correlated.block.BlockController.State;
+import com.elytradev.correlated.init.CBlocks;
 import com.elytradev.correlated.tile.TileEntityController;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -22,13 +23,13 @@ public class RenderController extends TileEntitySpecialRenderer<TileEntityContro
 	@Override
 	public void renderTileEntityAt(TileEntityController te, double x, double y, double z, float partialTicks, int destroyStage) {
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
-		if (bs.getBlock() != Correlated.controller) return;
+		if (bs.getBlock() != CBlocks.CONTROLLER) return;
 
 		float lastX = OpenGlHelper.lastBrightnessX;
 		float lastY = OpenGlHelper.lastBrightnessY;
 
-		State state = bs.getValue(BlockController.state);
-		boolean cheaty = bs.getValue(BlockController.cheaty);
+		State state = bs.getValue(BlockController.STATE);
+		boolean cheaty = bs.getValue(BlockController.CHEATY);
 		String topTex;
 		switch (state) {
 			case BOOTING:

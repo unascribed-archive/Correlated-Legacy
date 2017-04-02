@@ -8,8 +8,8 @@ import java.lang.management.MemoryUsage;
 import java.text.NumberFormat;
 import java.util.Iterator;
 
-import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.client.IBMFontRenderer;
+import com.elytradev.correlated.init.CSoundEvents;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -124,10 +124,10 @@ public class GuiFakeReboot extends GuiScreen {
 	public void updateScreen() {
 		ticks++;
 		if (ticks == 30) {
-			Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(Correlated.glitchfloppy, 1f));
+			Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(CSoundEvents.GLITCHFLOPPY, 1f));
 		}
 		if (ticks == 115) {
-			Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(Correlated.glitchboot, 1f));
+			Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(CSoundEvents.GLITCHBOOT, 1f));
 		}
 		if (ticks > 250) {
 			Minecraft.getMinecraft().displayGuiScreen(new GuiGlitchedMainMenu());

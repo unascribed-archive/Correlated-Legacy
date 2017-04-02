@@ -7,8 +7,12 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.CorrelatedWorldData;
 import com.elytradev.correlated.block.BlockTerminal;
 import com.elytradev.correlated.compat.probe.UnitPotential;
+import com.elytradev.correlated.init.CBlocks;
+import com.elytradev.correlated.init.CConfig;
+import com.elytradev.correlated.init.CNetwork;
 import com.elytradev.correlated.network.ChangeAPNMessage;
 import com.elytradev.correlated.storage.CompoundDigitalStorage;
 import com.elytradev.correlated.storage.IDigitalStorage;
@@ -53,7 +57,7 @@ public class TileEntityTerminal extends TileEntityEnergyAcceptor implements ITic
 	public void update() {
 		if (hasWorld() && !world.isRemote) {
 			IBlockState state = getWorld().getBlockState(getPos());
-			if (state.getBlock() == Correlated.terminal) {
+			if (state.getBlock() == CBlocks.TERMINAL) {
 				boolean lit;
 				if (hasController()) {
 					lit = getController().isPowered();
@@ -94,7 +98,7 @@ public class TileEntityTerminal extends TileEntityEnergyAcceptor implements ITic
 	
 	public void setError(String error) {
 		this.error = error;
-		Correlated.sendUpdatePacket(this);
+		CNetwork.sendUpdatePacket(this);
 	}
 	
 	@Override
@@ -121,7 +125,7 @@ public class TileEntityTerminal extends TileEntityEnergyAcceptor implements ITic
 	
 	@Override
 	public int getPotentialConsumedPerTick() {
-		return Correlated.inst.terminalPUsage;
+		return CConfig.terminalPUsage;
 	}
 
 	public UserPreferences getPreferences(UUID uuid) {
@@ -209,7 +213,7 @@ public class TileEntityTerminal extends TileEntityEnergyAcceptor implements ITic
 	public IDigitalStorage getStorage() {
 		if (hasController()) return getController();
 		if (apn == null) return null;
-		Iterable<Station> li = Correlated.getDataFor(world).getWirelessManager().allStationsInChunk(world.getChunkFromBlockCoords(getPosition()));
+		Iterable<Station> li = CorrelatedWorldData.getFor(world).getWirelessManager().allStationsInChunk(world.getChunkFromBlockCoords(getPosition()));
 		for (Station s : li) {
 			if (s.getAPNs().contains(apn) && s.isInRange(getX(), getY(), getZ())) {
 				List<IDigitalStorage> storages = s.getStorages(apn);
@@ -369,7 +373,7 @@ public class TileEntityTerminal extends TileEntityEnergyAcceptor implements ITic
 	@Override
 	public int getSignalStrength() {
 		if (hasController()) return -1;
-		WirelessManager wm = Correlated.getDataFor(getWorld()).getWirelessManager();
+		WirelessManager wm = CorrelatedWorldData.getFor(getWorld()).getWirelessManager();
 		return wm.getSignalStrength(getX(), getY(), getZ(), getAPN());
 	}
 	

@@ -1,6 +1,6 @@
 package com.elytradev.correlated.network;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.init.CNetwork;
 import com.elytradev.correlated.client.gui.shell.GuiTerminalShell;
 import com.elytradev.correlated.client.gui.shell.RSOD;
 import com.elytradev.correlated.tile.TileEntityTerminal;
@@ -24,7 +24,7 @@ public class ShowTerminalErrorMessage extends Message {
 	}
 	
 	public ShowTerminalErrorMessage(BlockPos pos) {
-		super(Correlated.inst.network);
+		super(CNetwork.CONTEXT);
 		this.pos = pos;
 	}
 

@@ -2,7 +2,8 @@ package com.elytradev.correlated.block.item;
 
 import java.util.List;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.EnergyHelper;
+import com.elytradev.correlated.init.CConfig;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,9 +19,9 @@ public class ItemBlockController extends ItemBlock {
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
 		if (stack.getMetadata() == 8) {
-			tooltip.add(Correlated.formatPotentialUsage(0));
+			tooltip.add(EnergyHelper.formatPotentialUsage(0));
 		} else {
-			tooltip.add(Correlated.formatPotentialUsage(Correlated.inst.controllerPUsage));
+			tooltip.add(EnergyHelper.formatPotentialUsage(CConfig.controllerPUsage));
 		}
 	}
 	

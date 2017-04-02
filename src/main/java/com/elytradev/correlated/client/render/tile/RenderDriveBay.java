@@ -5,6 +5,7 @@ import org.lwjgl.opengl.GL11;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.block.BlockDriveBay;
 import com.elytradev.correlated.client.render.ProtrudingBoxRenderer;
+import com.elytradev.correlated.init.CBlocks;
 import com.elytradev.correlated.item.ItemDrive;
 import com.elytradev.correlated.tile.TileEntityDriveBay;
 
@@ -70,7 +71,7 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 	@Override
 	public void renderTileEntityAt(TileEntityDriveBay te, double x, double y, double z, float partialTicks, int destroyStage) {
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
-		if (bs.getBlock() != Correlated.drive_bay) return;
+		if (bs.getBlock() != CBlocks.DRIVE_BAY) return;
 
 		boolean lit = bs.getValue(BlockDriveBay.LIT);
 		

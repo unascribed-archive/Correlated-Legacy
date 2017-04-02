@@ -2,9 +2,9 @@ package com.elytradev.correlated.client.render.tile;
 
 import org.lwjgl.opengl.GL11;
 
-import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.block.BlockWireless;
 import com.elytradev.correlated.block.BlockWireless.State;
+import com.elytradev.correlated.init.CBlocks;
 import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
 
 import net.minecraft.block.state.IBlockState;
@@ -24,15 +24,15 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 
 public class RenderMicrowaveBeam extends TileEntitySpecialRenderer<TileEntityMicrowaveBeam> {
-	private final IBlockState beamBlockState = Correlated.wireless.getDefaultState();
+	private final IBlockState beamBlockState = CBlocks.WIRELESS.getDefaultState();
 	@Override
 	public void renderTileEntityAt(TileEntityMicrowaveBeam te, double x, double y, double z, float partialTicks, int destroyStage) {
 		State state = State.DEAD;
 		if (te != null) {
 			if (te.hasWorld()) {
 				IBlockState bs = te.getWorld().getBlockState(te.getPos());
-				if (bs.getBlock() != Correlated.wireless) return;
-				state = bs.getValue(BlockWireless.state);
+				if (bs.getBlock() != CBlocks.WIRELESS) return;
+				state = bs.getValue(BlockWireless.STATE);
 			} else {
 				return;
 			}

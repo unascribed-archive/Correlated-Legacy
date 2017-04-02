@@ -45,8 +45,8 @@ public class BlockController extends Block {
 			return name;
 		}
 	}
-	public static final PropertyBool cheaty = PropertyBool.create("cheaty");
-	public static final IProperty<State> state = PropertyEnum.create("state", State.class);
+	public static final PropertyBool CHEATY = PropertyBool.create("cheaty");
+	public static final IProperty<State> STATE = PropertyEnum.create("state", State.class);
 	public BlockController() {
 		super(Material.IRON);
 	}
@@ -78,17 +78,17 @@ public class BlockController extends Block {
 
 	@Override
 	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, state, cheaty);
+		return new BlockStateContainer(this, STATE, CHEATY);
 	}
 
 	@Override
 	public int getMetaFromState(IBlockState blockState) {
-		return blockState.getValue(state).ordinal() | (blockState.getValue(cheaty) ? 0b1000 : 0);
+		return blockState.getValue(STATE).ordinal() | (blockState.getValue(CHEATY) ? 0b1000 : 0);
 	}
 
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
-		return getDefaultState().withProperty(state, State.values[meta&0b0111%State.values.length]).withProperty(cheaty, (meta&0b1000) != 0);
+		return getDefaultState().withProperty(STATE, State.values[meta&0b0111%State.values.length]).withProperty(CHEATY, (meta&0b1000) != 0);
 	}
 
 	@Override

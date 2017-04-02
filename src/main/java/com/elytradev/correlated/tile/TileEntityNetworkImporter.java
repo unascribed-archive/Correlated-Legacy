@@ -3,10 +3,14 @@ package com.elytradev.correlated.tile;
 import java.util.List;
 import java.util.Set;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.CLog;
+import com.elytradev.correlated.ImportMode;
 import com.elytradev.correlated.block.BlockDriveBay;
 import com.elytradev.correlated.block.BlockImporterChest;
 import com.elytradev.correlated.block.BlockTerminal;
+import com.elytradev.correlated.init.CBlocks;
+import com.elytradev.correlated.init.CConfig;
+import com.elytradev.correlated.init.CItems;
 import com.google.common.collect.EnumMultiset;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
@@ -28,17 +32,17 @@ public class TileEntityNetworkImporter extends TileEntityImporter {
 	
 	@Override
 	protected void doImport() {
-		if (!Correlated.inst.importNetworks) {
-			Correlated.log.warn("Skipping import of old network at {}, {}, {}, this may cause glitches!", getPos().getX(), getPos().getY(), getPos().getZ());
+		if (CConfig.importMode == ImportMode.LEAVE) {
+			CLog.warn("Skipping import of old network at {}, {}, {}, this may cause glitches!", getPos().getX(), getPos().getY(), getPos().getZ());
 			substitute(new TileEntityController(), true);
 			return;
 		}
 		
-		boolean justDelete = !(Correlated.inst.refundBlocks || Correlated.inst.refundContent || Correlated.inst.refundComponents);
+		boolean justDelete = CConfig.importMode == ImportMode.DESTROY;
 		if (justDelete) {
-			Correlated.log.info("DELETING OLD NETWORK AT {}, {}, {}, as requested in config!", getPos().getX(), getPos().getY(), getPos().getZ());
+			CLog.info("DELETING OLD NETWORK AT {}, {}, {}, as requested in config!", getPos().getX(), getPos().getY(), getPos().getZ());
 		} else {
-			Correlated.log.info("Scanning old network at {}, {}, {}...", getPos().getX(), getPos().getY(), getPos().getZ());
+			CLog.info("Scanning old network at {}, {}, {}...", getPos().getX(), getPos().getY(), getPos().getZ());
 		}
 		Set<BlockPos> seen = Sets.newHashSet();
 		List<BlockPos> queue = Lists.newArrayList(getPos());
@@ -50,7 +54,7 @@ public class TileEntityNetworkImporter extends TileEntityImporter {
 		
 		Multiset<EnumFacing> directions = EnumMultiset.create(EnumFacing.class);
 		
-		blockRefunds.add(new ItemStack(Correlated.controller));
+		blockRefunds.add(new ItemStack(CBlocks.CONTROLLER));
 		
 		int refundIron = 0;
 		int refundCeramicPlatters = 0;
@@ -74,7 +78,7 @@ public class TileEntityNetworkImporter extends TileEntityImporter {
 				}
 				if (te != this) {
 					if (te instanceof TileEntityDriveBay) {
-						if (Correlated.inst.refundContent) {
+						if (CConfig.importMode == ImportMode.REFUND_ALL || CConfig.importMode == ImportMode.REFUND_SOME || CConfig.importMode == ImportMode.REFUND_CONTENT) {
 							for (ItemStack is : ((TileEntityDriveBay)te)) {
 								if (is.getMetadata() != 4) {
 									contentRefunds.add(toCore(is));
@@ -108,11 +112,11 @@ public class TileEntityNetworkImporter extends TileEntityImporter {
 								}
 							}
 						}
-						blockRefunds.add(new ItemStack(Correlated.drive_bay));
+						blockRefunds.add(new ItemStack(CBlocks.DRIVE_BAY));
 						directions.add(world.getBlockState(pos).getValue(BlockDriveBay.FACING));
 						delete.add(pos);
 					} else if (te instanceof TileEntityTerminal) {
-						blockRefunds.add(new ItemStack(Correlated.terminal));
+						blockRefunds.add(new ItemStack(CBlocks.TERMINAL));
 						directions.add(world.getBlockState(pos).getValue(BlockTerminal.FACING));
 						delete.add(pos);
 					} else if (te instanceof TileEntityOldWirelessReceiver) {
@@ -131,13 +135,13 @@ public class TileEntityNetworkImporter extends TileEntityImporter {
 								contentRefunds.add(is);
 							}
 						}
-						blockRefunds.add(new ItemStack(Correlated.iface));
+						blockRefunds.add(new ItemStack(CBlocks.INTERFACE));
 						delete.add(pos);
 					} else if (te instanceof TileEntityController || te instanceof TileEntityNetworkImporter) {
-						blockRefunds.add(new ItemStack(Correlated.controller));
+						blockRefunds.add(new ItemStack(CBlocks.CONTROLLER));
 						delete.add(pos);
 					} else if (te instanceof TileEntityMemoryBay) {
-						Correlated.log.info("Aborting import. Found a memory bay, which is indicative of a new network");
+						CLog.info("Aborting import. Found a memory bay, which is indicative of a new network");
 						substitute(new TileEntityController(), true);
 						return;
 					}
@@ -149,7 +153,7 @@ public class TileEntityNetworkImporter extends TileEntityImporter {
 			world.setBlockToAir(d);
 		}
 		if (justDelete) {
-			Correlated.log.info("Sucessfully deleted old network at {}, {}, {}", getPos().getX(), getPos().getY(), getPos().getZ());
+			CLog.info("Sucessfully deleted old network at {}, {}, {}", getPos().getX(), getPos().getY(), getPos().getZ());
 			substitute(Blocks.AIR.getDefaultState(), null, false);
 			return;
 		}
@@ -162,19 +166,19 @@ public class TileEntityNetworkImporter extends TileEntityImporter {
 				weight = en.getCount();
 			}
 		}
-		if (Correlated.inst.refundComponents) {
+		if (CConfig.importMode == ImportMode.REFUND_ALL) {
 			if (refundIron > 0) chest.addItemToNetwork(new ItemStack(Items.IRON_INGOT, refundIron));
-			if (refundCeramicPlatters > 0) chest.addItemToNetwork(new ItemStack(Correlated.misc, refundCeramicPlatters, 1));
-			if (refundMetallicPlatters > 0) chest.addItemToNetwork(new ItemStack(Correlated.misc, refundMetallicPlatters, 2));
-			if (refundPearls > 0) chest.addItemToNetwork(new ItemStack(Correlated.misc, refundPearls, 3));
+			if (refundCeramicPlatters > 0) chest.addItemToNetwork(new ItemStack(CItems.MISC, refundCeramicPlatters, 1));
+			if (refundMetallicPlatters > 0) chest.addItemToNetwork(new ItemStack(CItems.MISC, refundMetallicPlatters, 2));
+			if (refundPearls > 0) chest.addItemToNetwork(new ItemStack(CItems.MISC, refundPearls, 3));
 			if (refundDiamonds > 0) chest.addItemToNetwork(new ItemStack(Items.DIAMOND, refundDiamonds));
 		}
-		if (Correlated.inst.refundBlocks) {
+		if (CConfig.importMode == ImportMode.REFUND_ALL || CConfig.importMode == ImportMode.REFUND_SOME) {
 			for (ItemStack is : blockRefunds) {
 				chest.addItemToNetwork(is);
 			}
 		}
-		if (Correlated.inst.refundContent) {
+		if (CConfig.importMode == ImportMode.REFUND_ALL || CConfig.importMode == ImportMode.REFUND_SOME || CConfig.importMode == ImportMode.REFUND_CONTENT) {
 			for (ItemStack is : contentRefunds) {
 				chest.addItemToNetwork(is);
 			}
@@ -186,12 +190,12 @@ public class TileEntityNetworkImporter extends TileEntityImporter {
 				sum += is.getCount();
 			}
 		}
-		Correlated.log.info("Sucessfully imported old network at {}, {}, {}, refunding {} items", getPos().getX(), getPos().getY(), getPos().getZ(), sum);
-		substitute(Correlated.importer_chest.getDefaultState().withProperty(BlockImporterChest.FACING, facing), chest, false);
+		CLog.info("Sucessfully imported old network at {}, {}, {}, refunding {} items", getPos().getX(), getPos().getY(), getPos().getZ(), sum);
+		substitute(CBlocks.IMPORTER_CHEST.getDefaultState().withProperty(BlockImporterChest.FACING, facing), chest, false);
 	}
 
 	private ItemStack toCore(ItemStack is) {
-		ItemStack core = new ItemStack(Correlated.misc, 1, 8);
+		ItemStack core = new ItemStack(CItems.MISC, 1, 8);
 		if (is.hasTagCompound()) {
 			core.setTagCompound(is.getTagCompound().copy());
 		} else {

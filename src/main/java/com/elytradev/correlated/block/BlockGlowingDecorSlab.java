@@ -2,7 +2,7 @@ package com.elytradev.correlated.block;
 
 import java.util.Random;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.init.CBlocks;
 
 import net.minecraft.block.BlockSlab;
 import net.minecraft.block.material.Material;
@@ -29,17 +29,17 @@ public class BlockGlowingDecorSlab extends BlockSlab {
 			ibs = ibs.withProperty(HALF, BlockSlab.EnumBlockHalf.BOTTOM);
 		}
 
-		setDefaultState(ibs.withProperty(BlockGlowingDecor.variant, BlockGlowingDecor.Variant.LITHOGRAPHENE_OFF));
+		setDefaultState(ibs.withProperty(BlockGlowingDecor.VARIANT, BlockGlowingDecor.Variant.LITHOGRAPHENE_OFF));
 	}
 	
 	@Override
 	public Item getItemDropped(IBlockState state, Random rand, int fortune) {
-		return Item.getItemFromBlock(Correlated.glowing_decor_slab);
+		return Item.getItemFromBlock(CBlocks.GLOWING_DECOR_SLAB);
 	}
 	
 	@Override
 	public int damageDropped(IBlockState state) {
-		return state.getValue(BlockGlowingDecor.variant).ordinal();
+		return state.getValue(BlockGlowingDecor.VARIANT).ordinal();
 	}
 	
 	@Override
@@ -54,12 +54,12 @@ public class BlockGlowingDecorSlab extends BlockSlab {
 	
 	@Override
 	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
-		return state.getValue(BlockGlowingDecor.variant).glow ? 15 : 2;
+		return state.getValue(BlockGlowingDecor.VARIANT).glow ? 15 : 2;
 	}
 
 	@Override
 	public IProperty<?> getVariantProperty() {
-		return BlockGlowingDecor.variant;
+		return BlockGlowingDecor.VARIANT;
 	}
 	
 	@Override
@@ -72,14 +72,14 @@ public class BlockGlowingDecorSlab extends BlockSlab {
 							: BlockSlab.EnumBlockHalf.TOP);
 		}
 		
-		iblockstate = iblockstate.withProperty(BlockGlowingDecor.variant, BlockGlowingDecor.Variant.VALUES[(meta & 7)%BlockGlowingDecor.Variant.VALUES.length]);
+		iblockstate = iblockstate.withProperty(BlockGlowingDecor.VARIANT, BlockGlowingDecor.Variant.VALUES[(meta & 7)%BlockGlowingDecor.Variant.VALUES.length]);
 		
 		return iblockstate;
 	}
 
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		int i = state.getValue(BlockGlowingDecor.variant).ordinal();
+		int i = state.getValue(BlockGlowingDecor.VARIANT).ordinal();
 
 		if (!isDouble() && state.getValue(HALF) == BlockSlab.EnumBlockHalf.TOP) {
 			i |= 8;
@@ -91,8 +91,8 @@ public class BlockGlowingDecorSlab extends BlockSlab {
 	@Override
 	protected BlockStateContainer createBlockState() {
 		return isDouble()
-				? new BlockStateContainer(this, BlockGlowingDecor.variant)
-				: new BlockStateContainer(this, HALF, BlockGlowingDecor.variant);
+				? new BlockStateContainer(this, BlockGlowingDecor.VARIANT)
+				: new BlockStateContainer(this, HALF, BlockGlowingDecor.VARIANT);
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package com.elytradev.correlated.network;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.init.CNetwork;
 import com.elytradev.correlated.client.gui.shell.AutomatonProgrammer;
 import com.elytradev.correlated.client.gui.shell.GuiTerminalShell;
 
@@ -24,7 +24,7 @@ public class SetEditorStatusMessage extends Message {
 		super(ctx);
 	}
 	public SetEditorStatusMessage(int windowId, String line) {
-		super(Correlated.inst.network);
+		super(CNetwork.CONTEXT);
 		this.windowId = windowId;
 		this.line = line;
 	}

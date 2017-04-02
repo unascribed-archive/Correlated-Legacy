@@ -2,9 +2,10 @@ package com.elytradev.correlated.item;
 
 import java.util.List;
 
-import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.entity.EntityThrownItem;
 import com.elytradev.correlated.helper.Numbers;
+import com.elytradev.correlated.init.CConfig;
+import com.elytradev.correlated.init.CItems;
 
 import net.minecraft.block.BlockDispenser;
 import net.minecraft.creativetab.CreativeTabs;
@@ -88,7 +89,7 @@ public class ItemMisc extends Item {
 			i++;
 		}
 		if (stack.getMetadata() == 8) {
-			int bitsUsed = Correlated.drive.getKilobitsUsed(stack)*1024;
+			int bitsUsed = CItems.DRIVE.getKilobitsUsed(stack)*1024;
 
 			tooltip.add(I18n.translateToLocalFormatted("tooltip.correlated.bytes_contained", Numbers.humanReadableBits(bitsUsed)));
 		}
@@ -109,7 +110,7 @@ public class ItemMisc extends Item {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand) {
 		ItemStack itemStackIn = playerIn.getHeldItem(hand);
-		if (!(playerIn instanceof FakePlayer) && playerIn.dimension != Correlated.limboDimId && (itemStackIn.getMetadata() == 3 || itemStackIn.getMetadata() == 6 || itemStackIn.getMetadata() == 8)) {
+		if (!(playerIn instanceof FakePlayer) && playerIn.dimension != CConfig.limboDimId && (itemStackIn.getMetadata() == 3 || itemStackIn.getMetadata() == 6 || itemStackIn.getMetadata() == 8)) {
 			if (!playerIn.capabilities.isCreativeMode) {
 				itemStackIn.setCount(itemStackIn.getCount()-1);
 			}

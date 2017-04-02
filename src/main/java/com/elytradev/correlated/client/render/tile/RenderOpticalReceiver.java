@@ -2,9 +2,9 @@ package com.elytradev.correlated.client.render.tile;
 
 import org.lwjgl.opengl.GL11;
 
-import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.block.BlockWireless;
 import com.elytradev.correlated.block.BlockWireless.State;
+import com.elytradev.correlated.init.CBlocks;
 import com.elytradev.correlated.tile.TileEntityOpticalReceiver;
 
 import net.minecraft.block.state.IBlockState;
@@ -25,12 +25,12 @@ public class RenderOpticalReceiver extends TileEntitySpecialRenderer<TileEntityO
 		super.renderTileEntityAt(te, x, y, z, partialTicks, destroyStage);
 		
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
-		if (bs.getBlock() != Correlated.wireless) return;
+		if (bs.getBlock() != CBlocks.WIRELESS) return;
 
 		float lastX = OpenGlHelper.lastBrightnessX;
 		float lastY = OpenGlHelper.lastBrightnessY;
 
-		State state = bs.getValue(BlockWireless.state);
+		State state = bs.getValue(BlockWireless.STATE);
 		String texStr;
 		switch (state) {
 			case DEAD:

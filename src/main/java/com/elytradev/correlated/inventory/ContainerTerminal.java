@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import com.google.common.primitives.Ints;
+import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.client.gui.GuiTerminal;
 import com.elytradev.correlated.helper.Numbers;
@@ -174,7 +175,7 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 				}
 			} else {
 				if (!stack.isEmpty()) {
-					Correlated.log.warn("putStack was called on a virtual slot", new RuntimeException()
+					CLog.warn("putStack was called on a virtual slot", new RuntimeException()
 						.fillInStackTrace());
 					addItemToNetwork(stack);
 				}

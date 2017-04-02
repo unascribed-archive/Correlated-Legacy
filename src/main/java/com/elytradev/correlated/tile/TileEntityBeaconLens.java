@@ -7,8 +7,10 @@ import java.util.Set;
 import com.elytradev.concrete.reflect.accessor.Accessor;
 import com.elytradev.concrete.reflect.accessor.Accessors;
 import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.CorrelatedWorldData;
 import com.elytradev.correlated.block.BlockWireless;
 import com.elytradev.correlated.block.BlockWireless.State;
+import com.elytradev.correlated.init.CBlocks;
 import com.elytradev.correlated.wifi.Beacon;
 import com.elytradev.correlated.wifi.IWirelessClient;
 import com.elytradev.probe.api.IProbeData;
@@ -33,7 +35,7 @@ public class TileEntityBeaconLens extends TileEntity implements IWirelessClient,
 	@Override
 	public void update() {
 		if (!hasWorld() || getWorld().isRemote) return;
-		Beacon b = Correlated.getDataFor(world).getWirelessManager().getBeacon(getPos());
+		Beacon b = CorrelatedWorldData.getFor(world).getWirelessManager().getBeacon(getPos());
 		State newState = State.DEAD;
 		TileEntity te = getWorld().getTileEntity(getPos().down());
 		if (te == null || !(te instanceof TileEntityBeacon) || !isComplete.get(te)) {
@@ -53,9 +55,9 @@ public class TileEntityBeaconLens extends TileEntity implements IWirelessClient,
 			}
 		}
 		IBlockState ibs = world.getBlockState(getPos());
-		if (ibs.getBlock() == Correlated.wireless) {
-			if (ibs.getValue(BlockWireless.state) != newState) {
-				world.setBlockState(getPos(), ibs.withProperty(BlockWireless.state, newState));
+		if (ibs.getBlock() == CBlocks.WIRELESS) {
+			if (ibs.getValue(BlockWireless.STATE) != newState) {
+				world.setBlockState(getPos(), ibs.withProperty(BlockWireless.STATE, newState));
 				BlockBeacon.updateColorAsync(world, getPos());
 			}
 		}
@@ -63,7 +65,7 @@ public class TileEntityBeaconLens extends TileEntity implements IWirelessClient,
 	
 	@Override
 	public void setAPNs(Set<String> apn) {
-		Beacon b = Correlated.getDataFor(getWorld()).getWirelessManager().getBeacon(getPos());
+		Beacon b = CorrelatedWorldData.getFor(getWorld()).getWirelessManager().getBeacon(getPos());
 		if (b != null) {
 			b.setAPNs(apn);
 		}
@@ -71,7 +73,7 @@ public class TileEntityBeaconLens extends TileEntity implements IWirelessClient,
 
 	@Override
 	public Set<String> getAPNs() {
-		Beacon b = Correlated.getDataFor(getWorld()).getWirelessManager().getBeacon(getPos());
+		Beacon b = CorrelatedWorldData.getFor(getWorld()).getWirelessManager().getBeacon(getPos());
 		if (b != null) {
 			return b.getAPNs();
 		}
@@ -122,7 +124,7 @@ public class TileEntityBeaconLens extends TileEntity implements IWirelessClient,
 	private final class ProbeCapability implements IProbeDataProvider {
 		@Override
 		public void provideProbeData(List<IProbeData> data) {
-			Beacon b = Correlated.getDataFor(world).getWirelessManager().getBeacon(getPos());
+			Beacon b = CorrelatedWorldData.getFor(world).getWirelessManager().getBeacon(getPos());
 			if (b != null) {
 				data.add(new ProbeData(new TextComponentTranslation("tooltip.correlated.apns", Joiner.on(", ").join(b.getAPNs()))));
 			}

@@ -6,6 +6,9 @@ import java.util.List;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.block.BlockDriveBay;
 import com.elytradev.correlated.helper.ItemStacks;
+import com.elytradev.correlated.init.CBlocks;
+import com.elytradev.correlated.init.CConfig;
+import com.elytradev.correlated.init.CNetwork;
 import com.elytradev.correlated.item.ItemDrive;
 import com.google.common.collect.Iterators;
 
@@ -28,7 +31,7 @@ import java.util.Arrays;
 public class TileEntityDriveBay extends TileEntityNetworkMember implements ITickable, Iterable<ItemStack> {
 
 	private ItemStack[] drives = new ItemStack[8];
-	private int consumedPerTick = Correlated.inst.driveBayPUsage;
+	private int consumedPerTick = CConfig.driveBayPUsage;
 	
 	public TileEntityDriveBay() {
 		Arrays.fill(drives, ItemStack.EMPTY);
@@ -135,7 +138,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 				}
 			}
 			IBlockState state = getWorld().getBlockState(getPos());
-			if (state.getBlock() == Correlated.drive_bay) {
+			if (state.getBlock() == CBlocks.DRIVE_BAY) {
 				boolean lit;
 				if (hasController() && getController().isPowered()) {
 					lit = true;
@@ -157,7 +160,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 		ItemDrive id = ((ItemDrive)drive.getItem());
 		nbt.setInteger("Slot", slot);
 		nbt.setInteger("UsedBits", id.getKilobitsUsed(drive));
-		Correlated.sendUpdatePacket(this, nbt);
+		CNetwork.sendUpdatePacket(this, nbt);
 	}
 	
 	public void setDriveInSlot(int slot, ItemStack drive) {
@@ -172,14 +175,14 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 			} else {
 				nbt.setTag("Drive"+slot, new NBTTagCompound());
 			}
-			Correlated.sendUpdatePacket(this, nbt); 
+			CNetwork.sendUpdatePacket(this, nbt); 
 			onDriveChange();
 		}
 	}
 
 	private void onDriveChange() {
 		int old = consumedPerTick;
-		consumedPerTick = Correlated.inst.driveBayPUsage;
+		consumedPerTick = CConfig.driveBayPUsage;
 		for (ItemStack is : drives) {
 			if (is.getItem() instanceof ItemDrive) {
 				consumedPerTick += ((ItemDrive)is.getItem()).getPotentialConsumptionRate(is);

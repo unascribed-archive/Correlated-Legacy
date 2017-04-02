@@ -2,9 +2,12 @@ package com.elytradev.correlated.block.item;
 
 import java.util.List;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.CorrelatedWorldData;
+import com.elytradev.correlated.EnergyHelper;
 import com.elytradev.correlated.block.BlockWireless;
 import com.elytradev.correlated.block.BlockWireless.Variant;
+import com.elytradev.correlated.init.CBlocks;
+import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
 import com.elytradev.correlated.wifi.Beam;
 
@@ -33,10 +36,10 @@ public class ItemBlockWireless extends ItemBlock {
 		if (stack.getMetadata() == 0) {
 			tooltip.add(I18n.format("tile.correlated.microwave_beam.0"));
 			tooltip.add(I18n.format("tile.correlated.microwave_beam.1"));
-			tooltip.add(Correlated.formatPotentialUsage(Correlated.inst.beamPUsage));
+			tooltip.add(EnergyHelper.formatPotentialUsage(CConfig.beamPUsage));
 		} else if (stack.getMetadata() == 1) {
 			tooltip.add(I18n.format("tile.correlated.optical.0"));
-			tooltip.add(Correlated.formatPotentialUsage(Correlated.inst.opticalPUsage));
+			tooltip.add(EnergyHelper.formatPotentialUsage(CConfig.opticalPUsage));
 		} else if (stack.getMetadata() == 2) {
 			tooltip.add(I18n.format("tile.correlated.beacon_lens.0"));
 		}
@@ -71,7 +74,7 @@ public class ItemBlockWireless extends ItemBlock {
 			}
 			if (stack.hasTagCompound() && stack.getTagCompound().hasKey("OtherSide")) {
 				BlockPos other = BlockPos.fromLong(stack.getTagCompound().getLong("OtherSide"));
-				Beam b = Correlated.getDataFor(world).getWirelessManager().getBeam(other);
+				Beam b = CorrelatedWorldData.getFor(world).getWirelessManager().getBeam(other);
 				if (b != null) {
 					player.sendMessage(new TextComponentTranslation("msg.correlated.beam_exists"));
 					return EnumActionResult.FAIL;
@@ -88,7 +91,7 @@ public class ItemBlockWireless extends ItemBlock {
 	
 	@Override
 	public int getMetadata(int damage) {
-		return Correlated.wireless.getMetaFromState(Correlated.wireless.getDefaultState().withProperty(BlockWireless.variant, Variant.VALUES[damage%Variant.VALUES.length]));
+		return CBlocks.WIRELESS.getMetaFromState(CBlocks.WIRELESS.getDefaultState().withProperty(BlockWireless.VARIANT, Variant.VALUES[damage%Variant.VALUES.length]));
 	}
 	
 }

@@ -1,6 +1,9 @@
 package com.elytradev.correlated.entity;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.CLog;
+import com.elytradev.correlated.init.CConfig;
+import com.elytradev.correlated.init.CItems;
+import com.elytradev.correlated.init.CSoundEvents;
 import com.elytradev.correlated.network.SetGlitchingStateMessage;
 import com.elytradev.correlated.network.SetGlitchingStateMessage.GlitchState;
 import com.elytradev.correlated.world.DungeonPlayer;
@@ -67,7 +70,7 @@ public class EntityThrownItem extends EntityEnderPearl {
 			if (!world.isRemote && result.entityHit != null) {
 				result.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, getThrower()), 0);
 			}
-			if (getStack() != null && getStack().getItem() == Correlated.misc) {
+			if (getStack() != null && getStack().getItem() == CItems.MISC) {
 				if (getStack().getMetadata() == 6 && !world.isRemote) {
 					if (getThrower() instanceof EntityPlayerMP && !noTeleport) {
 						super.onImpact(result);
@@ -83,9 +86,9 @@ public class EntityThrownItem extends EntityEnderPearl {
 								hashCode = (hashCode * prime) + state.getBlock().getRegistryName().hashCode();
 								hashCode = (hashCode * prime) + state.getBlock().getMetaFromState(state);
 							}
-							Correlated.log.debug("Dungeon seed is {}", hashCode);
+							CLog.debug("Dungeon seed is {}", hashCode);
 							player.setSeed(hashCode);
-							int dim = Correlated.limboDimId;
+							int dim = CConfig.limboDimId;
 							if (net.minecraftforge.common.ForgeHooks.onTravelToDimension(p, dim)) {
 								new SetGlitchingStateMessage(GlitchState.CORRUPTING).sendTo(p);
 								WorldServer dest = p.mcServer.worldServerForDimension(dim);
@@ -100,9 +103,9 @@ public class EntityThrownItem extends EntityEnderPearl {
 						return;
 					}
 				} else if (getStack().getMetadata() == 8) {
-					playSound(Correlated.data_core_shatter, 1f, 0.875f+(rand.nextFloat()/4));
+					playSound(CSoundEvents.DATA_CORE_SHATTER, 1f, 0.875f+(rand.nextFloat()/4));
 					if (!world.isRemote) {
-						for (ItemStack is : Correlated.drive.getTypes(getStack())) {
+						for (ItemStack is : CItems.DRIVE.getTypes(getStack())) {
 							int amt = is.getCount();
 							while (amt > 0) {
 								ItemStack stack = is.copy();
@@ -124,7 +127,7 @@ public class EntityThrownItem extends EntityEnderPearl {
 					if (world instanceof WorldServer) {
 						((WorldServer)world).spawnParticle(EnumParticleTypes.ITEM_CRACK,
 								result.hitVec.xCoord, result.hitVec.yCoord, result.hitVec.zCoord, 80,
-								0, 0, 0, 0.15, Item.getIdFromItem(Correlated.misc), 8);
+								0, 0, 0, 0.15, Item.getIdFromItem(CItems.MISC), 8);
 					}
 					return;
 				}
@@ -140,13 +143,13 @@ public class EntityThrownItem extends EntityEnderPearl {
 	@Override
 	public void onUpdate() {
 		if (!world.isRemote && world.getBlockState(getPosition()).getBlock() == Blocks.PORTAL) {
-			if (getStack() != null && getStack().getItem() == Correlated.misc) {
+			if (getStack() != null && getStack().getItem() == CItems.MISC) {
 				if (getStack().getMetadata() == 3) {
-					world.playSound(null, posX, posY, posZ, Correlated.convert, SoundCategory.PLAYERS, 1, rand.nextFloat()+0.75f);
+					world.playSound(null, posX, posY, posZ, CSoundEvents.CONVERT, SoundCategory.PLAYERS, 1, rand.nextFloat()+0.75f);
 					if (world instanceof WorldServer) {
 						((WorldServer)world).spawnParticle(EnumParticleTypes.REDSTONE, posX, posY, posZ, 100, 0.2, 0.2, 0.2, 100);
 					}
-					setStack(new ItemStack(Correlated.misc, getStack().getCount(), 6));
+					setStack(new ItemStack(CItems.MISC, getStack().getCount(), 6));
 					noTeleport = true;
 				} else if (getStack().getMetadata() == 6) {
 					world.createExplosion(this, posX, posY, posZ, 0, false);

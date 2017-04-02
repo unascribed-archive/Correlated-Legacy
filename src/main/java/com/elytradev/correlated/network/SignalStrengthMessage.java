@@ -1,10 +1,10 @@
 package com.elytradev.correlated.network;
 
 import com.elytradev.concrete.Message;
+import com.elytradev.correlated.init.CNetwork;
 import com.elytradev.concrete.NetworkContext;
 import com.elytradev.concrete.annotation.field.MarshalledAs;
 import com.elytradev.concrete.annotation.type.ReceivedOn;
-import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.client.gui.GuiTerminal;
 
 import net.minecraft.client.Minecraft;
@@ -23,7 +23,7 @@ public class SignalStrengthMessage extends Message {
 	}
 	
 	public SignalStrengthMessage(int strength) {
-		super(Correlated.inst.network);
+		super(CNetwork.CONTEXT);
 		this.strength = strength;
 	}
 

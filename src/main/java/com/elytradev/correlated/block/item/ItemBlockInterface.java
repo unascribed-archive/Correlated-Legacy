@@ -2,7 +2,8 @@ package com.elytradev.correlated.block.item;
 
 import java.util.List;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.EnergyHelper;
+import com.elytradev.correlated.init.CConfig;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,7 +18,7 @@ public class ItemBlockInterface extends ItemBlock {
 
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
-		tooltip.add(Correlated.formatPotentialUsage(Correlated.inst.interfacePUsage));
+		tooltip.add(EnergyHelper.formatPotentialUsage(CConfig.interfacePUsage));
 	}
 
 }

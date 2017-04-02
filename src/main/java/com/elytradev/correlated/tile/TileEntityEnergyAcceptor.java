@@ -1,6 +1,8 @@
 package com.elytradev.correlated.tile;
 
+import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.EnergyHelper;
 import com.elytradev.correlated.EnergyUnit;
 
 import buildcraft.api.mj.IMjConnector;
@@ -103,7 +105,7 @@ public abstract class TileEntityEnergyAcceptor extends TileEntityNetworkMember i
 	
 	@Override
 	public double getDemandedEnergy() {
-		return Correlated.convertFromPotential(getMaxPotential()-getPotentialStored(), EnergyUnit.ENERGY_UNITS);
+		return EnergyHelper.convertFromPotential(getMaxPotential()-getPotentialStored(), EnergyUnit.ENERGY_UNITS);
 	}
 	
 	@Override
@@ -118,10 +120,10 @@ public abstract class TileEntityEnergyAcceptor extends TileEntityNetworkMember i
 	
 	@Override
 	public double injectEnergy(EnumFacing directionFrom, double amount, double voltage) {
-		int p = Correlated.convertToPotential((int)amount, EnergyUnit.ENERGY_UNITS);
-		double leftover = amount-(Correlated.convertFromPotential(p, EnergyUnit.ENERGY_UNITS));
+		int p = EnergyHelper.convertToPotential((int)amount, EnergyUnit.ENERGY_UNITS);
+		double leftover = amount-(EnergyHelper.convertFromPotential(p, EnergyUnit.ENERGY_UNITS));
 		int excess = p-receivePotential(p, false);
-		return leftover+Correlated.convertFromPotential(excess, EnergyUnit.ENERGY_UNITS);
+		return leftover+EnergyHelper.convertFromPotential(excess, EnergyUnit.ENERGY_UNITS);
 	}
 	
 	// IC2 END
@@ -135,23 +137,23 @@ public abstract class TileEntityEnergyAcceptor extends TileEntityNetworkMember i
 	
 	@Override
 	public double getEnergy() {
-		return Correlated.convertFromPotential(getPotentialStored(), EnergyUnit.JOULES);
+		return EnergyHelper.convertFromPotential(getPotentialStored(), EnergyUnit.JOULES);
 	}
 	
 	@Override
 	public double getMaxEnergy() {
-		return Correlated.convertFromPotential(getMaxPotential(), EnergyUnit.JOULES);
+		return EnergyHelper.convertFromPotential(getMaxPotential(), EnergyUnit.JOULES);
 	}
 	
 	@Override
 	public void setEnergy(double energy) {
-		Correlated.log.warn("Energy content has been forcefully set via Mekanism's API - this is dangerous!");
-		energy = Correlated.convertToPotential((int)energy, EnergyUnit.JOULES);
+		CLog.warn("Energy content has been forcefully set via Mekanism's API - this is dangerous!");
+		energy = EnergyHelper.convertToPotential((int)energy, EnergyUnit.JOULES);
 	}
 	
 	@Override
 	public double transferEnergyToAcceptor(EnumFacing side, double amount) {
-		return Correlated.convertFromPotential(receivePotential(Correlated.convertToPotential((int)amount, EnergyUnit.JOULES), false), EnergyUnit.JOULES);
+		return EnergyHelper.convertFromPotential(receivePotential(EnergyHelper.convertToPotential((int)amount, EnergyUnit.JOULES), false), EnergyUnit.JOULES);
 	}
 	
 	// MEKANISM END
@@ -160,7 +162,7 @@ public abstract class TileEntityEnergyAcceptor extends TileEntityNetworkMember i
 
 		@Override
 		public long givePower(long power, boolean simulate) {
-			return Correlated.convertFromPotential(receivePotential(Correlated.convertToPotential(power, EnergyUnit.TESLA), simulate), EnergyUnit.TESLA);
+			return EnergyHelper.convertFromPotential(receivePotential(EnergyHelper.convertToPotential(power, EnergyUnit.TESLA), simulate), EnergyUnit.TESLA);
 		}
 
 	}
@@ -174,15 +176,15 @@ public abstract class TileEntityEnergyAcceptor extends TileEntityNetworkMember i
 
 		@Override
 		public long getPowerRequested() {
-			return Correlated.convertFromPotential(getMaxPotential()-getPotentialStored(), EnergyUnit.MINECRAFT_JOULES)*1000000L;
+			return EnergyHelper.convertFromPotential(getMaxPotential()-getPotentialStored(), EnergyUnit.MINECRAFT_JOULES)*1000000L;
 		}
 
 		@Override
 		public long receivePower(long amt, boolean simulate) {
-			int p = Correlated.convertToPotential(amt/1000000L, EnergyUnit.MINECRAFT_JOULES);
-			long leftover = amt-(Correlated.convertFromPotential(p, EnergyUnit.MINECRAFT_JOULES)*1000000L);
+			int p = EnergyHelper.convertToPotential(amt/1000000L, EnergyUnit.MINECRAFT_JOULES);
+			long leftover = amt-(EnergyHelper.convertFromPotential(p, EnergyUnit.MINECRAFT_JOULES)*1000000L);
 			int excess = p-receivePotential(p, simulate);
-			return leftover+(Correlated.convertFromPotential(excess, EnergyUnit.MINECRAFT_JOULES)*1000000L);
+			return leftover+(EnergyHelper.convertFromPotential(excess, EnergyUnit.MINECRAFT_JOULES)*1000000L);
 		}
 
 	}
@@ -191,7 +193,7 @@ public abstract class TileEntityEnergyAcceptor extends TileEntityNetworkMember i
 
 		@Override
 		public int receiveEnergy(int maxReceive, boolean simulate) {
-			return receivePotential(Correlated.convertToPotential(maxReceive, EnergyUnit.FORGE_UNITS), simulate);
+			return receivePotential(EnergyHelper.convertToPotential(maxReceive, EnergyUnit.FORGE_UNITS), simulate);
 		}
 
 		@Override
@@ -201,12 +203,12 @@ public abstract class TileEntityEnergyAcceptor extends TileEntityNetworkMember i
 
 		@Override
 		public int getEnergyStored() {
-			return Correlated.convertFromPotential(getPotentialStored(), EnergyUnit.FORGE_UNITS);
+			return EnergyHelper.convertFromPotential(getPotentialStored(), EnergyUnit.FORGE_UNITS);
 		}
 
 		@Override
 		public int getMaxEnergyStored() {
-			return Correlated.convertFromPotential(getMaxPotential(), EnergyUnit.FORGE_UNITS);
+			return EnergyHelper.convertFromPotential(getMaxPotential(), EnergyUnit.FORGE_UNITS);
 		}
 
 		@Override

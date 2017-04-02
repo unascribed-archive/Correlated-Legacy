@@ -1,6 +1,6 @@
 package com.elytradev.correlated.network;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.client.gui.GuiAutomaton;
 import com.elytradev.correlated.client.gui.GuiDrive;
 import com.elytradev.correlated.client.gui.GuiImporterChest;
@@ -13,7 +13,7 @@ import com.elytradev.correlated.inventory.ContainerImporterChest;
 import com.elytradev.correlated.inventory.ContainerInterface;
 import com.elytradev.correlated.inventory.ContainerTerminal;
 import com.elytradev.correlated.item.ItemDrive;
-import com.elytradev.correlated.item.ItemWirelessTerminal;
+import com.elytradev.correlated.item.ItemHandheldTerminal;
 import com.elytradev.correlated.storage.WirelessTerminal;
 import com.elytradev.correlated.tile.TileEntityImporterChest;
 import com.elytradev.correlated.tile.TileEntityInterface;
@@ -40,7 +40,7 @@ public class CorrelatedGuiHandler implements IGuiHandler {
 				if (te instanceof TileEntityTerminal) {
 					return new ContainerTerminal(player.inventory, player, (TileEntityTerminal)te);
 				} else {
-					Correlated.log.warn("Expected TileEntityTerminal at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
+					CLog.warn("Expected TileEntityTerminal at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
 					break;
 				}
 			}
@@ -51,11 +51,11 @@ public class CorrelatedGuiHandler implements IGuiHandler {
 					if (drive.getItem() instanceof ItemDrive) {
 						return new ContainerDrive((ContainerTerminal)open, player.inventory, player);
 					} else {
-						Correlated.log.warn("Expected a drive, got {} instead", drive);
+						CLog.warn("Expected a drive, got {} instead", drive);
 						break;
 					}
 				} else {
-					Correlated.log.warn("Expected a ContainerTerminal, got {} instead", open == null ? "null" : open.getClass());
+					CLog.warn("Expected a ContainerTerminal, got {} instead", open == null ? "null" : open.getClass());
 					break;
 				}
 			}
@@ -64,16 +64,16 @@ public class CorrelatedGuiHandler implements IGuiHandler {
 				if (te instanceof TileEntityInterface) {
 					return new ContainerInterface(player.inventory, player, (TileEntityInterface)te);
 				} else {
-					Correlated.log.warn("Expected TileEntityInterface at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
+					CLog.warn("Expected TileEntityInterface at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
 					break;
 				}
 			}
 			case 3: {
 				ItemStack terminal = x == -1 ? player.inventory.offHandInventory.get(0) : player.inventory.getStackInSlot(x);
-				if (terminal.getItem() instanceof ItemWirelessTerminal) {
-					return new ContainerTerminal(player.inventory, player, new WirelessTerminal(world, player, (ItemWirelessTerminal)terminal.getItem(), terminal));
+				if (terminal.getItem() instanceof ItemHandheldTerminal) {
+					return new ContainerTerminal(player.inventory, player, new WirelessTerminal(world, player, (ItemHandheldTerminal)terminal.getItem(), terminal));
 				} else {
-					Correlated.log.warn("Expected a wireless terminal, got {} instead", terminal);
+					CLog.warn("Expected a wireless terminal, got {} instead", terminal);
 					break;
 				}
 			}
@@ -82,7 +82,7 @@ public class CorrelatedGuiHandler implements IGuiHandler {
 				if (ent != null && ent instanceof EntityAutomaton) {
 					return new ContainerAutomaton(player.inventory, player, (EntityAutomaton)ent);
 				} else {
-					Correlated.log.warn("Expected an Automaton, got {} instead", ent == null ? "null" : ent.getClass());
+					CLog.warn("Expected an Automaton, got {} instead", ent == null ? "null" : ent.getClass());
 					break;
 				}
 			}
@@ -91,7 +91,7 @@ public class CorrelatedGuiHandler implements IGuiHandler {
 				if (te instanceof TileEntityImporterChest) {
 					return new ContainerImporterChest(player.inventory, player, (TileEntityImporterChest)te);
 				} else {
-					Correlated.log.warn("Expected TileEntityImporterChest at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
+					CLog.warn("Expected TileEntityImporterChest at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
 					break;
 				}
 			}
@@ -107,7 +107,7 @@ public class CorrelatedGuiHandler implements IGuiHandler {
 				if (te instanceof TileEntityTerminal) {
 					return new GuiTerminal(new ContainerTerminal(player.inventory, player, (TileEntityTerminal)te));
 				} else {
-					Correlated.log.warn("Expected TileEntityTerminal at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
+					CLog.warn("Expected TileEntityTerminal at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
 					break;
 				}
 			}
@@ -119,11 +119,11 @@ public class CorrelatedGuiHandler implements IGuiHandler {
 					if (drive.getItem() instanceof ItemDrive) {
 						return new GuiDrive((GuiTerminal)open, new ContainerDrive(ct, player.inventory, player));
 					} else {
-						Correlated.log.warn("Expected a drive, got {} instead", drive);
+						CLog.warn("Expected a drive, got {} instead", drive);
 						break;
 					}
 				} else {
-					Correlated.log.warn("Expected a GuiTerminal, got {} instead", open == null ? "null" : open.getClass());
+					CLog.warn("Expected a GuiTerminal, got {} instead", open == null ? "null" : open.getClass());
 					break;
 				}
 			}
@@ -132,16 +132,16 @@ public class CorrelatedGuiHandler implements IGuiHandler {
 				if (te instanceof TileEntityInterface) {
 					return new GuiInterface(new ContainerInterface(player.inventory, player, (TileEntityInterface)te));
 				} else {
-					Correlated.log.warn("Expected TileEntityInterface at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
+					CLog.warn("Expected TileEntityInterface at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
 					break;
 				}
 			}
 			case 3: {
 				ItemStack terminal = x == -1 ? player.inventory.offHandInventory.get(0) : player.inventory.getStackInSlot(x);
-				if (terminal.getItem() instanceof ItemWirelessTerminal) {
-					return new GuiTerminal(new ContainerTerminal(player.inventory, player, new WirelessTerminal(world, player, (ItemWirelessTerminal)terminal.getItem(), terminal)));
+				if (terminal.getItem() instanceof ItemHandheldTerminal) {
+					return new GuiTerminal(new ContainerTerminal(player.inventory, player, new WirelessTerminal(world, player, (ItemHandheldTerminal)terminal.getItem(), terminal)));
 				} else {
-					Correlated.log.warn("Expected a wireless terminal, got {} instead", terminal);
+					CLog.warn("Expected a wireless terminal, got {} instead", terminal);
 					break;
 				}
 			}
@@ -150,7 +150,7 @@ public class CorrelatedGuiHandler implements IGuiHandler {
 				if (ent != null && ent instanceof EntityAutomaton) {
 					return new GuiAutomaton(new ContainerAutomaton(player.inventory, player, (EntityAutomaton)ent));
 				} else {
-					Correlated.log.warn("Expected an Automaton, got {} instead", ent == null ? "null" : ent.getClass());
+					CLog.warn("Expected an Automaton, got {} instead", ent == null ? "null" : ent.getClass());
 					break;
 				}
 			}
@@ -159,7 +159,7 @@ public class CorrelatedGuiHandler implements IGuiHandler {
 				if (te instanceof TileEntityImporterChest) {
 					return new GuiImporterChest(new ContainerImporterChest(player.inventory, player, (TileEntityImporterChest)te));
 				} else {
-					Correlated.log.warn("Expected TileEntityImporterChest at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
+					CLog.warn("Expected TileEntityImporterChest at {}, {}, {} - got {} instead", x, y, z, te == null ? "null" : te.getClass());
 					break;
 				}
 			}

@@ -2,9 +2,9 @@ package com.elytradev.correlated.client.render.tile;
 
 import org.lwjgl.opengl.GL11;
 
-import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.block.BlockTerminal;
 import com.elytradev.correlated.client.render.ProtrudingBoxRenderer;
+import com.elytradev.correlated.init.CBlocks;
 import com.elytradev.correlated.tile.TileEntityTerminal;
 
 import net.minecraft.block.state.IBlockState;
@@ -41,7 +41,7 @@ public class RenderTerminal extends TileEntitySpecialRenderer<TileEntityTerminal
 	@Override
 	public void renderTileEntityAt(TileEntityTerminal te, double x, double y, double z, float partialTicks, int destroyStage) {
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
-		if (bs.getBlock() != Correlated.terminal) return;
+		if (bs.getBlock() != CBlocks.TERMINAL) return;
 		
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);

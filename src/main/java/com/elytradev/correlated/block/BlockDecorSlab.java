@@ -2,7 +2,7 @@ package com.elytradev.correlated.block;
 
 import java.util.Random;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.init.CBlocks;
 
 import net.minecraft.block.BlockSlab;
 import net.minecraft.block.material.Material;
@@ -27,17 +27,17 @@ public class BlockDecorSlab extends BlockSlab {
 			ibs = ibs.withProperty(HALF, BlockSlab.EnumBlockHalf.BOTTOM);
 		}
 
-		setDefaultState(ibs.withProperty(BlockDecor.variant, BlockDecor.Variant.DUNGEONCRETE));
+		setDefaultState(ibs.withProperty(BlockDecor.VARIANT, BlockDecor.Variant.DUNGEONCRETE));
 	}
 	
 	@Override
 	public Item getItemDropped(IBlockState state, Random rand, int fortune) {
-		return Item.getItemFromBlock(Correlated.decor_slab);
+		return Item.getItemFromBlock(CBlocks.DECOR_SLAB);
 	}
 	
 	@Override
 	public int damageDropped(IBlockState state) {
-		return state.getValue(BlockDecor.variant).ordinal();
+		return state.getValue(BlockDecor.VARIANT).ordinal();
 	}
 	
 	@Override
@@ -52,7 +52,7 @@ public class BlockDecorSlab extends BlockSlab {
 
 	@Override
 	public IProperty<?> getVariantProperty() {
-		return BlockDecor.variant;
+		return BlockDecor.VARIANT;
 	}
 	
 	@Override
@@ -65,14 +65,14 @@ public class BlockDecorSlab extends BlockSlab {
 							: BlockSlab.EnumBlockHalf.TOP);
 		}
 		
-		iblockstate = iblockstate.withProperty(BlockDecor.variant, BlockDecor.Variant.VALUES[(meta & 7)%BlockDecor.Variant.VALUES.length]);
+		iblockstate = iblockstate.withProperty(BlockDecor.VARIANT, BlockDecor.Variant.VALUES[(meta & 7)%BlockDecor.Variant.VALUES.length]);
 		
 		return iblockstate;
 	}
 
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		int i = state.getValue(BlockDecor.variant).ordinal();
+		int i = state.getValue(BlockDecor.VARIANT).ordinal();
 
 		if (!isDouble() && state.getValue(HALF) == BlockSlab.EnumBlockHalf.TOP) {
 			i |= 8;
@@ -84,8 +84,8 @@ public class BlockDecorSlab extends BlockSlab {
 	@Override
 	protected BlockStateContainer createBlockState() {
 		return isDouble()
-				? new BlockStateContainer(this, BlockDecor.variant)
-				: new BlockStateContainer(this, HALF, BlockDecor.variant);
+				? new BlockStateContainer(this, BlockDecor.VARIANT)
+				: new BlockStateContainer(this, HALF, BlockDecor.VARIANT);
 	}
 
 	@Override

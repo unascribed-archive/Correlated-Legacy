@@ -2,7 +2,7 @@ package com.elytradev.correlated.world;
 
 import java.util.Map;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.math.Vec2i;
 import com.elytradev.hallways.Cardinal;
 import com.google.common.collect.Maps;
@@ -53,7 +53,7 @@ public class DungeonGrid implements INBTSerializable<NBTTagCompound> {
 	public void set(int x, int z, Dungeon d) {
 		dungeons.put(new Vec2i(x, z), d);
 		if (dungeonsBySeed.containsKey(d.getSeed()) && d != dungeonsBySeed.get(d.getSeed())) {
-			Correlated.log.warn("Adding second dungeon with the same seed (orig: {}, new: {})", dungeonsBySeed.get(d.getSeed()), d);
+			CLog.warn("Adding second dungeon with the same seed (orig: {}, new: {})", dungeonsBySeed.get(d.getSeed()), d);
 		}
 		dungeonsBySeed.put(d.getSeed(), d);
 		d.x = x;

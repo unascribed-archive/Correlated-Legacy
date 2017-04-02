@@ -6,7 +6,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.CLog;
+import com.elytradev.correlated.init.CConfig;
+import com.elytradev.correlated.init.CDimensions;
 import com.elytradev.correlated.math.Vec2i;
 import com.elytradev.correlated.network.SetGlitchingStateMessage;
 import com.elytradev.correlated.network.SetGlitchingStateMessage.GlitchState;
@@ -42,7 +44,7 @@ public class LimboProvider extends WorldProvider {
 	
 	@Override
 	public DimensionType getDimensionType() {
-		return Correlated.limbo;
+		return CDimensions.LIMBO;
 	}
 
 	@Override
@@ -92,7 +94,7 @@ public class LimboProvider extends WorldProvider {
 	
 	@Override
 	public int getRespawnDimension(EntityPlayerMP player) {
-		return leaving.remove(player.getGameProfile().getId()) ? 0 : Correlated.limboDimId;
+		return leaving.remove(player.getGameProfile().getId()) ? 0 : CConfig.limboDimId;
 	}
 	
 	public LimboTeleporter getTeleporter() {
@@ -146,7 +148,7 @@ public class LimboProvider extends WorldProvider {
 		int x = (int)Math.floor((player.posX/Dungeon.NODE_SIZE)/Dungeon.DUNGEON_SIZE);
 		int z = (int)Math.floor((player.posZ/Dungeon.NODE_SIZE)/Dungeon.DUNGEON_SIZE);
 		constraints.put(player, new Vec2i(x, z));
-		Correlated.log.info("Constraining {} to dungeon {}", player.getName(), constraints.get(player));
+		CLog.info("Constraining {} to dungeon {}", player.getName(), constraints.get(player));
 	}
 	
 	@Override
@@ -165,7 +167,7 @@ public class LimboProvider extends WorldProvider {
 			Map.Entry<EntityPlayerMP, Vec2i> en = iter.next();
 			EntityPlayerMP player = en.getKey();
 			if (player.isDead) {
-				Correlated.log.info("Removing constraints on {}", player.getName());
+				CLog.info("Removing constraints on {}", player.getName());
 				if (leaving.contains(player.getGameProfile().getId())) {
 					Dungeon d = grid.getFromBlock((int)player.posX, (int)player.posZ);
 					if (d != null) {

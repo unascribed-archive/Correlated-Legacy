@@ -1,9 +1,11 @@
 package com.elytradev.correlated.tile;
 
-import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.CorrelatedWorldData;
 import com.elytradev.correlated.block.BlockWireless;
 import com.elytradev.correlated.block.BlockWireless.State;
+import com.elytradev.correlated.init.CBlocks;
+import com.elytradev.correlated.init.CConfig;
+import com.elytradev.correlated.init.CNetwork;
 import com.elytradev.correlated.wifi.Beam;
 
 import net.minecraft.block.state.IBlockState;
@@ -23,13 +25,13 @@ public class TileEntityMicrowaveBeam extends TileEntityNetworkMember implements 
 	
 	@Override
 	public int getPotentialConsumedPerTick() {
-		return Correlated.inst.beamPUsage;
+		return CConfig.beamPUsage;
 	}
 	
 	@Override
 	public void update() {
 		if (!hasWorld() || getWorld().isRemote) return;
-		Beam b = Correlated.getDataFor(world).getWirelessManager().getBeam(getPos());
+		Beam b = CorrelatedWorldData.getFor(world).getWirelessManager().getBeam(getPos());
 		State newState = State.DEAD;
 		if (!hasController() || !getController().isPowered()) {
 			newState = State.DEAD;
@@ -45,9 +47,9 @@ public class TileEntityMicrowaveBeam extends TileEntityNetworkMember implements 
 			}
 		}
 		IBlockState ibs = world.getBlockState(getPos());
-		if (ibs.getBlock() == Correlated.wireless) {
-			if (ibs.getValue(BlockWireless.state) != newState) {
-				world.setBlockState(getPos(), ibs.withProperty(BlockWireless.state, newState));
+		if (ibs.getBlock() == CBlocks.WIRELESS) {
+			if (ibs.getValue(BlockWireless.STATE) != newState) {
+				world.setBlockState(getPos(), ibs.withProperty(BlockWireless.STATE, newState));
 			}
 		}
 		float yaw = getYaw(0);
@@ -55,7 +57,7 @@ public class TileEntityMicrowaveBeam extends TileEntityNetworkMember implements 
 		if (yaw != syncedYaw || pitch != syncedPitch) {
 			syncedYaw = yaw;
 			syncedPitch = pitch;
-			Correlated.sendUpdatePacket(this);
+			CNetwork.sendUpdatePacket(this);
 		}
 	}
 	
@@ -85,7 +87,7 @@ public class TileEntityMicrowaveBeam extends TileEntityNetworkMember implements 
 	
 	public TileEntityController getOtherSide() {
 		if (!hasWorld()) return null;
-		Beam b = Correlated.getDataFor(world).getWirelessManager().getBeam(getPos());
+		Beam b = CorrelatedWorldData.getFor(world).getWirelessManager().getBeam(getPos());
 		if (b == null) return null;
 		if (b.isObstructed()) return null;
 		BlockPos us = getPos();
@@ -106,7 +108,7 @@ public class TileEntityMicrowaveBeam extends TileEntityNetworkMember implements 
 	}
 	
 	private Vec3d getDirectionToOtherSide() {
-		Beam b = Correlated.getDataFor(world).getWirelessManager().getBeam(getPos());
+		Beam b = CorrelatedWorldData.getFor(world).getWirelessManager().getBeam(getPos());
 		if (b == null) return new Vec3d(0, 0, 0);
 		BlockPos start = getPos();
 		BlockPos end;
@@ -146,7 +148,7 @@ public class TileEntityMicrowaveBeam extends TileEntityNetworkMember implements 
 	}
 	
 	public void link(BlockPos other) {
-		CorrelatedWorldData data = Correlated.getDataFor(world);
+		CorrelatedWorldData data = CorrelatedWorldData.getFor(world);
 		Beam cur = data.getWirelessManager().getBeam(getPos());
 		if (cur != null) {
 			data.getWirelessManager().remove(cur);

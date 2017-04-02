@@ -6,6 +6,8 @@ import java.util.List;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.block.BlockMemoryBay;
 import com.elytradev.correlated.helper.ItemStacks;
+import com.elytradev.correlated.init.CBlocks;
+import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.item.ItemMemory;
 import com.elytradev.probe.api.IProbeData;
 import com.elytradev.probe.api.IProbeDataProvider;
@@ -70,7 +72,7 @@ public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITic
 
 	@Override
 	public int getPotentialConsumedPerTick() {
-		return Correlated.inst.memoryBayPUsage;
+		return CConfig.memoryBayPUsage;
 	}
 
 	@Override
@@ -112,15 +114,15 @@ public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITic
 	public void update() {
 		if (hasWorld() && !world.isRemote) {
 			IBlockState state = getWorld().getBlockState(getPos());
-			if (state.getBlock() == Correlated.memory_bay) {
+			if (state.getBlock() == CBlocks.MEMORY_BAY) {
 				boolean lit;
 				if (hasController() && getController().isPowered()) {
 					lit = true;
 				} else {
 					lit = false;
 				}
-				if (lit != state.getValue(BlockMemoryBay.lit)) {
-					getWorld().setBlockState(getPos(), state.withProperty(BlockMemoryBay.lit, lit));
+				if (lit != state.getValue(BlockMemoryBay.LIT)) {
+					getWorld().setBlockState(getPos(), state.withProperty(BlockMemoryBay.LIT, lit));
 				}
 			}
 		}

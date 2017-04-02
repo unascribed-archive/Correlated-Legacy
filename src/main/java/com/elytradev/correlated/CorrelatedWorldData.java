@@ -74,4 +74,16 @@ public class CorrelatedWorldData extends WorldSavedData {
 		return wm;
 	}
 
+	
+	
+	public static CorrelatedWorldData getFor(World w) {
+		CorrelatedWorldData data = (CorrelatedWorldData)w.getPerWorldStorage().getOrLoadData(CorrelatedWorldData.class, "correlated");
+		if (data == null) {
+			data = new CorrelatedWorldData("correlated");
+			w.getPerWorldStorage().setData("correlated", data);
+		}
+		data.setWorld(w);
+		return data;
+	}
+
 }

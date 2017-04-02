@@ -3,6 +3,7 @@ package com.elytradev.correlated.compat;
 import java.util.List;
 
 import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.init.CBlocks;
 import com.elytradev.correlated.inventory.ContainerTerminal;
 import com.elytradev.correlated.network.RecipeTransferMessage;
 import com.google.common.collect.Lists;
@@ -25,7 +26,7 @@ public class CorrelatedJEIPlugin extends BlankModPlugin {
 	@Override
 	public void register(IModRegistry registry) {
 		Correlated.inst.jeiAvailable = true;
-		registry.addRecipeCategoryCraftingItem(new ItemStack(Correlated.terminal), VanillaRecipeCategoryUid.CRAFTING);
+		registry.addRecipeCategoryCraftingItem(new ItemStack(CBlocks.TERMINAL), VanillaRecipeCategoryUid.CRAFTING);
 		registry.getRecipeTransferRegistry().addRecipeTransferHandler(new IRecipeTransferHandler<ContainerTerminal>() {
 			
 			@Override

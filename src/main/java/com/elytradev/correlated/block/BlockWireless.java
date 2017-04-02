@@ -69,11 +69,11 @@ public class BlockWireless extends Block {
 		@Override public String toString() { return lowerName; }
 	}
 	
-	public static final IProperty<State> state = PropertyEnum.create("state", State.class);
-	public static final IProperty<Variant> variant = PropertyEnum.create("variant", Variant.class);
+	public static final IProperty<State> STATE = PropertyEnum.create("state", State.class);
+	public static final IProperty<Variant> VARIANT = PropertyEnum.create("variant", Variant.class);
 	
 	@SuppressWarnings("unchecked")
-	private static final ImmutableList<Pair<Variant, State>> variantAndState = ImmutableList.of(
+	private static final ImmutableList<Pair<Variant, State>> PERMUTATIONS = ImmutableList.of(
 			Pair.of(Variant.MICROWAVE, State.DEAD),
 			Pair.of(Variant.MICROWAVE, State.ERROR),
 			Pair.of(Variant.MICROWAVE, State.OK),
@@ -103,29 +103,29 @@ public class BlockWireless extends Block {
 	
 	@Override
 	public int damageDropped(IBlockState state) {
-		return state.getValue(variant).ordinal();
+		return state.getValue(VARIANT).ordinal();
 	}
 	
 	@Override
 	public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state) {
-		if (!worldIn.isRemote && state.getValue(variant) == Variant.BEACON) {
+		if (!worldIn.isRemote && state.getValue(VARIANT) == Variant.BEACON) {
 			BlockBeacon.updateColorAsync(worldIn, pos);
 		}
 	}
 	
 	@Override
 	public int getLightOpacity(IBlockState state, IBlockAccess world, BlockPos pos) {
-		return state.getValue(variant) == Variant.OPTICAL ? 255 : 0;
+		return state.getValue(VARIANT) == Variant.OPTICAL ? 255 : 0;
 	}
 	
 	@Override
 	public boolean isOpaqueCube(IBlockState state) {
-		return state.getValue(variant) == Variant.OPTICAL;
+		return state.getValue(VARIANT) == Variant.OPTICAL;
 	}
 	
 	@Override
 	public boolean isFullCube(IBlockState state) {
-		return state.getValue(variant) == Variant.OPTICAL;
+		return state.getValue(VARIANT) == Variant.OPTICAL;
 	}
 	
 	@Override
@@ -138,7 +138,7 @@ public class BlockWireless extends Block {
 		TileEntity te = world.getTileEntity(pos);
 		if (te instanceof TileEntityBeaconLens) {
 			int idx = 64;
-			switch (state.getValue(BlockWireless.state)) {
+			switch (state.getValue(BlockWireless.STATE)) {
 				case DEAD:
 					return null;
 				case ERROR:
@@ -169,7 +169,7 @@ public class BlockWireless extends Block {
 
 	@Override
 	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB mask, List<AxisAlignedBB> list, Entity collidingEntity, boolean piston) {
-		if (state.getValue(variant) == Variant.OPTICAL) {
+		if (state.getValue(VARIANT) == Variant.OPTICAL) {
 			super.addCollisionBoxToList(state, worldIn, pos, mask, list, collidingEntity, piston);
 			return;
 		}
@@ -177,7 +177,7 @@ public class BlockWireless extends Block {
 		if (mask.intersectsWith(base)) {
 			list.add(base);
 		}
-		if (state.getValue(variant) == Variant.MICROWAVE) {
+		if (state.getValue(VARIANT) == Variant.MICROWAVE) {
 			AxisAlignedBB pole = new AxisAlignedBB(pos.getX()+(7/16d), pos.getY()+(4/16d), pos.getZ()+(7/16d), pos.getX()+(9/16d), pos.getY()+(16/16d), pos.getZ()+(9/16d));
 			if (mask.intersectsWith(pole)) {
 				list.add(pole);
@@ -187,12 +187,12 @@ public class BlockWireless extends Block {
 	
 	@Override
 	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-		return state.getValue(variant) == Variant.OPTICAL ? FULL_BLOCK_AABB : aabb;
+		return state.getValue(VARIANT) == Variant.OPTICAL ? FULL_BLOCK_AABB : aabb;
 	}
 	
 	@Override
 	public TileEntity createTileEntity(World world, IBlockState state) {
-		switch (state.getValue(variant)) {
+		switch (state.getValue(VARIANT)) {
 			case MICROWAVE:
 				return new TileEntityMicrowaveBeam();
 			case OPTICAL:
@@ -217,11 +217,11 @@ public class BlockWireless extends Block {
 					}
 				}
 			} else if (te instanceof TileEntityOpticalReceiver) {
-				CorrelatedWorldData data = Correlated.getDataFor(world);
+				CorrelatedWorldData data = CorrelatedWorldData.getFor(world);
 				Optical o = new Optical(data, pos, 32, placer.getName());
 				data.getWirelessManager().add(o);
 			} else if (te instanceof TileEntityBeaconLens) {
-				CorrelatedWorldData data = Correlated.getDataFor(world);
+				CorrelatedWorldData data = CorrelatedWorldData.getFor(world);
 				Beacon b = new Beacon(data, pos, ImmutableSet.of(placer.getName()));
 				data.getWirelessManager().add(b);
 			}
@@ -237,38 +237,38 @@ public class BlockWireless extends Block {
 	
 	@Override
 	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, state, variant);
+		return new BlockStateContainer(this, STATE, VARIANT);
 	}
 	
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		return variantAndState.indexOf(Pair.of(state.getValue(variant), state.getValue(BlockWireless.state)));
+		return PERMUTATIONS.indexOf(Pair.of(state.getValue(VARIANT), state.getValue(BlockWireless.STATE)));
 	}
 	
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
 		return getDefaultState()
-				.withProperty(variant, variantAndState.get(meta).getLeft())
-				.withProperty(state, variantAndState.get(meta).getRight());
+				.withProperty(VARIANT, PERMUTATIONS.get(meta).getLeft())
+				.withProperty(STATE, PERMUTATIONS.get(meta).getRight());
 	}
 	
 	@Override
 	public void breakBlock(World world, BlockPos pos, IBlockState state) {
 		TileEntity te = world.getTileEntity(pos);
 		if (te instanceof TileEntityMicrowaveBeam) {
-			CorrelatedWorldData data = Correlated.getDataFor(world);
+			CorrelatedWorldData data = CorrelatedWorldData.getFor(world);
 			Beam b = data.getWirelessManager().getBeam(pos);
 			data.getWirelessManager().remove(b);
 		} else if (te instanceof TileEntityOpticalReceiver) {
-			CorrelatedWorldData data = Correlated.getDataFor(world);
+			CorrelatedWorldData data = CorrelatedWorldData.getFor(world);
 			Optical o = data.getWirelessManager().getOptical(pos);
 			data.getWirelessManager().remove(o);
 		} else if (te instanceof TileEntityBeaconLens) {
-			CorrelatedWorldData data = Correlated.getDataFor(world);
+			CorrelatedWorldData data = CorrelatedWorldData.getFor(world);
 			Beacon b = data.getWirelessManager().getBeacon(pos);
 			data.getWirelessManager().remove(b);
 		}
-		if (!world.isRemote && state.getValue(variant) == Variant.BEACON) {
+		if (!world.isRemote && state.getValue(VARIANT) == Variant.BEACON) {
 			BlockBeacon.updateColorAsync(world, pos);
 		}
 		super.breakBlock(world, pos, state);
@@ -279,10 +279,10 @@ public class BlockWireless extends Block {
 		if (Blocks.tryWrench(world, pos, player, hand, side, hitZ, hitZ, hitZ)) {
 			return true;
 		}
-		if (state.getValue(variant) == Variant.OPTICAL) {
+		if (state.getValue(VARIANT) == Variant.OPTICAL) {
 			Correlated.proxy.showAPNChangeMenu(pos, false, false);
 			return true;
-		} else if (state.getValue(variant) == Variant.BEACON) {
+		} else if (state.getValue(VARIANT) == Variant.BEACON) {
 			Correlated.proxy.showAPNChangeMenu(pos, true, true);
 			return true;
 		}

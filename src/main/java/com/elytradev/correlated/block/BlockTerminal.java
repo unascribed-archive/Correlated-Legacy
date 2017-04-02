@@ -128,7 +128,7 @@ public class BlockTerminal extends Block {
 				}
 				if (tet.hasController()) {
 					if (!world.isRemote) {
-						switch (world.getBlockState(tet.getController().getPos()).getValue(BlockController.state)) {
+						switch (world.getBlockState(tet.getController().getPos()).getValue(BlockController.STATE)) {
 							case BOOTING:
 								player.sendMessage(new TextComponentTranslation("msg.correlated.terminal_booting"));
 								break;

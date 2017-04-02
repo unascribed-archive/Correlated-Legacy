@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.init.CBlocks;
 import com.elytradev.correlated.inventory.ContainerTerminal.SortMode;
 import com.elytradev.correlated.storage.IDigitalStorage;
 import com.elytradev.correlated.storage.ITerminal;
@@ -212,7 +212,7 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 	@Override
 	public void update() {
 		if (++this.ticksSinceSync % 20 * 4 == 0) {
-			this.world.addBlockEvent(this.pos, Correlated.importer_chest, 1,
+			this.world.addBlockEvent(this.pos, CBlocks.IMPORTER_CHEST, 1,
 					this.numPlayersUsing);
 		}
 
@@ -277,12 +277,12 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 
 	public void openChest() {
 		numPlayersUsing++;
-		world.addBlockEvent(getPos(), Correlated.importer_chest, 1, numPlayersUsing);
+		world.addBlockEvent(getPos(), CBlocks.IMPORTER_CHEST, 1, numPlayersUsing);
 	}
 
 	public void closeChest() {
 		numPlayersUsing--;
-		world.addBlockEvent(getPos(), Correlated.importer_chest, 1, numPlayersUsing);
+		world.addBlockEvent(getPos(), CBlocks.IMPORTER_CHEST, 1, numPlayersUsing);
 	}
 
 	@Override

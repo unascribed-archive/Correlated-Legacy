@@ -4,10 +4,14 @@ import java.util.List;
 import java.util.Locale;
 
 import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.EnergyHelper;
 import com.elytradev.correlated.block.BlockDriveBay;
 import com.elytradev.correlated.block.BlockMemoryBay;
 import com.elytradev.correlated.helper.ItemStacks;
 import com.elytradev.correlated.helper.Numbers;
+import com.elytradev.correlated.init.CConfig;
+import com.elytradev.correlated.init.CItems;
+import com.elytradev.correlated.init.CSoundEvents;
 import com.elytradev.correlated.proxy.ClientProxy;
 import com.elytradev.correlated.storage.InsertResult;
 import com.google.common.collect.Lists;
@@ -113,7 +117,7 @@ public class ItemDrive extends Item {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
-		tooltip.add(Correlated.formatPotentialUsage(getPotentialConsumptionRate(stack)));
+		tooltip.add(EnergyHelper.formatPotentialUsage(getPotentialConsumptionRate(stack)));
 		if (stack.getItemDamage() == 4) {
 			int i = 0;
 			while (I18n.hasKey("tooltip.correlated.void_drive." + i)) {
@@ -132,14 +136,21 @@ public class ItemDrive extends Item {
 	}
 
 	public int getPotentialConsumptionRate(ItemStack stack) {
-		if (stack.getItemDamage() == 4) {
-			return Correlated.inst.voidDriveUsage;
+		switch (stack.getItemDamage()) {
+			case 0:
+				return CConfig.drive1MiBPUsage;
+			case 1:
+				return CConfig.drive4MiBPUsage;
+			case 2:
+				return CConfig.drive16MiBPUsage;
+			case 3:
+				return CConfig.drive64MiBPUsage;
+			case 4:
+				return CConfig.voidDrivePUsage;
+			case 5:
+				return CConfig.drive128MiBPUsage;
 		}
-		int dmg = stack.getItemDamage() + 1;
-		if (stack.getItemDamage() == 6) {
-			dmg = 8;
-		}
-		return ((int) Math.pow(Correlated.inst.drivePUsagePow, dmg))/Correlated.inst.drivePUsageDiv;
+		return 128;
 	}
 
 	@Override
@@ -263,21 +274,21 @@ public class ItemDrive extends Item {
 	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand) {
 		ItemStack itemStackIn = playerIn.getHeldItem(hand);
 		if (playerIn.isSneaking()) {
-			playerIn.playSound(Correlated.drive_disassemble, 0.4f, 0.875f+(itemRand.nextFloat()/4));
+			playerIn.playSound(CSoundEvents.DRIVE_DISASSEMBLE, 0.4f, 0.875f+(itemRand.nextFloat()/4));
 			NBTTagList ingredients = ItemStacks.getCompoundList(itemStackIn, "Ingredients");
 			if (!worldIn.isRemote) {
 				for (int i = 0; i < ingredients.tagCount(); i++) {
 					ItemStack is = new ItemStack(ingredients.getCompoundTagAt(i));
-					if (is.getItem() == Correlated.misc && (is.getMetadata() == 3 || is.getMetadata() == 8)) continue;
+					if (is.getItem() == CItems.MISC && (is.getMetadata() == 3 || is.getMetadata() == 8)) continue;
 					playerIn.entityDropItem(is, 0.5f);
 				}
 			}
 			if (!ItemStacks.getCompoundList(itemStackIn, "Data").hasNoTags()) {
-				ItemStack dataCore = new ItemStack(Correlated.misc, 1, 8);
+				ItemStack dataCore = new ItemStack(CItems.MISC, 1, 8);
 				dataCore.setTagCompound(itemStackIn.getTagCompound().copy());
 				return ActionResult.newResult(EnumActionResult.SUCCESS, dataCore);
 			} else {
-				return ActionResult.newResult(EnumActionResult.SUCCESS, new ItemStack(Correlated.misc, 1, 3));
+				return ActionResult.newResult(EnumActionResult.SUCCESS, new ItemStack(CItems.MISC, 1, 3));
 			}
 		} else {
 			Vec3d eyes = new Vec3d(playerIn.posX, playerIn.posY + playerIn.getEyeHeight(), playerIn.posZ);

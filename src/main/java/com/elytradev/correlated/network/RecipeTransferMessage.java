@@ -1,8 +1,8 @@
 package com.elytradev.correlated.network;
 
 import java.util.List;
+import com.elytradev.correlated.init.CNetwork;
 
-import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.inventory.ContainerTerminal;
 
 import com.elytradev.concrete.Message;
@@ -25,7 +25,7 @@ public class RecipeTransferMessage extends Message {
 		super(ctx);
 	}
 	public RecipeTransferMessage(int windowId, List<List<ItemStack>> matrix, boolean max) {
-		super(Correlated.inst.network);
+		super(CNetwork.CONTEXT);
 		this.windowId = windowId;
 		this.matrix = matrix;
 		this.max = max;

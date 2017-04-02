@@ -4,7 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.init.CConfig;
 import com.google.common.base.Enums;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
@@ -261,7 +263,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 		int toTake = available.getCount()-existing.getCount();
 		ItemStack remaining = toInv.insertItem(toSlot, fromInv.extractItem(fromSlot, toTake, false), false);
 		if (!remaining.isEmpty()) {
-			Correlated.log.warn("Accidentally disappeared {} items into the ether", remaining.getCount());
+			CLog.warn("Accidentally disappeared {} items into the ether", remaining.getCount());
 		}
 	}
 
@@ -280,7 +282,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 
 	@Override
 	public int getPotentialConsumedPerTick() {
-		return Correlated.inst.interfacePUsage;
+		return CConfig.interfacePUsage;
 	}
 
 	@Override

@@ -6,6 +6,9 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.entity.EntityAutomaton;
+import com.elytradev.correlated.init.CConfig;
+import com.elytradev.correlated.init.CItems;
+import com.elytradev.correlated.init.CSoundEvents;
 import com.elytradev.correlated.network.StartWeldthrowingMessage;
 import com.google.common.collect.Maps;
 
@@ -57,8 +60,8 @@ public class ItemWeldthrower extends Item {
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
 		ItemStack itemStack = player.getHeldItem(hand);
 		if (hand == EnumHand.MAIN_HAND) {
-			if (!world.isRemote && !weldthrowing.containsKey(player) && (player.capabilities.isCreativeMode || player.inventory.clearMatchingItems(Correlated.misc, 5, 1, null) > 0)) {
-				world.playSound(null, player.posX, player.posY, player.posZ, Correlated.weldthrow, SoundCategory.PLAYERS, 0.4f, 1f);
+			if (!world.isRemote && !weldthrowing.containsKey(player) && (player.capabilities.isCreativeMode || player.inventory.clearMatchingItems(CItems.MISC, 5, 1, null) > 0)) {
+				world.playSound(null, player.posX, player.posY, player.posZ, CSoundEvents.WELDTHROW, SoundCategory.PLAYERS, 0.4f, 1f);
 				weldthrowing.put(player, new MutableInt());
 				new StartWeldthrowingMessage(player.getEntityId()).sendToAllWatching(player);;
 				return ActionResult.newResult(EnumActionResult.SUCCESS, itemStack);
@@ -99,7 +102,7 @@ public class ItemWeldthrower extends Item {
 							a.heal(0.05f);
 							Correlated.proxy.weldthrowerHeal((EntityAutomaton)ent);
 						}
-					} else if (ent instanceof EntityLivingBase && Correlated.inst.weldthrowerHurts) {
+					} else if (ent instanceof EntityLivingBase && CConfig.weldthrowerHurts) {
 						EntityLivingBase elb = (EntityLivingBase)ent;
 						elb.setFire(4);
 						elb.attackEntityFrom(new EntityDamageSource("correlated.weld", e.player), 2);

@@ -2,9 +2,9 @@ package com.elytradev.correlated.client.render.tile;
 
 import org.lwjgl.opengl.GL11;
 
-import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.block.BlockMemoryBay;
 import com.elytradev.correlated.client.render.ProtrudingBoxRenderer;
+import com.elytradev.correlated.init.CBlocks;
 import com.elytradev.correlated.item.ItemMemory;
 import com.elytradev.correlated.tile.TileEntityMemoryBay;
 
@@ -69,7 +69,7 @@ public class RenderMemoryBay extends TileEntitySpecialRenderer<TileEntityMemoryB
 	@Override
 	public void renderTileEntityAt(TileEntityMemoryBay te, double x, double y, double z, float partialTicks, int destroyStage) {
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
-		if (bs.getBlock() != Correlated.memory_bay) return;
+		if (bs.getBlock() != CBlocks.MEMORY_BAY) return;
 
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);

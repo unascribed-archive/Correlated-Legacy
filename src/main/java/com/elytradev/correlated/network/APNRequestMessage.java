@@ -1,6 +1,9 @@
 package com.elytradev.correlated.network;
 
 import java.util.Collections;
+
+import com.elytradev.correlated.CorrelatedWorldData;
+import com.elytradev.correlated.init.CNetwork;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -9,7 +12,6 @@ import com.elytradev.concrete.Message;
 import com.elytradev.concrete.NetworkContext;
 import com.elytradev.concrete.annotation.field.MarshalledAs;
 import com.elytradev.concrete.annotation.type.ReceivedOn;
-import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.wifi.IWirelessClient;
 import com.elytradev.correlated.wifi.Station;
 import com.elytradev.correlated.wifi.WirelessManager;
@@ -35,7 +37,7 @@ public class APNRequestMessage extends Message {
 	}
 	
 	public APNRequestMessage(double x, double y, double z) {
-		super(Correlated.inst.network);
+		super(CNetwork.CONTEXT);
 		this.x = x;
 		this.y = y;
 		this.z = z;}
@@ -43,7 +45,7 @@ public class APNRequestMessage extends Message {
 	@Override
 	protected void handle(EntityPlayer sender) {
 		BlockPos pos = new BlockPos((int)x, (int)y, (int)z);
-		WirelessManager wm = Correlated.getDataFor(sender.world).getWirelessManager();
+		WirelessManager wm = CorrelatedWorldData.getFor(sender.world).getWirelessManager();
 		Set<String> selected = Collections.emptySet();
 		Station block = wm.getStation(pos);
 		if (block != null) {

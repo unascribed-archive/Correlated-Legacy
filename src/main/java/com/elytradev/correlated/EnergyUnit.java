@@ -1,6 +1,10 @@
 package com.elytradev.correlated;
 
-public enum EnergyUnit {
+import java.util.Locale;
+
+import com.elytradev.correlated.init.config.IConfigSerializable;
+
+public enum EnergyUnit implements IConfigSerializable {
 	POTENTIAL("Potential", "P", 0x00DBAD),
 	REDSTONE_FLUX("Redstone Flux", "RF", 0xD50000),
 	ENERGY_UNITS("Energy Units", "EU", 0xD50000),
@@ -11,6 +15,7 @@ public enum EnergyUnit {
 	DANKS("Danks", "Dk", 0x673AB7),
 	FORGE_UNITS("Forge Units", "FU", 0xD50000),
 	FORGE_ENERGY("Forge Energy", "FE", 0xD50000);
+	
 	public final String displayName;
 	public final String abbreviation;
 	public final int color;
@@ -18,5 +23,14 @@ public enum EnergyUnit {
 		this.displayName = displayName;
 		this.abbreviation = abbreviation;
 		this.color = color;
+	}
+	@Override
+	public String toConfigString() {
+		return displayName;
+	}
+	@Override
+	public boolean matches(String configName) {
+		configName = configName.trim().toUpperCase(Locale.ROOT).replace(' ', '_');
+		return configName.equals(name()) || configName.equals(abbreviation);
 	}
 }

@@ -1,6 +1,6 @@
 package com.elytradev.correlated.crafting;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.init.CItems;
 import com.elytradev.correlated.item.ItemDrive;
 
 import net.minecraft.block.Block;
@@ -41,10 +41,10 @@ public class DriveRecipe extends ShapedOreRecipe {
 					ingredient.setInteger("Slot", i);
 					ingredients.appendTag(ingredient);
 				}
-				if (is.getItem() == Correlated.misc && is.getMetadata() == 8) {
+				if (is.getItem() == CItems.MISC && is.getMetadata() == 8) {
 					if (stack.getItem() instanceof ItemDrive) {
 						ItemDrive id = ((ItemDrive)stack.getItem());
-						if (Correlated.drive.getKilobitsUsed(is) > id.getMaxKilobits(stack)) {
+						if (CItems.DRIVE.getKilobitsUsed(is) > id.getMaxKilobits(stack)) {
 							return ItemStack.EMPTY;
 						}
 					}

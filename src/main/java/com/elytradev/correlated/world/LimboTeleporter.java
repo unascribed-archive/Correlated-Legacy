@@ -1,6 +1,6 @@
 package com.elytradev.correlated.world;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.CorrelatedWorldData;
 import com.elytradev.correlated.math.Vec2f;
 import com.elytradev.correlated.math.Vec2i;
@@ -40,7 +40,7 @@ public class LimboTeleporter extends Teleporter {
 		LimboProvider provider = ((LimboProvider)world.provider);
 		EntityPlayerMP player = ((EntityPlayerMP)entityIn);
 		DungeonPlayer dp = provider.popEntering(player.getGameProfile().getId());
-		CorrelatedWorldData data = Correlated.getDataFor(world.getMinecraftServer().worldServerForDimension(0));
+		CorrelatedWorldData data = CorrelatedWorldData.getFor(world.getMinecraftServer().worldServerForDimension(0));
 		data.getPlayerRespawnData().put(dp.getProfile().getId(), dp.getOldPlayer());
 		data.markDirty();
 		
@@ -52,7 +52,7 @@ public class LimboTeleporter extends Teleporter {
 			sw.start();
 			scribe.erase(freeSpot);
 			sw.stop();
-			Correlated.log.info("Freed space at {} in {}", freeSpot, sw);
+			CLog.info("Freed space at {} in {}", freeSpot, sw);
 			sw.reset();
 			
 			sw.start();
@@ -60,15 +60,15 @@ public class LimboTeleporter extends Teleporter {
 			d.generateNewPlan();
 			grid.set(freeSpot, d);
 			sw.stop();
-			Correlated.log.info("Generated new dungeon at {} in {}", freeSpot, sw);
+			CLog.info("Generated new dungeon at {} in {}", freeSpot, sw);
 			sw.reset();
 			
 			sw.start();
 			scribe.write(d);
 			sw.stop();
-			Correlated.log.info("Scribed new dungeon at {} in {}", freeSpot, sw);
+			CLog.info("Scribed new dungeon at {} in {}", freeSpot, sw);
 		} else {
-			Correlated.log.info("Reusing existing dungeon at {}, {}", d.x, d.z);
+			CLog.info("Reusing existing dungeon at {}, {}", d.x, d.z);
 		}
 		Vec2f entrance = d.findEntranceTile();
 		int x = (d.x*Dungeon.NODE_SIZE)*Dungeon.DUNGEON_SIZE;

@@ -1,7 +1,8 @@
 package com.elytradev.correlated.network;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.init.CNetwork;
 import com.elytradev.correlated.client.gui.GuiFakeReboot;
+import com.elytradev.correlated.init.CSoundEvents;
 import com.elytradev.correlated.proxy.ClientProxy;
 
 import com.elytradev.concrete.Message;
@@ -27,7 +28,7 @@ public class SetGlitchingStateMessage extends Message {
 		super(ctx);
 	}
 	public SetGlitchingStateMessage(GlitchState state) {
-		super(Correlated.inst.network);
+		super(CNetwork.CONTEXT);
 		this.state = state;
 	}
 
@@ -36,7 +37,7 @@ public class SetGlitchingStateMessage extends Message {
 	protected void handle(EntityPlayer sender) {
 		Minecraft.getMinecraft().getSoundHandler().stopSounds();
 		if (state == GlitchState.CORRUPTING) {
-			Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(Correlated.glitchbgm, 1f));
+			Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(CSoundEvents.GLITCHBGM, 1f));
 			ClientProxy.glitchTicks = 0;
 		} else {
 			ClientProxy.glitchTicks = -1;

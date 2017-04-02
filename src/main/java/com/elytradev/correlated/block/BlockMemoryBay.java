@@ -28,7 +28,7 @@ import net.minecraft.world.World;
 
 public class BlockMemoryBay extends Block {
 	public static final PropertyDirection FACING = BlockHorizontal.FACING;
-	public static final PropertyBool lit = PropertyBool.create("lit");
+	public static final PropertyBool LIT = PropertyBool.create("lit");
 	
 	public BlockMemoryBay() {
 		super(Material.IRON);
@@ -46,20 +46,20 @@ public class BlockMemoryBay extends Block {
 
 	@Override
 	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, FACING, lit);
+		return new BlockStateContainer(this, FACING, LIT);
 	}
 	
 	@Override
 	public int getMetaFromState(IBlockState state) {
 		return (state.getValue(FACING).getHorizontalIndex() & 0b0011)
-				| (state.getValue(lit) ? 0b0100 : 0);
+				| (state.getValue(LIT) ? 0b0100 : 0);
 	}
 
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
 		return getDefaultState()
 				.withProperty(FACING, EnumFacing.getHorizontal(meta&0b0011))
-				.withProperty(lit, (meta&0b0100) != 0);
+				.withProperty(LIT, (meta&0b0100) != 0);
 	}
 
 	@Override

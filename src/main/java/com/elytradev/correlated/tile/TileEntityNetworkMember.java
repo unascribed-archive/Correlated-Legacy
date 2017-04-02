@@ -1,7 +1,6 @@
 package com.elytradev.correlated.tile;
 
-import com.elytradev.correlated.Correlated;
-
+import com.elytradev.correlated.CLog;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -52,7 +51,7 @@ public abstract class TileEntityNetworkMember extends TileEntity {
 			} else {
 				controllerPos = null;
 				if (!(te instanceof TileEntityNetworkImporter)) {
-					Correlated.log.debug("The network member at {}, {}, {} failed to find its controller", getPos().getX(), getPos().getY(), getPos().getZ());
+					CLog.debug("The network member at {}, {}, {} failed to find its controller", getPos().getX(), getPos().getY(), getPos().getZ());
 				}
 			}
 		}

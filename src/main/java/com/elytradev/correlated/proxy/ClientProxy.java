@@ -30,6 +30,7 @@ import javax.imageio.ImageIO;
 
 import org.lwjgl.opengl.GL11;
 
+import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.client.CorrelatedMusicTicker;
 import com.elytradev.correlated.client.DocumentationManager;
@@ -50,6 +51,11 @@ import com.elytradev.correlated.client.render.tile.RenderOpticalReceiver;
 import com.elytradev.correlated.client.render.tile.RenderTerminal;
 import com.elytradev.correlated.entity.EntityAutomaton;
 import com.elytradev.correlated.entity.EntityThrownItem;
+import com.elytradev.correlated.init.CBlocks;
+import com.elytradev.correlated.init.CConfig;
+import com.elytradev.correlated.init.CItems;
+import com.elytradev.correlated.init.CRecords;
+import com.elytradev.correlated.init.CSoundEvents;
 import com.elytradev.correlated.item.ItemDrive;
 import com.elytradev.correlated.item.ItemKeycard;
 import com.elytradev.correlated.item.ItemMemory;
@@ -181,7 +187,7 @@ public class ClientProxy extends Proxy {
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityOpticalReceiver.class, new RenderOpticalReceiver());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityBeaconLens.class, new RenderBeaconLens());
 		
-		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(Correlated.wireless), 0, TileEntityMicrowaveBeam.class);
+		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CBlocks.WIRELESS), 0, TileEntityMicrowaveBeam.class);
 		
 		RenderingRegistry.registerEntityRenderingHandler(EntityThrownItem.class, (rm) -> new RenderThrownItem(rm, Minecraft.getMinecraft().getRenderItem()));
 		RenderingRegistry.registerEntityRenderingHandler(EntityAutomaton.class, RenderAutomaton::new);
@@ -199,31 +205,31 @@ public class ClientProxy extends Proxy {
 					int[] rgb = new int[img.getWidth()*img.getHeight()];
 					img.getRGB(0, 0, img.getWidth(), img.getHeight(), rgb, 0, img.getWidth());
 					colors.put(s, rgb);
-					Correlated.log.info("Successfully loaded {} colors", s);
+					CLog.info("Successfully loaded {} colors", s);
 				} catch (IOException e) {
-					Correlated.log.info("Error while loading {} colors", s);
+					CLog.info("Error while loading {} colors", s);
 				}
 			}
 		});
 		
-		ModelLoader.setCustomModelResourceLocation(Correlated.floppy, 0, new ModelResourceLocation(new ResourceLocation("correlated", "floppy_write_enabled"), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Correlated.floppy, 1, new ModelResourceLocation(new ResourceLocation("correlated", "floppy_write_disabled"), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CItems.FLOPPY, 0, new ModelResourceLocation(new ResourceLocation("correlated", "floppy_write_enabled"), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CItems.FLOPPY, 1, new ModelResourceLocation(new ResourceLocation("correlated", "floppy_write_disabled"), "inventory"));
 		
-		ModelLoader.setCustomModelResourceLocation(Correlated.wireless_terminal, 1, new ModelResourceLocation(new ResourceLocation("correlated", "wireless_terminal"), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Correlated.wireless_terminal, 2, new ModelResourceLocation(new ResourceLocation("correlated", "wireless_terminal"), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CItems.HANDHELD_TERMINAL, 1, new ModelResourceLocation(new ResourceLocation("correlated", "handheld_terminal"), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CItems.HANDHELD_TERMINAL, 2, new ModelResourceLocation(new ResourceLocation("correlated", "handheld_terminal"), "inventory"));
 		
-		ModelLoader.setCustomModelResourceLocation(Correlated.wireless_terminal, 4, new ModelResourceLocation(new ResourceLocation("correlated", "wireless_terminal_hand"), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CItems.HANDHELD_TERMINAL, 4, new ModelResourceLocation(new ResourceLocation("correlated", "handheld_terminal_hand"), "inventory"));
 		
 		int idx = 0;
 		for (String s : ItemMisc.items) {
-			ModelLoader.setCustomModelResourceLocation(Correlated.misc, idx++, new ModelResourceLocation(new ResourceLocation("correlated", s), "inventory"));
+			ModelLoader.setCustomModelResourceLocation(CItems.MISC, idx++, new ModelResourceLocation(new ResourceLocation("correlated", s), "inventory"));
 		}
 		idx = 0;
 		for (String s : ItemKeycard.colors) {
-			ModelLoader.setCustomModelResourceLocation(Correlated.keycard, idx++, new ModelResourceLocation(new ResourceLocation("correlated", "keycard_"+s), "inventory"));
+			ModelLoader.setCustomModelResourceLocation(CItems.KEYCARD, idx++, new ModelResourceLocation(new ResourceLocation("correlated", "keycard_"+s), "inventory"));
 		}
 		
-		enceladusType = EnumHelper.addEnum(MusicType.class, "CORRELATED_ENCELADUS", new Class<?>[] {SoundEvent.class, int.class, int.class}, Correlated.enceladus, 24000, 48000);
+		enceladusType = EnumHelper.addEnum(MusicType.class, "CORRELATED_ENCELADUS", new Class<?>[] {SoundEvent.class, int.class, int.class}, CSoundEvents.ENCELADUS, 24000, 48000);
 		
 		List<String> pages = Lists.newArrayList();
 		
@@ -274,7 +280,7 @@ public class ClientProxy extends Proxy {
 		for (File child : f.listFiles()) {
 			String abs = child.getAbsolutePath();
 			if (!abs.startsWith(prefix)) {
-				Correlated.log.warn("Walked outside of documentation root - {}", child.getAbsolutePath());
+				CLog.warn("Walked outside of documentation root - {}", child.getAbsolutePath());
 				continue;
 			}
 			if (child.isDirectory()) {
@@ -342,7 +348,7 @@ public class ClientProxy extends Proxy {
 				return -1;
 			}
 			
-		}, Correlated.module);
+		}, CItems.MODULE);
 		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
 			@Override
 			public int getColorFromItemstack(ItemStack stack, int tintIndex) {
@@ -354,7 +360,7 @@ public class ClientProxy extends Proxy {
 				return -1;
 			}
 			
-		}, Correlated.memory);
+		}, CItems.MEMORY);
 		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
 			@Override
 			@SuppressWarnings("fallthrough")
@@ -417,7 +423,7 @@ public class ClientProxy extends Proxy {
 				return id.getBaseColor(stack);
 			}
 			
-		}, Correlated.drive);
+		}, CItems.DRIVE);
 		
 		CorrelatedMusicTicker cmt = new CorrelatedMusicTicker(Minecraft.getMinecraft(), Minecraft.getMinecraft().getMusicTicker());
 		ReflectionHelper.setPrivateValue(Minecraft.class, Minecraft.getMinecraft(), cmt, "field_147126_aw", "mcMusicTicker", "aK");
@@ -431,7 +437,7 @@ public class ClientProxy extends Proxy {
 		}
 		if (variants == -1) {
 			NonNullList<ItemStack> li = NonNullList.create();
-			item.getSubItems(item, Correlated.creativeTab, li);
+			item.getSubItems(item, Correlated.CREATIVE_TAB, li);
 			for (ItemStack is : li) {
 				ModelLoader.setCustomModelResourceLocation(item, is.getItemDamage(), new ModelResourceLocation(loc, "inventory"));
 			}
@@ -516,7 +522,7 @@ public class ClientProxy extends Proxy {
 				}
 			}
 			
-			if (Minecraft.getMinecraft().world != null && Minecraft.getMinecraft().world.provider.getDimension() == Correlated.limboDimId) {
+			if (Minecraft.getMinecraft().world != null && Minecraft.getMinecraft().world.provider.getDimension() == CConfig.limboDimId) {
 				
 			}
 		}
@@ -558,7 +564,7 @@ public class ClientProxy extends Proxy {
 				&& !Minecraft.getMinecraft().world.getWorldInfo().isHardcoreModeEnabled()
 				&& e.getGui() instanceof GuiGameOver
 				&& !(e.getGui() instanceof GuiAbortRetryFail)) {
-			if (Minecraft.getMinecraft().player != null && Minecraft.getMinecraft().player.dimension == Correlated.limboDimId) {
+			if (Minecraft.getMinecraft().player != null && Minecraft.getMinecraft().player.dimension == CConfig.limboDimId) {
 				e.setGui(new GuiAbortRetryFail(ReflectionHelper.getPrivateValue(GuiGameOver.class, (GuiGameOver)e.getGui(), "field_184871_f", "causeOfDeath", "f")));
 			}
 		}
@@ -633,14 +639,14 @@ public class ClientProxy extends Proxy {
 		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/controller/controller_memory_light"));
 		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/accessory/optical_linked"));
 		e.getMap().registerSprite(new ResourceLocation("correlated", "blocks/accessory/optical_error"));
-		e.getMap().registerSprite(new ResourceLocation("correlated", "items/tool/wireless_terminal_glow"));
-		e.getMap().registerSprite(new ResourceLocation("correlated", "items/tool/wireless_terminal_glow_error"));
+		e.getMap().registerSprite(new ResourceLocation("correlated", "items/tool/handheld_terminal_glow"));
+		e.getMap().registerSprite(new ResourceLocation("correlated", "items/tool/handheld_terminal_glow_error"));
 		e.getMap().registerSprite(new ResourceLocation("correlated", "items/tool/doc_tablet_glow"));
 		e.getMap().registerSprite(new ResourceLocation("correlated", "items/keycard/glow"));
 	}
 	@SubscribeEvent
 	public void onSoundLoad(SoundLoadEvent e) {
-		for (String snd : Correlated.records) {
+		for (String snd : CRecords.RECORDS) {
 			String file = snd.substring(0, snd.indexOf('.'));
 			String ext = snd.substring(snd.indexOf('.')+1);
 			Sound danslarue = new Sound("correlated:"+file, 1, 1, 1, Type.FILE, true) {
@@ -664,13 +670,13 @@ public class ClientProxy extends Proxy {
 		ItemStack is = e.getItemStack();
 		if (is != null) {
 			Item item = is.getItem();
-			if (item != Correlated.wireless_terminal
-					&& item != Correlated.drive
-					&& item != Correlated.memory
-					&& item != Correlated.keycard) return;
+			if (item != CItems.HANDHELD_TERMINAL
+					&& item != CItems.DRIVE
+					&& item != CItems.MEMORY
+					&& item != CItems.KEYCARD) return;
 			boolean terminalError = false;
 			boolean terminalUnlinked = false;
-			if (is.getItem() == Correlated.wireless_terminal) {
+			if (is.getItem() == CItems.HANDHELD_TERMINAL) {
 				if (is.getItemDamage() == 1) {
 					terminalError = true;
 				} else if (is.getItemDamage() == 2) {
@@ -738,11 +744,11 @@ public class ClientProxy extends Proxy {
 				GlStateManager.enableBlend();
 				GlStateManager.disableAlpha();
 				GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
-				if (item == Correlated.wireless_terminal) {
+				if (item == CItems.HANDHELD_TERMINAL) {
 					if (!terminalUnlinked) {
-						drawSprite(mc.getTextureMapBlocks().getAtlasSprite("correlated:items/tool/wireless_terminal_glow"+(terminalError ? "_error" : "")));
+						drawSprite(mc.getTextureMapBlocks().getAtlasSprite("correlated:items/tool/handheld_terminal_glow"+(terminalError ? "_error" : "")));
 					}
-				} else if (item == Correlated.drive) {
+				} else if (item == CItems.DRIVE) {
 					TextureAtlasSprite fullness = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/drive/fullness_light");
 					TextureAtlasSprite tier = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/drive/tier_light");
 					TextureAtlasSprite partition = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/drive/partition_light");
@@ -782,11 +788,11 @@ public class ClientProxy extends Proxy {
 						color(priorityRightColor);
 						drawSprite(priority_right);
 					}
-				} else if (item == Correlated.memory) {
+				} else if (item == CItems.MEMORY) {
 					TextureAtlasSprite tier = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/accessory/ram_tier_light");
 					color(mc.getItemColors().getColorFromItemstack(is, 1));
 					drawSprite(tier);
-				} else if (item == Correlated.keycard) {
+				} else if (item == CItems.KEYCARD) {
 					drawSprite(mc.getTextureMapBlocks().getAtlasSprite("correlated:items/keycard/glow"));
 				}
 				GL11.glEnable(GL11.GL_LIGHTING);

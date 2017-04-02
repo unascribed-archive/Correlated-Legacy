@@ -1,8 +1,8 @@
 package com.elytradev.correlated.client.render.tile;
 
-import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.block.BlockWireless;
 import com.elytradev.correlated.block.BlockWireless.State;
+import com.elytradev.correlated.init.CBlocks;
 import com.elytradev.correlated.tile.TileEntityBeaconLens;
 
 import net.minecraft.block.state.IBlockState;
@@ -17,8 +17,8 @@ public class RenderBeaconLens extends TileEntitySpecialRenderer<TileEntityBeacon
 	@Override
 	public void renderTileEntityAt(TileEntityBeaconLens te, double x, double y, double z, float partialTicks, int destroyStage) {
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
-		if (bs.getBlock() != Correlated.wireless) return;
-		State state = bs.getValue(BlockWireless.state);
+		if (bs.getBlock() != CBlocks.WIRELESS) return;
+		State state = bs.getValue(BlockWireless.STATE);
 		
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);

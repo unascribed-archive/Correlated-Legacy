@@ -1,6 +1,7 @@
 package com.elytradev.correlated.network;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.init.CConfig;
+import com.elytradev.correlated.init.CNetwork;
 import com.elytradev.correlated.world.LimboProvider;
 
 import com.elytradev.concrete.Message;
@@ -20,13 +21,13 @@ public class EnterDungeonMessage extends Message {
 		super(ctx);
 	}
 	public EnterDungeonMessage() {
-		super(Correlated.inst.network);
+		super(CNetwork.CONTEXT);
 	}
 
 	@Override
 	protected void handle(EntityPlayer sender) {
 		EntityPlayerMP p = (EntityPlayerMP)sender;
-		int dim = Correlated.limboDimId;
+		int dim = CConfig.limboDimId;
 		Teleporter teleporter;
 		WorldServer world = p.mcServer.worldServerForDimension(dim);
 		WorldProvider provider = world.provider;
