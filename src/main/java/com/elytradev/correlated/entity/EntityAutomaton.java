@@ -813,6 +813,11 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	public boolean isTamed() {
 		return getOwnerId() != null;
 	}
+	
+	@Override
+	public String getName() {
+		return "entity.correlated.automaton.name";
+	}
 
 	private EntityEquipmentSlot[] slots = {};
 	private int changeId = 0;

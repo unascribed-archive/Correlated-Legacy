@@ -12,6 +12,7 @@ import com.elytradev.correlated.helper.Numbers;
 import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.init.CItems;
 import com.elytradev.correlated.init.CSoundEvents;
+import com.elytradev.correlated.init.CStacks;
 import com.elytradev.correlated.proxy.ClientProxy;
 import com.elytradev.correlated.storage.InsertResult;
 import com.google.common.collect.Lists;
@@ -284,11 +285,11 @@ public class ItemDrive extends Item {
 				}
 			}
 			if (!ItemStacks.getCompoundList(itemStackIn, "Data").hasNoTags()) {
-				ItemStack dataCore = new ItemStack(CItems.MISC, 1, 8);
+				ItemStack dataCore = CStacks.dataCore();
 				dataCore.setTagCompound(itemStackIn.getTagCompound().copy());
 				return ActionResult.newResult(EnumActionResult.SUCCESS, dataCore);
 			} else {
-				return ActionResult.newResult(EnumActionResult.SUCCESS, new ItemStack(CItems.MISC, 1, 3));
+				return ActionResult.newResult(EnumActionResult.SUCCESS, CStacks.luminousPearl());
 			}
 		} else {
 			Vec3d eyes = new Vec3d(playerIn.posX, playerIn.posY + playerIn.getEyeHeight(), playerIn.posZ);

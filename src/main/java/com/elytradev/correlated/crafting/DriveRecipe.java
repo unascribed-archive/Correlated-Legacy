@@ -32,7 +32,7 @@ public class DriveRecipe extends ShapedOreRecipe {
 		NBTTagList ingredients = new NBTTagList();
 		for (int i = 0; i < var1.getSizeInventory(); i++) {
 			ItemStack is = var1.getStackInSlot(i);
-			if (is.isEmpty()) {
+			if (!is.isEmpty()) {
 				if (!is.getItem().hasContainerItem(is)) {
 					NBTTagCompound ingredient = new NBTTagCompound();
 					ItemStack copy = is.copy();

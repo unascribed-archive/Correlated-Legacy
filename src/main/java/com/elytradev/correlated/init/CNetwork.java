@@ -17,7 +17,7 @@ import com.elytradev.correlated.network.RecipeTransferMessage;
 import com.elytradev.correlated.network.SaveProgramMessage;
 import com.elytradev.correlated.network.SetAutomatonNameMessage;
 import com.elytradev.correlated.network.SetEditorStatusMessage;
-import com.elytradev.correlated.network.SetGlitchingStateMessage;
+import com.elytradev.correlated.network.DungeonTransitionMessage;
 import com.elytradev.correlated.network.SetSearchQueryClientMessage;
 import com.elytradev.correlated.network.SetSearchQueryServerMessage;
 import com.elytradev.correlated.network.SetSlotSizeMessage;
@@ -44,7 +44,7 @@ public class CNetwork {
 		CONTEXT.register(SetSearchQueryServerMessage.class);
 		CONTEXT.register(SetSlotSizeMessage.class);
 		CONTEXT.register(StartWeldthrowingMessage.class);
-		CONTEXT.register(SetGlitchingStateMessage.class);
+		CONTEXT.register(DungeonTransitionMessage.class);
 		CONTEXT.register(EnterDungeonMessage.class);
 		CONTEXT.register(SetAutomatonNameMessage.class);
 		CONTEXT.register(LeaveDungeonMessage.class);

@@ -78,19 +78,19 @@ public class CConfig {
 			"fractional. Only used for input, energy cannot be taken out of a",
 			"Correlated system. Default is 1 EU = 4 P.");
 	private static final ConfigKey<Double> TESLA_CONVERSION_RATE = ConfigKey.create(
-			"PowerConversion", "t", 1.0,
+			"PowerConversion", "tesla", 1.0,
 			
 			"Tesla to Potential conversion rate. Can be fractional. Should be",
 			"the same as the RF rate, as recommended by the Tesla devs. Only",
 			"used for input, energy cannot be taken out of a Correlated system.");
 	private static final ConfigKey<Double> FORGE_CONVERSION_RATE = ConfigKey.create(
-			"PowerConversion", "fu", 1.0,
+			"PowerConversion", "forge", 1.0,
 			
 			"Forge to Potential conversion rate. Can be fractional. Should be",
 			"the same as the RF rate, as recommended by the Forge devs. Only",
 			"used for input, energy cannot be taken out of a Correlated system.");
 	private static final ConfigKey<Double> JOULE_CONVERSION_RATE = ConfigKey.create(
-			"PowerConversion", "j", 2.5,
+			"PowerConversion", "joule", 2.5,
 			
 			"Joule (Mekanism) to Potential conversion rate. Can be fractional.",
 			"Only used for input, energy cannot be taken out of a Correlated",
@@ -277,6 +277,13 @@ public class CConfig {
 		limboDimId = LIMBO_DIM_ID.get(config);
 		
 		importMode = IMPORT_MODE.get(config);
+		
+		config.getCategory("PowerUsage").remove("drivePow");
+		config.getCategory("PowerUsage").remove("driveDiv");
+		
+		config.getCategory("PowerConversion").remove("t");
+		config.getCategory("PowerConversion").remove("fu");
+		config.getCategory("PowerConversion").remove("j");
 	}
 
 	public static void save() {

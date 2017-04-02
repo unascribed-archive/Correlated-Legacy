@@ -10,8 +10,8 @@ import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.init.CDimensions;
 import com.elytradev.correlated.math.Vec2i;
-import com.elytradev.correlated.network.SetGlitchingStateMessage;
-import com.elytradev.correlated.network.SetGlitchingStateMessage.GlitchState;
+import com.elytradev.correlated.network.DungeonTransitionMessage;
+import com.elytradev.correlated.network.DungeonTransitionMessage.GlitchState;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -191,7 +191,7 @@ public class LimboProvider extends WorldProvider {
 			int dZ = (int)Math.floor((player.posZ/Dungeon.NODE_SIZE)/Dungeon.DUNGEON_SIZE);
 			if (dX != en.getValue().x || dZ != en.getValue().y) {
 				// mess with them a bit
-				new SetGlitchingStateMessage(GlitchState.CORRUPTING).sendTo(player);;
+				new DungeonTransitionMessage(GlitchState.CORRUPTING).sendTo(player);;
 				en.getKey().attackEntityFrom(constraint_violation, 75000);
 				en.getKey().setDead(); // just in case
 			}
