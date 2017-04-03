@@ -17,6 +17,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityThrowable;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -160,7 +161,7 @@ public class EntityThrownItem extends EntityThrowable {
 					if (world instanceof WorldServer) {
 						((WorldServer)world).spawnParticle(EnumParticleTypes.ITEM_CRACK,
 								result.hitVec.xCoord, result.hitVec.yCoord, result.hitVec.zCoord, 80,
-								0, 0, 0, 0.15, Item.getIdFromItem(CItems.MISC), 8);
+								0, 0, 0, 0.15, Item.getIdFromItem(getStack().getItem()), getStack().getMetadata());
 					}
 					return;
 				}
@@ -184,7 +185,22 @@ public class EntityThrownItem extends EntityThrowable {
 				setStack(CStacks.unstablePearl(getStack().getCount()));
 				noTeleport = true;
 			} else if (getStack().getMetadata() == 6 && !noTeleport) {
-				world.createExplosion(this, posX, posY, posZ, 0, false);
+				playSound(SoundEvents.ENTITY_GENERIC_EXPLODE, 0.5f, 1.5f);
+				if (world instanceof WorldServer) {
+					((WorldServer)world).spawnParticle(EnumParticleTypes.ITEM_CRACK,
+							posX, posY, posZ, 120,
+							0, 0, 0, 1.0, Item.getIdFromItem(getStack().getItem()), getStack().getMetadata());
+					((WorldServer)world).spawnParticle(EnumParticleTypes.ITEM_CRACK,
+							posX, posY, posZ, 40,
+							0, 0, 0, 0.25, Item.getIdFromItem(getStack().getItem()), getStack().getMetadata());
+					((WorldServer)world).spawnParticle(EnumParticleTypes.ITEM_CRACK,
+							posX, posY, posZ, 80,
+							0, 0, 0, 0.05, Item.getIdFromItem(getStack().getItem()), getStack().getMetadata());
+					((WorldServer)world).spawnParticle(EnumParticleTypes.SMOKE_LARGE,
+							posX, posY, posZ, 100,
+							0, 0, 0, 0.05);
+					((WorldServer)world).spawnParticle(EnumParticleTypes.REDSTONE, posX, posY, posZ, 100, 0.2, 0.2, 0.2, 100);
+				}
 				setDead();
 			}
 		}
