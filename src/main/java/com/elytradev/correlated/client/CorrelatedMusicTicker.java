@@ -55,7 +55,7 @@ public class CorrelatedMusicTicker extends MusicTicker {
 			}
 
 			timeUntilNextMusic.set(delegate, Math.min(timeUntilNextMusic.get(delegate), type.getMaxDelay()));
-
+			
 			if (currentMusic.get(delegate) == null && timeUntilNextMusic.get(delegate) <= 0) {
 				delegate.playMusic(type);
 			}

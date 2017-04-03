@@ -111,9 +111,6 @@ public class ItemMisc extends Item {
 	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand) {
 		ItemStack itemStackIn = playerIn.getHeldItem(hand);
 		if (!(playerIn instanceof FakePlayer) && playerIn.dimension != CConfig.limboDimId && (itemStackIn.getMetadata() == 3 || itemStackIn.getMetadata() == 6 || itemStackIn.getMetadata() == 8)) {
-			if (!playerIn.capabilities.isCreativeMode) {
-				itemStackIn.setCount(itemStackIn.getCount()-1);
-			}
 
 			worldIn.playSound((EntityPlayer) null, playerIn.posX, playerIn.posY, playerIn.posZ, SoundEvents.ENTITY_ENDERPEARL_THROW, SoundCategory.NEUTRAL, 0.5F, 0.4F / (itemRand.nextFloat() * 0.4F + 0.8F));
 
@@ -124,6 +121,10 @@ public class ItemMisc extends Item {
 				e.setStack(copy);
 				e.setHeadingFromThrower(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 0.0F, 0.9F, 1.0F);
 				worldIn.spawnEntity(e);
+			}
+			
+			if (!playerIn.capabilities.isCreativeMode) {
+				itemStackIn.setCount(itemStackIn.getCount()-1);
 			}
 
 			playerIn.addStat(StatList.getObjectUseStats(this));

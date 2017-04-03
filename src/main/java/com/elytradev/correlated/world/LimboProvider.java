@@ -94,7 +94,10 @@ public class LimboProvider extends WorldProvider {
 	
 	@Override
 	public int getRespawnDimension(EntityPlayerMP player) {
-		return leaving.remove(player.getGameProfile().getId()) ? 0 : CConfig.limboDimId;
+		if (leaving.remove(player.getGameProfile().getId())) {
+			return 0;
+		}
+		return CConfig.limboDimId;
 	}
 	
 	public LimboTeleporter getTeleporter() {
@@ -191,7 +194,7 @@ public class LimboProvider extends WorldProvider {
 			int dZ = (int)Math.floor((player.posZ/Dungeon.NODE_SIZE)/Dungeon.DUNGEON_SIZE);
 			if (dX != en.getValue().x || dZ != en.getValue().y) {
 				// mess with them a bit
-				new DungeonTransitionMessage(GlitchState.CORRUPTING).sendTo(player);;
+				new DungeonTransitionMessage(GlitchState.CORRUPTING).sendTo(player);
 				en.getKey().attackEntityFrom(constraint_violation, 75000);
 				en.getKey().setDead(); // just in case
 			}

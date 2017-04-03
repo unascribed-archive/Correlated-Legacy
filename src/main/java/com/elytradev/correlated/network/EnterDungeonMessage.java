@@ -1,5 +1,6 @@
 package com.elytradev.correlated.network;
 
+import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.init.CNetwork;
 import com.elytradev.correlated.world.LimboProvider;
@@ -9,6 +10,7 @@ import com.elytradev.concrete.NetworkContext;
 import com.elytradev.concrete.annotation.type.ReceivedOn;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.Teleporter;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
@@ -35,12 +37,25 @@ public class EnterDungeonMessage extends Message {
 			teleporter = ((LimboProvider)provider).getTeleporter();
 			if (!((LimboProvider)provider).isEntering(p.getGameProfile().getId())) {
 				// no free entry
+				CLog.warn("{} tried to enter the dungeon without throwing an Unstable Pearl", sender.getName());
 				return;
 			}
 		} else {
 			teleporter = world.getDefaultTeleporter();
 		}
 		p.mcServer.getPlayerList().transferPlayerToDimension(p, dim, teleporter);
+		
+		NBTTagCompound tag = p.writeToNBT(new NBTTagCompound());
+		
+		tag.removeTag("ForgeData");
+		tag.removeTag("Inventory");
+		tag.removeTag("ActiveEffects");
+		tag.removeTag("ForgeCaps");
+		tag.removeTag("Invulnerable");
+		
+		p.readFromNBT(tag);
+		
+		p.setSpawnChunk(p.getPosition(), true, dim);
 		
 		p.inventory.clear();
 		p.clearActivePotions();

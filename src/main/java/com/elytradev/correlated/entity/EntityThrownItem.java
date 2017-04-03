@@ -1,6 +1,5 @@
 package com.elytradev.correlated.entity;
 
-import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.init.CItems;
 import com.elytradev.correlated.init.CSoundEvents;
@@ -96,7 +95,9 @@ public class EntityThrownItem extends EntityThrowable {
 
 							p.setPositionAndUpdate(posX, posY, posZ);
 							p.fallDistance = 0;
-							p.attackEntityFrom(DamageSource.FALL, 0);
+							p.attackEntityFrom(DamageSource.FALL, 0.01f);
+							
+							setDead();
 							
 							p.mcServer.futureTaskQueue.add(ListenableFutureTask.create(() -> {
 								NBTTagCompound oldEntity = p.writeToNBT(new NBTTagCompound());
@@ -105,16 +106,23 @@ public class EntityThrownItem extends EntityThrowable {
 								long prime = 59;
 								int rd = 2;
 								Vec3i radius = new Vec3i(rd, rd, rd);
-								for (BlockPos bp : BlockPos.getAllInBoxMutable(getPosition().subtract(radius), getPosition().add(radius))) {
-									IBlockState state = world.getBlockState(bp);
-									hashCode = (hashCode * prime) + state.getBlock().getRegistryName().hashCode();
-									hashCode = (hashCode * prime) + state.getBlock().getMetaFromState(state);
+								BlockPos pos = result.getBlockPos();
+								if (pos == null) {
+									pos = new BlockPos((int)result.hitVec.xCoord, (int)result.hitVec.yCoord, (int)result.hitVec.zCoord);
 								}
-								CLog.info("Dungeon seed is {}", Long.toHexString(hashCode));
+								for (BlockPos bp : BlockPos.getAllInBoxMutable(pos.subtract(radius), pos.add(radius))) {
+									IBlockState state = world.getBlockState(bp);
+									state = state.getActualState(world, bp);
+									String stateString = state.toString();
+								
+								    for (int i = 0; i < stateString.length(); i++) {
+								        hashCode = (prime * hashCode) + stateString.charAt(i);
+								    }
+								}
 								player.setSeed(hashCode);
 								int dim = CConfig.limboDimId;
 								if (ForgeHooks.onTravelToDimension(p, dim)) {
-									new DungeonTransitionMessage(GlitchState.CORRUPTING, (float)posX, (float)posY, (float)posZ).sendTo(p);
+									new DungeonTransitionMessage(GlitchState.CORRUPTING, (float)posX, (float)posY, (float)posZ, Long.toHexString(hashCode)).sendTo(p);
 									WorldServer dest = p.mcServer.worldServerForDimension(dim);
 									if (dest.provider instanceof LimboProvider) {
 										((LimboProvider)dest.provider).addEnteringPlayer(player);

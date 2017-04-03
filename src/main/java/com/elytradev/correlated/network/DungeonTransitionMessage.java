@@ -33,6 +33,8 @@ public class DungeonTransitionMessage extends Message {
 	@MarshalledAs("f32")
 	public float forceZ;
 	
+	public String seed;
+	
 	public DungeonTransitionMessage(NetworkContext ctx) {
 		super(ctx);
 	}
@@ -40,14 +42,16 @@ public class DungeonTransitionMessage extends Message {
 		super(CNetwork.CONTEXT);
 		this.state = state;
 		this.forcePosition = false;
+		this.seed = "";
 	}
-	public DungeonTransitionMessage(GlitchState state, float x, float y, float z) {
+	public DungeonTransitionMessage(GlitchState state, float x, float y, float z, String seed) {
 		super(CNetwork.CONTEXT);
 		this.state = state;
 		this.forcePosition = true;
 		this.forceX = x;
 		this.forceY = y;
 		this.forceZ = z;
+		this.seed = seed;
 	}
 
 	@Override
@@ -66,8 +70,10 @@ public class DungeonTransitionMessage extends Message {
 		if (state == GlitchState.CORRUPTING) {
 			Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(CSoundEvents.GLITCHBGM, 1f));
 			ClientProxy.glitchTicks = 0;
+			ClientProxy.seed = seed;
 		} else {
 			ClientProxy.glitchTicks = -1;
+			ClientProxy.seed = null;
 		}
 		if (state == GlitchState.REBOOT) {
 			Minecraft.getMinecraft().displayGuiScreen(new GuiFakeReboot());

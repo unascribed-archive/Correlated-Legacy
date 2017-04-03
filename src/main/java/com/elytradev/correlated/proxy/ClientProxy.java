@@ -28,12 +28,14 @@ import java.util.jar.JarFile;
 
 import javax.imageio.ImageIO;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.client.CorrelatedMusicTicker;
 import com.elytradev.correlated.client.DocumentationManager;
+import com.elytradev.correlated.client.IBMFontRenderer;
 import com.elytradev.correlated.client.ParticleWeldthrower;
 import com.elytradev.correlated.client.gui.GuiAbortRetryFail;
 import com.elytradev.correlated.client.gui.GuiFakeReboot;
@@ -143,6 +145,7 @@ public class ClientProxy extends Proxy {
 	public static float ticks = 0;
 	
 	public static int glitchTicks = -1;
+	public static String seed;
 	private BitSet glitchJpeg;
 	private int jpegTexture = -1;
 	private Random rand = new Random();
@@ -174,6 +177,7 @@ public class ClientProxy extends Proxy {
 	public static DocumentationManager documentationManager;
 	
 	public static MusicType enceladusType;
+
 	
 	@SuppressWarnings("deprecation")
 	@Override
@@ -625,7 +629,17 @@ public class ClientProxy extends Proxy {
 			vb.pos(res.getScaledWidth(), 0, 0).tex(1, 0).endVertex();
 			vb.pos(0, 0, 0).tex(0, 0).endVertex();
 			tess.draw();
+			if (seed != null) {
+				GlStateManager.enableBlend();
+				GlStateManager.tryBlendFuncSeparate(SourceFactor.ONE_MINUS_DST_COLOR, DestFactor.ONE_MINUS_SRC_COLOR,
+						SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+				IBMFontRenderer.drawString((res.getScaledWidth()-IBMFontRenderer.measure(seed))/2, 2, seed, -1);
+				GlStateManager.disableBlend();
+			}
 			GlStateManager.enableDepth();
+			if (Keyboard.isKeyDown(Keyboard.KEY_GRAVE)) {
+				glitchTicks = 240;
+			}
 		}
 	}
 	

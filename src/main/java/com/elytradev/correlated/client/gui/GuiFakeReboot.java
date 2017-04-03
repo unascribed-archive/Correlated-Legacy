@@ -8,8 +8,11 @@ import java.lang.management.MemoryUsage;
 import java.text.NumberFormat;
 import java.util.Iterator;
 
+import org.lwjgl.input.Keyboard;
+
 import com.elytradev.correlated.client.IBMFontRenderer;
 import com.elytradev.correlated.init.CSoundEvents;
+import com.elytradev.correlated.proxy.ClientProxy;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -46,6 +49,9 @@ public class GuiFakeReboot extends GuiScreen {
 	
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		if (Keyboard.isKeyDown(Keyboard.KEY_GRAVE)) {
+			ticks = 260;
+		}
 		drawRect(0, 0, width, height, 0xFF000000);
 		if (ticks < 0) return;
 		float ticks = this.ticks+partialTicks;
@@ -130,6 +136,7 @@ public class GuiFakeReboot extends GuiScreen {
 			Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(CSoundEvents.GLITCHBOOT, 1f));
 		}
 		if (ticks > 250) {
+			ClientProxy.glitchTicks = -1;
 			Minecraft.getMinecraft().displayGuiScreen(new GuiGlitchedMainMenu());
 		}
 	}
