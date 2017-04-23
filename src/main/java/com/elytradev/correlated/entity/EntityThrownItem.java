@@ -164,6 +164,29 @@ public class EntityThrownItem extends EntityThrowable {
 								0, 0, 0, 0.15, Item.getIdFromItem(getStack().getItem()), getStack().getMetadata());
 					}
 					return;
+				} else if (getStack().getMetadata() == 3) {
+					// I like the idea of this, but it ends up being extremely overpowered.
+					/*
+					ItemStack nw = CStacks.dataCore();
+					boolean absorbedAnyItem = false;
+					for (EntityItem ei : world.getEntitiesWithinAABB(EntityItem.class, getEntityBoundingBox().expand(1, 1, 1))) {
+						if (!ei.isDead) {
+							InsertResult ir = CItems.DRIVE.addItem(nw, ei.getEntityItem(), false);
+							absorbedAnyItem = true;
+							if (ir.stack == null || ir.stack.isEmpty()) {
+								ei.setDead();
+							} else {
+								ei.setEntityItemStack(ir.stack);
+							}
+						}
+					}
+					if (absorbedAnyItem) {
+						setStack(nw);
+						motionX = 0;
+						motionY = 0;
+						motionZ = 0;
+					}
+					*/
 				}
 			}
 			if (!world.isRemote) {
@@ -189,13 +212,16 @@ public class EntityThrownItem extends EntityThrowable {
 				if (world instanceof WorldServer) {
 					((WorldServer)world).spawnParticle(EnumParticleTypes.ITEM_CRACK,
 							posX, posY, posZ, 120,
-							0, 0, 0, 1.0, Item.getIdFromItem(getStack().getItem()), getStack().getMetadata());
+							0, 0, 0, 1.0, Item.getIdFromItem(CItems.MISC), 3);
+							
 					((WorldServer)world).spawnParticle(EnumParticleTypes.ITEM_CRACK,
 							posX, posY, posZ, 40,
-							0, 0, 0, 0.25, Item.getIdFromItem(getStack().getItem()), getStack().getMetadata());
+							0, 0, 0, 0.25, Item.getIdFromItem(CItems.MISC), 3);
+					
 					((WorldServer)world).spawnParticle(EnumParticleTypes.ITEM_CRACK,
 							posX, posY, posZ, 80,
-							0, 0, 0, 0.05, Item.getIdFromItem(getStack().getItem()), getStack().getMetadata());
+							0, 0, 0, 0.05, Item.getIdFromItem(CItems.MISC), 3);
+					
 					((WorldServer)world).spawnParticle(EnumParticleTypes.SMOKE_LARGE,
 							posX, posY, posZ, 100,
 							0, 0, 0, 0.05);

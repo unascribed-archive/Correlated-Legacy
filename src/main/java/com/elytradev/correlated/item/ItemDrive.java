@@ -173,6 +173,9 @@ public class ItemDrive extends Item {
 	}
 
 	public int getMaxKilobits(ItemStack stack) {
+		if (stack.getItem() == CItems.MISC && stack.getMetadata() == 8) {
+			return Integer.MAX_VALUE;
+		}
 		return tierSizes[stack.getItemDamage() % tierSizes.length];
 	}
 
