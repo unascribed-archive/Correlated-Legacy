@@ -1,6 +1,13 @@
 <img src="https://rawgit.com/elytra/Correlated/1.11.2/doc/emblem.svg" align="right" width="180px"/>
 
 # Correlated
+[![Powered By Memes](https://img.shields.io/badge/powered%20by-memes-brightgreen.svg)
+![Minecraft Version](https://img.shields.io/badge/minecraft-v1.11.2-yellow.svg)
+![Release Version](https://img.shields.io/badge/release-v2.0.0a5-blue.svg)
+![Latest Release Downloads](https://img.shields.io/github/downloads/elytra/Correlated/latest/total.svg)
+![All Downloads](https://img.shields.io/github/downloads/elytra/Correlated/total.svg)](https://github.com/elytra/Correlated/releases)
+
+
 *Storage and automation for the modern world.*
 
 Correlated is a digital storage, automation, and exploration mod. The focus
