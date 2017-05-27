@@ -145,6 +145,7 @@ processResources {
 }
 
 def parseConfig(File config) {
+	if (!config.exists()) return new Properties();
 	config.withReader {
 		def prop = new Properties()
 		prop.load(it)
@@ -152,16 +153,17 @@ def parseConfig(File config) {
 	}
 }
 
-uploadArchives {
-	repositories.mavenDeployer {
-		configuration = configurations.deploy
-		pom.artifactId = 'correlatedpotentialistics'
-		repository(url: "scp://"+priv.scpHost+priv.scpPath+"/releases") {
-			authentication(userName: priv.scpUser, privateKey: file(priv.scpKey))
+if (file("private.properties").exists()) {
+	uploadArchives {
+		repositories.mavenDeployer {
+			configuration = configurations.deploy
+			pom.artifactId = 'correlatedpotentialistics'
+			repository(url: "scp://"+priv.scpHost+priv.scpPath+"/releases") {
+				authentication(userName: priv.scpUser, privateKey: file(priv.scpKey))
+			}
 		}
 	}
 }
-
 /**
  * Generate classpath files for use with atom-autocomplete-java
  */
