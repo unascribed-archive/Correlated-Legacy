@@ -1,0 +1,72 @@
+
+Thanks for playing with Correlated!
+
+Enjoy this awesome chip track (if your music's on!) as
+I give a few shoutouts:
+
+
+
+DEVELOPMENT
+
+Storage system: unascribed
+Dungeon generator: Falkreon
+CoPU emulator: Falkreon
+
+
+
+DESIGN
+
+CoPU design: Falkreon
+Dungeon component builds: Falkreon
+Backstory: unascribed, meoil
+GUI design: unascribed
+Boss design: Falkreon, unascribed
+Dungeon design: unascribed, meoil
+
+
+
+ASSETS
+
+Textures: unascribed
+Dungeon block textures: Falkreon
+Automaton sounds: Falkreon
+Terminal font: IBM
+
+Credits music: "can't think of a title for this" by Vince Kaichan
+Dungeon background music: "Enceladus" by Bluelily
+RISE boss fight music: "Rotten Backup" by TURBOGAMMA
+Old computer boot sounds: danooct1
+
+Glitchy music ripped from Pokemon Red by Game Freak
+
+Weldthrower sounds: "welding metal 080110-005.wav" by reklamacja
+Unstable pearl convert sound: "Glitch_018.wav" by AlienXXX
+Enter dungeon sound: "Digital glitch_051.wav" by AlienXXX
+Drive disassemble sound: "COKE CANS DISPOSAL C617 013.wav" by sandyrb
+Data core shatter sound: "LIGHTBULB SMASH 004.wav" by sandyrb
+
+
+
+SPECIAL THANKS
+
+MissingNoXpert, for introducing me to the world of glitches
+TheZZAZZGlitch, for scarily in-depth glitch explanations
+Game Freak, for making such a hilariously broken game in the first place
+danooct1, for showing off DOS's capabilities, even today
+Gilded Games, for making a buggy mod that helped BBoldt find me through a patch
+BBoldt, for showing me 1.8.x before AE2 was ported, and convincing me to get into public modding
+AlgorithmX2, for making Applied Energistics
+Wolvereness, for inspiring me to mod in the first place by ruining Bukkit
+My IRC regulars, for being good friends
+EsperNet, for hosting all our chats in the first place
+asie, for setting me back on the right design path after going astray
+Eloraam, for convincing me back then via RedPower that modded Minecraft was worth playing
+CyanideX, for designing the Unity visual style
+Falkreon, for being the ideal partner in crime
+3TUSK, for translating the mod to Chinese
+codewarrior0, for a bugfix or two
+xyce (xylo and cerror), for making awesome freely-licensed chiptune (used for the records)
+Mojang, for making Minecraft
+raoulvdberge, for making another AE clone and freeing my mod to be more unique
+
+And, of course, you, for playing with the mod!

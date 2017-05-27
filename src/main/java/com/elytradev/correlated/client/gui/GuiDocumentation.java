@@ -367,7 +367,7 @@ public class GuiDocumentation extends GuiScreen {
 			y += 12;
 			drawCenteredString(fontRenderer, "§nhttps://unascribed.com/correlated/", width/2, (height/2)+y, 0xFF5555FF);
 			y += 24;
-			drawCenteredString(fontRenderer, "Strike ESC to leave this screen.", width/2, (height/2)+y, -1);
+			drawCenteredString(fontRenderer, "Press ESC to leave this screen.", width/2, (height/2)+y, -1);
 		}
 	}
 	
