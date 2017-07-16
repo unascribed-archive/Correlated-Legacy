@@ -1,5 +1,6 @@
 package com.elytradev.correlated.init;
 
+import java.util.List;
 import java.util.Locale;
 
 import com.elytradev.correlated.CLog;
@@ -12,13 +13,19 @@ import com.elytradev.correlated.item.ItemMemory;
 import com.elytradev.correlated.item.ItemMisc;
 import com.elytradev.correlated.item.ItemModule;
 import com.elytradev.correlated.item.ItemWeldthrower;
+import com.google.common.collect.Lists;
 import com.elytradev.correlated.item.ItemHandheldTerminal;
 
 import net.minecraft.item.Item;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.registries.IForgeRegistry;
 
 public class CItems {
 
+	final static List<Item> itemBlocks = Lists.newArrayList();
+	final static List<Item> records = Lists.newArrayList();
+	
 	public static ItemMisc MISC;
 	public static ItemDrive DRIVE;
 	public static ItemMemory MEMORY;
@@ -29,25 +36,33 @@ public class CItems {
 	public static ItemKeycard KEYCARD;
 	public static ItemDocTablet DOC_TABLET;
 	
-	
-	public static void register() {
-		register(new ItemMisc(), "misc", -2);
-		register(new ItemDrive(), "drive", -1);
-		register(new ItemMemory(), "memory", -1);
-		register(new ItemModule(), "module", ItemModule.types.length);
-		register(new ItemFloppy(), "floppy", -2);
-		register(new ItemHandheldTerminal(), "handheld_terminal", 0);
-		register(new ItemWeldthrower(), "weldthrower", 0);
-		register(new ItemKeycard(), "keycard", -2);
-		register(new ItemDocTablet(), "doc_tablet", 0);
+	@SubscribeEvent
+	public static void register(RegistryEvent.Register<Item> e) {
+		register(e.getRegistry(), new ItemMisc(), "misc");
+		register(e.getRegistry(), new ItemDrive(), "drive");
+		register(e.getRegistry(), new ItemMemory(), "memory");
+		register(e.getRegistry(), new ItemModule(), "module");
+		register(e.getRegistry(), new ItemFloppy(), "floppy");
+		register(e.getRegistry(), new ItemHandheldTerminal(), "handheld_terminal");
+		register(e.getRegistry(), new ItemWeldthrower(), "weldthrower");
+		register(e.getRegistry(), new ItemKeycard(), "keycard");
+		register(e.getRegistry(), new ItemDocTablet(), "doc_tablet");
+		
+		for (Item i : itemBlocks) {
+			e.getRegistry().register(i);
+		}
+		for (Item i : records) {
+			e.getRegistry().register(i);
+		}
+		
+		COres.register();
 	}
 	
-	private static void register(Item item, String name, int variants) {
+	private static void register(IForgeRegistry<Item> registry, Item item, String name) {
 		item.setUnlocalizedName("correlated."+name);
 		item.setCreativeTab(Correlated.CREATIVE_TAB);
 		item.setRegistryName(name);
-		GameRegistry.register(item);
-		Correlated.proxy.registerItemModel(item, variants);
+		registry.register(item);
 		try {
 			CItems.class.getField(name.toUpperCase(Locale.ROOT)).set(null, item);
 		} catch (NoSuchFieldException e) {

@@ -45,6 +45,7 @@ import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
@@ -249,7 +250,7 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 			TileEntityTerminal te = ((TileEntityTerminal)terminal);
 			addSlotToContainer(floppySlot = new Slot(te, 1, -8000, -8000) {
 				@Override
-				public boolean canBeHovered() {
+				public boolean isEnabled() {
 					return false;
 				}
 				@Override
@@ -349,7 +350,7 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 		}
 		rows = (int)Math.ceil(types.size()/(float)slotsAcross);
 		for (IContainerListener crafter : listeners) {
-			crafter.sendProgressBarUpdate(this, 0, rows);
+			crafter.sendWindowProperty(this, 0, rows);
 		}
 	}
 
@@ -636,13 +637,13 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 	@Override
 	public void addListener(IContainerListener listener) {
 		super.addListener(listener);
-		listener.sendProgressBarUpdate(this, 0, rows);
-		listener.sendProgressBarUpdate(this, 1, sortMode.ordinal());
-		listener.sendProgressBarUpdate(this, 2, sortAscending ? 1 : 0);
-		listener.sendProgressBarUpdate(this, 3, craftingTarget.ordinal());
-		listener.sendProgressBarUpdate(this, 4, craftingAmount.ordinal());
-		listener.sendProgressBarUpdate(this, 5, searchFocusedByDefault ? 1 : 0);
-		listener.sendProgressBarUpdate(this, 6, jeiSyncEnabled ? 1 : 0);
+		listener.sendWindowProperty(this, 0, rows);
+		listener.sendWindowProperty(this, 1, sortMode.ordinal());
+		listener.sendWindowProperty(this, 2, sortAscending ? 1 : 0);
+		listener.sendWindowProperty(this, 3, craftingTarget.ordinal());
+		listener.sendWindowProperty(this, 4, craftingAmount.ordinal());
+		listener.sendWindowProperty(this, 5, searchFocusedByDefault ? 1 : 0);
+		listener.sendWindowProperty(this, 6, jeiSyncEnabled ? 1 : 0);
 		if (listener instanceof EntityPlayerMP) {
 			new SetSearchQueryClientMessage(windowId, searchQuery).sendTo((EntityPlayerMP)listener);
 		}
@@ -762,7 +763,7 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 							if (craftingAmount == CraftingAmount.MAX) {
 								craftingAmount = CraftingAmount.ONE;
 								for (IContainerListener ic : listeners) {
-									ic.sendProgressBarUpdate(this, 4, craftingAmount.ordinal());
+									ic.sendWindowProperty(this, 4, craftingAmount.ordinal());
 								}
 							}
 							detectAndSendChanges();
@@ -813,7 +814,8 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 
 	@Override
 	public void onCraftMatrixChanged(IInventory inventory) {
-		craftResult.setInventorySlotContents(0, CraftingManager.getInstance().findMatchingRecipe(craftMatrix, player.world));
+		IRecipe recipe = CraftingManager.findMatchingRecipe(craftMatrix, player.world);
+		craftResult.setInventorySlotContents(0, recipe == null ? ItemStack.EMPTY : recipe.getCraftingResult(craftMatrix));
 	}
 
 	@Override

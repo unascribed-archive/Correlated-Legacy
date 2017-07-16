@@ -3,7 +3,6 @@ package com.elytradev.correlated.proxy;
 import com.elytradev.correlated.entity.EntityAutomaton;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.util.math.BlockPos;
 
 public class Proxy {
@@ -13,10 +12,6 @@ public class Proxy {
 	
 	public void postInit() {
 
-	}
-
-	public void registerItemModel(Item item, int variants) {
-		
 	}
 
 	public void weldthrowerTick(EntityPlayer player) {

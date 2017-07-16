@@ -98,9 +98,9 @@ public class BlockDecorSlab extends BlockSlab {
 	}
 	
 	@Override
-	public void getSubBlocks(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> list) {
+	public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> list) {
 		for (BlockDecor.Variant v : BlockDecor.Variant.VALUES) {
-			list.add(new ItemStack(itemIn, 1, v.ordinal()));
+			list.add(new ItemStack(this, 1, v.ordinal()));
 		}
 	}
 

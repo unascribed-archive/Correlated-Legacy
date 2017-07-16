@@ -97,12 +97,12 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	private static final DataParameter<Optional<UUID>> OWNER_UNIQUE_ID = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.OPTIONAL_UNIQUE_ID);
 	private static final DataParameter<Byte> STATUS = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.BYTE);
 	private static final DataParameter<Byte> FOLLOW_DISTANCE = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.BYTE);
-	private static final DataParameter<ItemStack> MODULE1 = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.OPTIONAL_ITEM_STACK);
-	private static final DataParameter<ItemStack> MODULE2 = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.OPTIONAL_ITEM_STACK);
-	private static final DataParameter<ItemStack> MODULE3 = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.OPTIONAL_ITEM_STACK);
-	private static final DataParameter<ItemStack> MODULE4 = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.OPTIONAL_ITEM_STACK);
-	private static final DataParameter<ItemStack> MODULE5 = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.OPTIONAL_ITEM_STACK);
-	private static final DataParameter<ItemStack> MODULE6 = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.OPTIONAL_ITEM_STACK);
+	private static final DataParameter<ItemStack> MODULE1 = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.ITEM_STACK);
+	private static final DataParameter<ItemStack> MODULE2 = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.ITEM_STACK);
+	private static final DataParameter<ItemStack> MODULE3 = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.ITEM_STACK);
+	private static final DataParameter<ItemStack> MODULE4 = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.ITEM_STACK);
+	private static final DataParameter<ItemStack> MODULE5 = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.ITEM_STACK);
+	private static final DataParameter<ItemStack> MODULE6 = EntityDataManager.createKey(EntityAutomaton.class, DataSerializers.ITEM_STACK);
 	
 	private final TObjectIntMap<UUID> favor = new TObjectIntHashMap<>();
 	
@@ -233,11 +233,11 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	
 	@Override
 	protected void updateEquipmentIfNeeded(EntityItem itemEntity) {
-		ItemStack res = addItemToNetwork(itemEntity.getEntityItem()).stack;
+		ItemStack res = addItemToNetwork(itemEntity.getItem()).stack;
 		if (res.isEmpty()) {
 			itemEntity.setDead();
 		} else {
-			itemEntity.setEntityItemStack(res);
+			itemEntity.setItem(res);
 		}
 	}
 	
@@ -257,7 +257,7 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	}
 	
 	@Override
-	protected SoundEvent getHurtSound() {
+	protected SoundEvent getHurtSound(DamageSource damageSourceIn) {
 		return CSoundEvents.AUTOMATON_HURT;
 	}
 	
@@ -511,7 +511,7 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 		super.setRevengeTarget(livingBase);
 		if (!isOwner(livingBase)) {
 			setAttackTarget(livingBase);
-			for (EntityAutomaton friend : world.getEntitiesWithinAABB(EntityAutomaton.class, getEntityBoundingBox().expandXyz(12))) {
+			for (EntityAutomaton friend : world.getEntitiesWithinAABB(EntityAutomaton.class, getEntityBoundingBox().grow(12))) {
 				if (friend == this) continue;
 				friend.adjustFavor(livingBase, -1);
 			}
@@ -580,8 +580,8 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 			initEntityAI();
 		}
 		if (cause instanceof EntityDamageSource) {
-			for (EntityAutomaton friend : world.getEntitiesWithinAABB(EntityAutomaton.class, getEntityBoundingBox().expandXyz(12))) {
-				friend.adjustFavor(cause.getEntity(), -4);
+			for (EntityAutomaton friend : world.getEntitiesWithinAABB(EntityAutomaton.class, getEntityBoundingBox().grow(12))) {
+				friend.adjustFavor(cause.getTrueSource(), -4);
 			}
 		}
 	}
@@ -590,8 +590,8 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	protected void damageEntity(DamageSource cause, float damageAmount) {
 		super.damageEntity(cause, damageAmount);
 		if (cause instanceof EntityDamageSource) {
-			for (EntityAutomaton friend : world.getEntitiesWithinAABB(EntityAutomaton.class, getEntityBoundingBox().expandXyz(12))) {
-				friend.adjustFavor(cause.getEntity(), (int)(-(damageAmount*5)));
+			for (EntityAutomaton friend : world.getEntitiesWithinAABB(EntityAutomaton.class, getEntityBoundingBox().grow(12))) {
+				friend.adjustFavor(cause.getTrueSource(), (int)(-(damageAmount*5)));
 			}
 		}
 	}

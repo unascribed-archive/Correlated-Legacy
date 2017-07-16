@@ -105,22 +105,22 @@ public class WirelessManager implements INBTSerializable<NBTTagCompound> {
 	
 	public Iterable<Optical> allOpticalsInChunk(Chunk c) {
 		if (c == null || c.getWorld() != data.getWorld()) return Collections.emptySet();
-		goat.x = c.xPosition;
-		goat.y = c.zPosition;
+		goat.x = c.x;
+		goat.y = c.z;
 		return ImmutableList.copyOf(opticalsByChunk.get(goat));
 	}
 	
 	public Iterable<Beacon> allBeaconsInChunk(Chunk c) {
 		if (c == null || c.getWorld() != data.getWorld()) return Collections.emptySet();
-		goat.x = c.xPosition;
-		goat.y = c.zPosition;
+		goat.x = c.x;
+		goat.y = c.z;
 		return ImmutableList.copyOf(beaconsByChunk.get(goat));
 	}
 	
 	public Iterable<Beam> allBeamsInChunk(Chunk c) {
 		if (c == null || c.getWorld() != data.getWorld()) return Collections.emptySet();
-		goat.x = c.xPosition;
-		goat.y = c.zPosition;
+		goat.x = c.x;
+		goat.y = c.z;
 		return ImmutableList.copyOf(beamsByChunk.get(goat));
 	}
 	

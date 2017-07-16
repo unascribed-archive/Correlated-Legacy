@@ -61,7 +61,7 @@ public class DungeonScribe {
 					c.generateSkylightMap();
 					c.checkLight();
 					c.setInhabitedTime(0);
-					c.setChunkModified();
+					c.setModified(true);
 					c.resetRelightChecks();
 				}
 			}

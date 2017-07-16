@@ -43,11 +43,11 @@ public class GuiDrive extends GuiContainer {
 		super.initGui();
 		int x = (width - xSize) / 2;
 		int y = (height - ySize) / 2;
-		priority.xPosition = x+7;
-		priority.yPosition = y+107;
+		priority.x = x+7;
+		priority.y = y+107;
 
-		partition.xPosition = x+187;
-		partition.yPosition = priority.yPosition;
+		partition.x = x+187;
+		partition.y = priority.y;
 
 		buttonList.add(priority);
 		buttonList.add(partition);
@@ -89,6 +89,13 @@ public class GuiDrive extends GuiContainer {
 		}
 	}
 
+	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		drawDefaultBackground();
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		renderHoveredToolTip(mouseX, mouseY);
+	}
+	
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		GlStateManager.pushMatrix();
@@ -142,10 +149,10 @@ public class GuiDrive extends GuiContainer {
 		GlStateManager.translate(-(width - xSize) / 2, -(height - ySize) / 2, 0);
 
 		PartitioningMode part = container.getItemDrive().getPartitioningMode(container.getDrive());
-		drawTexturedModalRect(partition.xPosition+4, partition.yPosition+2, 246, part.ordinal()*13, 10, 13);
+		drawTexturedModalRect(partition.x+4, partition.y+2, 246, part.ordinal()*13, 10, 13);
 
 		Priority pri = container.getItemDrive().getPriority(container.getDrive());
-		drawTexturedModalRect(priority.xPosition+4, priority.yPosition+2, 246, 39+(pri.ordinal()*13), 10, 13);
+		drawTexturedModalRect(priority.x+4, priority.y+2, 246, 39+(pri.ordinal()*13), 10, 13);
 		if (partition.isMouseOver()) {
 			List<String> li = Lists.newArrayList(
 					I18n.format("gui.correlated.partition_mode"),

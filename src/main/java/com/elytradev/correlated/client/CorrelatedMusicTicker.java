@@ -33,11 +33,6 @@ public class CorrelatedMusicTicker extends MusicTicker {
 	}
 	
 	@Override
-	public void stopMusic() {
-		delegate.stopMusic();
-	}
-	
-	@Override
 	public void update() {
 		if (Minecraft.getMinecraft().world != null && Minecraft.getMinecraft().world.provider instanceof LimboProvider) {
 			MusicType type = ClientProxy.enceladusType;

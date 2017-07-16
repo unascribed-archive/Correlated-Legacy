@@ -12,6 +12,7 @@ import com.elytradev.correlated.init.CSoundEvents;
 import com.elytradev.correlated.network.StartWeldthrowingMessage;
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -42,8 +43,8 @@ public class ItemWeldthrower extends Item {
 	public Map<EntityPlayer, MutableInt> weldthrowing = Maps.newIdentityHashMap();
 	
 	@Override
-	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
-		super.addInformation(stack, playerIn, tooltip, advanced);
+	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+		super.addInformation(stack, worldIn, tooltip, flagIn);
 		int i = 0;
 		while (I18n.canTranslate("tooltip.correlated.weldthrower." + i)) {
 			tooltip.add(I18n.translateToLocal("tooltip.correlated.weldthrower." + i));
@@ -85,13 +86,13 @@ public class ItemWeldthrower extends Item {
 			double dist = 0.5;
 			double gap = 0.6;
 			look.rotateYaw(20);
-			Vec3d cursor = new Vec3d(e.player.posX+(right.xCoord*dist)+(look.xCoord*gap),
-					e.player.posY+(e.player.getEyeHeight()-0.1)+(right.yCoord*dist)+(look.yCoord*gap),
-					e.player.posZ+(right.zCoord*dist)+(look.zCoord*gap));
+			Vec3d cursor = new Vec3d(e.player.posX+(right.x*dist)+(look.x*gap),
+					e.player.posY+(e.player.getEyeHeight()-0.1)+(right.y*dist)+(look.y*gap),
+					e.player.posZ+(right.z*dist)+(look.z*gap));
 			for (int i = 0; i < Math.min(mi.intValue()/4, 10); i++) {
-				AxisAlignedBB aabb = new AxisAlignedBB(cursor.xCoord-0.1, cursor.yCoord-0.1, cursor.zCoord-0.1, cursor.xCoord+0.1, cursor.yCoord+0.1, cursor.zCoord+0.1);
+				AxisAlignedBB aabb = new AxisAlignedBB(cursor.x-0.1, cursor.y-0.1, cursor.z-0.1, cursor.x+0.1, cursor.y+0.1, cursor.z+0.1);
 				if (e.player.world.collidesWithAnyBlock(aabb)) break;
-				aabb = aabb.expandXyz(0.9);
+				aabb = aabb.grow(0.9);
 				for (Entity ent : e.player.world.getEntitiesWithinAABBExcludingEntity(e.player, aabb)) {
 					if (ent instanceof EntityAutomaton) {
 						EntityAutomaton a = ((EntityAutomaton) ent);

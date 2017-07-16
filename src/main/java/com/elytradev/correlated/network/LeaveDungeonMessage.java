@@ -26,7 +26,7 @@ public class LeaveDungeonMessage extends Message {
 	@Override
 	protected void handle(EntityPlayer sender) {
 		int dim = CConfig.limboDimId;
-		WorldServer world = ((EntityPlayerMP)sender).mcServer.worldServerForDimension(dim);
+		WorldServer world = ((EntityPlayerMP)sender).mcServer.getWorld(dim);
 		WorldProvider provider = world.provider;
 		if (provider instanceof LimboProvider) {
 			((LimboProvider)provider).addLeavingPlayer(sender.getGameProfile().getId());

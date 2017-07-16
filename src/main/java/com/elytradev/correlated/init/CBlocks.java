@@ -31,7 +31,9 @@ import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemSlab;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.registries.IForgeRegistry;
 
 public class CBlocks {
 
@@ -63,57 +65,55 @@ public class CBlocks {
 	public static BlockDecorSlab DECOR_DOUBLE_SLAB;
 	public static BlockGlowingDecorSlab GLOWING_DECOR_DOUBLE_SLAB;
 	
-	public static void register() {
-		register(new BlockController().setHardness(2), ItemBlockController.class, "controller", 16);
-		register(new BlockDriveBay().setHardness(2), ItemBlockDriveBay.class, "drive_bay", 0);
-		register(new BlockMemoryBay().setHardness(2), ItemBlockMemoryBay.class, "memory_bay", 0);
-		register(new BlockTerminal().setHardness(2), ItemBlockTerminal.class, "terminal", 0);
-		register(new BlockInterface().setHardness(2), ItemBlockInterface.class, "interface", 0);
-		register(new BlockImporterChest().setHardness(2), null, "importer_chest", 0);
-		register(new BlockWireless().setHardness(2), ItemBlockWireless.class, "wireless", 3);
+	@SubscribeEvent
+	public static void register(RegistryEvent.Register<Block> e) {
+		register(e.getRegistry(), new BlockController().setHardness(2), ItemBlockController.class, "controller");
+		register(e.getRegistry(), new BlockDriveBay().setHardness(2), ItemBlockDriveBay.class, "drive_bay");
+		register(e.getRegistry(), new BlockMemoryBay().setHardness(2), ItemBlockMemoryBay.class, "memory_bay");
+		register(e.getRegistry(), new BlockTerminal().setHardness(2), ItemBlockTerminal.class, "terminal");
+		register(e.getRegistry(), new BlockInterface().setHardness(2), ItemBlockInterface.class, "interface");
+		register(e.getRegistry(), new BlockImporterChest().setHardness(2), null, "importer_chest");
+		register(e.getRegistry(), new BlockWireless().setHardness(2), ItemBlockWireless.class, "wireless");
 		
-		register(new BlockDecor().setHardness(2), ItemBlockDecor.class, "decor_block", BlockDecor.Variant.VALUES.length);
-		register(new BlockGlowingDecor().setHardness(2), ItemBlockGlowingDecor.class, "glowing_decor_block", BlockGlowingDecor.Variant.VALUES.length);
+		register(e.getRegistry(), new BlockDecor().setHardness(2), ItemBlockDecor.class, "decor_block");
+		register(e.getRegistry(), new BlockGlowingDecor().setHardness(2), ItemBlockGlowingDecor.class, "glowing_decor_block");
 		
 		for (BlockDecor.Variant v : BlockDecor.Variant.VALUES) {
-			register(new BlockDecorStairs(CBlocks.DECOR_BLOCK.getDefaultState().withProperty(BlockDecor.VARIANT, v)), ItemBlock.class, v.getName()+"_stairs", 0);
+			register(e.getRegistry(), new BlockDecorStairs(CBlocks.DECOR_BLOCK.getDefaultState().withProperty(BlockDecor.VARIANT, v)), ItemBlock.class, v.getName()+"_stairs");
 		}
 		for (BlockGlowingDecor.Variant v : BlockGlowingDecor.Variant.VALUES) {
 			if (v == Variant.LANTERN) continue;
-			register(new BlockDecorStairs(CBlocks.GLOWING_DECOR_BLOCK.getDefaultState().withProperty(BlockGlowingDecor.VARIANT, v)), ItemBlock.class, v.getName()+"_stairs", 0);
+			register(e.getRegistry(), new BlockDecorStairs(CBlocks.GLOWING_DECOR_BLOCK.getDefaultState().withProperty(BlockGlowingDecor.VARIANT, v)), ItemBlock.class, v.getName()+"_stairs");
 		}
 		
-		register(new BlockDecorSlab(false).setHardness(2), null, "decor_slab", BlockDecor.Variant.VALUES.length);
-		register(new BlockGlowingDecorSlab(false).setHardness(2), null, "glowing_decor_slab", BlockGlowingDecor.Variant.VALUES.length);
+		register(e.getRegistry(), new BlockDecorSlab(false).setHardness(2), null, "decor_slab");
+		register(e.getRegistry(), new BlockGlowingDecorSlab(false).setHardness(2), null, "glowing_decor_slab");
 		
-		register(new BlockDecorSlab(true).setHardness(2), null, "decor_double_slab", BlockDecor.Variant.VALUES.length);
-		register(new BlockGlowingDecorSlab(true).setHardness(2), null, "glowing_decor_double_slab", BlockGlowingDecor.Variant.VALUES.length);
+		register(e.getRegistry(), new BlockDecorSlab(true).setHardness(2), null, "decor_double_slab");
+		register(e.getRegistry(), new BlockGlowingDecorSlab(true).setHardness(2), null, "glowing_decor_double_slab");
 		
 		Item dungeonslabitem = new ItemSlab(CBlocks.DECOR_SLAB, CBlocks.DECOR_SLAB, CBlocks.DECOR_DOUBLE_SLAB)
 				.setHasSubtypes(true).setRegistryName(CBlocks.DECOR_SLAB.getRegistryName());
-		GameRegistry.register(dungeonslabitem);
-		Correlated.proxy.registerItemModel(dungeonslabitem, BlockDecor.Variant.VALUES.length);
+		CItems.itemBlocks.add(dungeonslabitem);
 		
 		Item lithographeneslabitem = new ItemSlab(CBlocks.GLOWING_DECOR_SLAB, CBlocks.GLOWING_DECOR_SLAB, CBlocks.GLOWING_DECOR_DOUBLE_SLAB)
 				.setHasSubtypes(true).setRegistryName(CBlocks.GLOWING_DECOR_SLAB.getRegistryName());
-		GameRegistry.register(lithographeneslabitem);
-		Correlated.proxy.registerItemModel(lithographeneslabitem, BlockGlowingDecor.Variant.VALUES.length);
+		CItems.itemBlocks.add(lithographeneslabitem);
 	}
 
-	private static void register(Block block, Class<? extends ItemBlock> item, String name, int itemVariants) {
+	private static void register(IForgeRegistry<Block> registry, Block block, Class<? extends ItemBlock> item, String name) {
 		block.setUnlocalizedName("correlated."+name);
 		block.setCreativeTab(Correlated.CREATIVE_TAB);
 		block.setRegistryName(name);
-		GameRegistry.register(block);
+		registry.register(block);
 		if (item != null) {
 			try {
 				ItemBlock ib = item.getConstructor(Block.class).newInstance(block);
 				ib.setRegistryName(name);
-				GameRegistry.register(ib);
+				CItems.itemBlocks.add(ib);
 			} catch (Exception e1) {
 				Throwables.propagate(e1);
 			}
-			Correlated.proxy.registerItemModel(Item.getItemFromBlock(block), itemVariants);
 		}
 		try {
 			CBlocks.class.getField(name.toUpperCase(Locale.ROOT)).set(null, block);

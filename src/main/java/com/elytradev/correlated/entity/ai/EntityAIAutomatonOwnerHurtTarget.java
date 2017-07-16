@@ -26,8 +26,8 @@ public class EntityAIAutomatonOwnerHurtTarget extends EntityAITarget {
 			if (entitylivingbase == null) {
 				return false;
 			} else {
-				this.theTarget = entitylivingbase.getLastAttacker();
-				int i = entitylivingbase.getLastAttackerTime();
+				this.theTarget = entitylivingbase.getLastAttackedEntity();
+				int i = entitylivingbase.getLastAttackedEntityTime();
 				return i != this.timestamp && this.isSuitableTarget(this.theTarget, false);
 			}
 		}
@@ -39,7 +39,7 @@ public class EntityAIAutomatonOwnerHurtTarget extends EntityAITarget {
 		EntityLivingBase entitylivingbase = this.theEntityTameable.getOwner();
 
 		if (entitylivingbase != null) {
-			this.timestamp = entitylivingbase.getLastAttackerTime();
+			this.timestamp = entitylivingbase.getLastAttackedEntityTime();
 		}
 
 		super.startExecuting();

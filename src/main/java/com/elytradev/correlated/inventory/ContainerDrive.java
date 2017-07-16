@@ -51,7 +51,7 @@ public class ContainerDrive extends Container {
 		}
 
 		@Override
-		public boolean canBeHovered() {
+		public boolean isEnabled() {
 			return true;
 		}
 

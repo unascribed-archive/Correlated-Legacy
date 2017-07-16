@@ -37,7 +37,7 @@ public class SlotStatic extends Slot {
 	}
 	
 	@Override
-	public boolean canBeHovered() {
+	public boolean isEnabled() {
 		return false;
 	}
 	

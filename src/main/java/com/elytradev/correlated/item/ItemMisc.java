@@ -8,6 +8,7 @@ import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.init.CItems;
 
 import net.minecraft.block.BlockDispenser;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -82,7 +83,7 @@ public class ItemMisc extends Item {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
+	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
 		int i = 0;
 		while (I18n.canTranslate("tooltip.correlated.misc." + getItemName(stack) + "." + i)) {
 			tooltip.add(I18n.translateToLocal("tooltip.correlated.misc." + getItemName(stack) + "." + i));
@@ -100,10 +101,10 @@ public class ItemMisc extends Item {
 	}
 
 	@Override
-	public void getSubItems(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> subItems) {
+	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> subItems) {
 		for (int i = 0; i < items.length; i++) {
 			if (i == 9) continue;
-			subItems.add(new ItemStack(itemIn, 1, i));
+			subItems.add(new ItemStack(this, 1, i));
 		}
 	}
 

@@ -26,7 +26,7 @@ import net.minecraft.world.GameType;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.BiomeProviderSingle;
-import net.minecraft.world.chunk.IChunkGenerator;
+import net.minecraft.world.gen.IChunkGenerator;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -50,9 +50,9 @@ public class LimboProvider extends WorldProvider {
 	@Override
 	protected void init() {
 		this.biomeProvider = new BiomeProviderSingle(Biomes.VOID);
-		this.hasNoSky = true;
+		this.hasSkyLight = false;
 		grid = new DungeonGrid();
-		grid.deserializeNBT(world.getWorldInfo().getDimensionData(getDimensionType()));
+		grid.deserializeNBT(world.getWorldInfo().getDimensionData(getDimensionType().getId()));
 		scribe = new DungeonScribe(world);
 		if (world instanceof WorldServer) {
 			teleporter = new LimboTeleporter((WorldServer)world, scribe, grid);
@@ -128,16 +128,6 @@ public class LimboProvider extends WorldProvider {
 	@Override
 	public int getAverageGroundLevel() {
 		return 50;
-	}
-	
-	@Override
-	public String getWelcomeMessage() {
-		return "Entering \u00A7kAhasFDDS d fHFDS h";
-	}
-	
-	@Override
-	public String getDepartMessage() {
-		return "Leaving \u00A7kAhasFDDS d fHFDS h";
 	}
 	
 	@Override

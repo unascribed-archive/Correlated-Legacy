@@ -5,20 +5,23 @@ import com.elytradev.correlated.crafting.DriveRecipe;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.oredict.RecipeSorter;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
-import net.minecraftforge.oredict.RecipeSorter.Category;
+import net.minecraftforge.registries.IForgeRegistry;
 
 public class CRecipes {
 
-	public static void register() {
-		RecipeSorter.register("correlated:drive", DriveRecipe.class, Category.SHAPED, "after:minecraft:shaped");
+	@SubscribeEvent
+	public static void register(RegistryEvent.Register<IRecipe> e) {
+		//RecipeSorter.register("correlated:drive", DriveRecipe.class, Category.SHAPED, "after:minecraft:shaped");
 		
 		
 		// 1MiB Drive
-		GameRegistry.addRecipe(new DriveRecipe(CStacks.drive1MiB(),
+		addRecipe(e.getRegistry(), new DriveRecipe(null, CStacks.drive1MiB(),
 				"III",
 				"IOI",
 				"IoI",
@@ -26,10 +29,10 @@ public class CRecipes {
 				'I', COres.INGOT_IRON,
 				'O', COres.LUMINOUS_PEARL_OR_DATA_CORE,
 				'o', CStacks.drivePlatterCeramic()
-				));
+				), "drive_1mib");
 
 		// 4MiB Drive
-		GameRegistry.addRecipe(new DriveRecipe(CStacks.drive4MiB(),
+		addRecipe(e.getRegistry(), new DriveRecipe(null, CStacks.drive4MiB(),
 				"III",
 				"oOo",
 				"IoI",
@@ -37,10 +40,10 @@ public class CRecipes {
 				'I', COres.INGOT_IRON,
 				'O', COres.LUMINOUS_PEARL_OR_DATA_CORE,
 				'o', CStacks.drivePlatterCeramic()
-				));
+				), "drive_4mib");
 
 		// 16MiB Drive
-		GameRegistry.addRecipe(new DriveRecipe(CStacks.drive16MiB(),
+		addRecipe(e.getRegistry(), new DriveRecipe(null, CStacks.drive16MiB(),
 				"III",
 				"dOd",
 				"IoI",
@@ -49,9 +52,9 @@ public class CRecipes {
 				'd', COres.GEM_DIAMOND,
 				'O', COres.LUMINOUS_PEARL_OR_DATA_CORE,
 				'o', CStacks.drivePlatterMetallic()
-				));
+				), "drive_16mib");
 		// 64MiB Drive
-		GameRegistry.addRecipe(new DriveRecipe(CStacks.drive64MiB(),
+		addRecipe(e.getRegistry(), new DriveRecipe(null, CStacks.drive64MiB(),
 				"doI",
 				"oOo",
 				"Iod",
@@ -60,9 +63,9 @@ public class CRecipes {
 				'O', COres.LUMINOUS_PEARL_OR_DATA_CORE,
 				'o', CStacks.drivePlatterMetallic(),
 				'I', COres.INGOT_IRON
-				));
+				), "drive_64mib");
 		// 128MiB Drive
-		GameRegistry.addRecipe(new DriveRecipe(CStacks.drive128MiB(),
+		addRecipe(e.getRegistry(), new DriveRecipe(null, CStacks.drive128MiB(),
 				"doo",
 				"oOo",
 				"ood",
@@ -70,44 +73,44 @@ public class CRecipes {
 				'd', COres.BLOCK_DIAMOND,
 				'O', COres.LUMINOUS_PEARL_OR_DATA_CORE,
 				'o', CStacks.drivePlatterMetallic()
-				));
+				), "drive_128mib");
 
 		// Void Drive
-		GameRegistry.addRecipe(new DriveRecipe(CStacks.driveVoid(),
+		addRecipe(e.getRegistry(), new DriveRecipe(null, CStacks.driveVoid(),
 				"###",
 				"#O#",
 				"###",
 				
 				'O', CStacks.luminousPearl(),
 				'#', COres.OBSIDIAN
-				));
+				), "drive_void");
 
 		
 		// 1KiB Memory
-		GameRegistry.addRecipe(new DriveRecipe(CStacks.memory1KiB(),
+		addRecipe(e.getRegistry(), new DriveRecipe(null, CStacks.memory1KiB(),
 				"iii",
 				"gOg",
 				
 				'O', CStacks.luminousPearl(),
 				'i', COres.INGOT_IRON,
 				'g', COres.INGOT_GOLD
-				));
+				), "memory_1kib");
 		
 		// 4KiB Memory
-		GameRegistry.addRecipe(new DriveRecipe(CStacks.memory4KiB(),
+		addRecipe(e.getRegistry(), new DriveRecipe(null, CStacks.memory4KiB(),
 				"iii",
 				"dOd",
 				
 				'O', CStacks.luminousPearl(),
 				'i', COres.INGOT_IRON,
 				'd', COres.GEM_DIAMOND
-				));
+				), "memory_4kib");
 		
 		
 
 		// Enderic Processor
 		if (CConfig.easyProcessors) {
-			GameRegistry.addRecipe(new ShapedOreRecipe(CStacks.processor(),
+			addRecipe(e.getRegistry(), new ShapedOreRecipe(null, CStacks.processor(),
 					"qdq",
 					"gog",
 					"qdq",
@@ -116,9 +119,9 @@ public class CRecipes {
 					'g', COres.INGOT_GOLD,
 					'd', COres.GEM_DIAMOND,
 					'o', Items.ENDER_PEARL
-					));
+					), "processor");
 		} else {
-			GameRegistry.addRecipe(new ShapedOreRecipe(CStacks.processor(2),
+			addRecipe(e.getRegistry(), new ShapedOreRecipe(null, CStacks.processor(2),
 					"qoq",
 					"gpg",
 					"qdq",
@@ -128,25 +131,25 @@ public class CRecipes {
 					'd', COres.GEM_DIAMOND,
 					'p', CStacks.processor(),
 					'o', Items.ENDER_PEARL
-					));
+					), "processor_dupe");
 		}
 
 		// Luminous Pearl
-		GameRegistry.addRecipe(new ShapelessOreRecipe(CStacks.luminousPearl(),
-				Items.ENDER_PEARL, COres.DUST_GLOWSTONE));
+		addRecipe(e.getRegistry(), new ShapelessOreRecipe(null, CStacks.luminousPearl(),
+				Items.ENDER_PEARL, COres.DUST_GLOWSTONE), "luminous_pearl");
 
 		// Ceramic Drive Platter
-		GameRegistry.addRecipe(new ShapedOreRecipe(CStacks.drivePlatterCeramic(),
+		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, CStacks.drivePlatterCeramic(),
 				" B ",
 				"BiB",
 				" B ",
 				
 				'B', COres.INGOT_BRICK,
 				'i', COres.INGOT_IRON
-				));
+				), "drive_platter_ceramic");
 
 		// Metallic Drive Platter
-		GameRegistry.addRecipe(new ShapedOreRecipe(CStacks.drivePlatterMetallic(),
+		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, CStacks.drivePlatterMetallic(),
 				"ioi",
 				"oIo",
 				"ioi",
@@ -154,20 +157,20 @@ public class CRecipes {
 				'o', CStacks.drivePlatterCeramic(),
 				'i', COres.INGOT_IRON,
 				'I', COres.BLOCK_IRON
-				));
+				), "drive_platter_metallic");
 
 		// Drive Bay
-		GameRegistry.addRecipe(new ShapedOreRecipe(CBlocks.DRIVE_BAY,
+		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, CBlocks.DRIVE_BAY,
 				"iii",
 				" p ",
 				"iii",
 				
 				'i', COres.INGOT_IRON,
 				'p', CStacks.processor()
-				));
+				), "drive_bay");
 		
 		// Memory Bay
-		GameRegistry.addRecipe(new ShapedOreRecipe(CBlocks.MEMORY_BAY,
+		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, CBlocks.MEMORY_BAY,
 				"iii",
 				"gpg",
 				"iii",
@@ -175,10 +178,10 @@ public class CRecipes {
 				'i', COres.INGOT_IRON,
 				'p', CStacks.processor(),
 				'g', COres.NUGGET_GOLD
-				));
+				), "memory_bay");
 
 		// Controller
-		GameRegistry.addRecipe(new ShapedOreRecipe(CBlocks.CONTROLLER,
+		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, CBlocks.CONTROLLER,
 				"ioi",
 				"opo",
 				"ioi",
@@ -186,10 +189,10 @@ public class CRecipes {
 				'i', COres.INGOT_IRON,
 				'p', CStacks.processor(),
 				'o', CStacks.luminousPearl()
-				));
+				), "controller");
 
 		// Terminal
-		GameRegistry.addRecipe(new ShapedOreRecipe(CBlocks.TERMINAL,
+		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, CBlocks.TERMINAL,
 				"iii",
 				"ooo",
 				"ipi",
@@ -197,10 +200,10 @@ public class CRecipes {
 				'i', COres.INGOT_IRON,
 				'p', CStacks.processor(),
 				'o', CStacks.luminousPearl()
-				));
+				), "terminal");
 
 		// Interface
-		GameRegistry.addRecipe(new ShapedOreRecipe(CBlocks.INTERFACE,
+		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, CBlocks.INTERFACE,
 				"igi",
 				"gog",
 				"igi",
@@ -208,20 +211,20 @@ public class CRecipes {
 				'i', COres.INGOT_IRON,
 				'g', COres.INGOT_GOLD,
 				'o', CStacks.luminousPearl()
-				));
+				), "interface");
 		
 		// Luminous Torch
-		GameRegistry.addRecipe(new ShapedOreRecipe(CStacks.luminousTorch(),
+		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, CStacks.luminousTorch(),
 				"o",
 				"i",
 				"i",
 				
 				'i', COres.INGOT_IRON,
 				'o', CStacks.luminousPearl()
-				));
+				), "luminous_torch");
 		
 		// Microwave Beam
-		GameRegistry.addRecipe(new ShapedOreRecipe(CStacks.microwaveBeam(),
+		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, CStacks.microwaveBeam(),
 				" | ",
 				"___",
 				"idi",
@@ -230,10 +233,10 @@ public class CRecipes {
 				'd', COres.GEM_DIAMOND,
 				'|', CStacks.luminousTorch(),
 				'_', Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE
-				));
+				), "microwave_beam");
 		
 		// Optical Receiver
-		GameRegistry.addRecipe(new ShapedOreRecipe(CStacks.opticalReceiver(),
+		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, CStacks.opticalReceiver(),
 				"igi",
 				"gpg",
 				"igi",
@@ -241,10 +244,10 @@ public class CRecipes {
 				'i', COres.INGOT_IRON,
 				'p', CStacks.luminousPearl(),
 				'g', COres.BLOCK_GLASS
-				));
+				), "optical_receiver");
 		
 		// Beacon Lens
-		GameRegistry.addRecipe(new ShapedOreRecipe(CStacks.beaconLens(),
+		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, CStacks.beaconLens(),
 				"ipi",
 				"pgp",
 				"ipi",
@@ -252,75 +255,80 @@ public class CRecipes {
 				'i', COres.INGOT_IRON,
 				'p', CStacks.luminousPearl(),
 				'g', COres.PANE_GLASS
-				));
+				), "beacon_lens");
 		
 		// Decorative Blocks
-		GameRegistry.addRecipe(new ShapedOreRecipe(CStacks.plating(64),
+		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, CStacks.plating(64),
 				"III",
 				"IoI",
 				"III",
 				
 				'I', COres.INGOT_IRON,
-				'o', CStacks.luminousPearl()));
+				'o', CStacks.luminousPearl()), "plating");
 		
-		GameRegistry.addRecipe(new ShapedOreRecipe(CStacks.lantern(16),
+		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, CStacks.lantern(16),
 				"oo",
 				"oo",
 				
-				'o', CStacks.volatileDust()));
+				'o', CStacks.volatileDust()), "lantern");
 		
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CBlocks.PLATING_STAIRS, 4),
+		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, new ItemStack(CBlocks.PLATING_STAIRS, 4),
 				"#  ",
 				"## ",
 				"###",
 				
-				'#', CStacks.plating()));
+				'#', CStacks.plating()), "plating_stairs");
 		
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CBlocks.PLATING_STAIRS, 4),
+		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, new ItemStack(CBlocks.PLATING_STAIRS, 4),
 				"  #",
 				" ##",
 				"###",
 				
-				'#', CStacks.plating()));
+				'#', CStacks.plating()), "plating_stairs_flipped");
 		
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CBlocks.DECOR_SLAB, 6, 7),
+		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, new ItemStack(CBlocks.DECOR_SLAB, 6, 7),
 				"###",
 				
-				'#', CStacks.plating()));
+				'#', CStacks.plating()), "plating_slab");
 		
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(CBlocks.GLOWING_DECOR_SLAB, 6, 4),
+		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, new ItemStack(CBlocks.GLOWING_DECOR_SLAB, 6, 4),
 				"###",
 				
-				'#', CStacks.lantern()));
+				'#', CStacks.lantern()), "lantern_slab");
 		
 		// Wireless Terminal
-		GameRegistry.addRecipe(new ShapelessOreRecipe(CItems.HANDHELD_TERMINAL,
+		addRecipe(e.getRegistry(), new ShapelessOreRecipe(null, CItems.HANDHELD_TERMINAL,
 				CBlocks.TERMINAL
-				));
+				), "handheld_terminal");
 		
 		// Wireless Terminal back to Terminal
-		GameRegistry.addRecipe(new ShapelessOreRecipe(CBlocks.TERMINAL,
+		addRecipe(e.getRegistry(), new ShapelessOreRecipe(null, CBlocks.TERMINAL,
 				CItems.HANDHELD_TERMINAL
-				));
+				), "handheld_terminal_revert");
 		
 		// Reset Microwave Beam
-		GameRegistry.addRecipe(new ShapelessOreRecipe(CBlocks.WIRELESS,
+		addRecipe(e.getRegistry(), new ShapelessOreRecipe(null, CBlocks.WIRELESS,
 				CBlocks.WIRELESS
-				));
+				), "microwave_beam_reset");
 		
 		// Weldthrower Fuel
-		GameRegistry.addShapelessRecipe(CStacks.volatileDust(4), CStacks.luminousPearl());
+		addRecipe(e.getRegistry(), new ShapelessOreRecipe(null,
+				CStacks.volatileDust(4), CStacks.luminousPearl()), "volatile_dust");
 		
 		// Weldthrower
-		GameRegistry.addRecipe(new ShapedOreRecipe(CItems.WELDTHROWER,
+		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, CItems.WELDTHROWER,
 				"i  ",
 				"ti_",
 				"  i",
 				'i', COres.INGOT_IRON,
 				'_', Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE,
 				't', CStacks.luminousTorch()
-				));
+				), "weldthrower");
 		
+	}
+
+	private static void addRecipe(IForgeRegistry<IRecipe> registry, IRecipe ir, String name) {
+		registry.register(ir.setRegistryName(new ResourceLocation("correlated", name)));
 	}
 
 }

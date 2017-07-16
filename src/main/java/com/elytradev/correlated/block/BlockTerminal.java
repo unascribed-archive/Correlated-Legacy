@@ -118,7 +118,7 @@ public class BlockTerminal extends Block {
 							if (!world.isRemote) {
 								EntityItem ent = new EntityItem(world, pos.getX()+hitX+(side.getFrontOffsetX()*0.2),
 										pos.getY()+hitY+(side.getFrontOffsetY()*0.2), pos.getZ()+hitZ+(side.getFrontOffsetZ()*0.2));
-								ent.setEntityItemStack(tet.removeStackFromSlot(1));
+								ent.setItem(tet.removeStackFromSlot(1));
 								ent.setNoPickupDelay();
 								world.spawnEntity(ent);
 							}

@@ -41,7 +41,7 @@ public class LayerAutomatonLights implements LayerRenderer<EntityAutomaton> {
 				render.bindTexture(loc);
 				render.getMainModel().render(en, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 			}
-			render.setLightmap(en, partialTicks);
+			render.setLightmap(en);
 			GlStateManager.depthMask(true);
 		}
 	}

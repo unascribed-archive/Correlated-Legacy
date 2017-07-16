@@ -2,6 +2,7 @@ package com.elytradev.correlated.item;
 
 import java.util.List;
 
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -18,7 +19,7 @@ public class ItemFloppy extends Item {
 	}
 	
 	@Override
-	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
+	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
 		if (isWriteProtected(stack)) {
 			tooltip.add("\u00A77"+I18n.translateToLocal("tooltip.correlated.floppy.write_protected"));
 		}

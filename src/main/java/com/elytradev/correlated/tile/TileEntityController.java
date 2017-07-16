@@ -45,7 +45,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants.NBT;
 
-public class TileEntityController extends TileEntityEnergyAcceptor implements ITickable, IDigitalStorage, IWirelessClient {
+public class TileEntityController extends TileEntityAbstractEnergyAcceptor implements ITickable, IDigitalStorage, IWirelessClient {
 	
 	public boolean error = false;
 	public boolean booting = true;

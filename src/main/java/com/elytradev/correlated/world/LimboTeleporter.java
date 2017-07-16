@@ -40,7 +40,7 @@ public class LimboTeleporter extends Teleporter {
 		LimboProvider provider = ((LimboProvider)world.provider);
 		EntityPlayerMP player = ((EntityPlayerMP)entityIn);
 		DungeonPlayer dp = provider.popEntering(player.getGameProfile().getId());
-		CorrelatedWorldData data = CorrelatedWorldData.getFor(world.getMinecraftServer().worldServerForDimension(0));
+		CorrelatedWorldData data = CorrelatedWorldData.getFor(world.getMinecraftServer().getWorld(0));
 		data.getPlayerRespawnData().put(dp.getProfile().getId(), dp.getOldPlayer());
 		data.markDirty();
 		

@@ -1,7 +1,7 @@
 package com.elytradev.correlated.client.render;
 
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 
 public class ProtrudingBoxRenderer {
 	private int slotCount;
@@ -104,7 +104,7 @@ public class ProtrudingBoxRenderer {
 		float m = 0.001f; // meld
 
 		Tessellator tess = Tessellator.getInstance();
-		VertexBuffer wr = tess.getBuffer();
+		BufferBuilder wr = tess.getBuffer();
 
 		{
 			// Right

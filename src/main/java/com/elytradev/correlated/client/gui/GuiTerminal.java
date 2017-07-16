@@ -83,6 +83,13 @@ public class GuiTerminal extends GuiContainer {
 	}
 	
 	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		drawDefaultBackground();
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		renderHoveredToolTip(mouseX, mouseY);
+	}
+	
+	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		if (container.status.isEmpty()) {
 			if (Math.random() == 0.5) {
@@ -181,9 +188,9 @@ public class GuiTerminal extends GuiContainer {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(-(width - xSize) / 2, -(height - ySize) / 2, 0);
 		if (container.hasCraftingMatrix) {
-			drawTexturedModalRect(clearGrid.xPosition+2, clearGrid.yPosition+2, 0, 190, 2, 10);
-			drawTexturedModalRect(craftingTarget.xPosition+2, craftingTarget.yPosition+2, container.craftingTarget.ordinal()*8, 200, 8, 8);
-			drawTexturedModalRect(craftingAmount.xPosition+2, craftingAmount.yPosition+2, container.craftingAmount.ordinal()*8, 208, 8, 8);			
+			drawTexturedModalRect(clearGrid.x+2, clearGrid.y+2, 0, 190, 2, 10);
+			drawTexturedModalRect(craftingTarget.x+2, craftingTarget.y+2, container.craftingTarget.ordinal()*8, 200, 8, 8);
+			drawTexturedModalRect(craftingAmount.x+2, craftingAmount.y+2, container.craftingAmount.ordinal()*8, 208, 8, 8);			
 		}
 		
 		if (container.terminal.hasMaintenanceSlot()) {
@@ -192,22 +199,22 @@ public class GuiTerminal extends GuiContainer {
 			} else if (container.isDumping || container.isFilling) {
 				GlStateManager.color(1, 1, 0.25f);
 			}
-			drawTexturedModalRect(dump.xPosition+2, dump.yPosition+2, 16, (container.isFilling || isShiftKeyDown()) ? 232 : 240, 8, 8);
+			drawTexturedModalRect(dump.x+2, dump.y+2, 16, (container.isFilling || isShiftKeyDown()) ? 232 : 240, 8, 8);
 			if (!partition.enabled) {
 				GlStateManager.color(0.5f, 0.5f, 0.5f);
 			} else {
 				GlStateManager.color(1, 1, 1);
 			}
-			drawTexturedModalRect(partition.xPosition+2, partition.yPosition+2, 16, 248, 8, 8);
+			drawTexturedModalRect(partition.x+2, partition.y+2, 16, 248, 8, 8);
 			GlStateManager.color(1, 1, 1);
 		}
 		
 		if (hasSearchAndSort()) {
-			drawTexturedModalRect(sortDirection.xPosition+2, sortDirection.yPosition+2, container.sortAscending ? 0 : 8, 216, 8, 8);
-			drawTexturedModalRect(sortMode.xPosition+2, sortMode.yPosition+2, 16+(container.sortMode.ordinal()*8), 216, 8, 8);
-			drawTexturedModalRect(focusByDefault.xPosition+2, focusByDefault.yPosition+2, container.searchFocusedByDefault ? 8 : 0, 240, 8, 8);
+			drawTexturedModalRect(sortDirection.x+2, sortDirection.y+2, container.sortAscending ? 0 : 8, 216, 8, 8);
+			drawTexturedModalRect(sortMode.x+2, sortMode.y+2, 16+(container.sortMode.ordinal()*8), 216, 8, 8);
+			drawTexturedModalRect(focusByDefault.x+2, focusByDefault.y+2, container.searchFocusedByDefault ? 8 : 0, 240, 8, 8);
 			if (jeiSync != null) {
-				drawTexturedModalRect(jeiSync.xPosition+2, jeiSync.yPosition+2, container.jeiSyncEnabled ? 8 : 0, 248, 8, 8);
+				drawTexturedModalRect(jeiSync.x+2, jeiSync.y+2, container.jeiSyncEnabled ? 8 : 0, 248, 8, 8);
 			}
 			searchField.drawTextBox();
 			if (sortMode.isMouseOver()) {
@@ -282,7 +289,7 @@ public class GuiTerminal extends GuiContainer {
 		GlStateManager.disableLighting();
 		mc.renderEngine.bindTexture(ENERGY);
 		GlStateManager.color(1, 1, 1);
-		drawModalRectWithCustomSizedTexture(preferredEnergySystem.xPosition+2, preferredEnergySystem.yPosition+2, 0, CConfig.preferredUnit.ordinal()*8, 8, 8, 8, 80);
+		drawModalRectWithCustomSizedTexture(preferredEnergySystem.x+2, preferredEnergySystem.y+2, 0, CConfig.preferredUnit.ordinal()*8, 8, 8, 8, 80);
 		GlStateManager.popMatrix();
 
 	}
@@ -299,8 +306,8 @@ public class GuiTerminal extends GuiContainer {
 		int y = (height - ySize) / 2;
 		y += getYOffset();
 		if (hasSearchAndSort()) {
-			searchField.xPosition = x+143;
-			searchField.yPosition = y+6;
+			searchField.x = x+143;
+			searchField.y = y+6;
 			buttonList.add(sortDirection = new GuiButtonExt(0, x+236, y+4, 12, 12, ""));
 			buttonList.add(sortMode = new GuiButtonExt(1, x+128, y+4, 12, 12, ""));
 			buttonList.add(focusByDefault = new GuiButtonExt(5, x+114, y+4, 12, 12, ""));
@@ -522,8 +529,8 @@ public class GuiTerminal extends GuiContainer {
 		}
 		if (hasSearchAndSort()) {
 			if (mouseButton == 1
-					&& mouseX >= searchField.xPosition && mouseX <= searchField.xPosition+searchField.width
-					&& mouseY >= searchField.yPosition && mouseY <= searchField.yPosition+searchField.height) {
+					&& mouseX >= searchField.x && mouseX <= searchField.x+searchField.width
+					&& mouseY >= searchField.y && mouseY <= searchField.y+searchField.height) {
 				searchField.setText("");
 				if (container.jeiSyncEnabled) {
 					Correlated.inst.jeiQueryUpdater.accept("");

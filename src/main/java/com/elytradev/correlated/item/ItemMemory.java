@@ -10,7 +10,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.translation.I18n;
 
 public class ItemMemory extends Item {
-	private final int[] tierSizes = {
+	public static final int[] tierSizes = {
 			1024 * 8,
 			4096 * 8,
 	};
@@ -34,9 +34,9 @@ public class ItemMemory extends Item {
 	}
 
 	@Override
-	public void getSubItems(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> subItems) {
+	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> subItems) {
 		for (int i = 0; i < tierSizes.length; i++) {
-			subItems.add(new ItemStack(itemIn, 1, i));
+			subItems.add(new ItemStack(this, 1, i));
 		}
 	}
 

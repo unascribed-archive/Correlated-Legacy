@@ -9,10 +9,10 @@ import com.elytradev.correlated.init.CBlocks;
 import com.elytradev.correlated.tile.TileEntityController;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
@@ -21,7 +21,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 public class RenderController extends TileEntitySpecialRenderer<TileEntityController> {
 
 	@Override
-	public void renderTileEntityAt(TileEntityController te, double x, double y, double z, float partialTicks, int destroyStage) {
+	public void render(TileEntityController te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
 		if (bs.getBlock() != CBlocks.CONTROLLER) return;
 
@@ -81,7 +81,7 @@ public class RenderController extends TileEntitySpecialRenderer<TileEntityContro
 		GlStateManager.disableCull();
 
 		Tessellator tess = Tessellator.getInstance();
-		VertexBuffer wr = tess.getBuffer();
+		BufferBuilder wr = tess.getBuffer();
 		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 		wr.pos(0, 1.001, 0).tex(maxUTop, maxVTop).endVertex();
 		wr.pos(0, 1.001, 1).tex(maxUTop, minVTop).endVertex();

@@ -74,7 +74,7 @@ public class CNetwork {
 		Chunk c = te.getWorld().getChunkFromBlockCoords(te.getPos());
 		SPacketUpdateTileEntity packet = new SPacketUpdateTileEntity(te.getPos(), te.getBlockMetadata(), nbt);
 		for (EntityPlayerMP player : te.getWorld().getPlayers(EntityPlayerMP.class, Predicates.alwaysTrue())) {
-			if (ws.getPlayerChunkMap().isPlayerWatchingChunk(player, c.xPosition, c.zPosition)) {
+			if (ws.getPlayerChunkMap().isPlayerWatchingChunk(player, c.x, c.z)) {
 				player.connection.sendPacket(packet);
 			}
 		}

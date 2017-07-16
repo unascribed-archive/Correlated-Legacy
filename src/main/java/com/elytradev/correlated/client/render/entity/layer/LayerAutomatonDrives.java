@@ -8,10 +8,10 @@ import com.elytradev.correlated.entity.EntityAutomaton;
 import com.elytradev.correlated.item.ItemDrive;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.inventory.EntityEquipmentSlot;
@@ -39,13 +39,13 @@ public class LayerAutomatonDrives implements LayerRenderer<EntityAutomaton> {
 
 		
 		Tessellator tess = Tessellator.getInstance();
-		VertexBuffer wr = tess.getBuffer();
+		BufferBuilder wr = tess.getBuffer();
 		float oldX = OpenGlHelper.lastBrightnessX;
 		float oldY = OpenGlHelper.lastBrightnessY;
 
 		boolean lit = ent.isPowered();
 
-		int light = ent.getBrightnessForRender(partialTicks);
+		int light = ent.getBrightnessForRender();
 		int j = light % 65536;
 		int k = light / 65536;
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j, k);

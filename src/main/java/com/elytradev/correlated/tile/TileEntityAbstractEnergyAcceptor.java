@@ -22,7 +22,7 @@ import net.minecraftforge.fml.common.Optional;
 	@Optional.Interface(modid="ic2", iface="ic2.api.energy.tile.IEnergySink"),
 	@Optional.Interface(modid="mekanism", iface="mekanism.api.energy.IStrictEnergyAcceptor")
 })
-public abstract class TileEntityEnergyAcceptor extends TileEntityNetworkMember implements IEnergySink, IStrictEnergyAcceptor {
+public abstract class TileEntityAbstractEnergyAcceptor extends TileEntityNetworkMember implements IEnergySink, IStrictEnergyAcceptor {
 
 	protected int potential;
 	

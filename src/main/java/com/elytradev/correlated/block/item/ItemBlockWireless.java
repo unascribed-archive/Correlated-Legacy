@@ -13,6 +13,7 @@ import com.elytradev.correlated.wifi.Beam;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -32,7 +33,7 @@ public class ItemBlockWireless extends ItemBlock {
 	}
 
 	@Override
-	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
+	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
 		if (stack.getMetadata() == 0) {
 			tooltip.add(I18n.format("tile.correlated.microwave_beam.0"));
 			tooltip.add(I18n.format("tile.correlated.microwave_beam.1"));

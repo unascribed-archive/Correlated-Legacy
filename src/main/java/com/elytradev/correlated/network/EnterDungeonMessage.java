@@ -31,7 +31,7 @@ public class EnterDungeonMessage extends Message {
 		EntityPlayerMP p = (EntityPlayerMP)sender;
 		int dim = CConfig.limboDimId;
 		Teleporter teleporter;
-		WorldServer world = p.mcServer.worldServerForDimension(dim);
+		WorldServer world = p.mcServer.getWorld(dim);
 		WorldProvider provider = world.provider;
 		if (provider instanceof LimboProvider) {
 			teleporter = ((LimboProvider)provider).getTeleporter();

@@ -8,7 +8,6 @@ import com.google.common.collect.Lists;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class CRecords {
 
@@ -49,13 +48,13 @@ public class CRecords {
 			String basename = str.substring(0, str.indexOf('.'));
 			ResourceLocation loc = new ResourceLocation("correlated", basename);
 			SoundEvent snd = new SoundEvent(loc);
-			GameRegistry.register(snd, loc);
+			snd.setRegistryName(loc);
+			CSoundEvents.records.add(snd);
 			ItemCorrelatedRecord item = new ItemCorrelatedRecord(basename, snd);
 			item.setRegistryName("record_"+basename);
 			item.setUnlocalizedName("record");
 			item.setCreativeTab(Correlated.CREATIVE_TAB);
-			GameRegistry.register(item);
-			Correlated.proxy.registerItemModel(item, 0);
+			CItems.records.add(item);
 			RECORD_ITEMS.add(item);
 		} catch (Exception e) {
 			e.printStackTrace();

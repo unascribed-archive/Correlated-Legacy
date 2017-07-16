@@ -126,8 +126,8 @@ public class TileEntityMicrowaveBeam extends TileEntityNetworkMember implements 
 			return syncedYaw;
 		} else {
 			Vec3d dir = getDirectionToOtherSide();
-			if (dir.xCoord == 0 && dir.yCoord == 0 && dir.zCoord == 0) return 0;
-			return (float)Math.toDegrees(MathHelper.atan2(dir.xCoord, dir.zCoord));
+			if (dir.x == 0 && dir.y == 0 && dir.z == 0) return 0;
+			return (float)Math.toDegrees(MathHelper.atan2(dir.x, dir.z));
 		}
 	}
 
@@ -136,10 +136,10 @@ public class TileEntityMicrowaveBeam extends TileEntityNetworkMember implements 
 			return syncedPitch;
 		} else {
 			Vec3d dir = getDirectionToOtherSide();
-			if (dir.xCoord == 0 && dir.yCoord == 0 && dir.zCoord == 0) return 90;
-			Vec3d xz = new Vec3d(dir.xCoord, 0, dir.zCoord);
+			if (dir.x == 0 && dir.y == 0 && dir.z == 0) return 90;
+			Vec3d xz = new Vec3d(dir.x, 0, dir.z);
 			double xzLength = xz.lengthVector();
-			return (float)-Math.toDegrees(MathHelper.atan2(dir.yCoord, xzLength));
+			return (float)-Math.toDegrees(MathHelper.atan2(dir.y, xzLength));
 		}
 	}
 

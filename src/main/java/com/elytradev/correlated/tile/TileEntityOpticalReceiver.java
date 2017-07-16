@@ -27,7 +27,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.Capability;
 
-public class TileEntityOpticalReceiver extends TileEntityEnergyAcceptor implements ITickable, IWirelessClient {
+public class TileEntityOpticalReceiver extends TileEntityAbstractEnergyAcceptor implements ITickable, IWirelessClient {
 
 	@Override
 	public int getPotentialConsumedPerTick() {

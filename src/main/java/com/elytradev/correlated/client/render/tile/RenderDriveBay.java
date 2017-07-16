@@ -11,10 +11,10 @@ import com.elytradev.correlated.tile.TileEntityDriveBay;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
@@ -69,7 +69,7 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 			.yPadding(1);
 	
 	@Override
-	public void renderTileEntityAt(TileEntityDriveBay te, double x, double y, double z, float partialTicks, int destroyStage) {
+	public void render(TileEntityDriveBay te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
 		if (bs.getBlock() != CBlocks.DRIVE_BAY) return;
 
@@ -102,7 +102,7 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 		Minecraft.getMinecraft().getTextureManager().bindTexture(DRIVE);
 
 		Tessellator tess = Tessellator.getInstance();
-		VertexBuffer wr = tess.getBuffer();
+		BufferBuilder wr = tess.getBuffer();
 		float oldX = OpenGlHelper.lastBrightnessX;
 		float oldY = OpenGlHelper.lastBrightnessY;
 
@@ -165,9 +165,9 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 		if (mop != null && mop.typeOfHit == Type.BLOCK && mop.getBlockPos().equals(te.getPos())) {
 			if (te.getBlockType() instanceof BlockDriveBay) {
 				BlockDriveBay block = (BlockDriveBay)te.getBlockType();
-				float hitX = (float)(mop.hitVec.xCoord-te.getPos().getX());
-				float hitY = (float)(mop.hitVec.yCoord-te.getPos().getY());
-				float hitZ = (float)(mop.hitVec.zCoord-te.getPos().getZ());
+				float hitX = (float)(mop.hitVec.x-te.getPos().getX());
+				float hitY = (float)(mop.hitVec.y-te.getPos().getY());
+				float hitZ = (float)(mop.hitVec.z-te.getPos().getZ());
 				int slot = block.getLookedAtSlot(bs, mop.sideHit, hitX, hitY, hitZ);
 				if (slot != -1 && te.hasDriveInSlot(slot)) {
 					ItemStack drive = te.getDriveInSlot(slot);
@@ -179,20 +179,20 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 						switch (mop.sideHit) {
 							case EAST:
 								nameZ = nameXZ;
-								nameX = mop.hitVec.xCoord-te.getPos().getX();
+								nameX = mop.hitVec.x-te.getPos().getX();
 								break;
 							case WEST:
 								nameZ = nameXZ;
-								nameX = mop.hitVec.xCoord-te.getPos().getX();
+								nameX = mop.hitVec.x-te.getPos().getX();
 								nameZ = 1-nameZ;
 								break;
 							case NORTH:
 								nameX = nameXZ;
-								nameZ = mop.hitVec.zCoord-te.getPos().getZ();
+								nameZ = mop.hitVec.z-te.getPos().getZ();
 								break;
 							case SOUTH:
 								nameX = nameXZ;
-								nameZ = mop.hitVec.zCoord-te.getPos().getZ();
+								nameZ = mop.hitVec.z-te.getPos().getZ();
 								nameX = 1-nameX;
 								break;
 							default:

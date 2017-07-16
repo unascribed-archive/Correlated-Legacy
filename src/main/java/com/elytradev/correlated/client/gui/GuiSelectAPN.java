@@ -90,8 +90,8 @@ public class GuiSelectAPN extends GuiScreen {
 				drawTexturedModalRect(x+72, y, 128, 66, 72, 20);
 				creatingTextField.setTextColor(-1);
 				creatingTextField.setEnableBackgroundDrawing(false);
-				creatingTextField.xPosition = x+5;
-				creatingTextField.yPosition = y+6;
+				creatingTextField.x = x+5;
+				creatingTextField.y = y+6;
 				creatingTextField.width = 135;
 				creatingTextField.height = 8;
 				creatingTextField.drawTextBox();

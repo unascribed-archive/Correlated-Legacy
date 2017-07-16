@@ -194,9 +194,9 @@ public class Beam implements INBTSerializable<NBTTagCompound> {
 			short s = toShort(x, y, z);
 			TShortSet set = getSetForBlock(x, z);
 			set.add(s);
-			posX += dir.xCoord;
-			posY += dir.yCoord;
-			posZ += dir.zCoord;
+			posX += dir.x;
+			posY += dir.y;
+			posZ += dir.z;
 		}
 	}
 

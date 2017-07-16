@@ -143,7 +143,7 @@ public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITic
 		Chunk c = world.getChunkFromBlockCoords(getPos());
 		SPacketUpdateTileEntity packet = new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), nbt);
 		for (EntityPlayerMP player : world.getPlayers(EntityPlayerMP.class, Predicates.alwaysTrue())) {
-			if (ws.getPlayerChunkMap().isPlayerWatchingChunk(player, c.xPosition, c.zPosition)) {
+			if (ws.getPlayerChunkMap().isPlayerWatchingChunk(player, c.x, c.z)) {
 				player.connection.sendPacket(packet);
 			}
 		}

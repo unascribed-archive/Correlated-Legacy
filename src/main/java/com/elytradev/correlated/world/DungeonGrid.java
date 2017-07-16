@@ -43,7 +43,7 @@ public class DungeonGrid implements INBTSerializable<NBTTagCompound> {
 	}
 	
 	public Dungeon getFromChunk(ChunkPos pos) {
-		return getFromChunk(pos.chunkXPos, pos.chunkZPos);
+		return getFromChunk(pos.x, pos.z);
 	}
 	
 	public Dungeon getFromChunk(int x, int z) {

@@ -9,10 +9,10 @@ import com.elytradev.correlated.tile.TileEntityOpticalReceiver;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
@@ -21,8 +21,8 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 public class RenderOpticalReceiver extends TileEntitySpecialRenderer<TileEntityOpticalReceiver> {
 
 	@Override
-	public void renderTileEntityAt(TileEntityOpticalReceiver te, double x, double y, double z, float partialTicks, int destroyStage) {
-		super.renderTileEntityAt(te, x, y, z, partialTicks, destroyStage);
+	public void render(TileEntityOpticalReceiver te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
+		super.render(te, x, y, z, partialTicks, destroyStage, alpha);
 		
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
 		if (bs.getBlock() != CBlocks.WIRELESS) return;
@@ -61,7 +61,7 @@ public class RenderOpticalReceiver extends TileEntitySpecialRenderer<TileEntityO
 		GlStateManager.translate(x, y, z);
 
 		Tessellator tess = Tessellator.getInstance();
-		VertexBuffer wr = tess.getBuffer();
+		BufferBuilder wr = tess.getBuffer();
 		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 		wr.pos(0, 1.001, 0).tex(maxU, maxV).endVertex();
 		wr.pos(0, 1.001, 1).tex(maxU, minV).endVertex();

@@ -11,7 +11,6 @@ import com.elytradev.correlated.init.CDimensions;
 import com.elytradev.correlated.init.CEntities;
 import com.elytradev.correlated.init.CItems;
 import com.elytradev.correlated.init.CNetwork;
-import com.elytradev.correlated.init.COres;
 import com.elytradev.correlated.init.CRecipes;
 import com.elytradev.correlated.init.CRecords;
 import com.elytradev.correlated.init.CSoundEvents;
@@ -37,19 +36,18 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.LootTableLoadEvent;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.RegistryEvent.MissingMappings.Mapping;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
-import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent.MissingMapping;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
-import net.minecraftforge.fml.common.registry.GameRegistry.Type;
 
 @Mod(modid=Correlated.MODID, name=Correlated.NAME, version=Correlated.VERSION,
 	updateJSON="http://unascribed.com/update-check/correlated.json")
@@ -97,17 +95,16 @@ public class Correlated {
 		
 		CDimensions.register();
 		
-		CSoundEvents.register();
+		MinecraftForge.EVENT_BUS.register(CSoundEvents.class);
 		
-		CBlocks.register();
-		CItems.register();
+		MinecraftForge.EVENT_BUS.register(CBlocks.class);
+		MinecraftForge.EVENT_BUS.register(CItems.class);
 		CRecords.register();
 		
 		CTiles.register();
 		CEntities.register();
-		
-		COres.register();
-		CRecipes.register();
+
+		MinecraftForge.EVENT_BUS.register(CRecipes.class);
 		
 		CNetwork.register();
 		
@@ -136,33 +133,46 @@ public class Correlated {
 		proxy.postInit();
 	}
 	
-	@EventHandler
-	public void onMissingMappings(FMLMissingMappingsEvent e) {
-		for (MissingMapping mm : e.getAll()) {
+	@SubscribeEvent
+	public void onMissingMappingsBlock(RegistryEvent.MissingMappings<Block> e) {
+		for (Mapping<Block> mm : e.getAllMappings()) {
 			ResourceLocation newloc = null;
-			if (mm.resourceLocation.getResourceDomain().equals("correlatedpotentialistics")) {
-				if (mm.resourceLocation.getResourcePath().equals("vt")) {
+			if (mm.key.getResourceDomain().equals("correlatedpotentialistics")) {
+				if (mm.key.getResourcePath().equals("vt")) {
 					newloc = new ResourceLocation("correlated", "terminal");
-				} else if (mm.resourceLocation.getResourcePath().equals("wireless_terminal")) {
-					newloc = new ResourceLocation("correlated", "handheld_terminal");
-				} else if (mm.resourceLocation.getResourcePath().equals("iface")) {
+				} else if (mm.key.getResourcePath().equals("iface")) {
 					newloc = new ResourceLocation("correlated", "interface");
 				} else {
-					newloc = new ResourceLocation("correlated", mm.resourceLocation.getResourcePath());
+					newloc = new ResourceLocation("correlated", mm.key.getResourcePath());
 				}
-			} else if (mm.resourceLocation.getResourceDomain().equals("correlated")) {
-				if (mm.resourceLocation.getResourcePath().equals("wireless_terminal")) {
-					newloc = new ResourceLocation("correlated", "handheld_terminal");
-				} else if (mm.resourceLocation.getResourcePath().equals("iface")) {
+			} else if (mm.key.getResourceDomain().equals("correlated")) {
+				if (mm.key.getResourcePath().equals("iface")) {
 					newloc = new ResourceLocation("correlated", "interface");
 				}
 			}
 			if (newloc != null) {
-				if (mm.type == Type.BLOCK) {
-					mm.remap(Block.REGISTRY.getObject(newloc));
-				} else if (mm.type == Type.ITEM) {
-					mm.remap(Item.REGISTRY.getObject(newloc));
+				mm.remap(Block.REGISTRY.getObject(newloc));
+			}
+		}
+	}
+	
+	@SubscribeEvent
+	public void onMissingMappingsItem(RegistryEvent.MissingMappings<Item> e) {
+		for (Mapping<Item> mm : e.getAllMappings()) {
+			ResourceLocation newloc = null;
+			if (mm.key.getResourceDomain().equals("correlatedpotentialistics")) {
+				if (mm.key.getResourcePath().equals("wireless_terminal")) {
+					newloc = new ResourceLocation("correlated", "handheld_terminal");
+				} else {
+					newloc = new ResourceLocation("correlated", mm.key.getResourcePath());
 				}
+			} else if (mm.key.getResourceDomain().equals("correlated")) {
+				if (mm.key.getResourcePath().equals("wireless_terminal")) {
+					newloc = new ResourceLocation("correlated", "handheld_terminal");
+				}
+			}
+			if (newloc != null) {
+				mm.remap(Item.REGISTRY.getObject(newloc));
 			}
 		}
 	}

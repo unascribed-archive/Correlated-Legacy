@@ -9,20 +9,21 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
 public class DriveRecipe extends ShapedOreRecipe {
 
-	public DriveRecipe(Block result, Object... recipe) {
-		super(result, recipe);
+	public DriveRecipe(ResourceLocation group, Block result, Object... recipe) {
+		super(group, result, recipe);
 	}
 
-	public DriveRecipe(Item result, Object... recipe) {
-		super(result, recipe);
+	public DriveRecipe(ResourceLocation group, Item result, Object... recipe) {
+		super(group, result, recipe);
 	}
 
-	public DriveRecipe(ItemStack result, Object... recipe) {
-		super(result, recipe);
+	public DriveRecipe(ResourceLocation group, ItemStack result, Object... recipe) {
+		super(group, result, recipe);
 	}
 
 	@Override

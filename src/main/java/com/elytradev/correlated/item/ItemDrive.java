@@ -40,6 +40,7 @@ import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.relauncher.Side;
@@ -65,7 +66,7 @@ public class ItemDrive extends Item {
 		public final String lowerName = name().toLowerCase(Locale.ROOT);
 	}
 
-	private final int[] tierSizes = {
+	public static final int[] tierSizes = {
 			1024 * 8,
 			4096 * 8,
 			16384 * 8,
@@ -117,7 +118,7 @@ public class ItemDrive extends Item {
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
+	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
 		tooltip.add(EnergyHelper.formatPotentialUsage(getPotentialConsumptionRate(stack)));
 		if (stack.getItemDamage() == 4) {
 			int i = 0;
@@ -166,9 +167,9 @@ public class ItemDrive extends Item {
 	}
 
 	@Override
-	public void getSubItems(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> subItems) {
+	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> subItems) {
 		for (int i = 0; i < tierSizes.length; i++) {
-			subItems.add(new ItemStack(itemIn, 1, i));
+			subItems.add(new ItemStack(this, 1, i));
 		}
 	}
 
@@ -297,7 +298,7 @@ public class ItemDrive extends Item {
 		} else {
 			Vec3d eyes = new Vec3d(playerIn.posX, playerIn.posY + playerIn.getEyeHeight(), playerIn.posZ);
 			Vec3d look = playerIn.getLookVec();
-			Vec3d origin = eyes.addVector(look.xCoord * 4, look.yCoord * 4, look.zCoord * 4);
+			Vec3d origin = eyes.addVector(look.x * 4, look.y * 4, look.z * 4);
 			RayTraceResult rtr = playerIn.world.rayTraceBlocks(eyes, origin, false, false, true);
 			if (rtr.typeOfHit == Type.BLOCK) {
 				Block b = worldIn.getBlockState(rtr.getBlockPos()).getBlock();

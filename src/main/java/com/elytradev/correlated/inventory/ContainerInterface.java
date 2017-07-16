@@ -47,7 +47,7 @@ public class ContainerInterface extends Container {
 		}
 
 		@Override
-		public boolean canBeHovered() {
+		public boolean isEnabled() {
 			return true;
 		}
 

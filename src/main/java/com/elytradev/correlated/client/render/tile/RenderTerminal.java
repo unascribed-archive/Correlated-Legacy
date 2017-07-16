@@ -9,10 +9,10 @@ import com.elytradev.correlated.tile.TileEntityTerminal;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
@@ -39,7 +39,7 @@ public class RenderTerminal extends TileEntitySpecialRenderer<TileEntityTerminal
 			.z(0);
 	
 	@Override
-	public void renderTileEntityAt(TileEntityTerminal te, double x, double y, double z, float partialTicks, int destroyStage) {
+	public void render(TileEntityTerminal te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
 		if (bs.getBlock() != CBlocks.TERMINAL) return;
 		
@@ -70,7 +70,7 @@ public class RenderTerminal extends TileEntitySpecialRenderer<TileEntityTerminal
 		GlStateManager.color(1, 1, 1);
 
 		Tessellator tess = Tessellator.getInstance();
-		VertexBuffer wr = tess.getBuffer();
+		BufferBuilder wr = tess.getBuffer();
 		
 		float lastX = OpenGlHelper.lastBrightnessX;
 		float lastY = OpenGlHelper.lastBrightnessY;

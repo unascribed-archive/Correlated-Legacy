@@ -48,7 +48,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants.NBT;
 
-public class TileEntityTerminal extends TileEntityEnergyAcceptor implements ITickable, IInventory, ITerminal, ISidedInventory, IWirelessClient {
+public class TileEntityTerminal extends TileEntityAbstractEnergyAcceptor implements ITickable, IInventory, ITerminal, ISidedInventory, IWirelessClient {
 	private Map<UUID, SimpleUserPreferences> preferences = Maps.newHashMap();
 	private String error;
 	private String apn;

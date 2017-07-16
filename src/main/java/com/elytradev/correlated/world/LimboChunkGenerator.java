@@ -10,7 +10,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome.SpawnListEntry;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.IChunkGenerator;
+import net.minecraft.world.gen.IChunkGenerator;
 
 public class LimboChunkGenerator implements IChunkGenerator {
 	private final World world;
@@ -22,7 +22,7 @@ public class LimboChunkGenerator implements IChunkGenerator {
 	}
 
 	@Override
-	public Chunk provideChunk(int x, int z) {
+	public Chunk generateChunk(int x, int z) {
 		return new Chunk(world, x, z);
 	}
 
@@ -41,7 +41,7 @@ public class LimboChunkGenerator implements IChunkGenerator {
 	}
 	
 	@Override
-	public BlockPos getStrongholdGen(World worldIn, String structureName, BlockPos position, boolean unknown) {
+	public BlockPos getNearestStructurePos(World worldIn, String structureName, BlockPos position, boolean unknown) {
 		Dungeon d = grid.getFromBlock(position);
 		if (d != null) {
 			Vec2f entrance = d.findEntranceTile();
@@ -57,6 +57,11 @@ public class LimboChunkGenerator implements IChunkGenerator {
 	@Override
 	public void recreateStructures(Chunk chunkIn, int x, int z) {
 
+	}
+	
+	@Override
+	public boolean isInsideStructure(World worldIn, String structureName, BlockPos pos) {
+		return false;
 	}
 
 }

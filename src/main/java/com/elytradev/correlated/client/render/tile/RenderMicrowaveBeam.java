@@ -9,10 +9,10 @@ import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -24,9 +24,12 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 
 public class RenderMicrowaveBeam extends TileEntitySpecialRenderer<TileEntityMicrowaveBeam> {
-	private final IBlockState beamBlockState = CBlocks.WIRELESS.getDefaultState();
+	private IBlockState beamBlockState;
 	@Override
-	public void renderTileEntityAt(TileEntityMicrowaveBeam te, double x, double y, double z, float partialTicks, int destroyStage) {
+	public void render(TileEntityMicrowaveBeam te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
+		if (beamBlockState == null) {
+			beamBlockState = CBlocks.WIRELESS.getDefaultState();
+		}
 		State state = State.DEAD;
 		if (te != null) {
 			if (te.hasWorld()) {
@@ -40,7 +43,7 @@ public class RenderMicrowaveBeam extends TileEntitySpecialRenderer<TileEntityMic
 		float oldX = OpenGlHelper.lastBrightnessX;
 		float oldY = OpenGlHelper.lastBrightnessY;
 		Tessellator tess = Tessellator.getInstance();
-		VertexBuffer wr = tess.getBuffer();
+		BufferBuilder wr = tess.getBuffer();
 		Vec3d facing;
 		float yaw;
 		float pitch;
@@ -63,21 +66,21 @@ public class RenderMicrowaveBeam extends TileEntitySpecialRenderer<TileEntityMic
 			GlStateManager.translate(0.5, 0.875, 0.5);
 			GlStateManager.disableLighting();
 			
-			float nXF = (float)facing.xCoord;
-			float nYF = (float)facing.yCoord;
-			float nZF = (float)facing.zCoord;
+			float nXF = (float)facing.x;
+			float nYF = (float)facing.y;
+			float nZF = (float)facing.z;
 			
 			Vec3d right = facing.crossProduct(new Vec3d(0, 1, 0)).normalize();
 			
-			float nXR = (float)right.xCoord;
-			float nYR = (float)right.yCoord;
-			float nZR = (float)right.zCoord;
+			float nXR = (float)right.x;
+			float nYR = (float)right.y;
+			float nZR = (float)right.z;
 			
 			Vec3d up = right.crossProduct(facing).normalize();
 			
-			float nXU = (float)up.xCoord;
-			float nYU = (float)up.yCoord;
-			float nZU = (float)up.zCoord;
+			float nXU = (float)up.x;
+			float nYU = (float)up.y;
+			float nZU = (float)up.z;
 
 			if (Minecraft.getMinecraft().gameSettings.showDebugInfo) {
 				GlStateManager.disableTexture2D();
@@ -233,7 +236,7 @@ public class RenderMicrowaveBeam extends TileEntitySpecialRenderer<TileEntityMic
 	
 	public static void renderBaseForItem(IBlockState state) {
 		Tessellator tess = Tessellator.getInstance();
-		VertexBuffer wr = tess.getBuffer();
+		BufferBuilder wr = tess.getBuffer();
 		IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(state);
 		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
 		for (EnumFacing ef : EnumFacing.VALUES) {
@@ -248,7 +251,7 @@ public class RenderMicrowaveBeam extends TileEntitySpecialRenderer<TileEntityMic
 	}
 	
 	public static void drawGlow(State state) {
-		VertexBuffer wr = Tessellator.getInstance().getBuffer();
+		BufferBuilder wr = Tessellator.getInstance().getBuffer();
 		wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 		TextureAtlasSprite tas = null;
 		switch (state) {

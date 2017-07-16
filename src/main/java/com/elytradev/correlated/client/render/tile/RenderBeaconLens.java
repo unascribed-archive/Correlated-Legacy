@@ -15,7 +15,7 @@ import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 public class RenderBeaconLens extends TileEntitySpecialRenderer<TileEntityBeaconLens> {
 
 	@Override
-	public void renderTileEntityAt(TileEntityBeaconLens te, double x, double y, double z, float partialTicks, int destroyStage) {
+	public void render(TileEntityBeaconLens te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
 		if (bs.getBlock() != CBlocks.WIRELESS) return;
 		State state = bs.getValue(BlockWireless.STATE);
@@ -35,7 +35,7 @@ public class RenderBeaconLens extends TileEntitySpecialRenderer<TileEntityBeacon
 		GlStateManager.enableLighting();
 		GlStateManager.popMatrix();
 		
-		super.renderTileEntityAt(te, x, y, z, partialTicks, destroyStage);
+		super.render(te, x, y, z, partialTicks, destroyStage, alpha);
 	}
 	
 }

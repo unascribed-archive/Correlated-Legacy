@@ -32,7 +32,9 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import com.elytradev.correlated.CLog;
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.block.BlockDecor;
+import com.elytradev.correlated.block.BlockGlowingDecor;
+import com.elytradev.correlated.block.BlockWireless;
 import com.elytradev.correlated.client.CorrelatedMusicTicker;
 import com.elytradev.correlated.client.DocumentationManager;
 import com.elytradev.correlated.client.IBMFontRenderer;
@@ -73,7 +75,7 @@ import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
 import com.elytradev.correlated.tile.TileEntityOpticalReceiver;
 import com.elytradev.correlated.tile.TileEntityTerminal;
 import com.elytradev.correlated.wifi.IWirelessClient;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -88,12 +90,12 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.GlStateManager.DestFactor;
 import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -111,7 +113,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ScreenShotHelper;
 import net.minecraft.util.SoundEvent;
@@ -121,6 +122,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.event.sound.PlaySoundEvent;
@@ -216,23 +218,6 @@ public class ClientProxy extends Proxy {
 			}
 		});
 		
-		ModelLoader.setCustomModelResourceLocation(CItems.FLOPPY, 0, new ModelResourceLocation(new ResourceLocation("correlated", "floppy_write_enabled"), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CItems.FLOPPY, 1, new ModelResourceLocation(new ResourceLocation("correlated", "floppy_write_disabled"), "inventory"));
-		
-		ModelLoader.setCustomModelResourceLocation(CItems.HANDHELD_TERMINAL, 1, new ModelResourceLocation(new ResourceLocation("correlated", "handheld_terminal"), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CItems.HANDHELD_TERMINAL, 2, new ModelResourceLocation(new ResourceLocation("correlated", "handheld_terminal"), "inventory"));
-		
-		ModelLoader.setCustomModelResourceLocation(CItems.HANDHELD_TERMINAL, 4, new ModelResourceLocation(new ResourceLocation("correlated", "handheld_terminal_hand"), "inventory"));
-		
-		int idx = 0;
-		for (String s : ItemMisc.items) {
-			ModelLoader.setCustomModelResourceLocation(CItems.MISC, idx++, new ModelResourceLocation(new ResourceLocation("correlated", s), "inventory"));
-		}
-		idx = 0;
-		for (String s : ItemKeycard.colors) {
-			ModelLoader.setCustomModelResourceLocation(CItems.KEYCARD, idx++, new ModelResourceLocation(new ResourceLocation("correlated", "keycard_"+s), "inventory"));
-		}
-		
 		enceladusType = EnumHelper.addEnum(MusicType.class, "CORRELATED_ENCELADUS", new Class<?>[] {SoundEvent.class, int.class, int.class}, CSoundEvents.ENCELADUS, 24000, 48000);
 		
 		List<String> pages = Lists.newArrayList();
@@ -279,6 +264,81 @@ public class ClientProxy extends Proxy {
 		
 		documentationManager = new DocumentationManager(pages);
 	}
+	
+	@SubscribeEvent
+	public void onModelRegister(ModelRegistryEvent e) {
+		ModelLoader.setCustomModelResourceLocation(CItems.WELDTHROWER, 0, new ModelResourceLocation(new ResourceLocation("correlated", "weldthrower"), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CItems.DOC_TABLET, 0, new ModelResourceLocation(new ResourceLocation("correlated", "doc_tablet"), "inventory"));
+		
+		ModelLoader.setCustomModelResourceLocation(CItems.FLOPPY, 0, new ModelResourceLocation(new ResourceLocation("correlated", "floppy_write_enabled"), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CItems.FLOPPY, 1, new ModelResourceLocation(new ResourceLocation("correlated", "floppy_write_disabled"), "inventory"));
+		
+		for (int i = 0; i < 4; i++) {
+			ModelLoader.setCustomModelResourceLocation(CItems.HANDHELD_TERMINAL, 0, new ModelResourceLocation(new ResourceLocation("correlated", "handheld_terminal"), "inventory"));
+		}
+		ModelLoader.setCustomModelResourceLocation(CItems.HANDHELD_TERMINAL, 4, new ModelResourceLocation(new ResourceLocation("correlated", "handheld_terminal_hand"), "inventory"));
+		
+		int idx = 0;
+		for (String s : ItemMisc.items) {
+			ModelLoader.setCustomModelResourceLocation(CItems.MISC, idx++, new ModelResourceLocation(new ResourceLocation("correlated", s), "inventory"));
+		}
+		idx = 0;
+		for (String s : ItemKeycard.colors) {
+			ModelLoader.setCustomModelResourceLocation(CItems.KEYCARD, idx++, new ModelResourceLocation(new ResourceLocation("correlated", "keycard_"+s), "inventory"));
+		}
+		
+		for (int i = 0; i < ItemDrive.tierSizes.length; i++) {
+			ModelLoader.setCustomModelResourceLocation(CItems.DRIVE, i, new ModelResourceLocation("correlated:drive", "inventory"));
+		}
+		
+		for (int i = 0; i < ItemMemory.tierSizes.length; i++) {
+			ModelLoader.setCustomModelResourceLocation(CItems.MEMORY, i, new ModelResourceLocation("correlated:memory", "inventory"));
+		}
+		for (int i = 0; i < ItemModule.types.length; i++) {
+			ModelLoader.setCustomModelResourceLocation(CItems.MODULE, i, new ModelResourceLocation("correlated:module", "inventory"));
+		}
+		
+		for (int i = 0; i < 16; i++) {
+			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.CONTROLLER), i, new ModelResourceLocation("correlated:controller", "inventory"+i));
+		}
+		
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.DRIVE_BAY), 0, new ModelResourceLocation("correlated:drive_bay", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.MEMORY_BAY), 0, new ModelResourceLocation("correlated:memory_bay", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.TERMINAL), 0, new ModelResourceLocation("correlated:terminal", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.INTERFACE), 0, new ModelResourceLocation("correlated:interface", "inventory"));
+		for (int i = 0; i < BlockWireless.Variant.VALUES.length; i++) {
+			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.WIRELESS), i, new ModelResourceLocation("correlated:wireless", "inventory"+i));
+		}
+		for (int i = 0; i < BlockDecor.Variant.VALUES.length; i++) {
+			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.DECOR_BLOCK), i, new ModelResourceLocation("correlated:decor_block", "inventory"+i));
+			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.DECOR_SLAB), i, new ModelResourceLocation("correlated:decor_slab", "inventory"+i));
+		}
+		for (int i = 0; i < BlockGlowingDecor.Variant.VALUES.length; i++) {
+			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.GLOWING_DECOR_BLOCK), i, new ModelResourceLocation("correlated:glowing_decor_block", "inventory"+i));
+			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.GLOWING_DECOR_SLAB), i, new ModelResourceLocation("correlated:glowing_decor_slab", "inventory"+i));
+		}
+		
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.DUNGEONCRETE_GRATE_STAIRS), 0, new ModelResourceLocation("correlated:dungeoncrete_grate_stairs", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.DUNGEONCRETE_LARGETILE_STAIRS), 0, new ModelResourceLocation("correlated:dungeoncrete_largetile_stairs", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.DUNGEONCRETE_STAIRS), 0, new ModelResourceLocation("correlated:dungeoncrete_stairs", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.DUNGEONCRETE_VERTICAL_STAIRS), 0, new ModelResourceLocation("correlated:dungeoncrete_vertical_stairs", "inventory"));
+		
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.ELUCID_BRICK_STAIRS), 0, new ModelResourceLocation("correlated:elucid_brick_stairs", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.ELUCID_GRIT_STAIRS), 0, new ModelResourceLocation("correlated:elucid_grit_stairs", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.ELUCID_SCALE_STAIRS), 0, new ModelResourceLocation("correlated:elucid_scale_stairs", "inventory"));
+		
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.LITHOGRAPHENE_OFF_STAIRS), 0, new ModelResourceLocation("correlated:lithographene_off_stairs", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.LITHOGRAPHENE_OFF_VARIANT_STAIRS), 0, new ModelResourceLocation("correlated:lithographene_off_variant_stairs", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.LITHOGRAPHENE_ON_STAIRS), 0, new ModelResourceLocation("correlated:lithographene_on_stairs", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.LITHOGRAPHENE_ON_VARIANT_STAIRS), 0, new ModelResourceLocation("correlated:lithographene_on_variant_stairs", "inventory"));
+		
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.PLATING_STAIRS), 0, new ModelResourceLocation("correlated:plating_stairs", "inventory"));
+		
+		for (Item item : CRecords.RECORD_ITEMS) {
+			ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
+		}
+	}
+	
 	private void search(File root, File f, List<String> pages) {
 		String prefix = root.getAbsolutePath()+"/";
 		for (File child : f.listFiles()) {
@@ -433,27 +493,6 @@ public class ClientProxy extends Proxy {
 		ReflectionHelper.setPrivateValue(Minecraft.class, Minecraft.getMinecraft(), cmt, "field_147126_aw", "mcMusicTicker", "aK");
 	}
 	@Override
-	public void registerItemModel(Item item, int variants) {
-		ResourceLocation loc = Item.REGISTRY.getNameForObject(item);
-		if (variants < -1) {
-			variants = (variants*-1)-1;
-			loc = new ResourceLocation("correlated", "tesrstack");
-		}
-		if (variants == -1) {
-			NonNullList<ItemStack> li = NonNullList.create();
-			item.getSubItems(item, Correlated.CREATIVE_TAB, li);
-			for (ItemStack is : li) {
-				ModelLoader.setCustomModelResourceLocation(item, is.getItemDamage(), new ModelResourceLocation(loc, "inventory"));
-			}
-		} else if (variants == 0) {
-			ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(loc, "inventory"));
-		} else if (variants > 0) {
-			for (int i = 0; i < variants; i++) {
-				ModelLoader.setCustomModelResourceLocation(item, i, new ModelResourceLocation(loc, "inventory"+i));
-			}
-		}
-	}
-	@Override
 	public void weldthrowerTick(EntityPlayer player) {
 		Vec3d look = player.getLookVec();
 		Vec3d right = look.rotateYaw(-90);
@@ -464,11 +503,11 @@ public class ClientProxy extends Proxy {
 		for (int i = 0; i < 5; i++) {
 			Random rand = player.world.rand;
 			ParticleWeldthrower dust = new ParticleWeldthrower(player.world,
-					player.posX+(right.xCoord*dist)+(look.xCoord*gap),
-					player.posY+(player.getEyeHeight()-0.1)+(right.yCoord*dist)+(look.yCoord*gap),
-					player.posZ+(right.zCoord*dist)+(look.zCoord*gap), 1);
+					player.posX+(right.x*dist)+(look.x*gap),
+					player.posY+(player.getEyeHeight()-0.1)+(right.y*dist)+(look.y*gap),
+					player.posZ+(right.z*dist)+(look.z*gap), 1);
 			dust.setRBGColorF(0, 0.9725490196078431f-(rand.nextFloat()/5), 0.8235294117647059f-(rand.nextFloat()/5));
-			dust.setMotion(look.xCoord+(rand.nextGaussian()*fuzz), look.yCoord+(rand.nextGaussian()*fuzz), look.zCoord+(rand.nextGaussian()*fuzz));
+			dust.setMotion(look.x+(rand.nextGaussian()*fuzz), look.y+(rand.nextGaussian()*fuzz), look.z+(rand.nextGaussian()*fuzz));
 			Minecraft.getMinecraft().effectRenderer.addEffect(dust);
 		}
 	}
@@ -618,7 +657,7 @@ public class ClientProxy extends Proxy {
 				}
 			}
 			Tessellator tess = Tessellator.getInstance();
-			VertexBuffer vb = tess.getBuffer();
+			BufferBuilder vb = tess.getBuffer();
 			GlStateManager.color(1, 1, 1);
 			GlStateManager.disableDepth();
 			GlStateManager.bindTexture(jpegTexture);
@@ -670,7 +709,7 @@ public class ClientProxy extends Proxy {
 				}
 			};
 			SoundList li = new SoundList(Lists.newArrayList(danslarue), false, null);
-			Method m = ReflectionHelper.findMethod(SoundHandler.class, e.getManager().sndHandler, new String[] {"func_147693_a", "loadSoundResource", "a"}, ResourceLocation.class, SoundList.class);
+			Method m = ReflectionHelper.findMethod(SoundHandler.class, "loadSoundResource", "func_147693_a", ResourceLocation.class, SoundList.class);
 			try {
 				m.invoke(e.getManager().sndHandler, new ResourceLocation("correlated", file), li);
 			} catch (Exception ex) {
@@ -722,7 +761,7 @@ public class ClientProxy extends Proxy {
 			float partialTicks = e.getPartialTicks();
 			
 			float swingProgress = p.getSwingProgress(partialTicks);
-			EnumHand swingingHand = Objects.firstNonNull(p.swingingHand, EnumHand.MAIN_HAND);
+			EnumHand swingingHand = MoreObjects.firstNonNull(p.swingingHand, EnumHand.MAIN_HAND);
 			
 			float interpPitch = p.prevRotationPitch + (p.rotationPitch - p.prevRotationPitch) * partialTicks;
 			float interpYaw = p.prevRotationYaw + (p.rotationYaw - p.prevRotationYaw) * partialTicks;
@@ -831,7 +870,7 @@ public class ClientProxy extends Proxy {
 		float maxU = tas.getMaxU();
 		float maxV = tas.getMaxV();
 		Tessellator tess = Tessellator.getInstance();
-		VertexBuffer vb = tess.getBuffer();
+		BufferBuilder vb = tess.getBuffer();
 		vb.begin(GL11.GL_QUAD_STRIP, DefaultVertexFormats.POSITION_TEX);
 		vb.pos(0, 0, 0).tex(minU, minV).endVertex();
 		vb.pos(1, 0, 0).tex(maxU, minV).endVertex();

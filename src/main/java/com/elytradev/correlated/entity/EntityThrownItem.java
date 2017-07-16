@@ -50,7 +50,7 @@ public class EntityThrownItem extends EntityThrowable {
 		super(worldIn);
 	}
 
-	private static final DataParameter<ItemStack> STACK = EntityDataManager.createKey(EntityThrownItem.class, DataSerializers.OPTIONAL_ITEM_STACK);
+	private static final DataParameter<ItemStack> STACK = EntityDataManager.createKey(EntityThrownItem.class, DataSerializers.ITEM_STACK);
 	private boolean noTeleport = false;
 	
 	@Override
@@ -109,7 +109,7 @@ public class EntityThrownItem extends EntityThrowable {
 								Vec3i radius = new Vec3i(rd, rd, rd);
 								BlockPos pos = result.getBlockPos();
 								if (pos == null) {
-									pos = new BlockPos((int)result.hitVec.xCoord, (int)result.hitVec.yCoord, (int)result.hitVec.zCoord);
+									pos = new BlockPos((int)result.hitVec.x, (int)result.hitVec.y, (int)result.hitVec.z);
 								}
 								for (BlockPos bp : BlockPos.getAllInBoxMutable(pos.subtract(radius), pos.add(radius))) {
 									IBlockState state = world.getBlockState(bp);
@@ -124,7 +124,7 @@ public class EntityThrownItem extends EntityThrowable {
 								int dim = CConfig.limboDimId;
 								if (ForgeHooks.onTravelToDimension(p, dim)) {
 									new DungeonTransitionMessage(GlitchState.CORRUPTING, (float)posX, (float)posY, (float)posZ, Long.toHexString(hashCode)).sendTo(p);
-									WorldServer dest = p.mcServer.worldServerForDimension(dim);
+									WorldServer dest = p.mcServer.getWorld(dim);
 									if (dest.provider instanceof LimboProvider) {
 										((LimboProvider)dest.provider).addEnteringPlayer(player);
 									}
@@ -160,7 +160,7 @@ public class EntityThrownItem extends EntityThrowable {
 					setDead();
 					if (world instanceof WorldServer) {
 						((WorldServer)world).spawnParticle(EnumParticleTypes.ITEM_CRACK,
-								result.hitVec.xCoord, result.hitVec.yCoord, result.hitVec.zCoord, 80,
+								result.hitVec.x, result.hitVec.y, result.hitVec.z, 80,
 								0, 0, 0, 0.15, Item.getIdFromItem(getStack().getItem()), getStack().getMetadata());
 					}
 					return;
@@ -190,7 +190,7 @@ public class EntityThrownItem extends EntityThrowable {
 				}
 			}
 			if (!world.isRemote) {
-				EntityItem item = new EntityItem(world, result.hitVec.xCoord, result.hitVec.yCoord, result.hitVec.zCoord, getStack());
+				EntityItem item = new EntityItem(world, result.hitVec.x, result.hitVec.y, result.hitVec.z, getStack());
 				world.spawnEntity(item);
 			}
 		}

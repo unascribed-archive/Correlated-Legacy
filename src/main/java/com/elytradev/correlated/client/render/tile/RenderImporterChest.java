@@ -13,7 +13,7 @@ public class RenderImporterChest extends TileEntitySpecialRenderer<TileEntityImp
 	private final ModelChest modelChest = new ModelChest();
 
 	@Override
-	public void renderTileEntityAt(TileEntityImporterChest te, double x, double y, double z, float partialTicks, int destroyStage) {
+	public void render(TileEntityImporterChest te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
 		int i = 0;
 
 		if (te.hasWorld()) {
