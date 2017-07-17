@@ -102,9 +102,11 @@ public class ItemMisc extends Item {
 
 	@Override
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> subItems) {
-		for (int i = 0; i < items.length; i++) {
-			if (i == 9) continue;
-			subItems.add(new ItemStack(this, 1, i));
+		if (isInCreativeTab(tab)) {
+			for (int i = 0; i < items.length; i++) {
+				if (i == 9) continue;
+				subItems.add(new ItemStack(this, 1, i));
+			}
 		}
 	}
 
