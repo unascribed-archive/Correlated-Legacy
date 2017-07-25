@@ -94,6 +94,7 @@ public class TileEntityTerminal extends TileEntityEnergyAcceptor implements ITic
 	}
 	
 	@Override
+	@Optional.Method(modid="albedo")
 	public Light provideLight() {
 		float x = (float)getX();
 		float y = (float)getY();
