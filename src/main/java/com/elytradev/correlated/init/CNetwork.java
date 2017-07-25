@@ -20,7 +20,7 @@ import com.elytradev.correlated.network.SetEditorStatusMessage;
 import com.elytradev.correlated.network.DungeonTransitionMessage;
 import com.elytradev.correlated.network.SetSearchQueryClientMessage;
 import com.elytradev.correlated.network.SetSearchQueryServerMessage;
-import com.elytradev.correlated.network.SetSlotSizeMessage;
+import com.elytradev.correlated.network.SetSlotExtendedMessage;
 import com.elytradev.correlated.network.ShowTerminalErrorMessage;
 import com.elytradev.correlated.network.SignalStrengthMessage;
 import com.elytradev.correlated.network.StartWeldthrowingMessage;
@@ -42,7 +42,7 @@ public class CNetwork {
 		
 		CONTEXT.register(SetSearchQueryClientMessage.class);
 		CONTEXT.register(SetSearchQueryServerMessage.class);
-		CONTEXT.register(SetSlotSizeMessage.class);
+		CONTEXT.register(SetSlotExtendedMessage.class);
 		CONTEXT.register(StartWeldthrowingMessage.class);
 		CONTEXT.register(DungeonTransitionMessage.class);
 		CONTEXT.register(EnterDungeonMessage.class);
