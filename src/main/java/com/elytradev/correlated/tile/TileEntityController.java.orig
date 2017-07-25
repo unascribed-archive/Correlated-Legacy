@@ -51,8 +51,12 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.common.Optional;
 
+<<<<<<< HEAD
+public class TileEntityController extends TileEntityAbstractEnergyAcceptor implements ITickable, IDigitalStorage, IWirelessClient {
+=======
 @Optional.Interface(iface="elucent.albedo.lighting.ILightProvider", modid="albedo")
-public class TileEntityController extends TileEntityAbstractEnergyAcceptor implements ITickable, IDigitalStorage, IWirelessClient, ILightProvider {
+public class TileEntityController extends TileEntityEnergyAcceptor implements ITickable, IDigitalStorage, IWirelessClient, ILightProvider {
+>>>>>>> c70b953... Add Albedo integration, update Concrete
 	
 	public boolean error = false;
 	public boolean booting = true;

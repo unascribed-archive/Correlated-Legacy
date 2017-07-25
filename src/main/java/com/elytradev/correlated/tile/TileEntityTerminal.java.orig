@@ -52,8 +52,12 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants.NBT;
 
+<<<<<<< HEAD
+public class TileEntityTerminal extends TileEntityAbstractEnergyAcceptor implements ITickable, IInventory, ITerminal, ISidedInventory, IWirelessClient {
+=======
 @Optional.Interface(iface="elucent.albedo.lighting.ILightProvider", modid="albedo")
-public class TileEntityTerminal extends TileEntityAbstractEnergyAcceptor implements ITickable, IInventory, ITerminal, ISidedInventory, IWirelessClient, ILightProvider {
+public class TileEntityTerminal extends TileEntityEnergyAcceptor implements ITickable, IInventory, ITerminal, ISidedInventory, IWirelessClient, ILightProvider {
+>>>>>>> c70b953... Add Albedo integration, update Concrete
 	private Map<UUID, SimpleUserPreferences> preferences = Maps.newHashMap();
 	private String error;
 	private String apn;

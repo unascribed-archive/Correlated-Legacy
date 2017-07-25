@@ -50,7 +50,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 
 @Mod(modid=Correlated.MODID, name=Correlated.NAME, version=Correlated.VERSION,
-	updateJSON="http://unascribed.com/update-check/correlated.json")
+	updateJSON="http://unascribed.com/update-check/correlated.json", dependencies="after:albedo")
 public class Correlated {
 	public static final String MODID = "correlated";
 	public static final String NAME = "Correlated";

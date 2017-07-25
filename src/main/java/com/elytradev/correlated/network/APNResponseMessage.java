@@ -5,10 +5,10 @@ import com.elytradev.correlated.init.CNetwork;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.elytradev.concrete.Message;
-import com.elytradev.concrete.NetworkContext;
-import com.elytradev.concrete.annotation.field.MarshalledAs;
-import com.elytradev.concrete.annotation.type.ReceivedOn;
+import com.elytradev.concrete.network.Message;
+import com.elytradev.concrete.network.NetworkContext;
+import com.elytradev.concrete.network.annotation.field.MarshalledAs;
+import com.elytradev.concrete.network.annotation.type.ReceivedOn;
 import com.elytradev.correlated.client.gui.GuiSelectAPN;
 import com.google.common.collect.Lists;
 

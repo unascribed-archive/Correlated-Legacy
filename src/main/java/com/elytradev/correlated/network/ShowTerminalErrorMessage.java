@@ -5,9 +5,9 @@ import com.elytradev.correlated.client.gui.shell.GuiTerminalShell;
 import com.elytradev.correlated.client.gui.shell.RSOD;
 import com.elytradev.correlated.tile.TileEntityTerminal;
 
-import com.elytradev.concrete.Message;
-import com.elytradev.concrete.NetworkContext;
-import com.elytradev.concrete.annotation.type.ReceivedOn;
+import com.elytradev.concrete.network.Message;
+import com.elytradev.concrete.network.NetworkContext;
+import com.elytradev.concrete.network.annotation.type.ReceivedOn;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;

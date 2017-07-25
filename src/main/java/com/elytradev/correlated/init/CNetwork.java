@@ -1,6 +1,6 @@
 package com.elytradev.correlated.init;
 
-import com.elytradev.concrete.NetworkContext;
+import com.elytradev.concrete.network.NetworkContext;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.network.APNRequestMessage;
 import com.elytradev.correlated.network.APNResponseMessage;

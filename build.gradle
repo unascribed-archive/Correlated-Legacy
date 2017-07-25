@@ -91,8 +91,14 @@ artifacts {
 dependencies {
 	deploy 'org.apache.maven.wagon:wagon-ssh:2.10'
 	
-	shadow 'com.elytradev:concrete:0.1.0'
-	compile 'com.elytradev:concrete:0.1.0'
+	shadow 'com.elytradev:concrete:0.3.2-SNAPSHOT:common'
+	compile 'com.elytradev:concrete:0.3.2-SNAPSHOT:common'
+	shadow 'com.elytradev:concrete:0.3.2-SNAPSHOT:reflect'
+	compile 'com.elytradev:concrete:0.3.2-SNAPSHOT:reflect'
+	shadow 'com.elytradev:concrete:0.3.2-SNAPSHOT:network'
+	compile 'com.elytradev:concrete:0.3.2-SNAPSHOT:network'
+	
+	compile 'elucent:albedo:2.0-SNAPSHOT'
 	
 	shadow 'com.atlassian.commonmark:commonmark:0.9.0'
 	compile 'com.atlassian.commonmark:commonmark:0.9.0'

@@ -30,6 +30,8 @@ import com.google.common.collect.EnumMultiset;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 
+import elucent.albedo.lighting.ILightProvider;
+import elucent.albedo.lighting.Light;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -79,7 +81,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants.NBT;
 
-public class EntityAutomaton extends EntityCreature implements IEntityOwnable, ITerminal, IDigitalStorage {
+@net.minecraftforge.fml.common.Optional.Interface(iface="elucent.albedo.lighting.ILightProvider", modid="albedo")
+public class EntityAutomaton extends EntityCreature implements IEntityOwnable, ITerminal, IDigitalStorage, ILightProvider {
 	public enum AutomatonStatus {
 		WANDER,
 		ATTACK,
@@ -220,6 +223,18 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 		dataManager.register(MODULE4, ItemStack.EMPTY);
 		dataManager.register(MODULE5, ItemStack.EMPTY);
 		dataManager.register(MODULE6, ItemStack.EMPTY);
+	}
+	
+	@Override
+	public Light provideLight() {
+		if (getHealth() >= 1) {
+			return Light.builder()
+					.pos(this)
+					.color(Correlated.proxy.getColor("other", 64), true)
+					.radius(1f)
+					.build();
+		}
+		return null;
 	}
 	
 	@Override
