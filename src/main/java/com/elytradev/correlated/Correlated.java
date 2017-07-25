@@ -52,7 +52,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry.Type;
 
 @Mod(modid=Correlated.MODID, name=Correlated.NAME, version=Correlated.VERSION,
-	updateJSON="http://unascribed.com/update-check/correlated.json")
+	updateJSON="http://unascribed.com/update-check/correlated.json", dependencies="after:albedo")
 public class Correlated {
 	public static final String MODID = "correlated";
 	public static final String NAME = "Correlated";

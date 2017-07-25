@@ -15,6 +15,7 @@ import java.net.URLDecoder;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -28,8 +29,14 @@ import java.util.jar.JarFile;
 
 import javax.imageio.ImageIO;
 
+import org.apache.logging.log4j.LogManager;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL43;
+import org.lwjgl.opengl.GLContext;
+import org.lwjgl.opengl.KHRDebug;
+import org.lwjgl.opengl.KHRDebugCallback;
+import org.lwjgl.opengl.OpenGLException;
 
 import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.Correlated;
@@ -108,6 +115,7 @@ import net.minecraft.client.resources.IResource;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.EnumParticleTypes;
@@ -178,6 +186,7 @@ public class ClientProxy extends Proxy {
 	
 	public static MusicType enceladusType;
 
+	private boolean checkedDebugSupport = false;
 	
 	@SuppressWarnings("deprecation")
 	@Override
@@ -209,7 +218,6 @@ public class ClientProxy extends Proxy {
 					int[] rgb = new int[img.getWidth()*img.getHeight()];
 					img.getRGB(0, 0, img.getWidth(), img.getHeight(), rgb, 0, img.getWidth());
 					colors.put(s, rgb);
-					CLog.info("Successfully loaded {} colors", s);
 				} catch (IOException e) {
 					CLog.info("Error while loading {} colors", s);
 				}
@@ -838,6 +846,95 @@ public class ClientProxy extends Proxy {
 		vb.pos(0, 1, 0).tex(minU, maxV).endVertex();
 		vb.pos(1, 1, 0).tex(maxU, maxV).endVertex();
 		tess.draw();
+	}
+	
+	@SubscribeEvent
+	public void onRenderTickForDebugOutput(RenderTickEvent e) {
+		if (e.phase == Phase.START && (Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment")) {
+			if (!checkedDebugSupport) {
+				if (!GLContext.getCapabilities().GL_KHR_debug) {
+					CLog.info("Your driver doesn't support KHR_debug_output...");
+					return;
+				} else {
+					CLog.info("KHR_debug_output is supported. Enabling OpenGL debug output!");
+				}
+				GL11.glEnable(KHRDebug.GL_DEBUG_OUTPUT);
+				GL11.glEnable(KHRDebug.GL_DEBUG_OUTPUT_SYNCHRONOUS);
+				KHRDebug.glDebugMessageCallback(new KHRDebugCallback(new KHRDebugCallback.Handler() {
+					
+					@Override
+					public void handleMessage(int source, int type, int id, int severity, String message) {
+						String identityStr;
+						switch (type) {
+							case GL43.GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+								identityStr = "Deprecated Behavior";
+								break;
+							case GL43.GL_DEBUG_TYPE_ERROR:
+								identityStr = "Error";
+								break;
+							case GL43.GL_DEBUG_TYPE_MARKER:
+								identityStr = "Marker";
+								break;
+							case GL43.GL_DEBUG_TYPE_OTHER:
+								identityStr = "Other";
+								break;
+							case GL43.GL_DEBUG_TYPE_PERFORMANCE:
+								identityStr = "Performance";
+								break;
+							case GL43.GL_DEBUG_TYPE_POP_GROUP:
+								identityStr = "Pop Group";
+								break;
+							case GL43.GL_DEBUG_TYPE_PORTABILITY:
+								identityStr = "Portability";
+								break;
+							case GL43.GL_DEBUG_TYPE_PUSH_GROUP:
+								identityStr = "Push Group";
+								break;
+							case GL43.GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+								identityStr = "Undefined Behavior";
+								break;
+							default:
+								identityStr = "Unknown";
+								break;
+						}
+						switch (source) {
+							case GL43.GL_DEBUG_SOURCE_API:
+								identityStr += " | API";
+								break;
+							case GL43.GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+								identityStr += " | Window System";
+								break;
+							case GL43.GL_DEBUG_SOURCE_SHADER_COMPILER:
+								identityStr += " | Shader Compiler";
+								break;
+							case GL43.GL_DEBUG_SOURCE_THIRD_PARTY:
+								identityStr += " | Third Party";
+								break;
+							case GL43.GL_DEBUG_SOURCE_APPLICATION:
+								identityStr += " | Application";
+								break;
+							case GL43.GL_DEBUG_SOURCE_OTHER:
+								identityStr += " | Other";
+								break;
+							default:
+								identityStr += " | Unknown";
+								break;
+						}
+						String idHex = "0x"+Integer.toHexString(id).toUpperCase(Locale.ROOT);
+						if (severity == GL43.GL_DEBUG_SEVERITY_NOTIFICATION) {
+							LogManager.getLogger("OpenGL").info("["+identityStr+"] "+idHex+" Notification: "+message);
+						} else if (severity == GL43.GL_DEBUG_SEVERITY_LOW) {
+							LogManager.getLogger("OpenGL").info("["+identityStr+"] "+idHex+" "+message);
+						} else if (severity == GL43.GL_DEBUG_SEVERITY_MEDIUM) {
+							LogManager.getLogger("OpenGL").warn("["+identityStr+"] "+idHex+" "+message);
+						} else if (severity == GL43.GL_DEBUG_SEVERITY_HIGH) {
+							LogManager.getLogger("OpenGL").error("["+identityStr+"] "+idHex+" "+message, new OpenGLException().fillInStackTrace());
+						}
+					}
+				}));
+				checkedDebugSupport = true;
+			}
+		}
 	}
 }
 

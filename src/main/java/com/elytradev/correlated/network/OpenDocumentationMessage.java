@@ -1,9 +1,9 @@
 package com.elytradev.correlated.network;
 
-import com.elytradev.concrete.Message;
+import com.elytradev.concrete.network.Message;
 import com.elytradev.correlated.init.CNetwork;
-import com.elytradev.concrete.NetworkContext;
-import com.elytradev.concrete.annotation.type.ReceivedOn;
+import com.elytradev.concrete.network.NetworkContext;
+import com.elytradev.concrete.network.annotation.type.ReceivedOn;
 import com.elytradev.correlated.client.gui.GuiDocumentation;
 
 import net.minecraft.client.Minecraft;

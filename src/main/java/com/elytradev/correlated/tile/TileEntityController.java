@@ -11,6 +11,7 @@ import com.elytradev.correlated.block.BlockController;
 import com.elytradev.correlated.block.BlockController.State;
 import com.elytradev.correlated.compat.probe.UnitPotential;
 import com.elytradev.correlated.helper.DriveComparator;
+import com.elytradev.correlated.init.CBlocks;
 import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.init.CNetwork;
 import com.elytradev.correlated.item.ItemDrive;
@@ -31,8 +32,12 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
+
+import elucent.albedo.lighting.ILightProvider;
+import elucent.albedo.lighting.Light;
 import gnu.trove.set.hash.TCustomHashSet;
 import gnu.trove.strategy.HashingStrategy;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -44,8 +49,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants.NBT;
+import net.minecraftforge.fml.common.Optional;
 
-public class TileEntityController extends TileEntityEnergyAcceptor implements ITickable, IDigitalStorage, IWirelessClient {
+@Optional.Interface(iface="elucent.albedo.lighting.ILightProvider", modid="albedo")
+public class TileEntityController extends TileEntityEnergyAcceptor implements ITickable, IDigitalStorage, IWirelessClient, ILightProvider {
 	
 	public boolean error = false;
 	public boolean booting = true;
@@ -183,6 +190,36 @@ public class TileEntityController extends TileEntityEnergyAcceptor implements IT
 			CNetwork.sendUpdatePacket(this);
 		}
 		updateState();
+	}
+	
+	@Override
+	public Light provideLight() {
+		float x = (float)getX();
+		float y = (float)getY();
+		float z = (float)getZ();
+		
+		int color = 0;
+		
+		IBlockState state = getWorld().getBlockState(getPos());
+		if (state.getBlock() == CBlocks.CONTROLLER) {
+			switch (state.getValue(BlockController.STATE)) {
+				case OFF:
+				case BOOTING:
+					return null;
+				case ERROR:
+					color = Correlated.proxy.getColor("other", 65);
+					break;
+				case POWERED:
+					color = Correlated.proxy.getColor("other", 64);
+					break;
+			}
+		}
+		
+		return Light.builder()
+				.pos(x, y, z)
+				.color(color, true)
+				.radius(1.5f)
+				.build();
 	}
 
 	@Override
@@ -770,6 +807,11 @@ public class TileEntityController extends TileEntityEnergyAcceptor implements IT
 			}
 			data.add(new ProbeData(new TextComponentTranslation("tooltip.correlated.storage"))
 					.withBar(0, storage, maxStorage, UnitDictionary.BYTES));
+			if (booting) {
+				int timeLeft = 100-bootTicks;
+				data.add(new ProbeData(new TextComponentTranslation("tooltip.correlated.boot_time"))
+						.withBar(0, timeLeft, 300, UnitDictionary.TICKS));
+			}
 		}
 	}
 

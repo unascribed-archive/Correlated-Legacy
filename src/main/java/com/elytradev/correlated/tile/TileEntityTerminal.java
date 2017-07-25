@@ -24,6 +24,10 @@ import com.elytradev.correlated.wifi.Station;
 import com.elytradev.correlated.wifi.WirelessManager;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
+import net.minecraftforge.fml.common.Optional;
+
+import elucent.albedo.lighting.ILightProvider;
+import elucent.albedo.lighting.Light;
 
 import com.elytradev.probe.api.IProbeData;
 import com.elytradev.probe.api.IProbeDataProvider;
@@ -48,7 +52,8 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants.NBT;
 
-public class TileEntityTerminal extends TileEntityEnergyAcceptor implements ITickable, IInventory, ITerminal, ISidedInventory, IWirelessClient {
+@Optional.Interface(iface="elucent.albedo.lighting.ILightProvider", modid="albedo")
+public class TileEntityTerminal extends TileEntityEnergyAcceptor implements ITickable, IInventory, ITerminal, ISidedInventory, IWirelessClient, ILightProvider {
 	private Map<UUID, SimpleUserPreferences> preferences = Maps.newHashMap();
 	private String error;
 	private String apn;
@@ -86,6 +91,30 @@ public class TileEntityTerminal extends TileEntityEnergyAcceptor implements ITic
 				modifyEnergyStored(-getPotentialConsumedPerTick());
 			}
 		}
+	}
+	
+	@Override
+	public Light provideLight() {
+		float x = (float)getX();
+		float y = (float)getY();
+		float z = (float)getZ();
+		
+		IBlockState state = getWorld().getBlockState(getPos());
+		if (state.getBlock() == CBlocks.TERMINAL) {
+			if (!state.getValue(BlockTerminal.LIT)) return null;
+			EnumFacing facing = state.getValue(BlockTerminal.FACING);
+			x += facing.getFrontOffsetX()/2f;
+			y += facing.getFrontOffsetY()/2f;
+			z += facing.getFrontOffsetZ()/2f;
+		}
+		
+		int color = Correlated.proxy.getColor("other", isErroring() ? 65 : 64);
+		
+		return Light.builder()
+				.pos(x, y, z)
+				.color(color, true)
+				.radius(2f)
+				.build();
 	}
 	
 	public boolean isErroring() {

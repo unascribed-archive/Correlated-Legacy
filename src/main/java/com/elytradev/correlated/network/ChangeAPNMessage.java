@@ -3,16 +3,16 @@ package com.elytradev.correlated.network;
 import java.util.List;
 import com.elytradev.correlated.init.CNetwork;
 
-import com.elytradev.concrete.Message;
-import com.elytradev.concrete.NetworkContext;
+import com.elytradev.concrete.network.Message;
+import com.elytradev.concrete.network.NetworkContext;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 
-import com.elytradev.concrete.annotation.field.MarshalledAs;
-import com.elytradev.concrete.annotation.type.ReceivedOn;
+import com.elytradev.concrete.network.annotation.field.MarshalledAs;
+import com.elytradev.concrete.network.annotation.type.ReceivedOn;
 import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.wifi.IWirelessClient;
 import com.google.common.collect.Lists;

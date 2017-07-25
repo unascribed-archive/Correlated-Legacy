@@ -96,10 +96,16 @@ artifacts {
 }
 
 dependencies {
+	compile project(':Albedo')
+
 	deploy 'org.apache.maven.wagon:wagon-ssh:2.10'
 	
-	shadow 'com.elytradev:concrete:0.1.0'
-	compile 'com.elytradev:concrete:0.1.0'
+	shadow 'com.elytradev:concrete:0.2.3:common'
+	compile 'com.elytradev:concrete:0.2.3:common'
+	shadow 'com.elytradev:concrete:0.2.3:reflect'
+	compile 'com.elytradev:concrete:0.2.3:reflect'
+	shadow 'com.elytradev:concrete:0.2.3:network'
+	compile 'com.elytradev:concrete:0.2.3:network'
 	
 	shadow 'com.atlassian.commonmark:commonmark:0.9.0'
 	compile 'com.atlassian.commonmark:commonmark:0.9.0'
