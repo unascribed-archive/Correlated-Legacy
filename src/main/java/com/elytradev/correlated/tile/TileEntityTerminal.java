@@ -94,6 +94,7 @@ public class TileEntityTerminal extends TileEntityAbstractEnergyAcceptor impleme
 	}
 	
 	@Override
+	@Optional.Method(modid="albedo")
 	public Light provideLight() {
 		float x = (float)getX();
 		float y = (float)getY();

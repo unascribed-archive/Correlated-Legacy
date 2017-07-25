@@ -226,6 +226,7 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	}
 	
 	@Override
+	@net.minecraftforge.fml.common.Optional.Method(modid="albedo")
 	public Light provideLight() {
 		if (getHealth() >= 1) {
 			return Light.builder()
