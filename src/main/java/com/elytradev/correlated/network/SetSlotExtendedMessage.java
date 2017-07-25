@@ -15,21 +15,23 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @ReceivedOn(Side.CLIENT)
-public class SetSlotSizeMessage extends Message {
+public class SetSlotExtendedMessage extends Message {
 	@MarshalledAs("i32")
 	public int windowId;
 	@MarshalledAs("i32")
 	public int slot;
+	public ItemStack template;
 	@MarshalledAs("i32")
 	public int slotSize;
 
-	public SetSlotSizeMessage(NetworkContext ctx) {
+	public SetSlotExtendedMessage(NetworkContext ctx) {
 		super(ctx);
 	}
-	public SetSlotSizeMessage(int windowId, int slot, int slotSize) {
+	public SetSlotExtendedMessage(int windowId, int slot, ItemStack template, int slotSize) {
 		super(CNetwork.CONTEXT);
 		this.windowId = windowId;
 		this.slot = slot;
+		this.template = template;
 		this.slotSize = slotSize;
 	}
 
@@ -39,7 +41,7 @@ public class SetSlotSizeMessage extends Message {
 		Container c = Minecraft.getMinecraft().player.openContainer;
 		if (c.windowId == windowId) {
 			Slot s = c.getSlot(slot);
-			ItemStack stack = s.getStack();
+			ItemStack stack = template;
 			stack.setCount(slotSize);
 			s.putStack(stack);
 		}

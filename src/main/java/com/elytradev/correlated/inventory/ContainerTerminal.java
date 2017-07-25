@@ -16,7 +16,7 @@ import com.elytradev.correlated.helper.Numbers;
 import com.elytradev.correlated.item.ItemDrive;
 import com.elytradev.correlated.network.AddStatusLineMessage;
 import com.elytradev.correlated.network.SetSearchQueryClientMessage;
-import com.elytradev.correlated.network.SetSlotSizeMessage;
+import com.elytradev.correlated.network.SetSlotExtendedMessage;
 import com.elytradev.correlated.network.SignalStrengthMessage;
 import com.elytradev.correlated.storage.ITerminal;
 import com.elytradev.correlated.storage.InsertResult;
@@ -596,15 +596,15 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 
 			if (cur != old) {
 				oldStackSizes.set(i, cur);
-
+				
 				// if it's out of range for the vanilla packet, we need to send our own
 				if (cur > 127 || cur < -128) {
+					ItemStack copy = stack.copy();
+					copy.setCount(1);
 					for (IContainerListener ic : listeners) {
 						if (ic instanceof EntityPlayerMP) {
 							EntityPlayerMP p = (EntityPlayerMP)ic;
-							if (cur > 127) {
-								new SetSlotSizeMessage(windowId, i, cur).sendTo(p);
-							}
+							new SetSlotExtendedMessage(windowId, i, copy, cur).sendTo(p);
 						}
 					}
 				}
