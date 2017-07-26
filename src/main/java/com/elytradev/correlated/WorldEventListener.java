@@ -1,8 +1,11 @@
 package com.elytradev.correlated;
 
+import com.elytradev.correlated.tile.TileEntityNetworkMember;
 import com.elytradev.correlated.wifi.Beam;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -18,6 +21,13 @@ public class WorldEventListener extends WorldEventListenerAdapter {
 				} else {
 					b.addObstruction(pos);
 				}
+			}
+		}
+		
+		for (EnumFacing ef : EnumFacing.VALUES) {
+			TileEntity te = world.getTileEntity(pos.add(ef.getDirectionVec()));
+			if (te != null && te instanceof TileEntityNetworkMember) {
+				((TileEntityNetworkMember)te).handleNeighborChange(world, te.getPos(), pos);
 			}
 		}
 	}

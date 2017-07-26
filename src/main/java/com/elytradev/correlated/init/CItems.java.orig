@@ -36,7 +36,9 @@ public class CItems {
 	public static ItemWeldthrower WELDTHROWER;
 	public static ItemKeycard KEYCARD;
 	public static ItemDocTablet DOC_TABLET;
+	public static ItemDebugginator DEBUGGINATOR;
 	
+<<<<<<< HEAD
 	@SubscribeEvent
 	public static void register(RegistryEvent.Register<Item> e) {
 		register(e.getRegistry(), new ItemMisc(), "misc");
@@ -48,7 +50,6 @@ public class CItems {
 		register(e.getRegistry(), new ItemWeldthrower(), "weldthrower");
 		register(e.getRegistry(), new ItemKeycard(), "keycard");
 		register(e.getRegistry(), new ItemDocTablet(), "doc_tablet");
-		register(e.getRegistry(), new ItemDebugginator(), "debugginator");
 		
 		for (Item i : itemBlocks) {
 			e.getRegistry().register(i);
@@ -58,6 +59,20 @@ public class CItems {
 		}
 		
 		COres.register();
+=======
+	
+	public static void register() {
+		register(new ItemMisc(), "misc", -2);
+		register(new ItemDrive(), "drive", -1);
+		register(new ItemMemory(), "memory", -1);
+		register(new ItemModule(), "module", ItemModule.types.length);
+		register(new ItemFloppy(), "floppy", -2);
+		register(new ItemHandheldTerminal(), "handheld_terminal", 0);
+		register(new ItemWeldthrower(), "weldthrower", 0);
+		register(new ItemKeycard(), "keycard", -2);
+		register(new ItemDocTablet(), "doc_tablet", 0);
+		register(new ItemDebugginator(), "debugginator", -2);
+>>>>>>> 2cb45ae... Fix #72 #71 #69 #67 #65 #64 and #62
 	}
 	
 	private static void register(IForgeRegistry<Item> registry, Item item, String name) {

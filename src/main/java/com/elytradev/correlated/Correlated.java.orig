@@ -36,8 +36,12 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.LootTableLoadEvent;
+<<<<<<< HEAD
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.RegistryEvent.MissingMappings.Mapping;
+=======
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
+>>>>>>> 2cb45ae... Fix #72 #71 #69 #67 #65 #64 and #62
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
@@ -177,7 +181,7 @@ public class Correlated {
 			}
 		}
 	}
-
+	
 	@SubscribeEvent
 	public void onBlockRightClick(RightClickBlock e) {
 		if (e.getItemStack().getItem() == CItems.DEBUGGINATOR) {

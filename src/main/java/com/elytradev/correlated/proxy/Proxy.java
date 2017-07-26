@@ -33,4 +33,8 @@ public class Proxy {
 	public void showAPNChangeMenu(BlockPos pos, boolean multiple, boolean client) {
 		
 	}
+
+	public void clearShapes() {
+		
+	}
 }

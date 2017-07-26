@@ -18,7 +18,7 @@ import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraftforge.common.util.INBTSerializable;
 
 /**
- * A short-range transmitter and provides coverage for one APN within its range,
+ * A short-range transmitter that provides coverage for one APN within its range,
  * if there is line-of-sight.
  */
 public class Optical extends RadiusBased implements INBTSerializable<NBTTagCompound>, Station {

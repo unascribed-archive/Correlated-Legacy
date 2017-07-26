@@ -52,18 +52,12 @@ public abstract class RadiusBased {
 			int chunkRadius = (int)Math.ceil(getRadius()/16d);
 			int chunkOriginX = position.getX()/16;
 			int chunkOriginZ = position.getZ()/16;
-			int radiusSq = chunkRadius*chunkRadius;
 			for (int x = 0; x < chunkRadius*2; x++) {
 				for (int z = 0; z < chunkRadius*2; z++) {
 					int chunkX = chunkOriginX+(x-chunkRadius);
 					int chunkZ = chunkOriginZ+(z-chunkRadius);
 					
-					int xDist = chunkX-chunkOriginX;
-					int zDist = chunkZ-chunkOriginZ;
-					
-					if ((xDist*xDist)+(zDist*zDist) <= radiusSq) {
-						chunks.add(new Vec2i(chunkX, chunkZ));
-					}
+					chunks.add(new Vec2i(chunkX, chunkZ));
 				}
 			}
 		}

@@ -4,6 +4,9 @@ import com.elytradev.concrete.network.NetworkContext;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.network.APNRequestMessage;
 import com.elytradev.correlated.network.APNResponseMessage;
+import com.elytradev.correlated.network.AddCaltropMessage;
+import com.elytradev.correlated.network.AddGlobeMessage;
+import com.elytradev.correlated.network.AddLineMessage;
 import com.elytradev.correlated.network.AddStatusLineMessage;
 import com.elytradev.correlated.network.AnimationSeenMessage;
 import com.elytradev.correlated.network.AutomatonSpeakMessage;
@@ -61,6 +64,10 @@ public class CNetwork {
 		CONTEXT.register(APNResponseMessage.class);
 		CONTEXT.register(OpenDocumentationMessage.class);
 		CONTEXT.register(AnimationSeenMessage.class);
+		
+		CONTEXT.register(AddCaltropMessage.class);
+		CONTEXT.register(AddGlobeMessage.class);
+		CONTEXT.register(AddLineMessage.class);
 		
 		NetworkRegistry.INSTANCE.registerGuiHandler(Correlated.inst, new CorrelatedGuiHandler());
 	}

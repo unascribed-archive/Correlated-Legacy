@@ -178,7 +178,7 @@ public class Beam implements INBTSerializable<NBTTagCompound> {
 	}
 	
 	private void cast(double dist, double xOfs, double yOfs, double zOfs, double planck) {
-		Vec3d dir = new Vec3d(end.getX()-start.getX(), end.getY()-start.getY(), end.getZ()-start.getZ()).normalize().scale(planck);
+		Vec3d dir = new Vec3d(end.getX()-start.getX(), end.getY()-start.getY(), end.getZ()-start.getZ()).normalize();
 		Vec3d step = dir.scale(planck);
 		double posX = start.getX()+0.5+xOfs;
 		double posY = start.getY()+0.5+yOfs;
@@ -195,9 +195,15 @@ public class Beam implements INBTSerializable<NBTTagCompound> {
 			short s = toShort(x, y, z);
 			TShortSet set = getSetForBlock(x, z);
 			set.add(s);
-			posX += step.x;
-			posY += step.y;
-			posZ += step.z;
+<<<<<<< HEAD
+			posX += dir.x;
+			posY += dir.y;
+			posZ += dir.z;
+=======
+			posX += step.xCoord;
+			posY += step.yCoord;
+			posZ += step.zCoord;
+>>>>>>> 2cb45ae... Fix #72 #71 #69 #67 #65 #64 and #62
 		}
 	}
 
@@ -205,7 +211,7 @@ public class Beam implements INBTSerializable<NBTTagCompound> {
 		int x = (s & 0xFFFF) >> X_SHIFT & X_MASK;
 		int y = (s & 0xFFFF) >> Y_SHIFT & Y_MASK;
 		int z = (s & 0xFFFF) & Z_MASK;
-        return in.setPos(x+(chunkX<<4), y, z+(chunkZ<<4));
+		return in.setPos(x+(chunkX<<4), y, z+(chunkZ<<4));
 	}
 	
 	private short toShort(BlockPos bp) {

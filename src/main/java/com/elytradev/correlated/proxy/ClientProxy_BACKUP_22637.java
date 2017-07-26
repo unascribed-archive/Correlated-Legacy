@@ -72,7 +72,7 @@ import com.elytradev.correlated.item.ItemKeycard;
 import com.elytradev.correlated.item.ItemMemory;
 import com.elytradev.correlated.item.ItemMisc;
 import com.elytradev.correlated.item.ItemModule;
-import com.elytradev.correlated.network.ChangeAPNMessage;
+import com.elytradev.correlated.network.wireless.ChangeAPNMessage;
 import com.elytradev.correlated.tile.TileEntityBeaconLens;
 import com.elytradev.correlated.tile.TileEntityController;
 import com.elytradev.correlated.tile.TileEntityDriveBay;
@@ -123,7 +123,6 @@ import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ScreenShotHelper;
 import net.minecraft.util.SoundEvent;
@@ -135,7 +134,11 @@ import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.IRenderHandler;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
+<<<<<<< HEAD
 import net.minecraftforge.client.event.ModelRegistryEvent;
+=======
+import net.minecraftforge.client.event.RenderLivingEvent;
+>>>>>>> origin/1.11.2
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -234,6 +237,29 @@ public class ClientProxy extends Proxy {
 			}
 		});
 		
+<<<<<<< HEAD
+=======
+		ModelLoader.setCustomModelResourceLocation(CItems.FLOPPY, 0, new ModelResourceLocation(new ResourceLocation("correlated", "floppy_write_enabled"), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CItems.FLOPPY, 1, new ModelResourceLocation(new ResourceLocation("correlated", "floppy_write_disabled"), "inventory"));
+		
+		ModelLoader.setCustomModelResourceLocation(CItems.HANDHELD_TERMINAL, 1, new ModelResourceLocation(new ResourceLocation("correlated", "handheld_terminal"), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CItems.HANDHELD_TERMINAL, 2, new ModelResourceLocation(new ResourceLocation("correlated", "handheld_terminal"), "inventory"));
+		
+		ModelLoader.setCustomModelResourceLocation(CItems.HANDHELD_TERMINAL, 4, new ModelResourceLocation(new ResourceLocation("correlated", "handheld_terminal_hand"), "inventory"));
+		
+		ModelLoader.setCustomModelResourceLocation(CItems.DEBUGGINATOR, 0, new ModelResourceLocation(new ResourceLocation("correlated", "debugginator"), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CItems.DEBUGGINATOR, 1, new ModelResourceLocation(new ResourceLocation("correlated", "debugginator_closed"), "inventory"));
+		
+		int idx = 0;
+		for (String s : ItemMisc.items) {
+			ModelLoader.setCustomModelResourceLocation(CItems.MISC, idx++, new ModelResourceLocation(new ResourceLocation("correlated", s), "inventory"));
+		}
+		idx = 0;
+		for (String s : ItemKeycard.colors) {
+			ModelLoader.setCustomModelResourceLocation(CItems.KEYCARD, idx++, new ModelResourceLocation(new ResourceLocation("correlated", "keycard_"+s), "inventory"));
+		}
+		
+>>>>>>> origin/1.11.2
 		enceladusType = EnumHelper.addEnum(MusicType.class, "CORRELATED_ENCELADUS", new Class<?>[] {SoundEvent.class, int.class, int.class}, CSoundEvents.ENCELADUS, 24000, 48000);
 		
 		List<String> pages = Lists.newArrayList();
@@ -280,6 +306,7 @@ public class ClientProxy extends Proxy {
 		
 		documentationManager = new DocumentationManager(pages);
 	}
+<<<<<<< HEAD
 	
 	@SubscribeEvent
 	public void onModelRegister(ModelRegistryEvent e) {
@@ -313,9 +340,6 @@ public class ClientProxy extends Proxy {
 		for (int i = 0; i < ItemModule.types.length; i++) {
 			ModelLoader.setCustomModelResourceLocation(CItems.MODULE, i, new ModelResourceLocation("correlated:module", "inventory"));
 		}
-
-		ModelLoader.setCustomModelResourceLocation(CItems.DEBUGGINATOR, 0, new ModelResourceLocation(new ResourceLocation("correlated", "debugginator"), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CItems.DEBUGGINATOR, 1, new ModelResourceLocation(new ResourceLocation("correlated", "debugginator_closed"), "inventory"));
 		
 		for (int i = 0; i < 16; i++) {
 			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.CONTROLLER), i, new ModelResourceLocation("correlated:controller", "inventory"+i));
@@ -357,11 +381,13 @@ public class ClientProxy extends Proxy {
 			ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
 		}
 	}
+	
+=======
 	@Override
 	public void clearShapes() {
 		shapes.clear();
 	}
-
+>>>>>>> origin/1.11.2
 	private void search(File root, File f, List<String> pages) {
 		String prefix = root.getAbsolutePath()+"/";
 		for (File child : f.listFiles()) {

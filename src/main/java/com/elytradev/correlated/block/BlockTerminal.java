@@ -4,7 +4,6 @@ import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.helper.Blocks;
 import com.elytradev.correlated.item.ItemFloppy;
 import com.elytradev.correlated.network.ShowTerminalErrorMessage;
-import com.elytradev.correlated.tile.TileEntityNetworkMember;
 import com.elytradev.correlated.tile.TileEntityTerminal;
 
 import net.minecraft.block.Block;
@@ -25,7 +24,6 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class BlockTerminal extends Block {
@@ -70,14 +68,6 @@ public class BlockTerminal extends Block {
 	@Override
 	public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
 		worldIn.setBlockState(pos, state.withProperty(FACING, placer.getHorizontalFacing().getOpposite()));
-	}
-
-	@Override
-	public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
-		TileEntity te = world.getTileEntity(pos);
-		if (te instanceof TileEntityNetworkMember) {
-			((TileEntityNetworkMember)te).handleNeighborChange(world, pos, neighbor);
-		}
 	}
 
 	@Override

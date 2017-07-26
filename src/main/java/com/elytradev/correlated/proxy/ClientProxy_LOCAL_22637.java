@@ -114,30 +114,24 @@ import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResource;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ScreenShotHelper;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.IRenderHandler;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.event.sound.PlaySoundEvent;
 import net.minecraftforge.client.event.sound.SoundLoadEvent;
@@ -158,8 +152,6 @@ import paulscode.sound.SoundSystemException;
 import paulscode.sound.codecs.CodecIBXM;
 
 public class ClientProxy extends Proxy {
-	public static final List<IRenderHandler> shapes = Lists.newArrayList();
-
 	public static float ticks = 0;
 	
 	public static int glitchTicks = -1;
@@ -313,9 +305,6 @@ public class ClientProxy extends Proxy {
 		for (int i = 0; i < ItemModule.types.length; i++) {
 			ModelLoader.setCustomModelResourceLocation(CItems.MODULE, i, new ModelResourceLocation("correlated:module", "inventory"));
 		}
-
-		ModelLoader.setCustomModelResourceLocation(CItems.DEBUGGINATOR, 0, new ModelResourceLocation(new ResourceLocation("correlated", "debugginator"), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CItems.DEBUGGINATOR, 1, new ModelResourceLocation(new ResourceLocation("correlated", "debugginator_closed"), "inventory"));
 		
 		for (int i = 0; i < 16; i++) {
 			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.CONTROLLER), i, new ModelResourceLocation("correlated:controller", "inventory"+i));
@@ -357,11 +346,7 @@ public class ClientProxy extends Proxy {
 			ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
 		}
 	}
-	@Override
-	public void clearShapes() {
-		shapes.clear();
-	}
-
+	
 	private void search(File root, File f, List<String> pages) {
 		String prefix = root.getAbsolutePath()+"/";
 		for (File child : f.listFiles()) {
@@ -591,29 +576,6 @@ public class ClientProxy extends Proxy {
 			if (Minecraft.getMinecraft().world != null && Minecraft.getMinecraft().world.provider.getDimension() == CConfig.limboDimId) {
 				
 			}
-		}
-	}
-	@SubscribeEvent
-	public void onRenderWorldLast(RenderWorldLastEvent e) {
-		GlStateManager.pushMatrix();
-		EntityPlayer p = Minecraft.getMinecraft().player;
-		double interpX = p.lastTickPosX + ((p.posX - p.lastTickPosX) * e.getPartialTicks());
-		double interpY = p.lastTickPosY + ((p.posY - p.lastTickPosY) * e.getPartialTicks());
-		double interpZ = p.lastTickPosZ + ((p.posZ - p.lastTickPosZ) * e.getPartialTicks());
-		GlStateManager.translate(-interpX, -interpY, -interpZ);
-		for (IRenderHandler irh : shapes) {
-			irh.render(e.getPartialTicks(), Minecraft.getMinecraft().world, Minecraft.getMinecraft());
-		}
-		GlStateManager.popMatrix();
-	}
-	@SubscribeEvent
-	public void onRenderLiving(RenderLivingEvent.Pre<EntityLivingBase> e) {
-		if (TextFormatting.getTextWithoutFormattingCodes(e.getEntity().getName()).equals("unascribed")) {
-			if (e.getEntity() instanceof EntityPlayer) {
-				EntityPlayer ep = (EntityPlayer)e.getEntity();
-				if (!ep.isWearing(EnumPlayerModelParts.CAPE)) return;
-			}
-			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
 		}
 	}
 	@SubscribeEvent(priority=EventPriority.LOWEST)
