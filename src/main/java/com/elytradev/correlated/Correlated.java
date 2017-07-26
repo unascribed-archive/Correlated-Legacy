@@ -37,6 +37,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.LootTableLoadEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
@@ -48,6 +49,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent.MissingMapping;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry.Type;
 
@@ -164,6 +166,14 @@ public class Correlated {
 					mm.remap(Item.REGISTRY.getObject(newloc));
 				}
 			}
+		}
+	}
+	
+	@SubscribeEvent
+	public void onBlockRightClick(RightClickBlock e) {
+		if (e.getItemStack().getItem() == CItems.DEBUGGINATOR) {
+			e.setUseItem(Result.ALLOW);
+			e.setUseBlock(Result.DENY);
 		}
 	}
 	

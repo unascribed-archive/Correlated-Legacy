@@ -3,8 +3,6 @@ package com.elytradev.correlated.block;
 import com.elytradev.correlated.helper.Blocks;
 import com.elytradev.correlated.item.ItemDrive;
 import com.elytradev.correlated.tile.TileEntityDriveBay;
-import com.elytradev.correlated.tile.TileEntityNetworkMember;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.material.Material;
@@ -22,7 +20,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class BlockDriveBay extends Block {
@@ -64,14 +61,6 @@ public class BlockDriveBay extends Block {
 	@Override
 	public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
 		worldIn.setBlockState(pos, state.withProperty(FACING, placer.getHorizontalFacing().getOpposite()));
-	}
-
-	@Override
-	public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
-		TileEntity te = world.getTileEntity(pos);
-		if (te instanceof TileEntityNetworkMember) {
-			((TileEntityNetworkMember)te).handleNeighborChange(world, pos, neighbor);
-		}
 	}
 
 	@Override

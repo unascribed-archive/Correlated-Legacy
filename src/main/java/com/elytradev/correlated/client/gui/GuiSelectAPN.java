@@ -62,7 +62,7 @@ public class GuiSelectAPN extends GuiScreen {
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		if (!hasRequestedAPNs) {
 			hasRequestedAPNs = true;
-			new APNRequestMessage(iwc.getX(), iwc.getY(), iwc.getZ()).sendToServer();
+			new APNRequestMessage(iwc.getX(), iwc.getY(), iwc.getZ(), iwc.getPosition()).sendToServer();
 		}
 		drawDefaultBackground();
 		GlStateManager.pushMatrix();

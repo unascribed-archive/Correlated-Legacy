@@ -5,8 +5,6 @@ import java.util.Locale;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.helper.Blocks;
 import com.elytradev.correlated.tile.TileEntityController;
-import com.elytradev.correlated.tile.TileEntityNetworkMember;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
@@ -25,7 +23,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class BlockController extends Block {
@@ -106,11 +103,4 @@ public class BlockController extends Block {
 		return true;
 	}
 
-	@Override
-	public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
-		TileEntity te = world.getTileEntity(pos);
-		if (te instanceof TileEntityNetworkMember) {
-			((TileEntityNetworkMember)te).handleNeighborChange(world, pos, neighbor);
-		}
-	}
 }

@@ -550,6 +550,7 @@ public class TileEntityController extends TileEntityEnergyAcceptor implements IT
 		for (TileEntityMicrowaveBeam beam : beams) {
 			TileEntityController other = beam.getOtherSide();
 			if (alreadyChecked.contains(other)) continue;
+			alreadyChecked.add(other);
 			if (other != null) {
 				li.add(other);
 				other.getRemotes(alreadyChecked, li);
@@ -561,6 +562,7 @@ public class TileEntityController extends TileEntityEnergyAcceptor implements IT
 				if (s.getAPNs().contains(apn) && s.isInRange(getPos().getX()+0.5, getPos().getY()+0.5, getPos().getZ()+0.5)) {
 					for (IDigitalStorage other : s.getStorages(apn)) {
 						if (alreadyChecked.contains(other)) continue;
+						alreadyChecked.add(other);
 						if (other != null) {
 							li.add(other);
 							if (other instanceof TileEntityController) {

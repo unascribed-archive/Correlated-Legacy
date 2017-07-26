@@ -4,7 +4,6 @@ import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.ITweakable;
 import com.elytradev.correlated.helper.Blocks;
 import com.elytradev.correlated.tile.TileEntityInterface;
-import com.elytradev.correlated.tile.TileEntityNetworkMember;
 import com.elytradev.correlated.tile.TileEntityInterface.FaceMode;
 
 import net.minecraft.block.Block;
@@ -72,14 +71,6 @@ public class BlockInterface extends Block implements ITweakable {
 	@Override
 	public TileEntity createTileEntity(World world, IBlockState state) {
 		return new TileEntityInterface();
-	}
-
-	@Override
-	public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
-		TileEntity te = world.getTileEntity(pos);
-		if (te instanceof TileEntityNetworkMember) {
-			((TileEntityNetworkMember)te).handleNeighborChange(world, pos, neighbor);
-		}
 	}
 
 	@Override

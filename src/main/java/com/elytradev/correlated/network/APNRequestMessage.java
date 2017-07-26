@@ -31,22 +31,25 @@ public class APNRequestMessage extends Message {
 	private double y;
 	@MarshalledAs("f64")
 	private double z;
+	private BlockPos pos;
 	
 	public APNRequestMessage(NetworkContext ctx) {
 		super(ctx);
 	}
 	
-	public APNRequestMessage(double x, double y, double z) {
+	public APNRequestMessage(double x, double y, double z, BlockPos pos) {
 		super(CNetwork.CONTEXT);
 		this.x = x;
 		this.y = y;
-		this.z = z;}
+		this.z = z;
+		this.pos = pos;
+	}
 
 	@Override
 	protected void handle(EntityPlayer sender) {
-		BlockPos pos = new BlockPos((int)x, (int)y, (int)z);
 		WirelessManager wm = CorrelatedWorldData.getFor(sender.world).getWirelessManager();
 		Set<String> selected = Collections.emptySet();
+		System.out.println(pos);
 		Station block = wm.getStation(pos);
 		if (block != null) {
 			selected = block.getAPNs();
@@ -60,6 +63,7 @@ public class APNRequestMessage extends Message {
 				}
 			}
 		}
+		System.out.println(selected);
 		Set<String> apns = Sets.newHashSet();
 		Set<Pair<String, Number>> pairs = Sets.newHashSet();
 		for (Station s : wm.allStationsInChunk(sender.world.getChunkFromBlockCoords(pos))) {

@@ -4,6 +4,7 @@ import java.util.Locale;
 
 import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.item.ItemDebugginator;
 import com.elytradev.correlated.item.ItemDocTablet;
 import com.elytradev.correlated.item.ItemDrive;
 import com.elytradev.correlated.item.ItemFloppy;
@@ -28,6 +29,7 @@ public class CItems {
 	public static ItemWeldthrower WELDTHROWER;
 	public static ItemKeycard KEYCARD;
 	public static ItemDocTablet DOC_TABLET;
+	public static ItemDebugginator DEBUGGINATOR;
 	
 	
 	public static void register() {
@@ -40,6 +42,7 @@ public class CItems {
 		register(new ItemWeldthrower(), "weldthrower", 0);
 		register(new ItemKeycard(), "keycard", -2);
 		register(new ItemDocTablet(), "doc_tablet", 0);
+		register(new ItemDebugginator(), "debugginator", -2);
 	}
 	
 	private static void register(Item item, String name, int variants) {
