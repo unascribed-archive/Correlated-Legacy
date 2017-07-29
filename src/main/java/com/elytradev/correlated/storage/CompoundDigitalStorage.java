@@ -28,7 +28,7 @@ public class CompoundDigitalStorage implements IDigitalStorage {
 	}
 
 	@Override
-	public void getTypes(Set<IDigitalStorage> alreadyChecked, List<ItemStack> target) {
+	public void getTypes(Set<IDigitalStorage> alreadyChecked, List<NetworkType> target) {
 		for (IDigitalStorage ids : storages) {
 			ids.getTypes(alreadyChecked, target);
 			alreadyChecked.add(ids);

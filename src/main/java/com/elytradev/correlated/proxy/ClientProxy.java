@@ -70,7 +70,7 @@ import com.elytradev.correlated.item.ItemKeycard;
 import com.elytradev.correlated.item.ItemMemory;
 import com.elytradev.correlated.item.ItemMisc;
 import com.elytradev.correlated.item.ItemModule;
-import com.elytradev.correlated.network.ChangeAPNMessage;
+import com.elytradev.correlated.network.wireless.ChangeAPNMessage;
 import com.elytradev.correlated.tile.TileEntityBeaconLens;
 import com.elytradev.correlated.tile.TileEntityController;
 import com.elytradev.correlated.tile.TileEntityDriveBay;

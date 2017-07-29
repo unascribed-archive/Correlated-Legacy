@@ -1,4 +1,4 @@
-package com.elytradev.correlated.network;
+package com.elytradev.correlated.network.wireless;
 
 import com.elytradev.concrete.network.Message;
 import com.elytradev.correlated.init.CNetwork;

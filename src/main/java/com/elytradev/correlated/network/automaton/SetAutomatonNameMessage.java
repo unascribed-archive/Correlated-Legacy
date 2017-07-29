@@ -1,7 +1,7 @@
-package com.elytradev.correlated.network;
+package com.elytradev.correlated.network.automaton;
 
 import com.elytradev.correlated.init.CNetwork;
-import com.elytradev.correlated.inventory.ContainerTerminal;
+import com.elytradev.correlated.inventory.ContainerAutomaton;
 
 import com.elytradev.concrete.network.Message;
 import com.elytradev.concrete.network.NetworkContext;
@@ -13,25 +13,25 @@ import net.minecraft.inventory.Container;
 import net.minecraftforge.fml.relauncher.Side;
 
 @ReceivedOn(Side.SERVER)
-public class SetSearchQueryServerMessage extends Message {
+public class SetAutomatonNameMessage extends Message {
 	@MarshalledAs("i32")
 	public int windowId;
-	public String query;
+	public String name;
 
-	public SetSearchQueryServerMessage(NetworkContext ctx) {
+	public SetAutomatonNameMessage(NetworkContext ctx) {
 		super(ctx);
 	}
-	public SetSearchQueryServerMessage(int windowId, String query) {
+	public SetAutomatonNameMessage(int windowId, String name) {
 		super(CNetwork.CONTEXT);
 		this.windowId = windowId;
-		this.query = query;
+		this.name = name;
 	}
-	
+
 	@Override
 	protected void handle(EntityPlayer sender) {
 		Container c = ((EntityPlayerMP)sender).openContainer;
-		if (c instanceof ContainerTerminal && c.windowId == windowId) {
-			((ContainerTerminal)c).updateSearchQuery(query);
+		if (c instanceof ContainerAutomaton && c.windowId == windowId) {
+			((ContainerAutomaton)c).automaton.setCustomNameTag(name);
 		}
 	}
 

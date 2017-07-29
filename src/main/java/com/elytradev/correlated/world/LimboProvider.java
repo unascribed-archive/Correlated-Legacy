@@ -10,8 +10,8 @@ import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.init.CDimensions;
 import com.elytradev.correlated.math.Vec2i;
-import com.elytradev.correlated.network.DungeonTransitionMessage;
-import com.elytradev.correlated.network.DungeonTransitionMessage.GlitchState;
+import com.elytradev.correlated.network.fx.DungeonTransitionMessage;
+import com.elytradev.correlated.network.fx.DungeonTransitionMessage.GlitchState;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 

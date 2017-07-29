@@ -1,4 +1,4 @@
-package com.elytradev.correlated.network;
+package com.elytradev.correlated.network.wireless;
 
 import java.util.List;
 import com.elytradev.correlated.init.CNetwork;

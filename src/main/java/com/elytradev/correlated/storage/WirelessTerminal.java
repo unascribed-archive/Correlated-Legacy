@@ -6,7 +6,7 @@ import java.util.List;
 import com.elytradev.correlated.CorrelatedWorldData;
 import com.elytradev.correlated.helper.ItemStacks;
 import com.elytradev.correlated.item.ItemHandheldTerminal;
-import com.elytradev.correlated.network.ChangeAPNMessage;
+import com.elytradev.correlated.network.wireless.ChangeAPNMessage;
 import com.elytradev.correlated.wifi.Station;
 import com.elytradev.correlated.wifi.WirelessManager;
 import com.google.common.base.Strings;

@@ -1,8 +1,9 @@
-package com.elytradev.correlated.network;
+package com.elytradev.correlated.network.inventory;
 
 import com.elytradev.correlated.client.gui.GuiTerminal;
 import com.elytradev.correlated.client.gui.shell.GuiTerminalShell;
 import com.elytradev.correlated.init.CNetwork;
+import com.elytradev.correlated.network.TextComponentMarshaller;
 import com.elytradev.concrete.network.Message;
 import com.elytradev.concrete.network.NetworkContext;
 import com.elytradev.concrete.network.annotation.field.MarshalledAs;

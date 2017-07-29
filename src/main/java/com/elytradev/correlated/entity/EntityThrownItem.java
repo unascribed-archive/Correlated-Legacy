@@ -4,10 +4,12 @@ import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.init.CItems;
 import com.elytradev.correlated.init.CSoundEvents;
 import com.elytradev.correlated.init.CStacks;
-import com.elytradev.correlated.network.DungeonTransitionMessage;
-import com.elytradev.correlated.network.DungeonTransitionMessage.GlitchState;
+import com.elytradev.correlated.network.fx.DungeonTransitionMessage;
+import com.elytradev.correlated.network.fx.DungeonTransitionMessage.GlitchState;
+import com.elytradev.correlated.storage.NetworkType;
 import com.elytradev.correlated.world.DungeonPlayer;
 import com.elytradev.correlated.world.LimboProvider;
+import com.google.common.collect.Iterables;
 import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.ListenableFutureTask;
 
@@ -139,7 +141,7 @@ public class EntityThrownItem extends EntityThrowable {
 				} else if (getStack().getMetadata() == 8) {
 					playSound(CSoundEvents.DATA_CORE_SHATTER, 1f, 0.875f+(rand.nextFloat()/4));
 					if (!world.isRemote) {
-						for (ItemStack is : CItems.DRIVE.getTypes(getStack())) {
+						for (ItemStack is : Iterables.transform(CItems.DRIVE.getTypes(getStack()), NetworkType::getStack)) {
 							int amt = is.getCount();
 							while (amt > 0) {
 								ItemStack stack = is.copy();

@@ -9,17 +9,19 @@ import java.util.Locale;
 import java.util.Set;
 
 import com.google.common.primitives.Ints;
+import com.google.common.primitives.Longs;
 import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.client.gui.GuiTerminal;
 import com.elytradev.correlated.helper.Numbers;
 import com.elytradev.correlated.item.ItemDrive;
-import com.elytradev.correlated.network.AddStatusLineMessage;
-import com.elytradev.correlated.network.SetSearchQueryClientMessage;
-import com.elytradev.correlated.network.SetSlotExtendedMessage;
-import com.elytradev.correlated.network.SignalStrengthMessage;
+import com.elytradev.correlated.network.inventory.AddStatusLineMessage;
+import com.elytradev.correlated.network.inventory.SetSearchQueryClientMessage;
+import com.elytradev.correlated.network.inventory.SetSlotExtendedMessage;
+import com.elytradev.correlated.network.wireless.SignalStrengthMessage;
 import com.elytradev.correlated.storage.ITerminal;
 import com.elytradev.correlated.storage.InsertResult;
+import com.elytradev.correlated.storage.NetworkType;
 import com.elytradev.correlated.storage.InsertResult.Result;
 import com.elytradev.correlated.storage.UserPreferences;
 import com.elytradev.correlated.tile.TileEntityController;
@@ -57,29 +59,30 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class ContainerTerminal extends Container implements IWirelessClient {
 	public enum SortMode {
 		QUANTITY((a, b) -> {
-			int quantityComp = Ints.compare(a.getCount(), b.getCount());
+			int quantityComp = Ints.compare(a.getStack().getCount(), b.getStack().getCount());
 			if (quantityComp != 0) return quantityComp;
-			return Collator.getInstance().compare(a.getDisplayName(), b.getDisplayName());
+			return Collator.getInstance().compare(a.getStack().getDisplayName(), b.getStack().getDisplayName());
 		}),
 		MOD_MINECRAFT_FIRST((a, b) -> {
-			String modA = getModId(a);
-			String modB = getModId(b);
+			String modA = getModId(a.getStack());
+			String modB = getModId(b.getStack());
 			boolean aMinecraft = "minecraft".equals(modA);
 			boolean bMinecraft = "minecraft".equals(modB);
 			if (aMinecraft || bMinecraft && aMinecraft != bMinecraft) return Booleans.compare(aMinecraft, bMinecraft);
 			int modComp = Collator.getInstance().compare(modA, modB);
 			if (modComp != 0) return modComp;
-			return Collator.getInstance().compare(a.getDisplayName(), b.getDisplayName());
+			return Collator.getInstance().compare(a.getStack().getDisplayName(), b.getStack().getDisplayName());
 		}),
 		MOD((a, b) -> {
-			int modComp = Collator.getInstance().compare(getModId(a), getModId(b));
+			int modComp = Collator.getInstance().compare(getModId(a.getStack()), getModId(b.getStack()));
 			if (modComp != 0) return modComp;
-			return Collator.getInstance().compare(a.getDisplayName(), b.getDisplayName());
+			return Collator.getInstance().compare(a.getStack().getDisplayName(), b.getStack().getDisplayName());
 		}),
-		NAME((a, b) -> Collator.getInstance().compare(a.getDisplayName(), b.getDisplayName()));
-		public final Comparator<ItemStack> comparator;
+		NAME((a, b) -> Collator.getInstance().compare(a.getStack().getDisplayName(), b.getStack().getDisplayName())),
+		LAST_MODIFIED((a, b) -> Longs.compare(a.getLastModified(), b.getLastModified()));
+		public final Comparator<NetworkType> comparator;
 		public final String lowerName = name().toLowerCase(Locale.ROOT);
-		private SortMode(Comparator<ItemStack> comparator) {
+		private SortMode(Comparator<NetworkType> comparator) {
 			this.comparator = comparator;
 		}
 
@@ -304,27 +307,28 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 	public void updateSlots() {
 		if (world.isRemote) return;
 		lastChangeId = terminal.hasStorage() ? terminal.getStorage().getChangeId() : 0;
-		List<ItemStack> typesAll = terminal.hasStorage() ? terminal.getStorage().getTypes() : Collections.emptyList();
+		List<NetworkType> typesAll = terminal.hasStorage() ? terminal.getStorage().getTypes() : Collections.emptyList();
 		if (!searchQuery.isEmpty()) {
-			Iterator<ItemStack> itr = typesAll.iterator();
+			Iterator<NetworkType> itr = typesAll.iterator();
 			while (itr.hasNext()) {
-				ItemStack is = itr.next();
+				ItemStack is = itr.next().getStack();
 				if (!is.getDisplayName().toLowerCase().contains(searchQuery)) {
 					itr.remove();
 				}
 			}
 		}
-		List<ItemStack> types = Lists.newArrayList();
-		outer: for (ItemStack is : typesAll) {
-			if (is.isEmpty()) continue;
-			for (ItemStack existing : types) {
-				if (ItemStack.areItemsEqual(is, existing) && ItemStack.areItemStackTagsEqual(is, existing)) {
-					existing.setCount(existing.getCount()+is.getCount());
+		List<NetworkType> types = Lists.newArrayList();
+		outer: for (NetworkType type : typesAll) {
+			if (type.getStack().isEmpty()) continue;
+			for (NetworkType existing : types) {
+				if (ItemStack.areItemsEqual(type.getStack(), existing.getStack()) && ItemStack.areItemStackTagsEqual(type.getStack(), existing.getStack())) {
+					existing.getStack().setCount(existing.getStack().getCount()+type.getStack().getCount());
+					existing.setLastModified(Math.max(existing.getLastModified(), type.getLastModified()));
 					continue outer;
 				}
 			}
-			if (!is.isEmpty()) {
-				types.add(is);
+			if (!type.getStack().isEmpty()) {
+				types.add(type);
 			}
 		}
 		if (sortAscending) {
@@ -340,7 +344,7 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 			if (slot instanceof SlotVirtual) {
 				SlotVirtual sv = (SlotVirtual)slot;
 				if (idx < types.size()) {
-					sv.setStack(types.get(idx));
+					sv.setStack(types.get(idx).getStack());
 				} else {
 					sv.setStack(ItemStack.EMPTY);
 				}
@@ -374,6 +378,9 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 				break;
 			case -6:
 				sortMode = SortMode.NAME;
+				break;
+			case -7:
+				sortMode = SortMode.LAST_MODIFIED;
 				break;
 
 			case -10:
@@ -555,10 +562,10 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 		if (terminal.hasMaintenanceSlot() && (isDumping || isFilling)) {
 			if (terminal.getMaintenanceSlotContent().getItem() instanceof ItemDrive) {
 				ItemDrive id = (ItemDrive)terminal.getMaintenanceSlotContent().getItem();
-				List<ItemStack> prototypes = isFilling ? terminal.getStorage().getTypes() : id.getPrototypes(terminal.getMaintenanceSlotContent());
+				List<NetworkType> prototypes = isFilling ? terminal.getStorage().getTypes() : id.getPrototypes(terminal.getMaintenanceSlotContent());
 				for (int i = 0; i < 100; i++) {
 					if (prototypes.isEmpty()) break;
-					ItemStack prototype = prototypes.get(0);
+					ItemStack prototype = prototypes.get(0).getStack();
 					ItemStack split;
 					if (isFilling) {
 						split = removeItemsFromNetworkSilently(prototype, prototype.getMaxStackSize());

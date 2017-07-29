@@ -4,29 +4,39 @@ import java.util.List;
 
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.CorrelatedWorldData;
-import com.elytradev.correlated.network.AddCaltropMessage;
-import com.elytradev.correlated.network.AddGlobeMessage;
-import com.elytradev.correlated.network.AddLineMessage;
+import com.elytradev.correlated.init.CSoundEvents;
+import com.elytradev.correlated.network.fx.AddCaltropMessage;
+import com.elytradev.correlated.network.fx.AddGlobeMessage;
+import com.elytradev.correlated.network.fx.AddLineMessage;
 import com.elytradev.correlated.tile.TileEntityController;
 import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
 import com.elytradev.correlated.tile.TileEntityOpticalReceiver;
 import com.elytradev.correlated.wifi.Beam;
 import com.elytradev.correlated.wifi.Optical;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multimap;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Enchantments;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagDouble;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -39,6 +49,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.util.Constants.NBT;
 
 public class ItemDebugginator extends Item {
 
@@ -63,14 +74,9 @@ public class ItemDebugginator extends Item {
 	}
 	
 	@Override
-	public FontRenderer getFontRenderer(ItemStack stack) {
-		return Minecraft.getMinecraft().standardGalacticFontRenderer;
-	}
-	
-	@Override
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
 		super.addInformation(stack, playerIn, tooltip, advanced);
-		tooltip.add(I18n.translateToLocal("item.correlated.debugginator.hint"));
+		tooltip.add("\u00A75\u00A7o"+I18n.translateToLocal("item.correlated.debugginator.hint"));
 	}
 	
 	@Override
@@ -90,13 +96,32 @@ public class ItemDebugginator extends Item {
 	}
 	
 	@Override
-	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-		return slotChanged;
+	public boolean hasEffect(ItemStack stack) {
+		return false;
 	}
 	
 	@Override
-	public boolean hasEffect(ItemStack stack) {
-		return false;
+	public boolean showDurabilityBar(ItemStack stack) {
+		return getDurabilityForDisplay(stack) < 1;
+	}
+	
+	@Override
+	public double getDurabilityForDisplay(ItemStack stack) {
+		return stack.hasTagCompound() ? Math.min((System.currentTimeMillis()-stack.getTagCompound().getLong("LastTeleport"))/5000D, 1) : 0;
+	}
+	
+	@Override
+	public int getRGBDurabilityForDisplay(ItemStack stack) {
+		return 0xFFAA00FF;
+	}
+	
+	@Override
+	public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot slot, ItemStack stack) {
+		Multimap<String, AttributeModifier> mm = super.getAttributeModifiers(slot, stack);
+		if (slot == EntityEquipmentSlot.MAINHAND) {
+			mm.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(ATTACK_SPEED_MODIFIER, "Weapon modifier", 6, 2));
+		}
+		return mm;
 	}
 	
 	@Override
@@ -108,43 +133,77 @@ public class ItemDebugginator extends Item {
 	
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn) {
+		ItemStack is = playerIn.getHeldItem(handIn);
 		if (playerIn.isSneaking()) {
-			ItemStack is = playerIn.getHeldItem(handIn);
 			Correlated.proxy.clearShapes();
+			if (is.hasTagCompound()) {
+				is.getTagCompound().removeTag("LastTeleport");
+				is.getTagCompound().removeTag("LastTeleportPos");
+			}
 			if (is.getItemDamage() == 0) {
-				playerIn.playSound(SoundEvents.BLOCK_PISTON_CONTRACT, 1f, 2f);
+				playerIn.playSound(SoundEvents.ENTITY_ZOMBIE_VILLAGER_CONVERTED, 1f, 1.5f);
 				is.setItemDamage(1);
 				EnchantmentHelper.setEnchantments(ImmutableMap.of(), is);
 			} else if (is.getItemDamage() == 1) {
-				playerIn.playSound(SoundEvents.BLOCK_PISTON_EXTEND, 1f, 2f);
+				playerIn.playSound(SoundEvents.ENTITY_ZOMBIE_VILLAGER_CONVERTED, 1f, 2f);
 				is.setItemDamage(0);
 				EnchantmentHelper.setEnchantments(ImmutableMap.of(Enchantments.SILK_TOUCH, 1), is);
 			}
 			return ActionResult.newResult(EnumActionResult.SUCCESS, is);
 		} else {
-			float f = playerIn.rotationPitch;
-			float f1 = playerIn.rotationYaw;
-			double d0 = playerIn.posX;
-			double d1 = playerIn.posY + playerIn.getEyeHeight();
-			double d2 = playerIn.posZ;
-			Vec3d vec3d = new Vec3d(d0, d1, d2);
-			float f2 = MathHelper.cos(-f1 * 0.017453292F - (float)Math.PI);
-			float f3 = MathHelper.sin(-f1 * 0.017453292F - (float)Math.PI);
-			float f4 = -MathHelper.cos(-f * 0.017453292F);
-			float f5 = MathHelper.sin(-f * 0.017453292F);
-			float f6 = f3 * f4;
-			float f7 = f2 * f4;
-			double d3 = 2560;
-			Vec3d vec3d1 = vec3d.addVector(f6 * d3, f5 * d3, f7 * d3);
-			RayTraceResult rtr = worldIn.rayTraceBlocks(vec3d, vec3d1, true, !true, false);
-			if (rtr != null) {
-				worldIn.playSound(playerIn, rtr.hitVec.xCoord, rtr.hitVec.yCoord, rtr.hitVec.zCoord, SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.PLAYERS, 1f, 1f);
-				if (!worldIn.isRemote && playerIn instanceof EntityPlayerMP) {
-					((EntityPlayerMP)playerIn).connection.setPlayerLocation(rtr.hitVec.xCoord, rtr.hitVec.yCoord, rtr.hitVec.zCoord, playerIn.rotationYawHead, playerIn.rotationPitch);
+			if (!is.hasTagCompound()) {
+				is.setTagCompound(new NBTTagCompound());
+			}
+			double targetX;
+			double targetY;
+			double targetZ;
+			if (is.getTagCompound().hasKey("LastTeleportPos")
+					&& System.currentTimeMillis()-is.getTagCompound().getLong("LastTeleport") < 5000) {
+				NBTTagList li = is.getTagCompound().getTagList("LastTeleportPos", NBT.TAG_DOUBLE);
+				targetX = li.getDoubleAt(0);
+				targetY = li.getDoubleAt(1);
+				targetZ = li.getDoubleAt(2);
+			} else {
+				float f = playerIn.rotationPitch;
+				float f1 = playerIn.rotationYaw;
+				double d0 = playerIn.posX;
+				double d1 = playerIn.posY + playerIn.getEyeHeight();
+				double d2 = playerIn.posZ;
+				Vec3d vec3d = new Vec3d(d0, d1, d2);
+				float f2 = MathHelper.cos(-f1 * 0.017453292F - (float)Math.PI);
+				float f3 = MathHelper.sin(-f1 * 0.017453292F - (float)Math.PI);
+				float f4 = -MathHelper.cos(-f * 0.017453292F);
+				float f5 = MathHelper.sin(-f * 0.017453292F);
+				float f6 = f3 * f4;
+				float f7 = f2 * f4;
+				// max distance by rayTraceBlocksFar with 45deg pitch/yaw
+				double d3 = 19196;
+				Vec3d vec3d1 = vec3d.addVector(f6 * d3, f5 * d3, f7 * d3);
+				RayTraceResult rtr = rayTraceBlocksFar(worldIn, vec3d, vec3d1, true, false, false);
+				if (rtr != null) {
+					targetX = rtr.hitVec.xCoord;
+					targetY = rtr.hitVec.yCoord;
+					targetZ = rtr.hitVec.zCoord;
+				} else {
+					return ActionResult.newResult(EnumActionResult.SUCCESS, is);
 				}
 			}
+			
+			is.getTagCompound().setLong("LastTeleport", System.currentTimeMillis());
+			NBTTagList list = new NBTTagList();
+			list.appendTag(new NBTTagDouble(playerIn.posX));
+			list.appendTag(new NBTTagDouble(playerIn.posY));
+			list.appendTag(new NBTTagDouble(playerIn.posZ));
+			is.getTagCompound().setTag("LastTeleportPos", list);
+			
+			worldIn.playSound(playerIn, targetX, targetY, targetZ, SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.PLAYERS, 1f, 1f);
+			playerIn.fallDistance = 0;
+			
+			if (!worldIn.isRemote && playerIn instanceof EntityPlayerMP) {
+				((EntityPlayerMP)playerIn).connection.setPlayerLocation(targetX, targetY, targetZ, playerIn.rotationYawHead, playerIn.rotationPitch);
+			}
+			return ActionResult.newResult(EnumActionResult.SUCCESS, is);
 		}
-		return super.onItemRightClick(worldIn, playerIn, handIn);
 	}
 	
 	@Override
@@ -155,7 +214,8 @@ public class ItemDebugginator extends Item {
 		if (closed) {
 			if (te instanceof TileEntityController) {
 				if (((TileEntityController) te).isPowered()) {
-					((TileEntityController) te).scanNetwork();
+					((TileEntityController) te).booting = true;
+					((TileEntityController) te).bootTicks = 95;
 					playSuccessEffect(player, world, pos);
 				} else {
 					playFailureEffect(player, world, pos);
@@ -195,6 +255,20 @@ public class ItemDebugginator extends Item {
 		}
 		return EnumActionResult.SUCCESS;
 	}
+	
+	@Override
+	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
+		if (stack.getItemDamage() == 0) {
+			entity.playSound(CSoundEvents.CONVERT, 1f, 0.5f);
+			if (player.world instanceof WorldServer) {
+				((WorldServer)player.world).spawnParticle(EnumParticleTypes.REDSTONE, entity.posX, entity.posY+(entity.height/2), entity.posZ, 512, entity.width/2, entity.height/2, entity.width/2, 1000);
+			}
+			entity.setDead();
+		} else {
+			entity.attackEntityFrom(DamageSource.causePlayerDamage(player), 9001);
+		}
+		return true;
+	}
 
 	private void playFailureEffect(EntityPlayer player, World world, BlockPos pos) {
 		world.playSound(null, pos, SoundEvents.BLOCK_NOTE_PLING, SoundCategory.PLAYERS, 1f, 0.5f);
@@ -207,6 +281,169 @@ public class ItemDebugginator extends Item {
 		world.playSound(null, pos, SoundEvents.BLOCK_NOTE_PLING, SoundCategory.PLAYERS, 1f, 2f);
 		if (world instanceof WorldServer) {
 			((WorldServer)world).spawnParticle(EnumParticleTypes.SPELL_WITCH, pos.getX()+0.5, pos.getY()+0.5, pos.getZ()+0.5, 24, 0.5, 0.5, 0.5, 0);
+		}
+	}
+	
+	public static RayTraceResult rayTraceBlocksFar(World world, Vec3d vec31,
+			Vec3d vec32, boolean stopOnLiquid,
+			boolean ignoreBlockWithoutBoundingBox,
+			boolean returnLastUncollidableBlock) {
+		if (!Double.isNaN(vec31.xCoord) && !Double.isNaN(vec31.yCoord)
+				&& !Double.isNaN(vec31.zCoord)) {
+			if (!Double.isNaN(vec32.xCoord) && !Double.isNaN(vec32.yCoord)
+					&& !Double.isNaN(vec32.zCoord)) {
+				int i = MathHelper.floor(vec32.xCoord);
+				int j = MathHelper.floor(vec32.yCoord);
+				int k = MathHelper.floor(vec32.zCoord);
+				int l = MathHelper.floor(vec31.xCoord);
+				int i1 = MathHelper.floor(vec31.yCoord);
+				int j1 = MathHelper.floor(vec31.zCoord);
+				BlockPos blockpos = new BlockPos(l, i1, j1);
+				IBlockState iblockstate = world.getBlockState(blockpos);
+				Block block = iblockstate.getBlock();
+
+				if ((!ignoreBlockWithoutBoundingBox
+						|| iblockstate.getCollisionBoundingBox(world,
+								blockpos) != Block.NULL_AABB)
+						&& block.canCollideCheck(iblockstate, stopOnLiquid)) {
+					RayTraceResult raytraceresult = iblockstate
+							.collisionRayTrace(world, blockpos, vec31, vec32);
+
+					if (raytraceresult != null) {
+						return raytraceresult;
+					}
+				}
+
+				RayTraceResult raytraceresult2 = null;
+				int k1 = 32768;
+
+				while (k1-- >= 0) {
+					if (Double.isNaN(vec31.xCoord) || Double.isNaN(vec31.yCoord)
+							|| Double.isNaN(vec31.zCoord)) {
+						return null;
+					}
+
+					if (l == i && i1 == j && j1 == k) {
+						return returnLastUncollidableBlock ? raytraceresult2
+								: null;
+					}
+
+					boolean flag2 = true;
+					boolean flag = true;
+					boolean flag1 = true;
+					double d0 = 999.0D;
+					double d1 = 999.0D;
+					double d2 = 999.0D;
+
+					if (i > l) {
+						d0 = l + 1.0D;
+					} else if (i < l) {
+						d0 = l + 0.0D;
+					} else {
+						flag2 = false;
+					}
+
+					if (j > i1) {
+						d1 = i1 + 1.0D;
+					} else if (j < i1) {
+						d1 = i1 + 0.0D;
+					} else {
+						flag = false;
+					}
+
+					if (k > j1) {
+						d2 = j1 + 1.0D;
+					} else if (k < j1) {
+						d2 = j1 + 0.0D;
+					} else {
+						flag1 = false;
+					}
+
+					double d3 = 999.0D;
+					double d4 = 999.0D;
+					double d5 = 999.0D;
+					double d6 = vec32.xCoord - vec31.xCoord;
+					double d7 = vec32.yCoord - vec31.yCoord;
+					double d8 = vec32.zCoord - vec31.zCoord;
+
+					if (flag2) {
+						d3 = (d0 - vec31.xCoord) / d6;
+					}
+
+					if (flag) {
+						d4 = (d1 - vec31.yCoord) / d7;
+					}
+
+					if (flag1) {
+						d5 = (d2 - vec31.zCoord) / d8;
+					}
+
+					if (d3 == -0.0D) {
+						d3 = -1.0E-4D;
+					}
+
+					if (d4 == -0.0D) {
+						d4 = -1.0E-4D;
+					}
+
+					if (d5 == -0.0D) {
+						d5 = -1.0E-4D;
+					}
+
+					EnumFacing enumfacing;
+
+					if (d3 < d4 && d3 < d5) {
+						enumfacing = i > l ? EnumFacing.WEST : EnumFacing.EAST;
+						vec31 = new Vec3d(d0, vec31.yCoord + d7 * d3,
+								vec31.zCoord + d8 * d3);
+					} else if (d4 < d5) {
+						enumfacing = j > i1 ? EnumFacing.DOWN : EnumFacing.UP;
+						vec31 = new Vec3d(vec31.xCoord + d6 * d4, d1,
+								vec31.zCoord + d8 * d4);
+					} else {
+						enumfacing = k > j1 ? EnumFacing.NORTH
+								: EnumFacing.SOUTH;
+						vec31 = new Vec3d(vec31.xCoord + d6 * d5,
+								vec31.yCoord + d7 * d5, d2);
+					}
+
+					l = MathHelper.floor(vec31.xCoord)
+							- (enumfacing == EnumFacing.EAST ? 1 : 0);
+					i1 = MathHelper.floor(vec31.yCoord)
+							- (enumfacing == EnumFacing.UP ? 1 : 0);
+					j1 = MathHelper.floor(vec31.zCoord)
+							- (enumfacing == EnumFacing.SOUTH ? 1 : 0);
+					blockpos = new BlockPos(l, i1, j1);
+					IBlockState iblockstate1 = world.getBlockState(blockpos);
+					Block block1 = iblockstate1.getBlock();
+
+					if (!ignoreBlockWithoutBoundingBox
+							|| iblockstate1.getMaterial() == Material.PORTAL
+							|| iblockstate1.getCollisionBoundingBox(world,
+									blockpos) != Block.NULL_AABB) {
+						if (block1.canCollideCheck(iblockstate1,
+								stopOnLiquid)) {
+							RayTraceResult raytraceresult1 = iblockstate1
+									.collisionRayTrace(world, blockpos, vec31,
+											vec32);
+
+							if (raytraceresult1 != null) {
+								return raytraceresult1;
+							}
+						} else {
+							raytraceresult2 = new RayTraceResult(
+									RayTraceResult.Type.MISS, vec31, enumfacing,
+									blockpos);
+						}
+					}
+				}
+
+				return returnLastUncollidableBlock ? raytraceresult2 : null;
+			} else {
+				return null;
+			}
+		} else {
+			return null;
 		}
 	}
 	

@@ -9,7 +9,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
-import com.elytradev.correlated.network.APNRequestMessage;
+import com.elytradev.correlated.network.wireless.APNRequestMessage;
 import com.elytradev.correlated.wifi.IWirelessClient;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Lists;

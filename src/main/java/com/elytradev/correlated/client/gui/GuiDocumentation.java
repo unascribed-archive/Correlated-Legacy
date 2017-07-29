@@ -24,7 +24,7 @@ import com.elytradev.correlated.client.DocumentationPage;
 import com.elytradev.correlated.client.IBMFontRenderer;
 import com.elytradev.correlated.client.DocumentationPage.ClickRegion;
 import com.elytradev.correlated.client.DocumentationPage.NavigateAction;
-import com.elytradev.correlated.network.AnimationSeenMessage;
+import com.elytradev.correlated.network.documentation.AnimationSeenMessage;
 import com.elytradev.correlated.proxy.ClientProxy;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;

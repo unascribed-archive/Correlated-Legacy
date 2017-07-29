@@ -9,7 +9,7 @@ import com.elytradev.correlated.entity.EntityAutomaton;
 import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.init.CItems;
 import com.elytradev.correlated.init.CSoundEvents;
-import com.elytradev.correlated.network.StartWeldthrowingMessage;
+import com.elytradev.correlated.network.fx.StartWeldthrowingMessage;
 import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;

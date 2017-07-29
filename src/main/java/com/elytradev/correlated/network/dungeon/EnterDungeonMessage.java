@@ -1,4 +1,4 @@
-package com.elytradev.correlated.network;
+package com.elytradev.correlated.network.dungeon;
 
 import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.init.CConfig;

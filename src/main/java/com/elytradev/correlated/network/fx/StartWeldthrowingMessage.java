@@ -1,4 +1,4 @@
-package com.elytradev.correlated.network;
+package com.elytradev.correlated.network.fx;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 import com.elytradev.correlated.init.CNetwork;

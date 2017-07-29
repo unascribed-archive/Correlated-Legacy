@@ -1,4 +1,4 @@
-package com.elytradev.correlated.network;
+package com.elytradev.correlated.network.automaton;
 
 import com.elytradev.correlated.init.CNetwork;
 
