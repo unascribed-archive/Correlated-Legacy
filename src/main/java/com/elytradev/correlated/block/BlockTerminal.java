@@ -3,7 +3,7 @@ package com.elytradev.correlated.block;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.helper.Blocks;
 import com.elytradev.correlated.item.ItemFloppy;
-import com.elytradev.correlated.network.ShowTerminalErrorMessage;
+import com.elytradev.correlated.network.fx.ShowTerminalErrorMessage;
 import com.elytradev.correlated.tile.TileEntityTerminal;
 
 import net.minecraft.block.Block;

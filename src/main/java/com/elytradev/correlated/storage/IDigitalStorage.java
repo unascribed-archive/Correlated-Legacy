@@ -11,7 +11,7 @@ import net.minecraft.item.ItemStack;
 public interface IDigitalStorage {
 
 	int getChangeId();
-	void getTypes(Set<IDigitalStorage> alreadyChecked, List<ItemStack> target);
+	void getTypes(Set<IDigitalStorage> alreadyChecked, List<NetworkType> target);
 	InsertResult addItemToNetwork(ItemStack stack, Set<IDigitalStorage> alreadyChecked);
 	ItemStack removeItemsFromNetwork(ItemStack prototype, int amount, boolean b, Set<IDigitalStorage> alreadyChecked);
 	boolean isPowered();
@@ -21,8 +21,8 @@ public interface IDigitalStorage {
 		return getKilobitsStorageFree(Sets.newHashSet(this));
 	}
 	
-	default List<ItemStack> getTypes() {
-		List<ItemStack> li = Lists.newArrayList();
+	default List<NetworkType> getTypes() {
+		List<NetworkType> li = Lists.newArrayList();
 		getTypes(Sets.newHashSet(this), li);
 		return li;
 	}

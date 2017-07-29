@@ -3,7 +3,7 @@ package com.elytradev.correlated.client.gui;
 import java.io.IOException;
 
 import com.elytradev.correlated.client.IBMFontRenderer;
-import com.elytradev.correlated.network.LeaveDungeonMessage;
+import com.elytradev.correlated.network.dungeon.LeaveDungeonMessage;
 
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.gui.GuiScreen;

@@ -1,4 +1,4 @@
-package com.elytradev.correlated.network;
+package com.elytradev.correlated.network.fx;
 
 import com.elytradev.correlated.init.CNetwork;
 import com.elytradev.correlated.client.gui.GuiFakeReboot;

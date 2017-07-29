@@ -15,6 +15,7 @@ import com.elytradev.correlated.init.CSoundEvents;
 import com.elytradev.correlated.init.CStacks;
 import com.elytradev.correlated.proxy.ClientProxy;
 import com.elytradev.correlated.storage.InsertResult;
+import com.elytradev.correlated.storage.NetworkType;
 import com.google.common.collect.Lists;
 
 import net.minecraft.block.Block;
@@ -466,54 +467,43 @@ public class ItemDrive extends Item {
 				deallocateType(drive, item);
 			} else {
 				list.getCompoundTagAt(index).setInteger("Count", amount);
+				list.getCompoundTagAt(index).setLong("LastModified", System.currentTimeMillis());
 			}
 		}
 		markDirty(drive);
 	}
 
 	/**
-	 * Creates a list of "prototype" (stack size one) itemstacks based on the
-	 * stored data in the given drive.
-	 * <p>
-	 * As these are newly created, it is safe to just modify the stack size and
-	 * use them without copying.
+	 * Get all NetworkTypes available or partitioned in this drive. The stacks
+	 * within the types returned will all have a count of 1.
 	 */
-	public List<ItemStack> getPrototypes(ItemStack drive) {
+	public List<NetworkType> getPrototypes(ItemStack drive) {
 		NBTTagList list = ItemStacks.getCompoundList(drive, "Data");
-		List<ItemStack> rtrn = Lists.newArrayList();
+		List<NetworkType> rtrn = Lists.newArrayList();
 		for (int i = 0; i < list.tagCount(); i++) {
 			NBTTagCompound tag = list.getCompoundTagAt(i);
 			ItemStack is = new ItemStack(tag.getCompoundTag("Prototype"));
 			is.setCount(1);
-			rtrn.add(is);
+			rtrn.add(new NetworkType(is, tag.getLong("LastModified")));
 		}
 		return rtrn;
 	}
 
 	/**
-	 * Creates a list of itemstacks based on the stored data in the given drive.
-	 * <p>
-	 * Unlike the getPrototypes method, these itemstacks will have stack sizes
-	 * matching the amount of items in the drive. These can be potentially
-	 * insane values that are <i>far</i> outside the item's max stack size
-	 * range. Always use splitStack before passing to another method. Also
-	 * unlike getPrototypes, this method will skip items that are partitioned
-	 * but have none stored.
-	 * <p>
-	 * As these are newly created, it is safe to just modify the stack
-	 * size and use them without copying.
+	 * Get all NetworkTypes available in this drive. The stacks within the types
+	 * returned will match the amount of items in the drive.
 	 */
-	public List<ItemStack> getTypes(ItemStack drive) {
+	public List<NetworkType> getTypes(ItemStack drive) {
 		if (getMaxKilobits(drive) == -1) return Lists.newArrayList();
 		NBTTagList list = ItemStacks.getCompoundList(drive, "Data");
-		List<ItemStack> rtrn = Lists.newArrayList();
+		List<NetworkType> rtrn = Lists.newArrayList();
 		for (int i = 0; i < list.tagCount(); i++) {
 			NBTTagCompound tag = list.getCompoundTagAt(i);
 			int count = tag.getInteger("Count");
 			if (count > 0) {
 				ItemStack is = new ItemStack(tag.getCompoundTag("Prototype"));
 				is.setCount(count);
-				rtrn.add(is);
+				rtrn.add(new NetworkType(is, tag.getLong("LastModified")));
 			}
 		}
 		return rtrn;
@@ -533,6 +523,7 @@ public class ItemDrive extends Item {
 			NBTTagCompound data = new NBTTagCompound();
 			data.setTag("Prototype", prototype);
 			data.setInteger("Count", count);
+			data.setLong("LastModified", System.currentTimeMillis());
 			ItemStacks.getCompoundList(drive, "Data").appendTag(data);
 			markDirty(drive);
 		}

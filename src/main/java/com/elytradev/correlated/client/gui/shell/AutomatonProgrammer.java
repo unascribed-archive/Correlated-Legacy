@@ -6,7 +6,7 @@ import org.lwjgl.input.Keyboard;
 
 import com.elytradev.correlated.entity.automaton.Opcode;
 import com.elytradev.correlated.item.ItemFloppy;
-import com.elytradev.correlated.network.SaveProgramMessage;
+import com.elytradev.correlated.network.automaton.SaveProgramMessage;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 

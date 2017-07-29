@@ -22,6 +22,7 @@ import com.elytradev.correlated.item.ItemDrive.Priority;
 import com.elytradev.correlated.storage.IDigitalStorage;
 import com.elytradev.correlated.storage.ITerminal;
 import com.elytradev.correlated.storage.InsertResult;
+import com.elytradev.correlated.storage.NetworkType;
 import com.elytradev.correlated.storage.SimpleUserPreferences;
 import com.elytradev.correlated.storage.UserPreferences;
 import com.elytradev.correlated.storage.InsertResult.Result;
@@ -844,7 +845,7 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	}
 
 	@Override
-	public void getTypes(Set<IDigitalStorage> alreadyChecked, List<ItemStack> li) {
+	public void getTypes(Set<IDigitalStorage> alreadyChecked, List<NetworkType> li) {
 		for (EntityEquipmentSlot slot : slots) {
 			ItemStack drive = getItemStackFromSlot(slot);
 			if (drive.getItem() instanceof ItemDrive) {

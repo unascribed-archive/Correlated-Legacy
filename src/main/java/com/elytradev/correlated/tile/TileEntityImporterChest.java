@@ -9,6 +9,7 @@ import com.elytradev.correlated.inventory.ContainerTerminal.SortMode;
 import com.elytradev.correlated.storage.IDigitalStorage;
 import com.elytradev.correlated.storage.ITerminal;
 import com.elytradev.correlated.storage.InsertResult;
+import com.elytradev.correlated.storage.NetworkType;
 import com.elytradev.correlated.storage.SimpleUserPreferences;
 import com.elytradev.correlated.storage.UserPreferences;
 import com.google.common.collect.Lists;
@@ -144,8 +145,10 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 	}
 
 	@Override
-	public void getTypes(Set<IDigitalStorage> alreadyChecked, List<ItemStack> target) {
-		target.addAll(storage);
+	public void getTypes(Set<IDigitalStorage> alreadyChecked, List<NetworkType> target) {
+		for (ItemStack is : storage) {
+			target.add(new NetworkType(is, 0L));
+		}
 	}
 	
 	@Override

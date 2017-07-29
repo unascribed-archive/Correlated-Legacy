@@ -5,7 +5,7 @@ import java.util.List;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.init.CBlocks;
 import com.elytradev.correlated.inventory.ContainerTerminal;
-import com.elytradev.correlated.network.RecipeTransferMessage;
+import com.elytradev.correlated.network.inventory.RecipeTransferMessage;
 import com.google.common.collect.Lists;
 
 import mezz.jei.api.BlankModPlugin;

@@ -1,6 +1,6 @@
 package com.elytradev.correlated.item;
 
-import com.elytradev.correlated.network.OpenDocumentationMessage;
+import com.elytradev.correlated.network.documentation.OpenDocumentationMessage;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;

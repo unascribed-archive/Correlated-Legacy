@@ -5,6 +5,8 @@ import java.util.List;
 import com.elytradev.correlated.item.ItemDrive;
 import com.elytradev.correlated.item.ItemDrive.PartitioningMode;
 import com.elytradev.correlated.item.ItemDrive.Priority;
+import com.elytradev.correlated.storage.NetworkType;
+import com.google.common.collect.Lists;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
@@ -115,7 +117,7 @@ public class ContainerDrive extends Container {
 	}
 
 	public void updateSlots() {
-		prototypes = getItemDrive().getPartitioningMode(getDrive()) == PartitioningMode.BLACKLIST ? getItemDrive().getBlacklistedTypes(getDrive()) : getItemDrive().getPrototypes(getDrive());
+		prototypes = getItemDrive().getPartitioningMode(getDrive()) == PartitioningMode.BLACKLIST ? getItemDrive().getBlacklistedTypes(getDrive()) : Lists.transform(getItemDrive().getPrototypes(getDrive()), NetworkType::getStack);
 		for (int i = 1; i < 65; i++) {
 			Slot slot = inventorySlots.get(i);
 			if (slot instanceof SlotFake) {

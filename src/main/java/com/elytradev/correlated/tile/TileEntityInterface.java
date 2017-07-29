@@ -72,9 +72,14 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 	private InvWrapper selfInvWrapper = new InvWrapper(this);
 
 	private FaceMode[] modes = new FaceMode[6];
+	
+	private SidedInvWrapper[] sidedSelfInvWrappers = new SidedInvWrapper[EnumFacing.VALUES.length];
 
 	public TileEntityInterface() {
 		Arrays.fill(prototypes, ItemStack.EMPTY);
+		for (int i = 0; i < sidedSelfInvWrappers.length; i++) {
+			sidedSelfInvWrappers[i] = new SidedInvWrapper(this, EnumFacing.VALUES[i]);
+		}
 	}
 	
 	public FaceMode getModeForFace(EnumFacing face) {
@@ -412,6 +417,12 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 				if (!probeCapability.containsKey(facing)) probeCapability.put(facing, new ProbeCapability(facing));
 				return (T)probeCapability.get(facing);
 			}
+		} else if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+			if (facing == null) {
+				return (T)selfInvWrapper;
+			} else {
+				return (T)sidedSelfInvWrappers[facing.ordinal()];
+			}
 		}
 		return super.getCapability(capability, facing);
 	}
@@ -420,6 +431,8 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
 		if (capability == null) return false;
 		if (capability == Correlated.PROBE) {
+			return true;
+		} else if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
 			return true;
 		}
 		return super.hasCapability(capability, facing);

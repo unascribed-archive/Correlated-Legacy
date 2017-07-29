@@ -18,6 +18,7 @@ import com.elytradev.correlated.item.ItemDrive;
 import com.elytradev.correlated.item.ItemMemory;
 import com.elytradev.correlated.storage.IDigitalStorage;
 import com.elytradev.correlated.storage.InsertResult;
+import com.elytradev.correlated.storage.NetworkType;
 import com.elytradev.correlated.storage.InsertResult.Result;
 import com.elytradev.correlated.wifi.IWirelessClient;
 import com.elytradev.correlated.wifi.Station;
@@ -27,6 +28,7 @@ import com.elytradev.probe.api.IProbeDataProvider;
 import com.elytradev.probe.api.UnitDictionary;
 import com.elytradev.probe.api.impl.ProbeData;
 import com.google.common.base.Objects;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.EnumMultiset;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Lists;
@@ -386,7 +388,7 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 			for (ItemStack is : tedb) {
 				drives.add(is);
 				ItemDrive id = (ItemDrive)is.getItem();
-				prototypes.addAll(id.getPrototypes(is));
+				prototypes.addAll(Collections2.transform(id.getPrototypes(is), NetworkType::getStack));
 			}
 		}
 		Collections.sort(drives, new DriveComparator());
@@ -623,7 +625,7 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 	}
 
 	@Override
-	public void getTypes(Set<IDigitalStorage> alreadyChecked, List<ItemStack> li) {
+	public void getTypes(Set<IDigitalStorage> alreadyChecked, List<NetworkType> li) {
 		for (ItemStack drive : drives) {
 			if (drive != null && drive.getItem() instanceof ItemDrive) {
 				li.addAll(((ItemDrive)drive.getItem()).getTypes(drive));
@@ -633,15 +635,16 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 			for (int i = 9; i <= 17; i++) {
 				ItemStack ifaceStack = in.getStackInSlot(i);
 				boolean added = false;
-				for (ItemStack cur : li) {
-					if (ItemStack.areItemsEqual(ifaceStack, cur) && ItemStack.areItemStackTagsEqual(ifaceStack, cur)) {
-						cur.setCount(cur.getCount()+ifaceStack.getCount());
+				for (NetworkType cur : li) {
+					if (ItemStack.areItemsEqual(ifaceStack, cur.getStack()) && ItemStack.areItemStackTagsEqual(ifaceStack, cur.getStack())) {
+						cur.getStack().setCount(cur.getStack().getCount()+ifaceStack.getCount());
+						cur.setLastModified(System.currentTimeMillis());
 						added = true;
 						break;
 					}
 				}
 				if (!added) {
-					li.add(ifaceStack.copy());
+					li.add(new NetworkType(ifaceStack.copy(), System.currentTimeMillis()));
 				}
 			}
 		}

@@ -13,7 +13,7 @@ import com.elytradev.correlated.compat.probe.UnitPotential;
 import com.elytradev.correlated.init.CBlocks;
 import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.init.CNetwork;
-import com.elytradev.correlated.network.ChangeAPNMessage;
+import com.elytradev.correlated.network.wireless.ChangeAPNMessage;
 import com.elytradev.correlated.storage.CompoundDigitalStorage;
 import com.elytradev.correlated.storage.IDigitalStorage;
 import com.elytradev.correlated.storage.ITerminal;

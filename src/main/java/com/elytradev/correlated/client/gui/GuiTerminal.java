@@ -15,8 +15,8 @@ import com.elytradev.correlated.inventory.ContainerTerminal.CraftingAmount;
 import com.elytradev.correlated.inventory.ContainerTerminal.CraftingTarget;
 import com.elytradev.correlated.inventory.ContainerTerminal.SlotVirtual;
 import com.elytradev.correlated.inventory.ContainerTerminal.SortMode;
-import com.elytradev.correlated.network.InsertAllMessage;
-import com.elytradev.correlated.network.SetSearchQueryServerMessage;
+import com.elytradev.correlated.network.inventory.InsertAllMessage;
+import com.elytradev.correlated.network.inventory.SetSearchQueryServerMessage;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
@@ -363,6 +363,10 @@ public class GuiTerminal extends GuiContainer {
 					mc.playerController.sendEnchantPacket(container.windowId, -6);
 					break;
 				case NAME:
+					container.sortMode = SortMode.LAST_MODIFIED;
+					mc.playerController.sendEnchantPacket(container.windowId, -7);
+					break;
+				case LAST_MODIFIED:
 					container.sortMode = SortMode.QUANTITY;
 					mc.playerController.sendEnchantPacket(container.windowId, -3);
 					break;

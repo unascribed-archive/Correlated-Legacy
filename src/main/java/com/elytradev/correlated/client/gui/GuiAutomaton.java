@@ -5,7 +5,7 @@ import java.util.Locale;
 
 import com.elytradev.correlated.entity.EntityAutomaton.AutomatonStatus;
 import com.elytradev.correlated.inventory.ContainerAutomaton;
-import com.elytradev.correlated.network.SetAutomatonNameMessage;
+import com.elytradev.correlated.network.automaton.SetAutomatonNameMessage;
 import com.elytradev.correlated.proxy.ClientProxy;
 import com.google.common.collect.Lists;
 
