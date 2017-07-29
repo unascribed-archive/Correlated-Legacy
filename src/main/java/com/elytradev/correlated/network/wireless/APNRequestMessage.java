@@ -2,6 +2,7 @@ package com.elytradev.correlated.network.wireless;
 
 import java.util.Collections;
 
+import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.CorrelatedWorldData;
 import com.elytradev.correlated.init.CNetwork;
 import java.util.Set;
@@ -47,6 +48,10 @@ public class APNRequestMessage extends Message {
 
 	@Override
 	protected void handle(EntityPlayer sender) {
+		if (sender.getDistanceSq(x, y, z) > 16*16 || sender.getDistanceSqToCenter(pos) > 16*16) {
+			CLog.warn("{} tried to get APN information for a block more than 16 blocks away", sender.getDisplayNameString());
+			return;
+		}
 		WirelessManager wm = CorrelatedWorldData.getFor(sender.world).getWirelessManager();
 		Set<String> selected = Collections.emptySet();
 		System.out.println(pos);
