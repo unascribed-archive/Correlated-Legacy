@@ -46,6 +46,10 @@ public class ChangeAPNMessage extends Message {
 
 	@Override
 	protected void handle(EntityPlayer sender) {
+		if (sender.isSpectator()) {
+			CLog.warn("{}, a spectator, tried to send a packet only applicable to non-spectators", sender.getDisplayNameString());
+			return;
+		}
 		if (!isBlock) {
 			if (sender.openContainer instanceof IWirelessClient) {
 				((IWirelessClient)sender.openContainer).setAPNs(Sets.newHashSet(apns));
