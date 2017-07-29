@@ -1,5 +1,6 @@
 package com.elytradev.correlated.network.inventory;
 
+import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.init.CNetwork;
 
 import com.elytradev.concrete.network.Message;
@@ -32,6 +33,10 @@ public class InsertAllMessage extends Message {
 
 	@Override
 	protected void handle(EntityPlayer sender) {
+		if (sender.isSpectator()) {
+			CLog.warn("{}, a spectator, tried to send a packet only applicable to non-spectators", sender.getDisplayNameString());
+			return;
+		}
 		if (sender.openContainer.windowId == windowId) {
 			for (Slot s : sender.openContainer.inventorySlots) {
 				if (s.inventory instanceof InventoryPlayer && s.getHasStack()

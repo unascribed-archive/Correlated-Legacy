@@ -1,6 +1,8 @@
 package com.elytradev.correlated.network.inventory;
 
 import java.util.List;
+
+import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.init.CNetwork;
 
 import com.elytradev.correlated.inventory.ContainerTerminal;
@@ -33,6 +35,10 @@ public class RecipeTransferMessage extends Message {
 	
 	@Override
 	protected void handle(EntityPlayer sender) {
+		if (sender.isSpectator()) {
+			CLog.warn("{}, a spectator, tried to send a packet only applicable to non-spectators", sender.getDisplayNameString());
+			return;
+		}
 		if (sender.openContainer instanceof ContainerTerminal && sender.openContainer.windowId == windowId) {
 			ContainerTerminal terminal = ((ContainerTerminal)sender.openContainer);
 			if (terminal.hasCraftingMatrix) {

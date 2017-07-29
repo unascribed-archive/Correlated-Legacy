@@ -1,5 +1,6 @@
 package com.elytradev.correlated.network.automaton;
 
+import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.init.CNetwork;
 import com.elytradev.correlated.inventory.ContainerAutomaton;
 
@@ -29,6 +30,10 @@ public class SetAutomatonNameMessage extends Message {
 
 	@Override
 	protected void handle(EntityPlayer sender) {
+		if (sender.isSpectator()) {
+			CLog.warn("{}, a spectator, tried to send a packet only applicable to non-spectators", sender.getDisplayNameString());
+			return;
+		}
 		Container c = ((EntityPlayerMP)sender).openContainer;
 		if (c instanceof ContainerAutomaton && c.windowId == windowId) {
 			((ContainerAutomaton)c).automaton.setCustomNameTag(name);

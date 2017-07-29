@@ -48,6 +48,10 @@ public class APNRequestMessage extends Message {
 
 	@Override
 	protected void handle(EntityPlayer sender) {
+		if (sender.isSpectator()) {
+			CLog.warn("{}, a spectator, tried to send a packet only applicable to non-spectators", sender.getDisplayNameString());
+			return;
+		}
 		if (sender.getDistanceSq(x, y, z) > 16*16 || sender.getDistanceSqToCenter(pos) > 16*16) {
 			CLog.warn("{} tried to get APN information for a block more than 16 blocks away", sender.getDisplayNameString());
 			return;

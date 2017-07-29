@@ -1,5 +1,6 @@
 package com.elytradev.correlated.network.dungeon;
 
+import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.init.CNetwork;
 import com.elytradev.correlated.world.LimboProvider;
@@ -25,6 +26,10 @@ public class LeaveDungeonMessage extends Message {
 
 	@Override
 	protected void handle(EntityPlayer sender) {
+		if (sender.isSpectator()) {
+			CLog.warn("{}, a spectator, tried to send a packet only applicable to non-spectators", sender.getDisplayNameString());
+			return;
+		}
 		int dim = CConfig.limboDimId;
 		WorldServer world = ((EntityPlayerMP)sender).mcServer.worldServerForDimension(dim);
 		WorldProvider provider = world.provider;
