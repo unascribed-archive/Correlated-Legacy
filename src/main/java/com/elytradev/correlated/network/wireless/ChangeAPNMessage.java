@@ -53,6 +53,10 @@ public class ChangeAPNMessage extends Message {
 				CLog.warn("{} attempted to update APNs when a wireless container is not open", sender.getName());
 			}
 		} else {
+			if (sender.getDistanceSqToCenter(pos) > 16*16) {
+				CLog.warn("{} tried to set APN information for a block more than 16 blocks away", sender.getDisplayNameString());
+				return;
+			}
 			TileEntity te = sender.world.getTileEntity(pos);
 			if (te instanceof IWirelessClient) {
 				((IWirelessClient)te).setAPNs(Sets.newHashSet(apns));
