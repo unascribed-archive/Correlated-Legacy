@@ -36,6 +36,7 @@ public class CItems {
 	public static ItemWeldthrower WELDTHROWER;
 	public static ItemKeycard KEYCARD;
 	public static ItemDocTablet DOC_TABLET;
+	public static ItemDebugginator DEBUGGINATOR;
 	
 	@SubscribeEvent
 	public static void register(RegistryEvent.Register<Item> e) {

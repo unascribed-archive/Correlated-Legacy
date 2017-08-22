@@ -19,6 +19,7 @@ import com.google.common.collect.Multimap;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -50,6 +51,8 @@ import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants.NBT;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemDebugginator extends Item {
 
@@ -74,8 +77,9 @@ public class ItemDebugginator extends Item {
 	}
 	
 	@Override
-	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
-		super.addInformation(stack, playerIn, tooltip, advanced);
+	@SideOnly(Side.CLIENT)
+	public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag) {
+		super.addInformation(stack, world, tooltip, flag);
 		tooltip.add("\u00A75\u00A7o"+I18n.translateToLocal("item.correlated.debugginator.hint"));
 	}
 	
@@ -86,8 +90,8 @@ public class ItemDebugginator extends Item {
 				RayTraceResult rtr = rayTrace(player.world, player, false);
 				IBlockState bs = player.world.getBlockState(pos);
 				ItemStack is = bs.getBlock().getPickBlock(bs, rtr, player.world, pos, player);
-				EntityItem ei = new EntityItem(player.world, rtr.hitVec.xCoord, rtr.hitVec.yCoord, rtr.hitVec.zCoord);
-				ei.setEntityItemStack(is);
+				EntityItem ei = new EntityItem(player.world, rtr.hitVec.x, rtr.hitVec.y, rtr.hitVec.z);
+				ei.setItem(is);
 				player.world.spawnEntity(ei);
 			}
 			return true;
@@ -181,9 +185,9 @@ public class ItemDebugginator extends Item {
 				Vec3d vec3d1 = vec3d.addVector(f6 * d3, f5 * d3, f7 * d3);
 				RayTraceResult rtr = rayTraceBlocksFar(worldIn, vec3d, vec3d1, true, false, false);
 				if (rtr != null) {
-					targetX = rtr.hitVec.xCoord;
-					targetY = rtr.hitVec.yCoord;
-					targetZ = rtr.hitVec.zCoord;
+					targetX = rtr.hitVec.x;
+					targetY = rtr.hitVec.y;
+					targetZ = rtr.hitVec.z;
 				} else {
 					return ActionResult.newResult(EnumActionResult.SUCCESS, is);
 				}
@@ -288,16 +292,16 @@ public class ItemDebugginator extends Item {
 			Vec3d vec32, boolean stopOnLiquid,
 			boolean ignoreBlockWithoutBoundingBox,
 			boolean returnLastUncollidableBlock) {
-		if (!Double.isNaN(vec31.xCoord) && !Double.isNaN(vec31.yCoord)
-				&& !Double.isNaN(vec31.zCoord)) {
-			if (!Double.isNaN(vec32.xCoord) && !Double.isNaN(vec32.yCoord)
-					&& !Double.isNaN(vec32.zCoord)) {
-				int i = MathHelper.floor(vec32.xCoord);
-				int j = MathHelper.floor(vec32.yCoord);
-				int k = MathHelper.floor(vec32.zCoord);
-				int l = MathHelper.floor(vec31.xCoord);
-				int i1 = MathHelper.floor(vec31.yCoord);
-				int j1 = MathHelper.floor(vec31.zCoord);
+		if (!Double.isNaN(vec31.x) && !Double.isNaN(vec31.y)
+				&& !Double.isNaN(vec31.z)) {
+			if (!Double.isNaN(vec32.x) && !Double.isNaN(vec32.y)
+					&& !Double.isNaN(vec32.z)) {
+				int i = MathHelper.floor(vec32.x);
+				int j = MathHelper.floor(vec32.y);
+				int k = MathHelper.floor(vec32.z);
+				int l = MathHelper.floor(vec31.x);
+				int i1 = MathHelper.floor(vec31.y);
+				int j1 = MathHelper.floor(vec31.z);
 				BlockPos blockpos = new BlockPos(l, i1, j1);
 				IBlockState iblockstate = world.getBlockState(blockpos);
 				Block block = iblockstate.getBlock();
@@ -318,8 +322,8 @@ public class ItemDebugginator extends Item {
 				int k1 = 32768;
 
 				while (k1-- >= 0) {
-					if (Double.isNaN(vec31.xCoord) || Double.isNaN(vec31.yCoord)
-							|| Double.isNaN(vec31.zCoord)) {
+					if (Double.isNaN(vec31.x) || Double.isNaN(vec31.y)
+							|| Double.isNaN(vec31.z)) {
 						return null;
 					}
 
@@ -362,20 +366,20 @@ public class ItemDebugginator extends Item {
 					double d3 = 999.0D;
 					double d4 = 999.0D;
 					double d5 = 999.0D;
-					double d6 = vec32.xCoord - vec31.xCoord;
-					double d7 = vec32.yCoord - vec31.yCoord;
-					double d8 = vec32.zCoord - vec31.zCoord;
+					double d6 = vec32.x - vec31.x;
+					double d7 = vec32.y - vec31.y;
+					double d8 = vec32.z - vec31.z;
 
 					if (flag2) {
-						d3 = (d0 - vec31.xCoord) / d6;
+						d3 = (d0 - vec31.x) / d6;
 					}
 
 					if (flag) {
-						d4 = (d1 - vec31.yCoord) / d7;
+						d4 = (d1 - vec31.y) / d7;
 					}
 
 					if (flag1) {
-						d5 = (d2 - vec31.zCoord) / d8;
+						d5 = (d2 - vec31.z) / d8;
 					}
 
 					if (d3 == -0.0D) {
@@ -394,24 +398,24 @@ public class ItemDebugginator extends Item {
 
 					if (d3 < d4 && d3 < d5) {
 						enumfacing = i > l ? EnumFacing.WEST : EnumFacing.EAST;
-						vec31 = new Vec3d(d0, vec31.yCoord + d7 * d3,
-								vec31.zCoord + d8 * d3);
+						vec31 = new Vec3d(d0, vec31.y + d7 * d3,
+								vec31.z + d8 * d3);
 					} else if (d4 < d5) {
 						enumfacing = j > i1 ? EnumFacing.DOWN : EnumFacing.UP;
-						vec31 = new Vec3d(vec31.xCoord + d6 * d4, d1,
-								vec31.zCoord + d8 * d4);
+						vec31 = new Vec3d(vec31.x + d6 * d4, d1,
+								vec31.z + d8 * d4);
 					} else {
 						enumfacing = k > j1 ? EnumFacing.NORTH
 								: EnumFacing.SOUTH;
-						vec31 = new Vec3d(vec31.xCoord + d6 * d5,
-								vec31.yCoord + d7 * d5, d2);
+						vec31 = new Vec3d(vec31.x + d6 * d5,
+								vec31.y + d7 * d5, d2);
 					}
 
-					l = MathHelper.floor(vec31.xCoord)
+					l = MathHelper.floor(vec31.x)
 							- (enumfacing == EnumFacing.EAST ? 1 : 0);
-					i1 = MathHelper.floor(vec31.yCoord)
+					i1 = MathHelper.floor(vec31.y)
 							- (enumfacing == EnumFacing.UP ? 1 : 0);
-					j1 = MathHelper.floor(vec31.zCoord)
+					j1 = MathHelper.floor(vec31.z)
 							- (enumfacing == EnumFacing.SOUTH ? 1 : 0);
 					blockpos = new BlockPos(l, i1, j1);
 					IBlockState iblockstate1 = world.getBlockState(blockpos);
