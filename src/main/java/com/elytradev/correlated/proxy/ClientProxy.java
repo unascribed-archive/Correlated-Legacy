@@ -28,7 +28,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import javax.imageio.ImageIO;
-
 import org.apache.logging.log4j.LogManager;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
@@ -83,10 +82,10 @@ import com.elytradev.correlated.tile.TileEntityOpticalReceiver;
 import com.elytradev.correlated.tile.TileEntityTerminal;
 import com.elytradev.correlated.wifi.IWirelessClient;
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.Sound;
 import net.minecraft.client.audio.SoundHandler;
@@ -94,6 +93,7 @@ import net.minecraft.client.audio.SoundList;
 import net.minecraft.client.audio.MusicTicker.MusicType;
 import net.minecraft.client.audio.Sound.Type;
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.ScaledResolution;
@@ -135,10 +135,12 @@ import net.minecraftforge.client.IRenderHandler;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.sound.PlaySoundEvent;
 import net.minecraftforge.client.event.sound.SoundLoadEvent;
 import net.minecraftforge.client.event.sound.SoundSetupEvent;
@@ -157,12 +159,14 @@ import paulscode.sound.SoundSystemConfig;
 import paulscode.sound.SoundSystemException;
 import paulscode.sound.codecs.CodecIBXM;
 
+// TODO this class is a mess
 public class ClientProxy extends Proxy {
 	public static final List<IRenderHandler> shapes = Lists.newArrayList();
 
 	public static float ticks = 0;
 	
 	public static int glitchTicks = -1;
+	public static boolean textGlitch = false;
 	public static String seed;
 	private BitSet glitchJpeg;
 	private int jpegTexture = -1;
@@ -512,8 +516,10 @@ public class ClientProxy extends Proxy {
 			
 		}, CItems.DRIVE);
 		
-		CorrelatedMusicTicker cmt = new CorrelatedMusicTicker(Minecraft.getMinecraft(), Minecraft.getMinecraft().getMusicTicker());
-		ReflectionHelper.setPrivateValue(Minecraft.class, Minecraft.getMinecraft(), cmt, "field_147126_aw", "mcMusicTicker", "aK");
+		if (enceladusType.getMusicLocation() != null) {
+			CorrelatedMusicTicker cmt = new CorrelatedMusicTicker(Minecraft.getMinecraft(), Minecraft.getMinecraft().getMusicTicker());
+			ReflectionHelper.setPrivateValue(Minecraft.class, Minecraft.getMinecraft(), cmt, "field_147126_aw", "mcMusicTicker", "aK");
+		}
 	}
 	@Override
 	public void weldthrowerTick(EntityPlayer player) {
@@ -622,13 +628,76 @@ public class ClientProxy extends Proxy {
 			ticks = ((int)ticks)+e.renderTickTime;
 		} else if (e.phase == Phase.END) {
 			if (Minecraft.getMinecraft().currentScreen == null || Minecraft.getMinecraft().currentScreen instanceof GuiGlitchedMainMenu) {
-				drawGlitch();
+				drawJpegGlitch();
 			}
 		}
 	}
+	@SubscribeEvent(priority=EventPriority.HIGHEST)
+	public void onRenderOverlay(RenderGameOverlayEvent.Pre e) {
+		if (textGlitch) {
+			if (e.getType() == ElementType.ALL) {
+				drawTextGlitch(e.getResolution());
+			} else if (e.getType() == ElementType.HOTBAR || e.getType() == ElementType.HEALTH ||
+					e.getType() == ElementType.FOOD || e.getType() == ElementType.EXPERIENCE) {
+				e.setCanceled(true);
+			}
+		}
+	}
+	private final ImmutableList<Integer> EGA_COLORS = ImmutableList.of(
+				0xFF000000, 0xFF0000AA, 0xFF00AA00, 0xFF00AAAA,
+				0xFFAA0000, 0xFFAA00AA, 0xFFAA5500, 0xFFAAAAAA,
+				0xFF555555, 0xFF5555FF, 0xFF55FF55, 0xFF55FFFF,
+				0xFFFF5555, 0xFFFF55FF, 0xFFFFFF55, 0xFFFFFFFF
+			);
+	private Random textGlitchRandom = new Random(0);
+	private void drawTextGlitch(ScaledResolution res) {
+		int cols = 80;
+		int rows = 24;
+		textGlitchRandom.setSeed(((int)ticks)/160);
+		GlStateManager.enableAlpha();
+		GlStateManager.pushMatrix();
+		GlStateManager.scale(res.getScaledWidth_double()/((cols+1)*4.5), res.getScaledHeight_double()/((rows+1)*8), 1);
+		double midX = cols/2D;
+		double midY = rows/2D;
+		for (int x = 0; x <= cols; x++) {
+			for (int y = 0; y <= rows; y++) {
+				int fg = EGA_COLORS.get(textGlitchRandom.nextInt(EGA_COLORS.size()));
+				int bg = EGA_COLORS.get(textGlitchRandom.nextInt(EGA_COLORS.size()));
+				boolean blink = (textGlitchRandom.nextInt(8) == 0);
+				char chr = IBMFontRenderer.CP437.charAt(textGlitchRandom.nextInt(IBMFontRenderer.CP437.length()));
+				
+				double xDist = (x-midX)/3.5;
+				double yDist = y-midY;
+				double dist = Math.abs((xDist * xDist) + (yDist * yDist));
+				
+				int pct = (int)(Math.log10(dist/32.1)*100);
+				
+				if (Minecraft.getMinecraft().gameSettings.particleSetting == 1) {
+					pct /= 2;
+				} else if (Minecraft.getMinecraft().gameSettings.particleSetting == 2) {
+					pct /= 8;
+				}
+				
+				if (textGlitchRandom.nextInt(100) > pct) continue;
+				
+				GlStateManager.pushMatrix();
+					GlStateManager.translate(x*4.5, y*8, 0);
+					GlStateManager.pushMatrix();
+						GlStateManager.scale(0.5f, 0.5f, 1);
+						Gui.drawRect(0, 0, 9, 16, bg);
+					GlStateManager.popMatrix();
+					if (!blink || ((int)ticks)%20 < 10) {
+						IBMFontRenderer.drawString(0, 0, Character.toString(chr), fg);
+					}
+				GlStateManager.popMatrix();
+			}
+		}
+		GlStateManager.popMatrix();
+		GlStateManager.disableAlpha();
+	}
 	@SubscribeEvent(priority=EventPriority.LOWEST)
 	public void onGuiDraw(GuiScreenEvent.DrawScreenEvent.Pre e) {
-		if (!(e.getGui() instanceof GuiGlitchedMainMenu)) drawGlitch();
+		if (!(e.getGui() instanceof GuiGlitchedMainMenu)) drawJpegGlitch();
 	}
 	@SubscribeEvent
 	public void onSoundSetup(SoundSetupEvent e) throws SoundSystemException {
@@ -658,7 +727,7 @@ public class ClientProxy extends Proxy {
 			}
 		}
 	}
-	private void drawGlitch() {
+	private void drawJpegGlitch() {
 		if (glitchTicks == 0) {
 			if (jpegTexture != -1) {
 				TextureUtil.deleteTexture(jpegTexture);
