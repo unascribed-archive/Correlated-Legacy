@@ -22,12 +22,11 @@ import com.elytradev.correlated.storage.UserPreferences;
 import com.elytradev.correlated.wifi.IWirelessClient;
 import com.elytradev.correlated.wifi.Station;
 import com.elytradev.correlated.wifi.WirelessManager;
+import com.elytradev.mirage.lighting.IColoredLight;
+import com.elytradev.mirage.lighting.Light;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import net.minecraftforge.fml.common.Optional;
-
-import elucent.albedo.lighting.ILightProvider;
-import elucent.albedo.lighting.Light;
 
 import com.elytradev.probe.api.IProbeData;
 import com.elytradev.probe.api.IProbeDataProvider;
@@ -52,8 +51,8 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants.NBT;
 
-@Optional.Interface(iface="elucent.albedo.lighting.ILightProvider", modid="albedo")
-public class TileEntityTerminal extends TileEntityAbstractEnergyAcceptor implements ITickable, IInventory, ITerminal, ISidedInventory, IWirelessClient, ILightProvider {
+@Optional.Interface(iface="com.elytradev.mirage.lighting.IColoredLight", modid="mirage")
+public class TileEntityTerminal extends TileEntityAbstractEnergyAcceptor implements ITickable, IInventory, ITerminal, ISidedInventory, IWirelessClient, IColoredLight {
 	private Map<UUID, SimpleUserPreferences> preferences = Maps.newHashMap();
 	private String error;
 	private String apn;
@@ -94,8 +93,8 @@ public class TileEntityTerminal extends TileEntityAbstractEnergyAcceptor impleme
 	}
 	
 	@Override
-	@Optional.Method(modid="albedo")
-	public Light provideLight() {
+	@Optional.Method(modid="mirage")
+	public Light getColoredLight() {
 		float x = (float)getX();
 		float y = (float)getY();
 		float z = (float)getZ();

@@ -26,13 +26,13 @@ import com.elytradev.correlated.storage.NetworkType;
 import com.elytradev.correlated.storage.SimpleUserPreferences;
 import com.elytradev.correlated.storage.UserPreferences;
 import com.elytradev.correlated.storage.InsertResult.Result;
+import com.elytradev.mirage.lighting.IColoredLight;
+import com.elytradev.mirage.lighting.Light;
 import com.google.common.base.Optional;
 import com.google.common.collect.EnumMultiset;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 
-import elucent.albedo.lighting.ILightProvider;
-import elucent.albedo.lighting.Light;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -82,8 +82,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants.NBT;
 
-@net.minecraftforge.fml.common.Optional.Interface(iface="elucent.albedo.lighting.ILightProvider", modid="albedo")
-public class EntityAutomaton extends EntityCreature implements IEntityOwnable, ITerminal, IDigitalStorage, ILightProvider {
+@net.minecraftforge.fml.common.Optional.Interface(iface="com.elytradev.mirage.lighting.IColoredLight", modid="mirage")
+public class EntityAutomaton extends EntityCreature implements IEntityOwnable, ITerminal, IDigitalStorage, IColoredLight {
 	public enum AutomatonStatus {
 		WANDER,
 		ATTACK,
@@ -227,8 +227,8 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	}
 	
 	@Override
-	@net.minecraftforge.fml.common.Optional.Method(modid="albedo")
-	public Light provideLight() {
+	@net.minecraftforge.fml.common.Optional.Method(modid="mirage")
+	public Light getColoredLight() {
 		if (getHealth() >= 1) {
 			return Light.builder()
 					.pos(this)

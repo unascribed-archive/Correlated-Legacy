@@ -23,6 +23,8 @@ import com.elytradev.correlated.storage.InsertResult.Result;
 import com.elytradev.correlated.wifi.IWirelessClient;
 import com.elytradev.correlated.wifi.Station;
 import com.elytradev.correlated.wifi.WirelessManager;
+import com.elytradev.mirage.lighting.IColoredLight;
+import com.elytradev.mirage.lighting.Light;
 import com.elytradev.probe.api.IProbeData;
 import com.elytradev.probe.api.IProbeDataProvider;
 import com.elytradev.probe.api.UnitDictionary;
@@ -35,8 +37,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
 
-import elucent.albedo.lighting.ILightProvider;
-import elucent.albedo.lighting.Light;
 import gnu.trove.set.hash.TCustomHashSet;
 import gnu.trove.strategy.HashingStrategy;
 import net.minecraft.block.state.IBlockState;
@@ -53,8 +53,8 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.common.Optional;
 
-@Optional.Interface(iface="elucent.albedo.lighting.ILightProvider", modid="albedo")
-public class TileEntityController extends TileEntityAbstractEnergyAcceptor implements ITickable, IDigitalStorage, IWirelessClient, ILightProvider {
+@Optional.Interface(iface="com.elytradev.mirage.lighting.IColoredLight", modid="mirage")
+public class TileEntityController extends TileEntityAbstractEnergyAcceptor implements ITickable, IDigitalStorage, IWirelessClient, IColoredLight {
 	
 	public boolean error = false;
 	public boolean booting = true;
@@ -195,8 +195,8 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 	}
 	
 	@Override
-	@Optional.Method(modid="albedo")
-	public Light provideLight() {
+	@Optional.Method(modid="mirage")
+	public Light getColoredLight() {
 		float x = (float)getX();
 		float y = (float)getY();
 		float z = (float)getZ();
