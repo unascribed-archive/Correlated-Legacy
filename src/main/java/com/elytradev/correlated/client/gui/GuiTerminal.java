@@ -407,9 +407,6 @@ public class GuiTerminal extends GuiContainer {
 			int ordinal = CConfig.preferredUnit.ordinal();
 			ordinal = (ordinal + 1) % EnergyUnit.values().length;
 			EnergyUnit eu = EnergyUnit.values()[ordinal];
-			if (eu == EnergyUnit.GLYPHS) {
-				eu = EnergyUnit.DANKS;
-			}
 			CConfig.preferredUnit = eu;
 			CConfig.save();
 		}
@@ -526,9 +523,6 @@ public class GuiTerminal extends GuiContainer {
 					ordinal += EnergyUnit.values().length;
 				}
 				EnergyUnit eu = EnergyUnit.values()[ordinal];
-				if (eu == EnergyUnit.GLYPHS) {
-					eu = EnergyUnit.JOULES;
-				}
 				CConfig.preferredUnit = eu;
 				CConfig.save();
 			}

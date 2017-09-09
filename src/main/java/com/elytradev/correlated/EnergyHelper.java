@@ -27,7 +27,6 @@ public class EnergyHelper {
 				return (int)(input / CConfig.mjConversionRate);
 			case REDSTONE_FLUX:
 				return (int)(input / CConfig.rfConversionRate);
-			case GLYPHS:
 			case POTENTIAL:
 			default:
 				return input;
@@ -51,7 +50,6 @@ public class EnergyHelper {
 				return (int)(input * CConfig.mjConversionRate);
 			case REDSTONE_FLUX:
 				return (int)(input * CConfig.rfConversionRate);
-			case GLYPHS:
 			case POTENTIAL:
 			default:
 				return input;
