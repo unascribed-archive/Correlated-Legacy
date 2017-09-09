@@ -1,0 +1,70 @@
+// See https://github.com/elytra/Skeleton/wiki for what all these values mean
+
+ext {
+	group = 'com.elytradev'
+	projectName = 'Correlated'
+
+	useElytraVersionFormat = true
+	version = '2.0'
+
+	concreteVersion = '0.3.2-SNAPSHOT'
+	concreteModules = [ 'common', 'reflect', 'network' ]
+
+	coremod = null
+	miniVersion = null
+
+	language = 'java'
+
+	forge = '1.12.1-14.22.0.2474'
+	mappings = 'snapshot_20170908'
+
+	enforceLicenseHeaders = false
+
+	verbose = false
+}
+
+if (!ext.early) {
+repositories {
+	// the skeleton already defines mavenCentral, jcenter, and the Elytra repo
+	// will also have Shadowfacts' maven if the language is set to kotlin
+	maven {
+		name = 'sonatype-nexus'
+		url = 'https://oss.sonatype.org/content/repositories/public/'
+	}
+	maven {
+		name = 'jei'
+		url = 'http://dvs1.progwml6.com/files/maven'
+	}
+	maven {
+		name = 'epoxide'
+		url = 'http://maven.epoxide.org'
+	}
+	ivy {
+		artifactPattern "http://unascribed.com/jars/[organisation]/[module].[ext]"
+	}
+}
+
+dependencies {
+	compile 'com.elytradev:mirage:2.0.2-SNAPSHOT'
+	
+	shadow 'com.atlassian.commonmark:commonmark:0.9.0'
+	compile 'com.atlassian.commonmark:commonmark:0.9.0'
+	
+	shadow 'com.atlassian.commonmark:commonmark-ext-gfm-tables:0.9.0'
+	compile 'com.atlassian.commonmark:commonmark-ext-gfm-tables:0.9.0'
+	
+	shadow 'com.atlassian.commonmark:commonmark-ext-gfm-strikethrough:0.9.0'
+	compile 'com.atlassian.commonmark:commonmark-ext-gfm-strikethrough:0.9.0'
+	
+	compile 'com.elytradev:probedataproviderapi:MC1.12_ver1.1.1'
+	
+	compile 'mezz.jei:jei_1.12:4.7.2.76:api'
+	runtime 'mezz.jei:jei_1.12:4.7.2.76'
+	
+	compile 'net.industrial-craft:industrialcraft-2-2.8.9-ex112-api'
+	compile 'com.aidancbrady:mekanism-mdk-1.10.2-9.2.1.300'
+	compile 'com.mod-buildcraft:buildcraft-api-8.0.0-f0a4d6cf'
+	
+	compile 'net.darkhax.tesla:Tesla-1.12:1.0.61'
+}
+}
