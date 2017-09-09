@@ -205,16 +205,20 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 		
 		IBlockState state = getWorld().getBlockState(getPos());
 		if (state.getBlock() == CBlocks.CONTROLLER) {
-			switch (state.getValue(BlockController.STATE)) {
-				case OFF:
-				case BOOTING:
-					return null;
-				case ERROR:
-					color = Correlated.proxy.getColor("other", 65);
-					break;
-				case POWERED:
-					color = Correlated.proxy.getColor("other", 64);
-					break;
+			if (state.getValue(BlockController.CHEATY)) {
+				color = 0xFF00FF;
+			} else {
+				switch (state.getValue(BlockController.STATE)) {
+					case OFF:
+					case BOOTING:
+						return null;
+					case ERROR:
+						color = Correlated.proxy.getColor("other", 65);
+						break;
+					case POWERED:
+						color = Correlated.proxy.getColor("other", 64);
+						break;
+				}
 			}
 		}
 		

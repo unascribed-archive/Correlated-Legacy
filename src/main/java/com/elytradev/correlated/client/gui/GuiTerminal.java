@@ -8,15 +8,12 @@ import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.EnergyUnit;
 import com.elytradev.correlated.client.IBMFontRenderer;
 import com.elytradev.correlated.client.gui.shell.GuiTerminalShell;
-import com.elytradev.correlated.helper.Numbers;
 import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.inventory.ContainerTerminal;
 import com.elytradev.correlated.inventory.ContainerTerminal.CraftingAmount;
 import com.elytradev.correlated.inventory.ContainerTerminal.CraftingTarget;
-import com.elytradev.correlated.inventory.ContainerTerminal.SlotVirtual;
 import com.elytradev.correlated.inventory.ContainerTerminal.SortMode;
 import com.elytradev.correlated.network.inventory.InsertAllMessage;
-import com.elytradev.correlated.network.inventory.SetSearchQueryServerMessage;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
@@ -142,24 +139,6 @@ public class GuiTerminal extends GuiContainer {
 			IBMFontRenderer.drawString(left+2, top+1, lastLine, 0x00DBAD);
 		}
 		
-		GlStateManager.pushMatrix();
-		GlStateManager.disableDepth();
-		GlStateManager.scale(0.5f, 0.5f, 1);
-		for (Slot slot : inventorySlots.inventorySlots) {
-			if (slot instanceof SlotVirtual) {
-				SlotVirtual sv = ((SlotVirtual)slot);
-				if (sv.getCount() > 0) {
-					String str = Numbers.humanReadableItemCount(sv.getCount());
-					int x = sv.xPos*2;
-					int y = sv.yPos*2;
-					x += (32-mc.fontRenderer.getStringWidth(str));
-					y += (32-mc.fontRenderer.FONT_HEIGHT);
-					mc.fontRenderer.drawStringWithShadow(str, x, y, -1);
-				}
-			}
-		}
-		GlStateManager.popMatrix();
-
 		int u = 232;
 		if (container.rows <= container.slotsTall) {
 			u += 12;
@@ -466,8 +445,8 @@ public class GuiTerminal extends GuiContainer {
 				}
 			}
 			ticksSinceLastQueryChange++;
-			if (ticksSinceLastQueryChange == 4) {
-				new SetSearchQueryServerMessage(container.windowId, lastSearchQuery).sendToServer();
+			if (ticksSinceLastQueryChange == 2) {
+				// TODO
 			}
 		}
 	}
@@ -579,9 +558,7 @@ public class GuiTerminal extends GuiContainer {
 		if (doubleClick && slot != null && mouseButton == 0 && inventorySlots.canMergeSlot(ItemStack.EMPTY, slot)
 				&& isShiftKeyDown()
 				&& slot != null && slot.inventory != null && shiftClickedSlot != null) {
-			if (!(slot instanceof SlotVirtual)) {
-				new InsertAllMessage(inventorySlots.windowId, shiftClickedSlot).sendToServer();
-			}
+			new InsertAllMessage(inventorySlots.windowId, shiftClickedSlot).sendToServer();
 			doubleClick = false;
 		} else {
 			super.mouseReleased(mouseX, mouseY, mouseButton);

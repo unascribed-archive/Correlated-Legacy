@@ -3,20 +3,18 @@ package com.elytradev.correlated.inventory;
 import java.text.Collator;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
-import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.client.gui.GuiTerminal;
 import com.elytradev.correlated.helper.Numbers;
 import com.elytradev.correlated.item.ItemDrive;
 import com.elytradev.correlated.network.inventory.AddStatusLineMessage;
-import com.elytradev.correlated.network.inventory.SetSearchQueryClientMessage;
+import com.elytradev.correlated.network.inventory.SetSearchQueryMessage;
 import com.elytradev.correlated.network.inventory.SetSlotExtendedMessage;
 import com.elytradev.correlated.network.wireless.SignalStrengthMessage;
 import com.elytradev.correlated.storage.ITerminal;
@@ -56,7 +54,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-// Yes, this class is a huge hardcoded mess and I'm sorry.
 public class ContainerTerminal extends Container implements IWirelessClient {
 	public enum SortMode {
 		QUANTITY((a, b) -> {
@@ -145,77 +142,6 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 	private String lastApn;
 	
 	public Slot maintenanceSlot;
-
-	public class SlotVirtual extends Slot {
-		private ItemStack stack = ItemStack.EMPTY;
-		private int count;
-		public SlotVirtual(int index, int xPosition, int yPosition) {
-			super(null, index, xPosition, yPosition);
-		}
-
-		@Override
-		public ItemStack getStack() {
-			return stack;
-		}
-
-		@Override
-		public void putStack(ItemStack stack) {
-			if (world.isRemote) {
-				// prevent vanilla from corrupting our stack size
-				if (ItemStack.areItemsEqual(stack, this.stack) && ItemStack.areItemStackTagsEqual(stack, this.stack)) {
-					if ((stack.getCount() <= 127 && stack.getCount() >= -128)
-							&& (count < -128 || count > 127)) {
-						int diff = Math.abs(stack.getCount()-count);
-						if (diff > stack.getMaxStackSize()) {
-							return;
-						}
-					}
-				}
-				this.stack = stack.copy();
-				count = stack.getCount();
-				if (!this.stack.isEmpty()) {
-					// prevent vanilla from drawing the stack size
-					this.stack.setCount(1);
-				}
-			} else {
-				if (!stack.isEmpty()) {
-					CLog.warn("putStack was called on a virtual slot", new RuntimeException()
-						.fillInStackTrace());
-					addItemToNetwork(stack);
-				}
-			}
-		}
-
-		@Override
-		public void onSlotChanged() {
-		}
-
-		@Override
-		public int getSlotStackLimit() {
-			return Integer.MAX_VALUE;
-		}
-
-		@Override
-		public ItemStack decrStackSize(int amount) {
-			ItemStack nw = stack.copy();
-			nw.setCount(0);
-			return nw;
-		}
-
-		@Override
-		public boolean isHere(IInventory inv, int slotIn) {
-			return false;
-		}
-
-		public int getCount() {
-			return count;
-		}
-
-		public void setStack(ItemStack stack) {
-			this.stack = stack;
-		}
-
-	}
 	
 	public Slot floppySlot;
 
@@ -263,13 +189,6 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 			});
 		}
 		
-		for (int i = 0; i < slotsTall; ++i) {
-			for (int j = 0; j < slotsAcross; ++j) {
-				addSlotToContainer(new SlotVirtual(j + i * slotsAcross, x + j * 18, (18 + i * 18) + startY));
-			}
-		}
-		updateSlots();
-
 		if (hasCraftingMatrix) {
 			addSlotToContainer(new SlotCrafting(player, craftMatrix, craftResult, 0, 26, 104));
 	
@@ -292,6 +211,11 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 
 	}
 
+	protected void resync() {
+		if (world.isRemote) return;
+		// TODO
+	}
+	
 	/**
 	 * If overridden, <b>do not call super</b>.
 	 */
@@ -303,59 +227,6 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 		playerInventoryOffsetX = 0;
 		playerInventoryOffsetY = 37;
 		hasCraftingMatrix = true;
-	}
-
-	public void updateSlots() {
-		if (world.isRemote) return;
-		lastChangeId = terminal.hasStorage() ? terminal.getStorage().getChangeId() : 0;
-		List<NetworkType> typesAll = terminal.hasStorage() ? terminal.getStorage().getTypes() : Collections.emptyList();
-		if (!searchQuery.isEmpty()) {
-			Iterator<NetworkType> itr = typesAll.iterator();
-			while (itr.hasNext()) {
-				ItemStack is = itr.next().getStack();
-				if (!is.getDisplayName().toLowerCase().contains(searchQuery)) {
-					itr.remove();
-				}
-			}
-		}
-		List<NetworkType> types = Lists.newArrayList();
-		outer: for (NetworkType type : typesAll) {
-			if (type.getStack().isEmpty()) continue;
-			for (NetworkType existing : types) {
-				if (ItemStack.areItemsEqual(type.getStack(), existing.getStack()) && ItemStack.areItemStackTagsEqual(type.getStack(), existing.getStack())) {
-					existing.getStack().setCount(existing.getStack().getCount()+type.getStack().getCount());
-					existing.setLastModified(Math.max(existing.getLastModified(), type.getLastModified()));
-					continue outer;
-				}
-			}
-			if (!type.getStack().isEmpty()) {
-				types.add(type);
-			}
-		}
-		if (sortAscending) {
-			Collections.sort(types, sortMode.comparator);
-		} else {
-			Collections.sort(types, (a, b) -> sortMode.comparator.compare(b, a));
-		}
-		if (scrollOffset < 0) {
-			scrollOffset = 0;
-		}
-		int idx = scrollOffset*slotsAcross;
-		for (Slot slot : inventorySlots) {
-			if (slot instanceof SlotVirtual) {
-				SlotVirtual sv = (SlotVirtual)slot;
-				if (idx < types.size()) {
-					sv.setStack(types.get(idx).getStack());
-				} else {
-					sv.setStack(ItemStack.EMPTY);
-				}
-				idx++;
-			}
-		}
-		rows = (int)Math.ceil(types.size()/(float)slotsAcross);
-		for (IContainerListener crafter : listeners) {
-			crafter.sendWindowProperty(this, 0, rows);
-		}
 	}
 
 	@Override
@@ -470,9 +341,6 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 			default:
 				scrollOffset = id;
 				break;
-		}
-		if (id > -10) {
-			updateSlots();
 		}
 		return true;
 	}
@@ -623,11 +491,11 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 	public boolean canInteractWith(EntityPlayer player) {
 		if (!world.isRemote) {
 			if (terminal.hasStorage() && terminal.getStorage().getChangeId() != lastChangeId) {
-				updateSlots();
+				resync();
 			}
 			if (!Objects.equal(lastApn, terminal.getAPN())) {
 				lastApn = terminal.getAPN();
-				updateSlots();
+				resync();
 			}
 		}
 		boolean b = player == this.player && terminal.canContinueInteracting(player);
@@ -652,7 +520,7 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 		listener.sendWindowProperty(this, 5, searchFocusedByDefault ? 1 : 0);
 		listener.sendWindowProperty(this, 6, jeiSyncEnabled ? 1 : 0);
 		if (listener instanceof EntityPlayerMP) {
-			new SetSearchQueryClientMessage(windowId, searchQuery).sendTo((EntityPlayerMP)listener);
+			new SetSearchQueryMessage(windowId, searchQuery).sendTo((EntityPlayerMP)listener);
 		}
 	}
 
@@ -686,115 +554,65 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 	@Override
 	public ItemStack slotClick(int slotId, int clickedButton, ClickType clickTypeIn, EntityPlayer player) {
 		Slot slot = slotId >= 0 ? getSlot(slotId) : null;
-		if (slot instanceof SlotVirtual) {
-			if (!player.world.isRemote) {
-				if (!player.inventory.getItemStack().isEmpty()) {
-					if (clickTypeIn == ClickType.PICKUP) {
-						if (clickedButton == 0) {
-							addItemToNetwork(player.inventory.getItemStack());
-						} else if (clickedButton == 1) {
-							addItemToNetwork(player.inventory.getItemStack().splitStack(1));
-						}
-					}
-				} else if (slot.getHasStack()) {
-					if (clickTypeIn == ClickType.PICKUP) {
-						if (clickedButton == 0) {
-							player.inventory.setItemStack(removeItemsFromNetwork(slot.getStack(), Math.min(64, slot.getStack().getMaxStackSize())));
-						} else if (clickedButton == 1) {
-							player.inventory.setItemStack(removeItemsFromNetwork(slot.getStack(), 1));
-						}
-					} else if (clickTypeIn == ClickType.QUICK_MOVE) {
-						ItemStack is = ItemStack.EMPTY;
-						if (clickedButton == 0) {
-							is = removeItemsFromNetwork(slot.getStack(), Math.min(64, slot.getStack().getMaxStackSize()));
-						} else if (clickedButton == 1) {
-							is = removeItemsFromNetwork(slot.getStack(), 1);
-						}
-						if (!is.isEmpty()) {
-							if (!player.inventory.addItemStackToInventory(is)) {
-								addItemToNetwork(is);
+		if (clickTypeIn == ClickType.QUICK_MOVE) {
+			// shift click
+			if (!player.world.isRemote && slot != null) {
+				ItemStack stack = slot.getStack();
+				if (!stack.isEmpty()) {
+					if (slot instanceof SlotCrafting) {
+						ItemStack template = stack.copy();
+						for (int i = 0; i < craftingAmount.amountToCraft.apply(template); i++) {
+							stack = slot.getStack();
+							if (stack.isEmpty() || !ItemStack.areItemsEqual(template, stack)) break;
+							boolean success;
+							switch (craftingTarget) {
+								case INVENTORY:
+									success = player.inventory.addItemStackToInventory(stack);
+									break;
+								case NETWORK:
+									int amountOrig = stack.getCount();
+									ItemStack res = addItemToNetwork(stack).stack;
+									success = res.getCount() <= 0;
+									if (!success && !res.isEmpty()) {
+										removeItemsFromNetwork(stack, amountOrig-res.getCount());
+									}
+									break;
+								default:
+									success = false;
 							}
-							detectAndSendChanges();
+							if (!success) break;
+							for (int j = 0; j < 9; j++) {
+								ItemStack inSlot = craftMatrix.getStackInSlot(j);
+								if (inSlot.isEmpty()) continue;
+								ItemStack is = removeItemsFromNetwork(inSlot, 1);
+								if (!is.isEmpty() && is.getCount() > 0) {
+									inSlot.setCount(inSlot.getCount() + is.getCount());
+								}
+							}
+							slot.onTake(player, stack);
 						}
-					} else if (clickTypeIn == ClickType.THROW) {
-						ItemStack is = ItemStack.EMPTY;
-						if (clickedButton == 0) {
-							is = removeItemsFromNetwork(slot.getStack(), 1);
-						} else if (clickedButton == 1) {
-							is = removeItemsFromNetwork(slot.getStack(), Math.min(64, slot.getStack().getMaxStackSize()));
+						if (craftingAmount == CraftingAmount.MAX) {
+							craftingAmount = CraftingAmount.ONE;
+							for (IContainerListener ic : listeners) {
+								ic.sendWindowProperty(this, 4, craftingAmount.ordinal());
+							}
 						}
 						detectAndSendChanges();
-						player.dropItem(is, false);
+						return ItemStack.EMPTY;
+					} else {
+						ItemStack is = addItemToNetwork(stack).stack;
+						getSlot(slotId).putStack(is);
+						return is;
 					}
 				}
 			}
-			return player.inventory.getItemStack();
-		} else {
-			if (clickTypeIn == ClickType.QUICK_MOVE) {
-				// shift click
-				if (!player.world.isRemote && slot != null) {
-					ItemStack stack = slot.getStack();
-					if (!stack.isEmpty()) {
-						if (slot instanceof SlotCrafting) {
-							ItemStack template = stack.copy();
-							for (int i = 0; i < craftingAmount.amountToCraft.apply(template); i++) {
-								stack = slot.getStack();
-								if (stack.isEmpty() || !ItemStack.areItemsEqual(template, stack)) break;
-								boolean success;
-								switch (craftingTarget) {
-									case INVENTORY:
-										success = player.inventory.addItemStackToInventory(stack);
-										break;
-									case NETWORK:
-										int amountOrig = stack.getCount();
-										ItemStack res = addItemToNetwork(stack).stack;
-										success = res.getCount() <= 0;
-										if (!success && !res.isEmpty()) {
-											removeItemsFromNetwork(stack, amountOrig-res.getCount());
-										}
-										break;
-									default:
-										success = false;
-								}
-								if (!success) break;
-								for (int j = 0; j < 9; j++) {
-									ItemStack inSlot = craftMatrix.getStackInSlot(j);
-									if (inSlot.isEmpty()) continue;
-									ItemStack is = removeItemsFromNetwork(inSlot, 1);
-									if (!is.isEmpty() && is.getCount() > 0) {
-										inSlot.setCount(inSlot.getCount() + is.getCount());
-									}
-								}
-								slot.onTake(player, stack);
-							}
-							if (craftingAmount == CraftingAmount.MAX) {
-								craftingAmount = CraftingAmount.ONE;
-								for (IContainerListener ic : listeners) {
-									ic.sendWindowProperty(this, 4, craftingAmount.ordinal());
-								}
-							}
-							detectAndSendChanges();
-							return ItemStack.EMPTY;
-						} else {
-							ItemStack is = addItemToNetwork(stack).stack;
-							getSlot(slotId).putStack(is);
-							return is;
-						}
-					}
-				}
-				if (slotId >= 0) {
-					return getSlot(slotId).getStack();
-				} else {
-					return ItemStack.EMPTY;
-				}
+			if (slotId >= 0) {
+				return getSlot(slotId).getStack();
+			} else {
+				return ItemStack.EMPTY;
 			}
-			return super.slotClick(slotId, clickedButton, clickTypeIn, player);
 		}
-	}
-
-	public void updateSearchQuery(String query) {
-		searchQuery = query.toLowerCase();
-		updateSlots();
+		return super.slotClick(slotId, clickedButton, clickTypeIn, player);
 	}
 
 	@Override
@@ -827,7 +645,7 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 
 	@Override
 	public boolean canMergeSlot(ItemStack stack, Slot slot) {
-		return slot.inventory != craftResult && !(slot instanceof SlotVirtual) && super.canMergeSlot(stack, slot);
+		return slot.inventory != craftResult && super.canMergeSlot(stack, slot);
 	}
 
 	@Override

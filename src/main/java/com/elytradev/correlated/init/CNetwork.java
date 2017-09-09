@@ -20,8 +20,7 @@ import com.elytradev.correlated.network.fx.StartWeldthrowingMessage;
 import com.elytradev.correlated.network.inventory.AddStatusLineMessage;
 import com.elytradev.correlated.network.inventory.InsertAllMessage;
 import com.elytradev.correlated.network.inventory.RecipeTransferMessage;
-import com.elytradev.correlated.network.inventory.SetSearchQueryClientMessage;
-import com.elytradev.correlated.network.inventory.SetSearchQueryServerMessage;
+import com.elytradev.correlated.network.inventory.SetSearchQueryMessage;
 import com.elytradev.correlated.network.inventory.SetSlotExtendedMessage;
 import com.elytradev.correlated.network.wireless.APNRequestMessage;
 import com.elytradev.correlated.network.wireless.APNResponseMessage;
@@ -43,8 +42,7 @@ public class CNetwork {
 	public static void register() {
 		CONTEXT = NetworkContext.forChannel("Correlated");
 		
-		CONTEXT.register(SetSearchQueryClientMessage.class);
-		CONTEXT.register(SetSearchQueryServerMessage.class);
+		CONTEXT.register(SetSearchQueryMessage.class);
 		CONTEXT.register(SetSlotExtendedMessage.class);
 		CONTEXT.register(StartWeldthrowingMessage.class);
 		CONTEXT.register(DungeonTransitionMessage.class);
