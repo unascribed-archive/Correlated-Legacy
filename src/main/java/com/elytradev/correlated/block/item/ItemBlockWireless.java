@@ -35,14 +35,13 @@ public class ItemBlockWireless extends ItemBlock {
 	@Override
 	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
 		if (stack.getMetadata() == 0) {
-			tooltip.add(C28n.format("tile.correlated.microwave_beam.0"));
-			tooltip.add(C28n.format("tile.correlated.microwave_beam.1"));
+			C28n.formatList(tooltip, "tile.correlated.microwave_beam");
 			tooltip.add(EnergyHelper.formatPotentialUsage(CConfig.beamPUsage));
 		} else if (stack.getMetadata() == 1) {
-			tooltip.add(C28n.format("tile.correlated.optical.0"));
+			C28n.formatList(tooltip, "tile.correlated.optical");
 			tooltip.add(EnergyHelper.formatPotentialUsage(CConfig.opticalPUsage));
 		} else if (stack.getMetadata() == 2) {
-			tooltip.add(C28n.format("tile.correlated.beacon_lens.0"));
+			C28n.formatList(tooltip, "tile.correlated.beacon_lens");
 		}
 	}
 	
