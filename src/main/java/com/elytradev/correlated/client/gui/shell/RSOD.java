@@ -5,7 +5,7 @@ import org.lwjgl.input.Keyboard;
 import com.elytradev.correlated.client.IBMFontRenderer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
+import com.elytradev.correlated.C28n;
 
 public class RSOD extends Program {
 	private String error;
@@ -23,7 +23,7 @@ public class RSOD extends Program {
 		int len = (int)(header.length() * 4.5f);
 		drawStringInverseVideo((w/2)-(len/2), (h/2)-16, header);
 		String key = "tooltip.correlated.controller_error."+error;
-		String errorLocal = I18n.format(key);
+		String errorLocal = C28n.format(key);
 		float errLen = IBMFontRenderer.measure(errorLocal);
 		drawString((w/2)-(errLen/2), (h/2), errorLocal);
 	}

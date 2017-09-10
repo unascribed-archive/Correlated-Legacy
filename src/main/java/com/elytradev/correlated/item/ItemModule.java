@@ -6,7 +6,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.translation.I18n;
+import com.elytradev.correlated.C28n;
 
 public class ItemModule extends Item {
 	public static final String[] types = {
@@ -33,7 +33,7 @@ public class ItemModule extends Item {
 
 	@Override
 	public String getItemStackDisplayName(ItemStack stack) {
-		return I18n.translateToLocal("item.correlated.module."+getType(stack)+".name");
+		return C28n.format("item.correlated.module."+getType(stack)+".name");
 	}
 
 	@Override

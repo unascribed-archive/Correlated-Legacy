@@ -7,7 +7,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.translation.I18n;
+import com.elytradev.correlated.C28n;
 import net.minecraft.world.World;
 
 public class ItemKeycard extends Item {
@@ -35,7 +35,7 @@ public class ItemKeycard extends Item {
 
 	@Override
 	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-		tooltip.add(I18n.translateToLocal("tooltip.correlated.keycard"));
+		tooltip.add(C28n.format("tooltip.correlated.keycard"));
 	}
 
 	@Override

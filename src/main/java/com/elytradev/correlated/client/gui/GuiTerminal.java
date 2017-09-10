@@ -1,6 +1,15 @@
 package com.elytradev.correlated.client.gui;
 
 import java.io.IOException;
+import java.math.RoundingMode;
+import java.text.NumberFormat;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.function.Supplier;
+
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -8,36 +17,56 @@ import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.EnergyUnit;
 import com.elytradev.correlated.client.IBMFontRenderer;
 import com.elytradev.correlated.client.gui.shell.GuiTerminalShell;
+import com.elytradev.correlated.helper.Numbers;
 import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.inventory.ContainerTerminal;
 import com.elytradev.correlated.inventory.ContainerTerminal.CraftingAmount;
 import com.elytradev.correlated.inventory.ContainerTerminal.CraftingTarget;
-import com.elytradev.correlated.inventory.ContainerTerminal.SortMode;
+import com.elytradev.correlated.inventory.SortMode;
 import com.elytradev.correlated.network.inventory.InsertAllMessage;
+import com.elytradev.correlated.network.inventory.SetSearchQueryServerMessage;
+import com.elytradev.correlated.storage.NetworkType;
+import com.elytradev.correlated.storage.Prototype;
 import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-
+import com.google.common.collect.Maps;
+import com.google.common.math.IntMath;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.GlStateManager.DestFactor;
 import net.minecraft.client.renderer.GlStateManager.SourceFactor;
-import net.minecraft.client.resources.I18n;
+import com.elytradev.correlated.C28n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.client.event.RenderTooltipEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
+import net.minecraftforge.fml.client.config.GuiUtils;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class GuiTerminal extends GuiContainer {
 	private static final ResourceLocation background = new ResourceLocation("correlated", "textures/gui/container/terminal.png");
 	private static final ResourceLocation ENERGY = new ResourceLocation("correlated", "textures/misc/energy.png");
+	private static final ImmutableList<String> ONE_EMPTY_STRING = ImmutableList.of("");
 
+	private static final NumberFormat GROUPED_INTEGER = ((Supplier<NumberFormat>)() -> {
+		NumberFormat nf = NumberFormat.getIntegerInstance();
+		nf.setGroupingUsed(true);
+		return nf;
+	}).get();
+	
 	private ContainerTerminal container;
 	private GuiTextField searchField = new GuiTextField(0, Minecraft.getMinecraft().fontRenderer, 0, 0, 85, 8);
 	private String lastSearchQuery = "";
@@ -52,9 +81,17 @@ public class GuiTerminal extends GuiContainer {
 	private GuiButtonExt partition;
 	private GuiButtonExt preferredEnergySystem;
 	
-	private String lastJeiQuery;
+	private boolean isDrawingHoverTooltip = false;
 	
 	public int signalStrength = -1;
+	private int rows;
+	private NetworkType hovered;
+	
+	private Map<Prototype, NetworkType> networkContents = Maps.newHashMap();
+	private List<NetworkType> networkContentsView = Lists.newArrayList();
+	
+	private boolean dirty = false;
+	private String lastJeiQuery;
 	
 	public GuiTerminal(ContainerTerminal container) {
 		super(container);
@@ -65,6 +102,7 @@ public class GuiTerminal extends GuiContainer {
 		xSize = 256;
 		ySize = 222;
 		lastJeiQuery = Correlated.inst.jeiQueryReader.get();
+		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	protected boolean hasStatusLine() {
@@ -79,6 +117,46 @@ public class GuiTerminal extends GuiContainer {
 		return background;
 	}
 	
+	public void updateNetworkContents(List<NetworkType> addOrChange, List<Prototype> remove, boolean overwrite) {
+		if (overwrite) {
+			networkContents.clear();
+		} else {
+			for (Prototype rm : remove) {
+				networkContents.remove(rm);
+			}
+		}
+		for (NetworkType add : addOrChange) {
+			Prototype p = add.getPrototype();
+			networkContents.put(p, add);
+		}
+		dirty = true;
+	}
+	
+	private void updateNetworkView() {
+		networkContentsView.clear();
+		networkContentsView.addAll(networkContents.values());
+		String query = searchField.getText().toLowerCase();
+		ListIterator<NetworkType> iter = networkContentsView.listIterator();
+		while (iter.hasNext()) {
+			NetworkType type = iter.next();
+			ItemStack stack = type.getStack();
+			if (stack.getDisplayName().toLowerCase().contains(query)) continue;
+			List<String> tooltip = stack.getTooltip(Minecraft.getMinecraft().player, Minecraft.getMinecraft().gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
+			for (String s : tooltip) {
+				if (s.toLowerCase().contains(query)) continue;
+			}
+			if (Minecraft.getMinecraft().gameSettings.advancedItemTooltips) {
+				if (stack.getItem().getRegistryName().toString().contains(query)) continue;
+			}
+			
+			iter.remove();
+		}
+		Comparator<NetworkType> comparator = container.sortMode.comparator;
+		Collections.sort(networkContentsView, container.sortAscending ? comparator : comparator.reversed());
+		rows = IntMath.divide(networkContentsView.size(), container.slotsAcross, RoundingMode.UP);
+		dirty = false;
+	}
+	
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		drawDefaultBackground();
@@ -88,6 +166,10 @@ public class GuiTerminal extends GuiContainer {
 	
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+		GlStateManager.color(1, 1, 1);
+		if (dirty) {
+			updateNetworkView();
+		}
 		if (container.status.isEmpty()) {
 			if (Math.random() == 0.5) {
 				container.status.add(new TextComponentTranslation("correlated.shell.readyEgg"));
@@ -110,14 +192,53 @@ public class GuiTerminal extends GuiContainer {
 	}
 	
 	protected String getTitle() {
-		return I18n.format("gui.correlated.terminal");
+		return C28n.format("gui.correlated.terminal");
 	}
 
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 		fontRenderer.drawString(getTitle(), 8, 6, 0x404040);
+		GlStateManager.color(1, 1, 1);
+		
+		int mouseXOfs = mouseX - (width - xSize) / 2;
+		int mouseYOfs = mouseY - (height - ySize) / 2;
+		
+		hovered = null;
+		
+		RenderHelper.enableGUIStandardItemLighting();
+		int j = 0;
+		for (NetworkType type : networkContentsView) {
+			int x = container.startX + (j % container.slotsAcross) * 18;
+			int y = (container.startY + 18) + (j / container.slotsAcross) * 18;
+			itemRender.renderItemAndEffectIntoGUI(mc.player, type.getStack(), x, y);
+			itemRender.renderItemOverlayIntoGUI(fontRenderer, type.getStack(), x, y, "");
+			GlStateManager.disableLighting();
+			GlStateManager.disableDepth();
+			GlStateManager.colorMask(true, true, true, false);
+
+			GlStateManager.pushMatrix();
+			GlStateManager.scale(0.5f, 0.5f, 1f);
+			String str = Numbers.humanReadableItemCount(type.getStack().getCount());
+			fontRenderer.drawStringWithShadow(str, ((x*2)+32)-fontRenderer.getStringWidth(str), (y*2)+24, -1);
+			GlStateManager.popMatrix();
+			
+			if (mouseXOfs > x && mouseXOfs < x+16 &&
+					mouseYOfs > y && mouseYOfs < y+16) {
+				drawRect(x, y, x+16, y+16, 0x80FFFFFF);
+				hovered = type;
+			}
+			
+			GlStateManager.colorMask(true, true, true, true);
+			GlStateManager.enableLighting();
+			GlStateManager.enableDepth();
+			j++;
+		}
+		GlStateManager.disableLighting();
+		
+		GlStateManager.color(1, 1, 1);
+		
 		if (hasStatusLine()) {
-			String lastLine = signalStrength == 0 ? I18n.format("gui.correlated.noSignal") : container.status.get(container.status.size()-1).getFormattedText().trim();
+			String lastLine = signalStrength == 0 ? C28n.format("gui.correlated.noSignal") : container.status.get(container.status.size()-1).getFormattedText().trim();
 			int maxLength = signalStrength == -1 ? 160 : 144;
 			int len = (int)IBMFontRenderer.measure(lastLine);
 			if (len > maxLength) {
@@ -140,7 +261,7 @@ public class GuiTerminal extends GuiContainer {
 		}
 		
 		int u = 232;
-		if (container.rows <= container.slotsTall) {
+		if (rows <= container.slotsTall) {
 			u += 12;
 		}
 		int y = 18;
@@ -166,6 +287,9 @@ public class GuiTerminal extends GuiContainer {
 
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(-(width - xSize) / 2, -(height - ySize) / 2, 0);
+		
+		GlStateManager.color(1, 1, 1);
+		
 		if (container.hasCraftingMatrix) {
 			drawTexturedModalRect(clearGrid.x+2, clearGrid.y+2, 0, 190, 2, 10);
 			drawTexturedModalRect(craftingTarget.x+2, craftingTarget.y+2, container.craftingTarget.ordinal()*8, 200, 8, 8);
@@ -198,50 +322,50 @@ public class GuiTerminal extends GuiContainer {
 			searchField.drawTextBox();
 			if (sortMode.isMouseOver()) {
 				drawHoveringText(Lists.newArrayList(
-						I18n.format("tooltip.correlated.sortmode"),
-						"\u00A77"+I18n.format("tooltip.correlated.sortmode."+container.sortMode.lowerName)
+						C28n.format("tooltip.correlated.sortmode"),
+						"\u00A77"+C28n.format("tooltip.correlated.sortmode."+container.sortMode.lowerName)
 					), mouseX, mouseY);
 			}
 			if (sortDirection.isMouseOver()) {
 				String str = (container.sortAscending ? "ascending" : "descending");
 				drawHoveringText(Lists.newArrayList(
-						I18n.format("tooltip.correlated.sortdirection"),
-						"\u00A77"+I18n.format("tooltip.correlated.sortdirection."+str)
+						C28n.format("tooltip.correlated.sortdirection"),
+						"\u00A77"+C28n.format("tooltip.correlated.sortdirection."+str)
 					), mouseX, mouseY);
 			}
 			if (focusByDefault.isMouseOver()) {
 				drawHoveringText(Lists.newArrayList(
-						I18n.format("tooltip.correlated.focus_search_by_default."+container.searchFocusedByDefault)
+						C28n.format("tooltip.correlated.focus_search_by_default."+container.searchFocusedByDefault)
 					), mouseX, mouseY);
 			}
 			if (preferredEnergySystem.isMouseOver()) {
 				drawHoveringText(Lists.newArrayList(
-						I18n.format("tooltip.correlated.preferred_energy"),
+						C28n.format("tooltip.correlated.preferred_energy"),
 						"\u00A77"+CConfig.preferredUnit.displayName
 					), mouseX, mouseY);
 			}
 			if (jeiSync != null && jeiSync.isMouseOver()) {
 				drawHoveringText(Lists.newArrayList(
-						I18n.format("tooltip.correlated.jei_sync."+container.jeiSyncEnabled)
+						C28n.format("tooltip.correlated.jei_sync."+container.jeiSyncEnabled)
 					), mouseX, mouseY);
 			}
 			if (container.hasCraftingMatrix) {
 				if (craftingAmount.isMouseOver()) {
 					drawHoveringText(Lists.newArrayList(
-							I18n.format("tooltip.correlated.crafting_amount"),
-							"\u00A77"+I18n.format("tooltip.correlated.crafting.only_shift_click"),
-							"\u00A77"+I18n.format("tooltip.correlated.crafting_amount."+container.craftingAmount.lowerName)
+							C28n.format("tooltip.correlated.crafting_amount"),
+							"\u00A77"+C28n.format("tooltip.correlated.crafting.only_shift_click"),
+							"\u00A77"+C28n.format("tooltip.correlated.crafting_amount."+container.craftingAmount.lowerName)
 						), mouseX, mouseY);
 				}
 				if (craftingTarget.isMouseOver()) {
 					drawHoveringText(Lists.newArrayList(
-							I18n.format("tooltip.correlated.crafting_target"),
-							"\u00A77"+I18n.format("tooltip.correlated.crafting.only_shift_click"),
-							"\u00A77"+I18n.format("tooltip.correlated.crafting_target."+container.craftingTarget.lowerName)
+							C28n.format("tooltip.correlated.crafting_target"),
+							"\u00A77"+C28n.format("tooltip.correlated.crafting.only_shift_click"),
+							"\u00A77"+C28n.format("tooltip.correlated.crafting_target."+container.craftingTarget.lowerName)
 						), mouseX, mouseY);
 				}
 				if (clearGrid.isMouseOver()) {
-					drawHoveringText(Lists.newArrayList(I18n.format("tooltip.correlated.clear_crafting_grid")), mouseX, mouseY);
+					drawHoveringText(Lists.newArrayList(C28n.format("tooltip.correlated.clear_crafting_grid")), mouseX, mouseY);
 				}
 			}
 		}
@@ -249,28 +373,55 @@ public class GuiTerminal extends GuiContainer {
 			if (dump.enabled && dump.isMouseOver()) {
 				if (isShiftKeyDown() || container.isFilling) {
 					drawHoveringText(Lists.newArrayList(
-							I18n.format("tooltip.correlated.fill"),
-							"\u00A77"+I18n.format("tooltip.correlated.release_shift_to_dump")
+							C28n.format("tooltip.correlated.fill"),
+							"\u00A77"+C28n.format("tooltip.correlated.release_shift_to_dump")
 						), mouseX, mouseY);
 				} else {
 					drawHoveringText(Lists.newArrayList(
-							I18n.format("tooltip.correlated.dump"),
-							"\u00A77"+I18n.format("tooltip.correlated.shift_to_fill")
+							C28n.format("tooltip.correlated.dump"),
+							"\u00A77"+C28n.format("tooltip.correlated.shift_to_fill")
 						), mouseX, mouseY);
 				}
 			}
 			if (partition.enabled && partition.isMouseOver()) {
 				drawHoveringText(Lists.newArrayList(
-						I18n.format("tooltip.correlated.partition")
+						C28n.format("tooltip.correlated.partition")
 					), mouseX, mouseY);
 			}
 		}
+		
 		GlStateManager.disableLighting();
 		mc.renderEngine.bindTexture(ENERGY);
 		GlStateManager.color(1, 1, 1);
-		drawModalRectWithCustomSizedTexture(preferredEnergySystem.x+2, preferredEnergySystem.y+2, 0, CConfig.preferredUnit.ordinal()*8, 8, 8, 8, 80);
+		drawModalRectWithCustomSizedTexture(preferredEnergySystem.x+2, preferredEnergySystem.y+2, 0, CConfig.preferredUnit.ordinal()*8, 8, 8, 8, 72);
+		
+		if (hovered != null) {
+			List<String> tooltip = getItemToolTip(hovered.getStack());
+			int totalWidth = fontRenderer.getStringWidth(GROUPED_INTEGER.format(hovered.getStack().getCount())+" total")/2;
+			int lastModifiedWidth = fontRenderer.getStringWidth(NetworkType.formatLastModified(hovered.getLastModified()))/2;
+			int spaceWidth = fontRenderer.getCharWidth(' ');
+			tooltip.add(Strings.repeat(" ", IntMath.divide(Math.max(totalWidth, lastModifiedWidth), spaceWidth, RoundingMode.UP)));
+			isDrawingHoverTooltip = true;
+			GuiUtils.drawHoveringText(hovered.getStack(), tooltip, mouseX, mouseY, width, height, -1, fontRenderer);
+			isDrawingHoverTooltip = false;
+		}
 		GlStateManager.popMatrix();
 
+	}
+	
+	@SubscribeEvent
+	public void onRenderTooltipPostText(RenderTooltipEvent.PostText e) {
+		if (isDrawingHoverTooltip) {
+			GlStateManager.pushMatrix();
+			GlStateManager.scale(0.5f, 0.5f, 1);
+			int x = e.getX()*2;
+			int y = (e.getY()+e.getHeight()-8)*2;
+			String totalString = GROUPED_INTEGER.format(hovered.getStack().getCount())+" total";
+			String modifiedString = NetworkType.formatLastModified(hovered.getLastModified());
+			fontRenderer.drawStringWithShadow(totalString, (x+(e.getWidth()*2))-fontRenderer.getStringWidth(totalString), y, 0xAAAAAA);
+			fontRenderer.drawStringWithShadow(modifiedString, (x+(e.getWidth()*2))-fontRenderer.getStringWidth(modifiedString), y+10, 0xAAAAAA);
+			GlStateManager.popMatrix();
+		}
 	}
 
 	private boolean draggingScrollKnob = false;
@@ -327,6 +478,7 @@ public class GuiTerminal extends GuiContainer {
 		if (button.id == 0) {
 			mc.playerController.sendEnchantPacket(container.windowId, container.sortAscending ? -2 : -1);
 			container.sortAscending = !container.sortAscending;
+			dirty = true;
 		} else if (button.id == 1) {
 			switch (container.sortMode) {
 				case QUANTITY:
@@ -350,6 +502,7 @@ public class GuiTerminal extends GuiContainer {
 					mc.playerController.sendEnchantPacket(container.windowId, -3);
 					break;
 			}
+			dirty = true;
 		} else if (button.id == 2) {
 			switch (container.craftingAmount) {
 				case ONE:
@@ -415,11 +568,11 @@ public class GuiTerminal extends GuiContainer {
 	@Override
 	public void updateScreen() {
 		super.updateScreen();
-		if (container.rows > container.slotsTall) {
-			int dWheel = Mouse.getDWheel()/container.rows;
+		if (rows > container.slotsTall) {
+			int dWheel = Mouse.getDWheel()/rows;
 			if (dWheel != 0) {
 				scrollKnobY = Math.max(Math.min(getScrollTrackHeight()-9, scrollKnobY-dWheel), 6);
-				mc.playerController.sendEnchantPacket(container.windowId, Math.round(((scrollKnobY-6)/(float)(getScrollTrackHeight()-9))*(container.rows-container.slotsTall)));
+				mc.playerController.sendEnchantPacket(container.windowId, Math.round(((scrollKnobY-6)/(float)(getScrollTrackHeight()-9))*(rows-container.slotsTall)));
 			}
 		} else {
 			scrollKnobY = 6;
@@ -443,7 +596,8 @@ public class GuiTerminal extends GuiContainer {
 			}
 			ticksSinceLastQueryChange++;
 			if (ticksSinceLastQueryChange == 2) {
-				// TODO
+				new SetSearchQueryServerMessage(container.windowId, lastSearchQuery).sendToServer();
+				dirty = true;
 			}
 		}
 	}
@@ -533,11 +687,11 @@ public class GuiTerminal extends GuiContainer {
 
 	@Override
 	protected void mouseClickMove(int mouseX, int mouseY, int mouseButton, long timeSinceLastClick) {
-		if (draggingScrollKnob && container.rows > container.slotsTall) {
+		if (draggingScrollKnob && rows > container.slotsTall) {
 			int y = (height - ySize) / 2;
 			y += getScrollTrackY();
 			scrollKnobY = Math.max(Math.min(getScrollTrackHeight()-9, (mouseY-24)-y), 6);
-			int s = Math.round(((scrollKnobY+12)/(float)(getScrollTrackHeight()-9))*(container.rows-container.slotsTall));
+			int s = Math.round(((scrollKnobY+12)/(float)(getScrollTrackHeight()-9))*(rows-container.slotsTall));
 			mc.playerController.sendEnchantPacket(container.windowId, s);
 		}
 		super.mouseClickMove(mouseX, mouseY, mouseButton, timeSinceLastClick);

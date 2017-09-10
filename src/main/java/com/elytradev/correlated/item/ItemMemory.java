@@ -7,7 +7,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.translation.I18n;
+import com.elytradev.correlated.C28n;
 
 public class ItemMemory extends Item {
 	public static final int[] tierSizes = {
@@ -30,7 +30,7 @@ public class ItemMemory extends Item {
 
 	@Override
 	public String getItemStackDisplayName(ItemStack stack) {
-		return I18n.translateToLocalFormatted("item.correlated.memory.normal.name", Numbers.humanReadableBits(getMaxBits(stack)));
+		return C28n.format("item.correlated.memory.normal.name", Numbers.humanReadableBits(getMaxBits(stack)));
 	}
 
 	@Override

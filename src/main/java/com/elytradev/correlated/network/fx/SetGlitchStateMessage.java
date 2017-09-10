@@ -16,7 +16,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @ReceivedOn(Side.CLIENT)
-public class DungeonTransitionMessage extends Message {
+public class SetGlitchStateMessage extends Message {
 	public enum GlitchState {
 		NONE,
 		CORRUPTING,
@@ -35,16 +35,16 @@ public class DungeonTransitionMessage extends Message {
 	
 	public String seed;
 	
-	public DungeonTransitionMessage(NetworkContext ctx) {
+	public SetGlitchStateMessage(NetworkContext ctx) {
 		super(ctx);
 	}
-	public DungeonTransitionMessage(GlitchState state) {
+	public SetGlitchStateMessage(GlitchState state) {
 		super(CNetwork.CONTEXT);
 		this.state = state;
 		this.forcePosition = false;
 		this.seed = "";
 	}
-	public DungeonTransitionMessage(GlitchState state, float x, float y, float z, String seed) {
+	public SetGlitchStateMessage(GlitchState state, float x, float y, float z, String seed) {
 		super(CNetwork.CONTEXT);
 		this.state = state;
 		this.forcePosition = true;

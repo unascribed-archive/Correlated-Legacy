@@ -24,7 +24,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.text.translation.I18n;
+import com.elytradev.correlated.C28n;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.relauncher.Side;
@@ -84,15 +84,11 @@ public class ItemMisc extends Item {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-		int i = 0;
-		while (I18n.canTranslate("tooltip.correlated.misc." + getItemName(stack) + "." + i)) {
-			tooltip.add(I18n.translateToLocal("tooltip.correlated.misc." + getItemName(stack) + "." + i));
-			i++;
-		}
+		C28n.formatList(tooltip, "tooltip.correlated.misc." + getItemName(stack));
 		if (stack.getMetadata() == 8) {
 			int bitsUsed = CItems.DRIVE.getKilobitsUsed(stack)*1024;
 
-			tooltip.add(I18n.translateToLocalFormatted("tooltip.correlated.bytes_contained", Numbers.humanReadableBits(bitsUsed)));
+			tooltip.add(C28n.format("tooltip.correlated.bytes_contained", Numbers.humanReadableBits(bitsUsed)));
 		}
 	}
 
@@ -145,7 +141,7 @@ public class ItemMisc extends Item {
 	
 	@Override
 	public String getItemStackDisplayName(ItemStack stack) {
-		String raw = I18n.translateToLocal(this.getUnlocalizedName(stack) + ".name");
+		String raw = C28n.format(this.getUnlocalizedName(stack) + ".name");
 		if (stack.getMetadata() != 6) return raw;
 		StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < raw.length(); i++) {

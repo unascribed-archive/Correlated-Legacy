@@ -2,7 +2,7 @@ package com.elytradev.correlated.helper;
 
 import java.text.NumberFormat;
 
-import net.minecraft.util.text.translation.I18n;
+import com.elytradev.correlated.C28n;
 
 @SuppressWarnings("deprecation")
 public class Numbers {
@@ -14,29 +14,29 @@ public class Numbers {
 	public static final long KIBIBYTE = 1024L;
 	public static String humanReadableBits(long bits) {
 		long magnitude = Math.abs(bits);
-		if (bits == 1) return I18n.translateToLocal("numbers.correlated.bit");
+		if (bits == 1) return C28n.format("numbers.correlated.bit");
 		if (magnitude < 8) {
-			return I18n.translateToLocalFormatted("numbers.correlated.bits", bits);
+			return C28n.format("numbers.correlated.bits", bits);
 		}
 		return humanReadableBytes(bits/8);
 	}
 	public static String humanReadableBytes(long bytes) {
 		long magnitude = Math.abs(bytes);
-		if (bytes == 1) return I18n.translateToLocal("numbers.correlated.byte");
+		if (bytes == 1) return C28n.format("numbers.correlated.byte");
 		if (magnitude >= EXBIBYTE) {
-			return I18n.translateToLocalFormatted("numbers.correlated.exbibytes", bytes/EXBIBYTE);
+			return C28n.format("numbers.correlated.exbibytes", bytes/EXBIBYTE);
 		} else if (magnitude >= PEBIBYTE) {
-			return I18n.translateToLocalFormatted("numbers.correlated.pebibytes", bytes/PEBIBYTE);
+			return C28n.format("numbers.correlated.pebibytes", bytes/PEBIBYTE);
 		} else if (magnitude >= TEBIBYTE) {
-			return I18n.translateToLocalFormatted("numbers.correlated.tebibytes", bytes/TEBIBYTE);
+			return C28n.format("numbers.correlated.tebibytes", bytes/TEBIBYTE);
 		} else if (magnitude >= GIBIBYTE) {
-			return I18n.translateToLocalFormatted("numbers.correlated.gibibytes", bytes/GIBIBYTE);
+			return C28n.format("numbers.correlated.gibibytes", bytes/GIBIBYTE);
 		} else if (magnitude >= MEBIBYTE) {
-			return I18n.translateToLocalFormatted("numbers.correlated.mebibytes", bytes/MEBIBYTE);
+			return C28n.format("numbers.correlated.mebibytes", bytes/MEBIBYTE);
 		} else if (magnitude >= KIBIBYTE) {
-			return I18n.translateToLocalFormatted("numbers.correlated.kibibytes", bytes/KIBIBYTE);
+			return C28n.format("numbers.correlated.kibibytes", bytes/KIBIBYTE);
 		}
-		return I18n.translateToLocalFormatted("numbers.correlated.bytes", bytes);
+		return C28n.format("numbers.correlated.bytes", bytes);
 	}
 
 	public static final int GIGA = 1_000_000_000;
@@ -52,12 +52,12 @@ public class Numbers {
 			formatter.setMaximumFractionDigits(1);
 		}
 		if (count >= GIGA) {
-			return I18n.translateToLocalFormatted("numbers.correlated.giga", formatter.format((double)count/GIGA));
+			return C28n.format("numbers.correlated.giga", formatter.format((double)count/GIGA));
 		} else if (count >= MEGA) {
-			return I18n.translateToLocalFormatted("numbers.correlated.mega", formatter.format((double)count/MEGA));
+			return C28n.format("numbers.correlated.mega", formatter.format((double)count/MEGA));
 		} else if (count >= 10_000) {
-			return I18n.translateToLocalFormatted("numbers.correlated.kilo", formatter.format((double)count/KILO));
+			return C28n.format("numbers.correlated.kilo", formatter.format((double)count/KILO));
 		}
-		return I18n.translateToLocalFormatted("numbers.correlated.normal", count);
+		return C28n.format("numbers.correlated.normal", count);
 	}
 }

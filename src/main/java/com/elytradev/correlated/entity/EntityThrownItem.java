@@ -4,8 +4,8 @@ import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.init.CItems;
 import com.elytradev.correlated.init.CSoundEvents;
 import com.elytradev.correlated.init.CStacks;
-import com.elytradev.correlated.network.fx.DungeonTransitionMessage;
-import com.elytradev.correlated.network.fx.DungeonTransitionMessage.GlitchState;
+import com.elytradev.correlated.network.fx.SetGlitchStateMessage;
+import com.elytradev.correlated.network.fx.SetGlitchStateMessage.GlitchState;
 import com.elytradev.correlated.storage.NetworkType;
 import com.elytradev.correlated.world.DungeonPlayer;
 import com.elytradev.correlated.world.LimboProvider;
@@ -125,7 +125,7 @@ public class EntityThrownItem extends EntityThrowable {
 								player.setSeed(hashCode);
 								int dim = CConfig.limboDimId;
 								if (ForgeHooks.onTravelToDimension(p, dim)) {
-									new DungeonTransitionMessage(GlitchState.CORRUPTING, (float)posX, (float)posY, (float)posZ, Long.toHexString(hashCode)).sendTo(p);
+									new SetGlitchStateMessage(GlitchState.CORRUPTING, (float)posX, (float)posY, (float)posZ, Long.toHexString(hashCode)).sendTo(p);
 									WorldServer dest = p.mcServer.getWorld(dim);
 									if (dest.provider instanceof LimboProvider) {
 										((LimboProvider)dest.provider).addEnteringPlayer(player);

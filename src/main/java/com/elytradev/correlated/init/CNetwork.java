@@ -14,14 +14,15 @@ import com.elytradev.correlated.network.dungeon.LeaveDungeonMessage;
 import com.elytradev.correlated.network.fx.AddCaltropMessage;
 import com.elytradev.correlated.network.fx.AddGlobeMessage;
 import com.elytradev.correlated.network.fx.AddLineMessage;
-import com.elytradev.correlated.network.fx.DungeonTransitionMessage;
+import com.elytradev.correlated.network.fx.SetGlitchStateMessage;
 import com.elytradev.correlated.network.fx.ShowTerminalErrorMessage;
 import com.elytradev.correlated.network.fx.StartWeldthrowingMessage;
 import com.elytradev.correlated.network.inventory.AddStatusLineMessage;
 import com.elytradev.correlated.network.inventory.InsertAllMessage;
 import com.elytradev.correlated.network.inventory.RecipeTransferMessage;
-import com.elytradev.correlated.network.inventory.SetSearchQueryMessage;
-import com.elytradev.correlated.network.inventory.SetSlotExtendedMessage;
+import com.elytradev.correlated.network.inventory.SetSearchQueryClientMessage;
+import com.elytradev.correlated.network.inventory.SetSearchQueryServerMessage;
+import com.elytradev.correlated.network.inventory.UpdateNetworkContentsMessage;
 import com.elytradev.correlated.network.wireless.APNRequestMessage;
 import com.elytradev.correlated.network.wireless.APNResponseMessage;
 import com.elytradev.correlated.network.wireless.ChangeAPNMessage;
@@ -42,30 +43,48 @@ public class CNetwork {
 	public static void register() {
 		CONTEXT = NetworkContext.forChannel("Correlated");
 		
-		CONTEXT.register(SetSearchQueryMessage.class);
-		CONTEXT.register(SetSlotExtendedMessage.class);
+		// effects
+		
 		CONTEXT.register(StartWeldthrowingMessage.class);
-		CONTEXT.register(DungeonTransitionMessage.class);
-		CONTEXT.register(EnterDungeonMessage.class);
-		CONTEXT.register(SetAutomatonNameMessage.class);
-		CONTEXT.register(LeaveDungeonMessage.class);
+		CONTEXT.register(SetGlitchStateMessage.class);
 		CONTEXT.register(AddStatusLineMessage.class);
 		CONTEXT.register(AutomatonSpeakMessage.class);
-		CONTEXT.register(SetEditorStatusMessage.class);
-		CONTEXT.register(SaveProgramMessage.class);
-		CONTEXT.register(RecipeTransferMessage.class);
-		CONTEXT.register(ShowTerminalErrorMessage.class);
-		CONTEXT.register(InsertAllMessage.class);
-		CONTEXT.register(ChangeAPNMessage.class);
-		CONTEXT.register(SignalStrengthMessage.class);
-		CONTEXT.register(APNRequestMessage.class);
-		CONTEXT.register(APNResponseMessage.class);
-		CONTEXT.register(OpenDocumentationMessage.class);
-		CONTEXT.register(AnimationSeenMessage.class);
-		
 		CONTEXT.register(AddCaltropMessage.class);
 		CONTEXT.register(AddGlobeMessage.class);
 		CONTEXT.register(AddLineMessage.class);
+		CONTEXT.register(SetEditorStatusMessage.class);
+		
+		
+		// dungeon
+		
+		CONTEXT.register(EnterDungeonMessage.class);
+		CONTEXT.register(LeaveDungeonMessage.class);
+		
+		
+		// action requests
+		
+		CONTEXT.register(SetAutomatonNameMessage.class);
+		CONTEXT.register(SaveProgramMessage.class);
+		CONTEXT.register(RecipeTransferMessage.class);
+		CONTEXT.register(AnimationSeenMessage.class);
+		CONTEXT.register(OpenDocumentationMessage.class);
+		CONTEXT.register(ShowTerminalErrorMessage.class);
+		
+		
+		// request/response
+		
+		CONTEXT.register(APNRequestMessage.class);
+		CONTEXT.register(APNResponseMessage.class);
+		
+		
+		// terminal
+		
+		CONTEXT.register(SetSearchQueryClientMessage.class);
+		CONTEXT.register(SetSearchQueryServerMessage.class);
+		CONTEXT.register(UpdateNetworkContentsMessage.class);
+		CONTEXT.register(InsertAllMessage.class);
+		CONTEXT.register(ChangeAPNMessage.class);
+		CONTEXT.register(SignalStrengthMessage.class);
 		
 		NetworkRegistry.INSTANCE.registerGuiHandler(Correlated.inst, new CorrelatedGuiHandler());
 	}

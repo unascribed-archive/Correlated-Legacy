@@ -40,7 +40,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.client.resources.I18n;
+import com.elytradev.correlated.C28n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
@@ -122,11 +122,7 @@ public class ItemDrive extends Item {
 	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
 		tooltip.add(EnergyHelper.formatPotentialUsage(getPotentialConsumptionRate(stack)));
 		if (stack.getItemDamage() == 4) {
-			int i = 0;
-			while (I18n.hasKey("tooltip.correlated.void_drive." + i)) {
-				tooltip.add(I18n.format("tooltip.correlated.void_drive." + i));
-				i++;
-			}
+			C28n.formatList(tooltip, "tooltip.correlated.void_drive");
 		} else {
 			int bitsUsed = getKilobitsUsed(stack)*1024;
 			int bitsMax = getMaxKilobits(stack)*1024;
@@ -134,7 +130,7 @@ public class ItemDrive extends Item {
 			int bitsPercent = (int) (((double) bitsUsed / (double) bitsMax) * 100);
 
 			String max = Numbers.humanReadableBits(bitsMax);
-			tooltip.add(I18n.format("tooltip.correlated.bytes_used", Numbers.humanReadableBits(bitsUsed), max, bitsPercent));
+			tooltip.add(C28n.format("tooltip.correlated.bytes_used", Numbers.humanReadableBits(bitsUsed), max, bitsPercent));
 		}
 	}
 
@@ -163,8 +159,8 @@ public class ItemDrive extends Item {
 
 	@Override
 	public String getItemStackDisplayName(ItemStack stack) {
-		if (stack.getMetadata() == 4) return net.minecraft.util.text.translation.I18n.translateToLocal("item.correlated.drive.void.name");
-		return net.minecraft.util.text.translation.I18n.translateToLocalFormatted("item.correlated.drive.normal.name", Numbers.humanReadableBits(getMaxKilobits(stack)*1024));
+		if (stack.getMetadata() == 4) return com.elytradev.correlated.C28n.format("item.correlated.drive.void.name");
+		return com.elytradev.correlated.C28n.format("item.correlated.drive.normal.name", Numbers.humanReadableBits(getMaxKilobits(stack)*1024));
 	}
 
 	@Override

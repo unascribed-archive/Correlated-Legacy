@@ -9,7 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.text.translation.I18n;
+import com.elytradev.correlated.C28n;
 import net.minecraft.world.World;
 
 public class ItemFloppy extends Item {
@@ -21,7 +21,7 @@ public class ItemFloppy extends Item {
 	@Override
 	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
 		if (isWriteProtected(stack)) {
-			tooltip.add("\u00A77"+I18n.translateToLocal("tooltip.correlated.floppy.write_protected"));
+			tooltip.add("\u00A77"+C28n.format("tooltip.correlated.floppy.write_protected"));
 		}
 	}
 	

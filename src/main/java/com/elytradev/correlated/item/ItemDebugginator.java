@@ -47,7 +47,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.translation.I18n;
+import com.elytradev.correlated.C28n;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants.NBT;
@@ -80,7 +80,7 @@ public class ItemDebugginator extends Item {
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag) {
 		super.addInformation(stack, world, tooltip, flag);
-		tooltip.add("\u00A75\u00A7o"+I18n.translateToLocal("item.correlated.debugginator.hint"));
+		tooltip.add("\u00A75\u00A7o"+C28n.format("item.correlated.debugginator.hint"));
 	}
 	
 	@Override
@@ -111,7 +111,7 @@ public class ItemDebugginator extends Item {
 	
 	@Override
 	public double getDurabilityForDisplay(ItemStack stack) {
-		return stack.hasTagCompound() ? Math.min((System.currentTimeMillis()-stack.getTagCompound().getLong("LastTeleport"))/5000D, 1) : 0;
+		return stack.hasTagCompound() ? Math.min((System.currentTimeMillis()-stack.getTagCompound().getLong("LastTeleport"))/5000D, 1) : 1;
 	}
 	
 	@Override

@@ -22,7 +22,7 @@ import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.GlStateManager.DestFactor;
 import net.minecraft.client.renderer.GlStateManager.SourceFactor;
-import net.minecraft.client.resources.I18n;
+import com.elytradev.correlated.C28n;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
@@ -159,7 +159,7 @@ public class GuiSelectAPN extends GuiScreen {
 			scrollHandleY += height*(scrollY/(apns.size()-1));
 			drawTexturedModalRect(156, scrollHandleY, 232, 241, 12, 15);
 		}
-		fontRenderer.drawString(I18n.format("gui.correlated.select_apn"+(multiple ? "_multiple" : "")), 7, 6, 0x404040);
+		fontRenderer.drawString(C28n.format("gui.correlated.select_apn"+(multiple ? "_multiple" : "")), 7, 6, 0x404040);
 		GlStateManager.popMatrix();
 		super.drawScreen(mouseX+transX, mouseY+transY, partialTicks);
 	}
@@ -313,9 +313,9 @@ public class GuiSelectAPN extends GuiScreen {
 		super.initGui();
 		int transX = (width-176)/2;
 		int transY = (height-147)/2;
-		addButton(new GuiButtonExt(0, transX+128, transY+128, 40, 15, I18n.format("gui.done")));
+		addButton(new GuiButtonExt(0, transX+128, transY+128, 40, 15, C28n.format("gui.done")));
 		if (!client) {
-			addButton(new GuiButtonExt(1, transX+7, transY+128, 40, 15, I18n.format("gui.correlated.new")));
+			addButton(new GuiButtonExt(1, transX+7, transY+128, 40, 15, C28n.format("gui.correlated.new")));
 		}
 	}
 

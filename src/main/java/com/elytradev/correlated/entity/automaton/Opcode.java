@@ -2,11 +2,9 @@ package com.elytradev.correlated.entity.automaton;
 
 import java.util.Locale;
 import java.util.Map;
-
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import com.elytradev.correlated.entity.EntityAutomaton;
-import com.elytradev.correlated.function.BiConsumer;
-import com.elytradev.correlated.function.IntFunction;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 
@@ -21,15 +19,15 @@ public abstract class Opcode {
 		public final String hint;
 		public final Function<String, ?> parser;
 		public final BiConsumer<ByteBuf, Object> writer;
-		public final IntFunction<Object> sizer;
+		public final Function<Object, Integer> sizer;
 		private <T> ArgumentSpec(char hint, Function<String, T> parser, BiConsumer<ByteBuf, T> writer, int size) {
 			this(hint, parser, writer, o -> size);
 		}
-		private <T> ArgumentSpec(char hint, Function<String, T> parser, BiConsumer<ByteBuf, T> writer, IntFunction<T> sizer) {
+		private <T> ArgumentSpec(char hint, Function<String, T> parser, BiConsumer<ByteBuf, T> writer, Function<T, Integer> sizer) {
 			this.hint = Character.toString(hint);
 			this.parser = parser;
 			this.writer = (BiConsumer<ByteBuf, Object>)writer;
-			this.sizer = (IntFunction<Object>)sizer;
+			this.sizer = (Function<Object, Integer>)sizer;
 		}
 	}
 	

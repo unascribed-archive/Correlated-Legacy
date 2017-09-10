@@ -12,7 +12,7 @@ import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
 import com.elytradev.correlated.wifi.Beam;
 
 import net.minecraft.block.Block;
-import net.minecraft.client.resources.I18n;
+import com.elytradev.correlated.C28n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
@@ -35,14 +35,14 @@ public class ItemBlockWireless extends ItemBlock {
 	@Override
 	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
 		if (stack.getMetadata() == 0) {
-			tooltip.add(I18n.format("tile.correlated.microwave_beam.0"));
-			tooltip.add(I18n.format("tile.correlated.microwave_beam.1"));
+			tooltip.add(C28n.format("tile.correlated.microwave_beam.0"));
+			tooltip.add(C28n.format("tile.correlated.microwave_beam.1"));
 			tooltip.add(EnergyHelper.formatPotentialUsage(CConfig.beamPUsage));
 		} else if (stack.getMetadata() == 1) {
-			tooltip.add(I18n.format("tile.correlated.optical.0"));
+			tooltip.add(C28n.format("tile.correlated.optical.0"));
 			tooltip.add(EnergyHelper.formatPotentialUsage(CConfig.opticalPUsage));
 		} else if (stack.getMetadata() == 2) {
-			tooltip.add(I18n.format("tile.correlated.beacon_lens.0"));
+			tooltip.add(C28n.format("tile.correlated.beacon_lens.0"));
 		}
 	}
 	

@@ -38,6 +38,7 @@ import org.lwjgl.opengl.KHRDebugCallback;
 import org.lwjgl.opengl.OpenGLException;
 
 import com.elytradev.correlated.CLog;
+import com.elytradev.correlated.CorrelatedPluralRulesLoader;
 import com.elytradev.correlated.block.BlockDecor;
 import com.elytradev.correlated.block.BlockGlowingDecor;
 import com.elytradev.correlated.block.BlockWireless;
@@ -86,6 +87,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.ibm.icu.text.PluralRules;
+import com.ibm.icu.text.PluralRules.PluralType;
+import com.ibm.icu.util.ULocale;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.Sound;
 import net.minecraft.client.audio.SoundHandler;
@@ -112,8 +117,10 @@ import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResource;
+import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EnumPlayerModelParts;
@@ -521,6 +528,25 @@ public class ClientProxy extends Proxy {
 			ReflectionHelper.setPrivateValue(Minecraft.class, Minecraft.getMinecraft(), cmt, "field_147126_aw", "mcMusicTicker", "aK");
 		}
 	}
+	
+	@Override
+	public String i18nFormat(String key, Object[] format) {
+		return I18n.format(key, format);
+	}
+	
+	@Override
+	public boolean i18nContains(String key) {
+		return I18n.hasKey(key);
+	}
+	
+	@Override
+	public PluralRules getPluralRules() {
+		LanguageManager lm = Minecraft.getMinecraft().getLanguageManager();
+		Locale jl = lm.getCurrentLanguage().getJavaLocale();
+		ULocale ul = ULocale.forLocale(jl);
+		return CorrelatedPluralRulesLoader.loader.forLocale(ul, PluralType.CARDINAL);
+	}
+	
 	@Override
 	public void weldthrowerTick(EntityPlayer player) {
 		Vec3d look = player.getLookVec();

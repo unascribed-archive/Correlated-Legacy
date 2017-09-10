@@ -1,10 +1,11 @@
 package com.elytradev.correlated;
 
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import com.elytradev.correlated.compat.probe.UnitPotential;
 import com.elytradev.correlated.entity.automaton.Opcode;
-import com.elytradev.correlated.function.Consumer;
 import com.elytradev.correlated.init.CBlocks;
 import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.init.CDimensions;
@@ -16,8 +17,6 @@ import com.elytradev.correlated.init.CRecords;
 import com.elytradev.correlated.init.CSoundEvents;
 import com.elytradev.correlated.init.CTiles;
 import com.elytradev.correlated.proxy.Proxy;
-import com.google.common.base.Supplier;
-
 import buildcraft.api.mj.IMjReceiver;
 
 import com.elytradev.probe.api.IProbeDataProvider;
@@ -84,10 +83,10 @@ public class Correlated {
 	};
 
 	public boolean jeiAvailable = false;
-
+	
 	public Consumer<String> jeiQueryUpdater = (s) -> {};
 	public Supplier<String> jeiQueryReader = () -> "";
-	
+
 
 	@EventHandler
 	public void onPreInit(FMLPreInitializationEvent e) {

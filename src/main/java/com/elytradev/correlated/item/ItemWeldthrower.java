@@ -26,7 +26,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.translation.I18n;
+import com.elytradev.correlated.C28n;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -47,12 +47,7 @@ public class ItemWeldthrower extends Item {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-		super.addInformation(stack, worldIn, tooltip, flagIn);
-		int i = 0;
-		while (I18n.canTranslate("tooltip.correlated.weldthrower." + i)) {
-			tooltip.add(I18n.translateToLocal("tooltip.correlated.weldthrower." + i));
-			i++;
-		}
+		C28n.formatList(tooltip, "tooltip.correlated.weldthrower");
 	}
 	
 	@Override

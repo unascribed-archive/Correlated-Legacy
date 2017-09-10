@@ -1,43 +1,37 @@
 package com.elytradev.correlated.network.inventory;
 
 import com.elytradev.correlated.init.CNetwork;
-import com.elytradev.correlated.client.gui.GuiTerminal;
+import com.elytradev.correlated.inventory.ContainerTerminal;
 
 import com.elytradev.concrete.network.Message;
 import com.elytradev.concrete.network.NetworkContext;
 import com.elytradev.concrete.network.annotation.field.MarshalledAs;
 import com.elytradev.concrete.network.annotation.type.ReceivedOn;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.Container;
 import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-@ReceivedOn(Side.CLIENT)
-public class SetSearchQueryMessage extends Message {
+@ReceivedOn(Side.SERVER)
+public class SetSearchQueryServerMessage extends Message {
 	@MarshalledAs("i32")
 	public int windowId;
 	public String query;
 
-	public SetSearchQueryMessage(NetworkContext ctx) {
+	public SetSearchQueryServerMessage(NetworkContext ctx) {
 		super(ctx);
 	}
-	public SetSearchQueryMessage(int windowId, String query) {
+	public SetSearchQueryServerMessage(int windowId, String query) {
 		super(CNetwork.CONTEXT);
 		this.windowId = windowId;
 		this.query = query;
 	}
 	
 	@Override
-	@SideOnly(Side.CLIENT)
 	protected void handle(EntityPlayer sender) {
-		GuiScreen open = Minecraft.getMinecraft().currentScreen;
-		if (open instanceof GuiTerminal) {
-			GuiTerminal terminal = ((GuiTerminal)open);
-			if (terminal.inventorySlots.windowId == windowId) {
-				terminal.updateSearchQuery(query);
-			}
+		Container c = ((EntityPlayerMP)sender).openContainer;
+		if (c instanceof ContainerTerminal && c.windowId == windowId) {
+			((ContainerTerminal)c).updateSearchQuery(query);
 		}
 	}
 

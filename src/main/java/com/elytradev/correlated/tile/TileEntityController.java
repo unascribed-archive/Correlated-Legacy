@@ -19,6 +19,7 @@ import com.elytradev.correlated.item.ItemMemory;
 import com.elytradev.correlated.storage.IDigitalStorage;
 import com.elytradev.correlated.storage.InsertResult;
 import com.elytradev.correlated.storage.NetworkType;
+import com.elytradev.correlated.storage.Prototype;
 import com.elytradev.correlated.storage.InsertResult.Result;
 import com.elytradev.correlated.wifi.IWirelessClient;
 import com.elytradev.correlated.wifi.Station;
@@ -29,7 +30,6 @@ import com.elytradev.probe.api.IProbeData;
 import com.elytradev.probe.api.IProbeDataProvider;
 import com.elytradev.probe.api.UnitDictionary;
 import com.elytradev.probe.api.impl.ProbeData;
-import com.google.common.base.Objects;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.EnumMultiset;
 import com.google.common.collect.HashMultiset;
@@ -37,8 +37,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
 
-import gnu.trove.set.hash.TCustomHashSet;
-import gnu.trove.strategy.HashingStrategy;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -69,7 +67,7 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 	private transient List<TileEntityMemoryBay> memoryBays = Lists.newArrayList();
 	private transient List<TileEntityMicrowaveBeam> beams = Lists.newArrayList();
 	private transient List<ItemStack> drives = Lists.newArrayList();
-	private transient Set<ItemStack> prototypes;
+	private transient Set<Prototype> prototypes = Sets.newHashSet();
 	private transient Multiset<Class<? extends TileEntityNetworkMember>> memberTypes = HashMultiset.create(7);
 	public int changeId = 0;
 	
@@ -81,45 +79,6 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 	private long maxMemory = 0;
 	
 	private String apn;
-	
-	public TileEntityController() {
-		prototypes = new TCustomHashSet<>(new HashingStrategy<ItemStack>() {
-			private static final long serialVersionUID = 7782704091709458883L;
-
-			@Override
-			public int computeHashCode(ItemStack is) {
-				// intentionally excludes quantity
-				
-				// excludes capabilities, due to there being no good way to get
-				// a capability hashcode - it'll have to collide and get
-				// resolved in equals. oh well.
-				if (is == null) return 0;
-				int res = 1;
-				if (is.hasTagCompound()) {
-					res = (31 * res) + is.getTagCompound().hashCode();
-				} else {
-					res *= 31;
-				}
-				res = (31 * res) + is.getItem().hashCode();
-				res = (31 * res) + is.getMetadata();
-				return res;
-			}
-
-			@Override
-			public boolean equals(ItemStack o1, ItemStack o2) {
-				// also intentionally excludes quantity
-				if (o1 == o2) return true;
-				if (o1 == null || o2 == null) return false;
-				if (o1.hasTagCompound() != o2.hasTagCompound()) return false;
-				if (o1.getItem() != o2.getItem()) return false;
-				if (o1.getMetadata() != o2.getMetadata()) return false;
-				if (!Objects.equal(o1.getTagCompound(), o2.getTagCompound())) return false;
-				if (!o1.areCapsCompatible(o2)) return false;
-				return true;
-			}
-			
-		});
-	}
 	
 	@Override
 	public int getMaxPotential() {
@@ -392,7 +351,7 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 			for (ItemStack is : tedb) {
 				drives.add(is);
 				ItemDrive id = (ItemDrive)is.getItem();
-				prototypes.addAll(Collections2.transform(id.getPrototypes(is), NetworkType::getStack));
+				prototypes.addAll(Collections2.transform(Collections2.transform(id.getPrototypes(is), NetworkType::getStack), Prototype::new));
 			}
 		}
 		Collections.sort(drives, new DriveComparator());
@@ -447,7 +406,7 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 					InsertResult sim = itemDrive.addItem(drive, stack, true);
 					if (sim.wasSuccessful()) {
 						// specifically ignores SUCCESS_VOIDED
-						if (sim.result == Result.SUCCESS && !prototypes.contains(copy)
+						if (sim.result == Result.SUCCESS && !prototypes.contains(new Prototype(copy))
 								&& getTotalUsedMemory()+getMemoryUsage(stack) > getMaxMemory()) {
 							insufficientMemory = true;
 							break;
@@ -458,8 +417,8 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 				InsertResult ir = itemDrive.addItem(drive, stack, false);
 				results.add(ir.result);
 				stack = ir.stack;
-				if (ir.result == Result.SUCCESS && !prototypes.contains(copy)) {
-					prototypes.add(copy);
+				if (ir.result == Result.SUCCESS && !prototypes.contains(new Prototype(copy))) {
+					prototypes.add(new Prototype(copy));
 				}
 			}
 		}
@@ -602,8 +561,8 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 	
 	public long getUsedTypeMemory() {
 		long count = 0;
-		for (ItemStack is : prototypes) {
-			count += getMemoryUsage(is);
+		for (Prototype is : prototypes) {
+			count += getMemoryUsage(is.getStack());
 		}
 		return count;
 	}
@@ -632,7 +591,21 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 	public void getTypes(Set<IDigitalStorage> alreadyChecked, List<NetworkType> li) {
 		for (ItemStack drive : drives) {
 			if (drive != null && drive.getItem() instanceof ItemDrive) {
-				li.addAll(((ItemDrive)drive.getItem()).getTypes(drive));
+				List<NetworkType> types = ((ItemDrive)drive.getItem()).getTypes(drive);
+				for (NetworkType type : types) {
+					boolean added = false;
+					for (NetworkType cur : li) {
+						if (Prototype.equals(type.getStack(), cur.getStack())) {
+							cur.getStack().setCount(cur.getStack().getCount()+type.getStack().getCount());
+							cur.setLastModified(Math.max(type.getLastModified(), cur.getLastModified()));
+							added = true;
+							break;
+						}
+					}
+					if (!added) {
+						li.add(type);
+					}
+				}
 			}
 		}
 		for (TileEntityInterface in : interfaces) {
@@ -642,13 +615,12 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 				for (NetworkType cur : li) {
 					if (ItemStack.areItemsEqual(ifaceStack, cur.getStack()) && ItemStack.areItemStackTagsEqual(ifaceStack, cur.getStack())) {
 						cur.getStack().setCount(cur.getStack().getCount()+ifaceStack.getCount());
-						cur.setLastModified(System.currentTimeMillis());
 						added = true;
 						break;
 					}
 				}
 				if (!added) {
-					li.add(new NetworkType(ifaceStack.copy(), System.currentTimeMillis()));
+					li.add(new NetworkType(ifaceStack.copy(), 0));
 				}
 			}
 		}

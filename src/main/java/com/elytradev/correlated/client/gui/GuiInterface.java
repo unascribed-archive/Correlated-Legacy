@@ -4,7 +4,7 @@ import com.elytradev.correlated.inventory.ContainerInterface;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.resources.I18n;
+import com.elytradev.correlated.C28n;
 import net.minecraft.util.ResourceLocation;
 
 public class GuiInterface extends GuiContainer {
@@ -33,7 +33,7 @@ public class GuiInterface extends GuiContainer {
 
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-		fontRenderer.drawString(I18n.format("gui.inventory"), 8, 73, 0x404040);
+		fontRenderer.drawString(C28n.format("gui.inventory"), 8, 73, 0x404040);
 	}
 
 }

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.elytradev.correlated.init.CBlocks;
-import com.elytradev.correlated.inventory.ContainerTerminal.SortMode;
+import com.elytradev.correlated.inventory.SortMode;
 import com.elytradev.correlated.storage.IDigitalStorage;
 import com.elytradev.correlated.storage.ITerminal;
 import com.elytradev.correlated.storage.InsertResult;

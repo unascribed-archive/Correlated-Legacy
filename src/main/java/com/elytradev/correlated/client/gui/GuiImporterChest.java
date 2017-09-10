@@ -2,7 +2,7 @@ package com.elytradev.correlated.client.gui;
 
 import com.elytradev.correlated.inventory.ContainerImporterChest;
 
-import net.minecraft.client.resources.I18n;
+import com.elytradev.correlated.C28n;
 import net.minecraft.util.ResourceLocation;
 
 public class GuiImporterChest extends GuiTerminal {
@@ -36,7 +36,7 @@ public class GuiImporterChest extends GuiTerminal {
 	
 	@Override
 	protected String getTitle() {
-		return I18n.format("gui.correlated.importer_chest");
+		return C28n.format("gui.correlated.importer_chest");
 	}
 
 }

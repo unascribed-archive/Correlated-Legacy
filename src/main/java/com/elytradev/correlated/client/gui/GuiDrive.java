@@ -13,7 +13,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.resources.I18n;
+import com.elytradev.correlated.C28n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -112,7 +112,7 @@ public class GuiDrive extends GuiContainer {
 			renderer = fontRenderer;
 		}
 		renderer.drawString(container.getDrive().getDisplayName(), 8, 6, 0x404040);
-		fontRenderer.drawString(I18n.format("gui.inventory"), 8, 128, 0x404040);
+		fontRenderer.drawString(C28n.format("gui.inventory"), 8, 128, 0x404040);
 		GlStateManager.pushMatrix();
 		GlStateManager.disableDepth();
 		GlStateManager.scale(0.5f, 0.5f, 1);
@@ -155,16 +155,16 @@ public class GuiDrive extends GuiContainer {
 		drawTexturedModalRect(priority.x+4, priority.y+2, 246, 39+(pri.ordinal()*13), 10, 13);
 		if (partition.isMouseOver()) {
 			List<String> li = Lists.newArrayList(
-					I18n.format("gui.correlated.partition_mode"),
-					"\u00A79"+I18n.format("gui.correlated.partition_mode."+part.lowerName),
-					"\u00A77"+I18n.format("gui.correlated.partition_mode."+part.lowerName+".desc")
+					C28n.format("gui.correlated.partition_mode"),
+					"\u00A79"+C28n.format("gui.correlated.partition_mode."+part.lowerName),
+					"\u00A77"+C28n.format("gui.correlated.partition_mode."+part.lowerName+".desc")
 					);
 			drawHoveringText(li, mouseX, mouseY);
 		}
 		if (priority.isMouseOver()) {
 			List<String> li = Lists.newArrayList(
-					I18n.format("gui.correlated.priority"),
-					pri.color+I18n.format("gui.correlated.priority."+pri.lowerName)
+					C28n.format("gui.correlated.priority"),
+					pri.color+C28n.format("gui.correlated.priority."+pri.lowerName)
 					);
 			drawHoveringText(li, mouseX, mouseY);
 		}

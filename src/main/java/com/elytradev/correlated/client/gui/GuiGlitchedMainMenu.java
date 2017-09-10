@@ -14,7 +14,7 @@ import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.resources.I18n;
+import com.elytradev.correlated.C28n;
 import net.minecraft.util.ResourceLocation;
 
 public class GuiGlitchedMainMenu extends GuiScreen {
@@ -66,7 +66,7 @@ public class GuiGlitchedMainMenu extends GuiScreen {
 	public void initGui() {
 		int j = this.height / 4 + 48;
 
-		this.buttonList.add(new GuiButton(1, this.width / 2 - 100, j, I18n.format("menu.singleplayer")));
-		this.buttonList.add(new GuiButton(2, this.width / 2 - 100, j + 24 * 1, I18n.format("menu.multiplayer")));
+		this.buttonList.add(new GuiButton(1, this.width / 2 - 100, j, C28n.format("menu.singleplayer")));
+		this.buttonList.add(new GuiButton(2, this.width / 2 - 100, j + 24 * 1, C28n.format("menu.multiplayer")));
 	}
 }

@@ -16,7 +16,7 @@ import net.minecraft.client.gui.GuiPageButtonList.GuiResponder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.GlStateManager.DestFactor;
 import net.minecraft.client.renderer.GlStateManager.SourceFactor;
-import net.minecraft.client.resources.I18n;
+import com.elytradev.correlated.C28n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
 import net.minecraftforge.fml.client.config.GuiUtils;
@@ -163,15 +163,15 @@ public class GuiAutomaton extends GuiTerminal implements GuiResponder {
 		for (AutomatonStatus s : AutomatonStatus.VALUES) {
 			if (buttonList.get(s.ordinal()).isMouseOver()) {
 				GuiUtils.drawHoveringText(
-						Lists.newArrayList(I18n.format("tooltip.correlated.automaton.state."+s.name().toLowerCase(Locale.ROOT))),
+						Lists.newArrayList(C28n.format("tooltip.correlated.automaton.state."+s.name().toLowerCase(Locale.ROOT))),
 						mouseX-((width-xSize)/2), mouseY-((height-ySize)/2), width, height, 80, fontRenderer);
 			}
 		}
 		if (buttonList.get(AutomatonStatus.VALUES.length+1).isMouseOver()) {
 			GuiUtils.drawHoveringText(
 					Lists.newArrayList(
-							I18n.format("tooltip.correlated.automaton.followDistance"),
-							"\u00A77"+I18n.format("tooltip.correlated.automaton.followDistance."+container.automaton.getFollowDistance())
+							C28n.format("tooltip.correlated.automaton.followDistance"),
+							"\u00A77"+C28n.format("tooltip.correlated.automaton.followDistance."+container.automaton.getFollowDistance())
 						),
 					mouseX-((width-xSize)/2), mouseY-((height-ySize)/2), width, height, 80, fontRenderer);
 		}

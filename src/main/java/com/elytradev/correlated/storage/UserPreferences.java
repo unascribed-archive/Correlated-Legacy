@@ -1,7 +1,7 @@
 package com.elytradev.correlated.storage;
 
 import com.elytradev.correlated.inventory.ContainerTerminal.CraftingTarget;
-import com.elytradev.correlated.inventory.ContainerTerminal.SortMode;
+import com.elytradev.correlated.inventory.SortMode;
 
 public interface UserPreferences {
 	SortMode getSortMode();

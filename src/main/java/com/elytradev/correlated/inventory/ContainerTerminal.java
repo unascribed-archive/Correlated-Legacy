@@ -1,21 +1,17 @@
 package com.elytradev.correlated.inventory;
 
-import java.text.Collator;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import com.google.common.primitives.Ints;
-import com.google.common.primitives.Longs;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.client.gui.GuiTerminal;
 import com.elytradev.correlated.helper.Numbers;
 import com.elytradev.correlated.item.ItemDrive;
 import com.elytradev.correlated.network.inventory.AddStatusLineMessage;
-import com.elytradev.correlated.network.inventory.SetSearchQueryMessage;
-import com.elytradev.correlated.network.inventory.SetSlotExtendedMessage;
+import com.elytradev.correlated.network.inventory.SetSearchQueryClientMessage;
+import com.elytradev.correlated.network.inventory.UpdateNetworkContentsMessage;
 import com.elytradev.correlated.network.wireless.SignalStrengthMessage;
 import com.elytradev.correlated.storage.ITerminal;
 import com.elytradev.correlated.storage.InsertResult;
@@ -28,7 +24,6 @@ import com.elytradev.correlated.wifi.IWirelessClient;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
-import com.google.common.primitives.Booleans;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -42,7 +37,6 @@ import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
@@ -55,39 +49,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ContainerTerminal extends Container implements IWirelessClient {
-	public enum SortMode {
-		QUANTITY((a, b) -> {
-			int quantityComp = Ints.compare(a.getStack().getCount(), b.getStack().getCount());
-			if (quantityComp != 0) return quantityComp;
-			return Collator.getInstance().compare(a.getStack().getDisplayName(), b.getStack().getDisplayName());
-		}),
-		MOD_MINECRAFT_FIRST((a, b) -> {
-			String modA = getModId(a.getStack());
-			String modB = getModId(b.getStack());
-			boolean aMinecraft = "minecraft".equals(modA);
-			boolean bMinecraft = "minecraft".equals(modB);
-			if (aMinecraft || bMinecraft && aMinecraft != bMinecraft) return Booleans.compare(aMinecraft, bMinecraft);
-			int modComp = Collator.getInstance().compare(modA, modB);
-			if (modComp != 0) return modComp;
-			return Collator.getInstance().compare(a.getStack().getDisplayName(), b.getStack().getDisplayName());
-		}),
-		MOD((a, b) -> {
-			int modComp = Collator.getInstance().compare(getModId(a.getStack()), getModId(b.getStack()));
-			if (modComp != 0) return modComp;
-			return Collator.getInstance().compare(a.getStack().getDisplayName(), b.getStack().getDisplayName());
-		}),
-		NAME((a, b) -> Collator.getInstance().compare(a.getStack().getDisplayName(), b.getStack().getDisplayName())),
-		LAST_MODIFIED((a, b) -> Longs.compare(a.getLastModified(), b.getLastModified()));
-		public final Comparator<NetworkType> comparator;
-		public final String lowerName = name().toLowerCase(Locale.ROOT);
-		private SortMode(Comparator<NetworkType> comparator) {
-			this.comparator = comparator;
-		}
-
-		private static String getModId(ItemStack is) {
-			return Item.REGISTRY.getNameForObject(is.getItem()).getResourceDomain();
-		}
-	}
 	public enum CraftingTarget {
 		NETWORK,
 		INVENTORY;
@@ -117,9 +78,7 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 	public ITerminal terminal;
 	private World world;
 	private EntityPlayer player;
-	private int scrollOffset;
 	private String searchQuery = "";
-	public int rows;
 	public SortMode sortMode = SortMode.QUANTITY;
 	public boolean sortAscending = false;
 	public CraftingAmount craftingAmount = CraftingAmount.ONE;
@@ -173,6 +132,10 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 				protected void set(ItemStack stack) {
 					terminal.setMaintenanceSlotContent(stack);
 				}
+				@Override
+				public boolean isItemValidForSlot(int index, ItemStack stack) {
+					return stack.getItem() instanceof ItemDrive;
+				}
 			}, 0, 16, 161));
 		}
 		if (terminal instanceof TileEntityTerminal) {
@@ -211,9 +174,28 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 
 	}
 
+	/**
+	 * Perform an incremental client resync, sending only what changed.
+	 */
 	protected void resync() {
 		if (world.isRemote) return;
-		// TODO
+		fullResync();
+	}
+	
+	/**
+	 * Perform a complete client resync, overwriting whatever data the client
+	 * may already have.
+	 */
+	protected void fullResync() {
+		if (world.isRemote) return;
+		System.out.println("full resync");
+		UpdateNetworkContentsMessage msg = new UpdateNetworkContentsMessage(terminal.getStorage().getTypes(), Collections.emptyList(), true);
+		for (IContainerListener ic : listeners) {
+			if (ic instanceof EntityPlayerMP) {
+				EntityPlayerMP p = (EntityPlayerMP)ic;
+				msg.sendTo(p);
+			}
+		}
 	}
 	
 	/**
@@ -337,10 +319,6 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 				}
 				detectAndSendChanges();
 				break;
-
-			default:
-				scrollOffset = id;
-				break;
 		}
 		return true;
 	}
@@ -463,41 +441,23 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 			}
 		}
 		
-		super.detectAndSendChanges();
-		for (int i = 0; i < this.inventorySlots.size(); i++) {
-			ItemStack stack = inventorySlots.get(i).getStack();
-			int cur = stack.getCount();
-			int old = oldStackSizes.get(i);
-
-			if (cur != old) {
-				oldStackSizes.set(i, cur);
-				
-				// if it's out of range for the vanilla packet, we need to send our own
-				if (cur > 127 || cur < -128) {
-					ItemStack copy = stack.copy();
-					copy.setCount(1);
-					for (IContainerListener ic : listeners) {
-						if (ic instanceof EntityPlayerMP) {
-							EntityPlayerMP p = (EntityPlayerMP)ic;
-							new SetSlotExtendedMessage(windowId, i, copy, cur).sendTo(p);
-						}
-					}
-				}
+		if (!world.isRemote) {
+			int changeId = terminal.getStorage().getChangeId();
+			if (terminal.hasStorage() && changeId != lastChangeId) {
+				resync();
+				lastChangeId = changeId;
+			}
+			if (!Objects.equal(lastApn, terminal.getAPN())) {
+				lastApn = terminal.getAPN();
+				fullResync();
 			}
 		}
+		
+		super.detectAndSendChanges();
 	}
 
 	@Override
 	public boolean canInteractWith(EntityPlayer player) {
-		if (!world.isRemote) {
-			if (terminal.hasStorage() && terminal.getStorage().getChangeId() != lastChangeId) {
-				resync();
-			}
-			if (!Objects.equal(lastApn, terminal.getAPN())) {
-				lastApn = terminal.getAPN();
-				resync();
-			}
-		}
 		boolean b = player == this.player && terminal.canContinueInteracting(player);
 		if (b) {
 			int signal = terminal.getSignalStrength();
@@ -512,7 +472,6 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 	@Override
 	public void addListener(IContainerListener listener) {
 		super.addListener(listener);
-		listener.sendWindowProperty(this, 0, rows);
 		listener.sendWindowProperty(this, 1, sortMode.ordinal());
 		listener.sendWindowProperty(this, 2, sortAscending ? 1 : 0);
 		listener.sendWindowProperty(this, 3, craftingTarget.ordinal());
@@ -520,16 +479,16 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 		listener.sendWindowProperty(this, 5, searchFocusedByDefault ? 1 : 0);
 		listener.sendWindowProperty(this, 6, jeiSyncEnabled ? 1 : 0);
 		if (listener instanceof EntityPlayerMP) {
-			new SetSearchQueryMessage(windowId, searchQuery).sendTo((EntityPlayerMP)listener);
+			new SetSearchQueryClientMessage(windowId, searchQuery).sendTo((EntityPlayerMP)listener);
+			new UpdateNetworkContentsMessage(terminal.getStorage().getTypes(), Collections.emptyList(), true).sendTo((EntityPlayerMP)listener);
+			
 		}
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void updateProgressBar(int id, int data) {
-		if (id == 0) {
-			rows = data;
-		} else if (id == 1) {
+		if (id == 1) {
 			SortMode[] values = SortMode.values();
 			sortMode = values[data%values.length];
 		} else if (id == 2) {
@@ -677,6 +636,10 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 	@Override
 	public double getZ() {
 		return terminal.getPosition().getZ()+0.5;
+	}
+
+	public void updateSearchQuery(String query) {
+		this.searchQuery = query;
 	}
 
 }

@@ -3,7 +3,7 @@ package com.elytradev.correlated;
 import com.elytradev.correlated.init.CConfig;
 import com.google.common.primitives.Ints;
 
-import net.minecraft.util.text.translation.I18n;
+import com.elytradev.correlated.C28n;
 
 public class EnergyHelper {
 
@@ -59,7 +59,7 @@ public class EnergyHelper {
 
 	@SuppressWarnings("deprecation")
 	public static String formatPotentialUsage(int p) {
-		return I18n.translateToLocalFormatted("tooltip.correlated.energy_usage_tip", convertFromPotential(p, CConfig.preferredUnit), CConfig.preferredUnit.abbreviation);
+		return C28n.format("tooltip.correlated.energy_usage_tip", convertFromPotential(p, CConfig.preferredUnit), CConfig.preferredUnit.abbreviation);
 	}
 
 }
