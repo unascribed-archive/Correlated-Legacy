@@ -58,8 +58,7 @@ dependencies {
 	
 	compile 'com.elytradev:probedataproviderapi:MC1.12_ver1.1.1'
 	
-	compile 'mezz.jei:jei_1.12:4.7.2.76:api'
-	runtime 'mezz.jei:jei_1.12:4.7.2.76'
+	compile 'mezz.jei:jei_1.12:4.7.2.76'
 	
 	compile 'net.industrial-craft:industrialcraft-2-2.8.9-ex112-api'
 	compile 'com.aidancbrady:mekanism-mdk-1.10.2-9.2.1.300'
