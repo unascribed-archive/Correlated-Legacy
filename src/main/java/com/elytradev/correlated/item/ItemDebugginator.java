@@ -80,7 +80,8 @@ public class ItemDebugginator extends Item {
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag) {
 		super.addInformation(stack, world, tooltip, flag);
-		tooltip.add("\u00A75\u00A7o"+C28n.format("item.correlated.debugginator.hint"));
+		tooltip.add("\u00A75"+C28n.format("item.correlated.debugginator.0"));
+		tooltip.add("\u00A75"+C28n.format("item.correlated.debugginator.1"));
 	}
 	
 	@Override
