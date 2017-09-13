@@ -1,6 +1,7 @@
 package com.elytradev.correlated.entity;
 
 import java.util.AbstractList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -845,7 +846,7 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 	}
 
 	@Override
-	public void getTypes(Set<IDigitalStorage> alreadyChecked, List<NetworkType> li) {
+	public void getTypes(Set<IDigitalStorage> alreadyChecked, Collection<NetworkType> li) {
 		for (EntityEquipmentSlot slot : slots) {
 			ItemStack drive = getItemStackFromSlot(slot);
 			if (drive.getItem() instanceof ItemDrive) {

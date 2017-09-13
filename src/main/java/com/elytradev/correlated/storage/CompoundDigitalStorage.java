@@ -1,5 +1,6 @@
 package com.elytradev.correlated.storage;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -28,7 +29,7 @@ public class CompoundDigitalStorage implements IDigitalStorage {
 	}
 
 	@Override
-	public void getTypes(Set<IDigitalStorage> alreadyChecked, List<NetworkType> target) {
+	public void getTypes(Set<IDigitalStorage> alreadyChecked, Collection<NetworkType> target) {
 		for (IDigitalStorage ids : storages) {
 			ids.getTypes(alreadyChecked, target);
 			alreadyChecked.add(ids);

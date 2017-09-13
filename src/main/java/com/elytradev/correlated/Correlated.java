@@ -1,6 +1,7 @@
 package com.elytradev.correlated;
 
 import java.util.UUID;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -86,6 +87,7 @@ public class Correlated {
 	
 	public Consumer<String> jeiQueryUpdater = (s) -> {};
 	public Supplier<String> jeiQueryReader = () -> "";
+	public BiPredicate<String, ItemStack> colorSearcher = (query, stack) -> false;
 
 
 	@EventHandler

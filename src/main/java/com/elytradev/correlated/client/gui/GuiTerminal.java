@@ -7,8 +7,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
 import java.util.Map;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -27,14 +32,19 @@ import com.elytradev.correlated.network.inventory.InsertAllMessage;
 import com.elytradev.correlated.network.inventory.SetSearchQueryServerMessage;
 import com.elytradev.correlated.storage.NetworkType;
 import com.elytradev.correlated.storage.Prototype;
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Objects;
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.math.IntMath;
+import com.google.common.primitives.Ints;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -42,8 +52,11 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.GlStateManager.DestFactor;
 import net.minecraft.client.renderer.GlStateManager.SourceFactor;
+import net.minecraft.client.resources.I18n;
+
 import com.elytradev.correlated.C28n;
-import net.minecraft.client.util.ITooltipFlag;
+import com.elytradev.correlated.CLog;
+
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -54,12 +67,139 @@ import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
 import net.minecraftforge.fml.client.config.GuiUtils;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.oredict.OreDictionary;
+import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
+import net.minecraft.creativetab.CreativeTabs;
 
 public class GuiTerminal extends GuiContainer {
+	
+	public enum QueryType {
+		BLANK(100, isEmpty(), (query, stack) -> true),
+		
+		MOD_NAME(10, startsWith("@"), (query, stack) -> {
+			String domain = stack.getItem().getRegistryName().getResourceDomain();
+			ModContainer mod = "minecraft".equals(domain) ?
+					Loader.instance().getMinecraftModContainer() :
+					Loader.instance().getIndexedModList().get(domain);
+			if (mod == null) return false;
+			String id = Strings.nullToEmpty(mod.getModId()).toLowerCase(Locale.ENGLISH);
+			String name = Strings.nullToEmpty(mod.getName()).toLowerCase(Locale.ENGLISH);
+			String idNoSpaces = CharMatcher.whitespace().replaceFrom(id, "");
+			String nameNoSpaces = CharMatcher.whitespace().replaceFrom(name, "");
+			if (id.contains(query)) return true;
+			if (name.contains(query)) return true;
+			if (idNoSpaces.contains(query)) return true;
+			if (nameNoSpaces.contains(query)) return true;
+			return false;
+		}),
+		TOOLTIP(10, startsWith("#"), (query, stack) -> {
+			Minecraft mc = Minecraft.getMinecraft();
+			List<String> tooltip = stack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL);
+			for (String s : tooltip) {
+				if (s.toLowerCase().contains(query)) return true;
+			}
+			return false;
+		}),
+		OREDICT(10, startsWith("$"), (query, stack) -> {
+			int[] ids = OreDictionary.getOreIDs(stack);
+			for (int id : ids) {
+				String name = OreDictionary.getOreName(id);
+				if (name.toLowerCase(Locale.ENGLISH).contains(query)) {
+					return true;
+				}
+			}
+			return false;
+		}),
+		CREATIVE_TAB(10, startsWith("%"), (query, stack) -> {
+			for (CreativeTabs ct : stack.getItem().getCreativeTabs()) {
+				if (ct != null) {
+					String name = I18n.format(ct.getTranslatedTabLabel()).toLowerCase();
+					if (name.contains(query)) return true;
+				}
+			}
+			return false;
+		}),
+		COLORS(10, startsWith("^"), (query, stack) -> {
+			return Correlated.inst.colorSearcher.test(query, stack);
+		}),
+		
+		// have to do this to prevent a "cannot reference a field before it is defined" error
+		UNION(20, contains("|"), QueryType::unionFilter),
+		
+		NORMAL(0, alwaysTrue(), (query, stack) -> {
+			if (stack.getDisplayName().toLowerCase().contains(query)) return true;
+			TOOLTIP.filter.test(query, stack);
+			return false;
+		}),
+		;
+		
+		private static Function<String, String> alwaysTrue() {
+			return (s) -> s;
+		}
+		private static Function<String, String> isEmpty() {
+			return (s) -> {
+				String trim = s.trim();
+				if (trim.isEmpty()) {
+					return trim;
+				} else {
+					return null;
+				}
+			};
+		}
+		private static Function<String, String> startsWith(String prefix) {
+			return (s) -> s.startsWith(prefix) ? s.substring(prefix.length()) : null;
+		}
+		private static Function<String, List<String>> contains(String substring) {
+			Splitter splitter = Splitter.on(substring);
+			return (s) -> s.contains(substring) ? splitter.splitToList(s) : null;
+		}
+		private static Function<String, Matcher> matches(String regex) {
+			Pattern p = Pattern.compile(regex);
+			return (s) -> {
+				Matcher m = p.matcher(s);
+				if (m.matches()) {
+					return m;
+				} else {
+					return null;
+				}
+			};
+		}
+		
+		public static final ImmutableList<QueryType> VALUES_BY_PRIORITY;
+		
+		public final Function<String, Object> mangler;
+		public final BiPredicate<Object, ItemStack> filter;
+		public final int priority;
+		<T> QueryType(int priority, Function<String, T> mangler, BiPredicate<T, ItemStack> filter) {
+			this.priority = priority;
+			this.mangler = (Function<String, Object>)mangler;
+			this.filter = (BiPredicate<Object, ItemStack>)filter;
+		}
+		
+		static {
+			List<QueryType> li = Lists.newArrayList(values());
+			// higher priorities come first
+			li.sort((a, b) -> Ints.compare(b.priority, a.priority));
+			VALUES_BY_PRIORITY = ImmutableList.copyOf(li);
+		}
+		
+		private static boolean unionFilter(List<String> queries, ItemStack stack) {
+			for (String s : queries) {
+				for (QueryType qt : VALUES_BY_PRIORITY) {
+					Object mangled = qt.mangler.apply(s);
+					if (mangled == null) continue;
+					if (qt.filter.test(mangled, stack)) return true;
+				}
+			}
+			return false;
+		}
+	}
+	
 	private static final ResourceLocation background = new ResourceLocation("correlated", "textures/gui/container/terminal.png");
 	private static final ResourceLocation ENERGY = new ResourceLocation("correlated", "textures/misc/energy.png");
-	private static final ImmutableList<String> ONE_EMPTY_STRING = ImmutableList.of("");
 
 	private static final NumberFormat GROUPED_INTEGER = ((Supplier<NumberFormat>)() -> {
 		NumberFormat nf = NumberFormat.getIntegerInstance();
@@ -92,6 +232,9 @@ public class GuiTerminal extends GuiContainer {
 	
 	private boolean dirty = false;
 	private String lastJeiQuery;
+	private QueryType queryType;
+	
+	private int scrollOffset = 0;
 	
 	public GuiTerminal(ContainerTerminal container) {
 		super(container);
@@ -136,19 +279,28 @@ public class GuiTerminal extends GuiContainer {
 		networkContentsView.clear();
 		networkContentsView.addAll(networkContents.values());
 		String query = searchField.getText().toLowerCase();
+		queryType = null;
+		Object mangledQuery = null;
+		for (QueryType qt : QueryType.VALUES_BY_PRIORITY) {
+			mangledQuery = qt.mangler.apply(query);
+			if (mangledQuery != null) {
+				queryType = qt;
+				break;
+			}
+		}
+		if (queryType == null || mangledQuery == null) {
+			CLog.warn("Failed to determine query type for {}", query);
+			return;
+		}
 		ListIterator<NetworkType> iter = networkContentsView.listIterator();
 		while (iter.hasNext()) {
 			NetworkType type = iter.next();
 			ItemStack stack = type.getStack();
-			if (stack.getDisplayName().toLowerCase().contains(query)) continue;
-			List<String> tooltip = stack.getTooltip(Minecraft.getMinecraft().player, Minecraft.getMinecraft().gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
-			for (String s : tooltip) {
-				if (s.toLowerCase().contains(query)) continue;
+			if (stack.isEmpty()) {
+				iter.remove();
+				continue;
 			}
-			if (Minecraft.getMinecraft().gameSettings.advancedItemTooltips) {
-				if (stack.getItem().getRegistryName().toString().contains(query)) continue;
-			}
-			
+			if (queryType.filter.test(mangledQuery, stack)) continue;
 			iter.remove();
 		}
 		Comparator<NetworkType> comparator = container.sortMode.comparator;
@@ -206,10 +358,15 @@ public class GuiTerminal extends GuiContainer {
 		hovered = null;
 		
 		RenderHelper.enableGUIStandardItemLighting();
-		int j = 0;
+		int j = -(scrollOffset * container.slotsAcross);
 		for (NetworkType type : networkContentsView) {
+			if (j < 0) {
+				j++;
+				continue;
+			}
 			int x = container.startX + (j % container.slotsAcross) * 18;
 			int y = (container.startY + 18) + (j / container.slotsAcross) * 18;
+			if (j >= (container.slotsAcross * container.slotsTall)) break;
 			itemRender.renderItemAndEffectIntoGUI(mc.player, type.getStack(), x, y);
 			itemRender.renderItemOverlayIntoGUI(fontRenderer, type.getStack(), x, y, "");
 			GlStateManager.disableLighting();
@@ -405,8 +562,36 @@ public class GuiTerminal extends GuiContainer {
 			GuiUtils.drawHoveringText(hovered.getStack(), tooltip, mouseX, mouseY, width, height, -1, fontRenderer);
 			isDrawingHoverTooltip = false;
 		}
+		
+		GlStateManager.disableDepth();
+		GlStateManager.disableLighting();
+		
+		if (Minecraft.getMinecraft().gameSettings.showDebugInfo) {
+			fontRenderer.drawStringWithShadow("- DEBUG ENABLED -", 2, 2, 0xFF0000);
+			fontRenderer.drawStringWithShadow("S&S: "+(hasSearchAndSort() ? "\u00A7atrue" : "\u00A7cfalse"), 2, 12+2, -1);
+			fontRenderer.drawStringWithShadow("MS: "+(container.maintenanceSlot != null ? "\u00A7atrue" : "\u00A7cfalse"), 2, 12+12+2, -1);
+			fontRenderer.drawStringWithShadow("CM: "+(container.hasCraftingMatrix ? "\u00A7atrue" : "\u00A7cfalse"), 2, 12+12+12+2, -1);
+			fontRenderer.drawStringWithShadow("SL: "+(hasStatusLine() ? "\u00A7atrue" : "\u00A7cfalse"), 2, 12+12+12+12+2, -1);
+			fontRenderer.drawStringWithShadow("QT: "+queryType, 2, 12+12+12+12+12+2, -1);
+			fontRenderer.drawStringWithShadow("S/K: "+networkContentsView.size()+"/"+networkContents.size(), 2, 12+12+12+12+12+12+2, -1);
+		}
+		
 		GlStateManager.popMatrix();
 
+		
+		if (Minecraft.getMinecraft().gameSettings.showDebugInfo) {
+			Gui.drawRect(getScrollTrackX(), getScrollTrackY()+18, getScrollTrackX()+12, getScrollTrackY()+18+getScrollTrackHeight(), 0x440000FF);
+			Gui.drawRect(0, 0, getXOffset(), 1, 0xAAFF0000);
+			Gui.drawRect(0, 1, 1, getYOffset(), 0xAAFF0000);
+			Gui.drawRect(container.startX-1, container.startY+17, container.startX+(container.slotsAcross*18)-1, container.startY+(container.slotsTall*18)+18, 0x4400FF00);
+			Gui.drawRect(container.startX+container.playerInventoryOffsetX-1, 102+container.startY+container.playerInventoryOffsetY, container.startX+container.playerInventoryOffsetX+(9*18)-1, 102+container.startY+container.playerInventoryOffsetY+(3*18), 0x44FF00FF);
+			Gui.drawRect(container.startX+container.playerInventoryOffsetX-1, 160+container.startY+container.playerInventoryOffsetY, container.startX+container.playerInventoryOffsetX+(9*18)-1, 160+container.startY+container.playerInventoryOffsetY+18, 0x44FF00FF);
+			
+			fontRenderer.drawString(container.slotsAcross+"x"+container.slotsTall, container.startX+2, container.startY+18+2, 0);
+			fontRenderer.drawString(scrollOffset+"", getScrollTrackX(), getScrollTrackY()+20, 0);
+			fontRenderer.drawString(scrollKnobY+"", getScrollTrackX(), getScrollTrackY()+32, 0);
+			GlStateManager.enableDepth();
+		}
 	}
 	
 	@SubscribeEvent
@@ -569,10 +754,11 @@ public class GuiTerminal extends GuiContainer {
 	public void updateScreen() {
 		super.updateScreen();
 		if (rows > container.slotsTall) {
-			int dWheel = Mouse.getDWheel()/rows;
+			int dWheel = Mouse.getDWheel() / 120;
 			if (dWheel != 0) {
+				scrollOffset = Math.max(Math.min(rows-1, scrollOffset-dWheel), 0);
+				dWheel *= IntMath.divide(getScrollTrackHeight()+6, rows, RoundingMode.UP);
 				scrollKnobY = Math.max(Math.min(getScrollTrackHeight()-9, scrollKnobY-dWheel), 6);
-				mc.playerController.sendEnchantPacket(container.windowId, Math.round(((scrollKnobY-6)/(float)(getScrollTrackHeight()-9))*(rows-container.slotsTall)));
 			}
 		} else {
 			scrollKnobY = 6;
@@ -614,6 +800,10 @@ public class GuiTerminal extends GuiContainer {
 				}
 			}
 		} else {
+			if (keyCode == Keyboard.KEY_F3) {
+				mc.gameSettings.showDebugInfo = !mc.gameSettings.showDebugInfo;
+				return;
+			}
 			super.keyTyped(typedChar, keyCode);
 		}
 	}
@@ -691,8 +881,9 @@ public class GuiTerminal extends GuiContainer {
 			int y = (height - ySize) / 2;
 			y += getScrollTrackY();
 			scrollKnobY = Math.max(Math.min(getScrollTrackHeight()-9, (mouseY-24)-y), 6);
-			int s = Math.round(((scrollKnobY+12)/(float)(getScrollTrackHeight()-9))*(rows-container.slotsTall));
-			mc.playerController.sendEnchantPacket(container.windowId, s);
+			float pct = ((scrollKnobY-6)/(float)(getScrollTrackHeight()-9));
+			System.out.println(pct);
+			scrollOffset = (int)(pct * (rows-1));
 		}
 		super.mouseClickMove(mouseX, mouseY, mouseButton, timeSinceLastClick);
 	}

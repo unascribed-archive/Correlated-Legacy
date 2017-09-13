@@ -16,6 +16,7 @@ import com.elytradev.correlated.network.wireless.SignalStrengthMessage;
 import com.elytradev.correlated.storage.ITerminal;
 import com.elytradev.correlated.storage.InsertResult;
 import com.elytradev.correlated.storage.NetworkType;
+import com.elytradev.correlated.storage.Prototype;
 import com.elytradev.correlated.storage.InsertResult.Result;
 import com.elytradev.correlated.storage.UserPreferences;
 import com.elytradev.correlated.tile.TileEntityController;
@@ -24,6 +25,7 @@ import com.elytradev.correlated.wifi.IWirelessClient;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -101,8 +103,10 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 	private String lastApn;
 	
 	public Slot maintenanceSlot;
-	
 	public Slot floppySlot;
+	
+	private Set<NetworkType> lastNetworkContents = Collections.emptySet();
+	private Set<Prototype> lastNetworkPrototypeContents = Collections.emptySet();
 
 	public ContainerTerminal(IInventory playerInventory, EntityPlayer player, ITerminal terminal) {
 		this.player = player;
@@ -179,7 +183,33 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 	 */
 	protected void resync() {
 		if (world.isRemote) return;
-		fullResync();
+		Set<NetworkType> out = Sets.newHashSet();
+		terminal.getStorage().getTypes(Sets.newHashSet(terminal.getStorage()), out);
+		
+		if (lastNetworkContents.equals(out)) return;
+		
+		Set<Prototype> protoOut = Sets.newHashSet();
+		out.stream().map(NetworkType::getPrototype).forEach(protoOut::add);
+		
+		Set<NetworkType> addOrChange = Sets.newHashSet(out);
+		Set<Prototype> remove = Sets.newHashSet(lastNetworkPrototypeContents);
+		
+		addOrChange.removeAll(lastNetworkContents);
+		remove.removeAll(protoOut);
+		
+		System.out.println("add/change: "+addOrChange);
+		System.out.println("remove: "+remove);
+		
+		UpdateNetworkContentsMessage msg = new UpdateNetworkContentsMessage(addOrChange, remove, false);
+		for (IContainerListener ic : listeners) {
+			if (ic instanceof EntityPlayerMP) {
+				EntityPlayerMP p = (EntityPlayerMP)ic;
+				msg.sendTo(p);
+			}
+		}
+		
+		lastNetworkContents = out;
+		lastNetworkPrototypeContents = protoOut;
 	}
 	
 	/**
@@ -188,7 +218,9 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 	 */
 	protected void fullResync() {
 		if (world.isRemote) return;
-		System.out.println("full resync");
+		Set<NetworkType> out = Sets.newHashSet();
+		terminal.getStorage().getTypes(Sets.newHashSet(terminal.getStorage()), out);
+		lastNetworkContents = out;
 		UpdateNetworkContentsMessage msg = new UpdateNetworkContentsMessage(terminal.getStorage().getTypes(), Collections.emptyList(), true);
 		for (IContainerListener ic : listeners) {
 			if (ic instanceof EntityPlayerMP) {

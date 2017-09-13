@@ -1,5 +1,6 @@
 package com.elytradev.correlated.tile;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -69,7 +70,7 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 	private transient List<ItemStack> drives = Lists.newArrayList();
 	private transient Set<Prototype> prototypes = Sets.newHashSet();
 	private transient Multiset<Class<? extends TileEntityNetworkMember>> memberTypes = HashMultiset.create(7);
-	public int changeId = 0;
+	private int changeId = 0;
 	
 	protected long clientMemoryMax;
 	protected long clientMemoryUsed;
@@ -435,7 +436,7 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 		if (insufficientMemory) {
 			return InsertResult.insufficientMemory(stack);
 		}
-		changeId++;
+		changed("item added");
 		if (!results.contains(Result.SUCCESS) && !results.contains(Result.SUCCESS_VOIDED) && results.size() > 0) {
 			Result result = null;
 			int num = 0;
@@ -497,7 +498,9 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 			copy.setCount(1);
 			prototypes.remove(copy);
 		}
-		changeId++;
+		if (!stack.isEmpty()) {
+			changed("item removed");
+		}
 		return stack;
 	}
 	
@@ -588,7 +591,7 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 	}
 
 	@Override
-	public void getTypes(Set<IDigitalStorage> alreadyChecked, List<NetworkType> li) {
+	public void getTypes(Set<IDigitalStorage> alreadyChecked, Collection<NetworkType> li) {
 		for (ItemStack drive : drives) {
 			if (drive != null && drive.getItem() instanceof ItemDrive) {
 				List<NetworkType> types = ((ItemDrive)drive.getItem()).getTypes(drive);
@@ -611,6 +614,7 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 		for (TileEntityInterface in : interfaces) {
 			for (int i = 9; i <= 17; i++) {
 				ItemStack ifaceStack = in.getStackInSlot(i);
+				if (ifaceStack == null || ifaceStack.isEmpty()) continue;
 				boolean added = false;
 				for (NetworkType cur : li) {
 					if (ItemStack.areItemsEqual(ifaceStack, cur.getStack()) && ItemStack.areItemStackTagsEqual(ifaceStack, cur.getStack())) {
@@ -636,18 +640,18 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 			if (!driveBays.contains(tenm)) {
 				driveBays.add((TileEntityDriveBay)tenm);
 				updateDrivesCache();
-				changeId++;
+				changed("drive bay added");
 			}
 		} else if (tenm instanceof TileEntityInterface) {
 			if (!interfaces.contains(tenm)) {
 				interfaces.add((TileEntityInterface)tenm);
-				changeId++;
+				changed("interface added");
 			}
 		} else if (tenm instanceof TileEntityMemoryBay) {
 			if (!memoryBays.contains(tenm)) {
 				memoryBays.add((TileEntityMemoryBay)tenm);
 				updateMemoryCache();
-				changeId++;
+				changed("memory bay added");
 			}
 		}
 		if (networkMemberLocations.add(tenm.getPos())) {
@@ -667,6 +671,11 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 	@Override
 	public int getChangeId() {
 		return changeId;
+	}
+	
+	private void changed(String reason) {
+		System.out.println("changed: "+reason);
+		changeId++;
 	}
 	
 	

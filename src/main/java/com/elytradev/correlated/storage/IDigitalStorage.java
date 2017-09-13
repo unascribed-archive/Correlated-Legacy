@@ -1,5 +1,6 @@
 package com.elytradev.correlated.storage;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -11,7 +12,7 @@ import net.minecraft.item.ItemStack;
 public interface IDigitalStorage {
 
 	int getChangeId();
-	void getTypes(Set<IDigitalStorage> alreadyChecked, List<NetworkType> target);
+	void getTypes(Set<IDigitalStorage> alreadyChecked, Collection<NetworkType> target);
 	InsertResult addItemToNetwork(ItemStack stack, Set<IDigitalStorage> alreadyChecked);
 	ItemStack removeItemsFromNetwork(ItemStack prototype, int amount, boolean b, Set<IDigitalStorage> alreadyChecked);
 	boolean isPowered();

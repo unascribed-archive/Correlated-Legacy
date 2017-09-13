@@ -1,5 +1,6 @@
 package com.elytradev.correlated.tile;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -145,7 +146,7 @@ public class TileEntityImporterChest extends TileEntity implements IInventory, I
 	}
 
 	@Override
-	public void getTypes(Set<IDigitalStorage> alreadyChecked, List<NetworkType> target) {
+	public void getTypes(Set<IDigitalStorage> alreadyChecked, Collection<NetworkType> target) {
 		for (ItemStack is : storage) {
 			target.add(new NetworkType(is, 0L));
 		}
