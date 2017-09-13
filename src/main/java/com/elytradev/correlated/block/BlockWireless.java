@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.elytradev.correlated.ColorType;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.CorrelatedWorldData;
 import com.elytradev.correlated.helper.Blocks;
@@ -136,17 +137,17 @@ public class BlockWireless extends Block {
 	public float[] getBeaconColorMultiplier(IBlockState state, World world, BlockPos pos, BlockPos beaconPos) {
 		TileEntity te = world.getTileEntity(pos);
 		if (te instanceof TileEntityBeaconLens) {
-			int idx = 64;
+			String name = "primary";
 			switch (state.getValue(BlockWireless.STATE)) {
 				case DEAD:
 					return null;
 				case ERROR:
-					idx = 65;
+					name = "error";
 					break;
 				default:
 					break;
 			}
-			int c = Correlated.proxy.getColor("other", idx);
+			int c = ColorType.OTHER.getColor(name);
 			return new float[] {
 				((c >> 16) & 0xFF) / 255f,
 				((c >> 8) & 0xFF) / 255f,

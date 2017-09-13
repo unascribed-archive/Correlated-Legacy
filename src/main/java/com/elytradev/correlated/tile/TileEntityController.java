@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.elytradev.correlated.CLog;
+import com.elytradev.correlated.ColorType;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.CorrelatedWorldData;
 import com.elytradev.correlated.block.BlockController;
@@ -166,17 +167,17 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 		IBlockState state = getWorld().getBlockState(getPos());
 		if (state.getBlock() == CBlocks.CONTROLLER) {
 			if (state.getValue(BlockController.CHEATY)) {
-				color = 0xFF00FF;
+				color = ColorType.OTHER.getColor("cheaty");
 			} else {
 				switch (state.getValue(BlockController.STATE)) {
 					case OFF:
 					case BOOTING:
 						return null;
 					case ERROR:
-						color = Correlated.proxy.getColor("other", 65);
+						color = ColorType.OTHER.getColor("error");
 						break;
 					case POWERED:
-						color = Correlated.proxy.getColor("other", 64);
+						color = ColorType.OTHER.getColor("primary");
 						break;
 				}
 			}

@@ -91,26 +91,11 @@ public final class Prototype {
 		// also intentionally excludes quantity
 		if (o1 == o2) return true;
 		if (o1 == null || o2 == null) return false;
-		if (o1.hasTagCompound() != o2.hasTagCompound()) {
-			System.out.println("tag presence mismatch");
-			return false;
-		}
-		if (o1.getItem() != o2.getItem()) {
-			System.out.println("item mismatch");
-			return false;
-		}
-		if (o1.getMetadata() != o2.getMetadata()) {
-			System.out.println("meta mismatch");
-			return false;
-		}
-		if (!Objects.equal(o1.getTagCompound(), o2.getTagCompound())) {
-			System.out.println("tag mismatch");
-			return false;
-		}
-		if (!o1.areCapsCompatible(o2)) {
-			System.out.println("cap mismatch");
-			return false;
-		}
+		if (o1.hasTagCompound() != o2.hasTagCompound()) return false;
+		if (o1.getItem() != o2.getItem()) return false;
+		if (o1.getMetadata() != o2.getMetadata()) return false;
+		if (!Objects.equal(o1.getTagCompound(), o2.getTagCompound())) return false;
+		if (!o1.areCapsCompatible(o2)) return false;
 		return true;
 	}
 	

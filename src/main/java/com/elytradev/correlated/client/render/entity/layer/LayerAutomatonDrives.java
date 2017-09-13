@@ -2,6 +2,7 @@ package com.elytradev.correlated.client.render.entity.layer;
 
 import org.lwjgl.opengl.GL11;
 
+import com.elytradev.correlated.ColorType;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.client.render.tile.RenderDriveBay;
 import com.elytradev.correlated.entity.EntityAutomaton;
@@ -73,7 +74,7 @@ public class LayerAutomatonDrives implements LayerRenderer<EntityAutomaton> {
 			ItemStack drive = ent.getItemStackFromSlot(slot);
 			if (drive.getItem() instanceof ItemDrive) {
 				ItemDrive itemDrive = (ItemDrive)drive.getItem();
-				RenderDriveBay.pbr.render(lit ? itemDrive.getFullnessColor(drive) : Correlated.proxy.getColor("other", 48), slot == EntityEquipmentSlot.CHEST ? 0 : 2, 0, 0.5f);
+				RenderDriveBay.pbr.render(lit ? itemDrive.getFullnessColor(drive) : ColorType.PALETTE.getColor("primary"), slot == EntityEquipmentSlot.CHEST ? 0 : 2, 0, 0.5f);
 			}
 		}
 		tess.draw();

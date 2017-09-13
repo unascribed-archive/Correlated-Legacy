@@ -2,7 +2,7 @@ package com.elytradev.correlated.client.render.tile;
 
 import org.lwjgl.opengl.GL11;
 
-import com.elytradev.correlated.Correlated;
+import com.elytradev.correlated.ColorType;
 import com.elytradev.correlated.block.BlockController;
 import com.elytradev.correlated.block.BlockController.State;
 import com.elytradev.correlated.init.CBlocks;
@@ -94,8 +94,8 @@ public class RenderController extends TileEntitySpecialRenderer<TileEntityContro
 		int powerIdx = 254-(int)(((float)te.getClientEnergy()/te.getClientEnergyMax())*254f);
 		int memoryIdx = (int)(((float)te.getClientMemoryUsed()/te.getClientMemoryMax())*254f);
 		if (memoryIdx > 254) memoryIdx = 254;
-		int powerColor = Correlated.proxy.getColor("fullness", cheaty ? 255 : 512+powerIdx);
-		int memoryColor = Correlated.proxy.getColor("fullness", 512+memoryIdx);
+		int powerColor = cheaty ? ColorType.OTHER.getColor("cheaty") : ColorType.FADE.getColor(512+powerIdx);
+		int memoryColor = ColorType.FADE.getColor(512+memoryIdx);
 		
 		for (int i = 0; i < 4; i++) {
 			GlStateManager.color(1, 1, 1);

@@ -1,0 +1,18 @@
+{
+	"primary": "#00DBAD",
+	"error": "#F20050",
+	"cheaty": "#F0F",
+
+	"drive_mode_whitelist": "#FFF",
+	"drive_mode_none": "#00DBAD",
+	"drive_mode_blacklist": "#000",
+
+	"drive_prioritylight_high": "#F00",
+	"drive_prioritylight_low": "#0F0",
+
+	"drive_base": "#29353B",
+	"drive_unlit_light": "#555",
+
+	"voiddrive_base": "#150B3E",
+	"voiddrive_unlit_light": "#000"
+}

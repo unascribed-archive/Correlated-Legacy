@@ -1,12 +1,11 @@
 package com.elytradev.correlated.item;
 
-import com.elytradev.correlated.Correlated;
-
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import com.elytradev.correlated.C28n;
+import com.elytradev.correlated.ColorType;
 
 public class ItemModule extends Item {
 	public static final String[] types = {
@@ -18,7 +17,7 @@ public class ItemModule extends Item {
 	}
 
 	public int getTypeColor(ItemStack stack) {
-		return Correlated.proxy.getColor("pci", stack.getMetadata());
+		return ColorType.MODULE.getColor(stack.getMetadata());
 	}
 	
 	public String getType(ItemStack stack) {

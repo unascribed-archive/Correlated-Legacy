@@ -2,6 +2,7 @@ package com.elytradev.correlated.client.render.tile;
 
 import org.lwjgl.opengl.GL11;
 
+import com.elytradev.correlated.ColorType;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.block.BlockDriveBay;
 import com.elytradev.correlated.client.render.ProtrudingBoxRenderer;
@@ -138,7 +139,13 @@ public class RenderDriveBay extends TileEntitySpecialRenderer<TileEntityDriveBay
 				ItemStack drive = te.getDriveInSlot(i);
 				if (drive.getItem() instanceof ItemDrive) {
 					ItemDrive itemDrive = (ItemDrive)drive.getItem();
-					pbr.render(lit ? itemDrive.getFullnessColor(drive) : Correlated.proxy.getColor("other", 48), i, 0, 0.5f);
+					int unlit;
+					if (drive.getItemDamage() == 4) {
+						unlit = ColorType.OTHER.getColor("voiddrive_unlit_light");
+					} else {
+						unlit = ColorType.OTHER.getColor("drive_unlit_light");
+					}
+					pbr.render(lit ? itemDrive.getFullnessColor(drive) : unlit, i, 0, 0.5f);
 				}
 			}
 		}

@@ -19,6 +19,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
+import com.elytradev.correlated.ColorType;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.client.DocumentationPage;
 import com.elytradev.correlated.client.IBMFontRenderer;
@@ -150,8 +151,8 @@ public class GuiDocumentation extends GuiScreen {
 				lagScroll = 0;
 			}
 			
-			int bg = highContrast ? 0xFF222222 : Correlated.proxy.getColor("terminal", 0);
-			int fg = highContrast ? 0xFFFFFFFF : Correlated.proxy.getColor("terminal", 1);
+			int bg = highContrast ? 0xFF222222 : ColorType.PALETTE.getColor(0);
+			int fg = highContrast ? 0xFFFFFFFF : ColorType.PALETTE.getColor(1);
 			
 			float rot = 0;
 			if (bootIdx >= bootText.length) {

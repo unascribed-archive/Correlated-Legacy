@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
+import com.elytradev.correlated.ColorType;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.entity.ai.EntityAIAutomatonAttackRangedBow;
 import com.elytradev.correlated.entity.ai.EntityAIAutomatonFollowOwner;
@@ -233,7 +234,7 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 		if (getHealth() >= 1) {
 			return Light.builder()
 					.pos(this)
-					.color(Correlated.proxy.getColor("other", 64), true)
+					.color(ColorType.OTHER.getColor("primary"), true)
 					.radius(1f)
 					.build();
 		}

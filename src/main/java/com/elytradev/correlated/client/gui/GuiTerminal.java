@@ -56,6 +56,7 @@ import net.minecraft.client.resources.I18n;
 
 import com.elytradev.correlated.C28n;
 import com.elytradev.correlated.CLog;
+import com.elytradev.correlated.ColorType;
 
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.Slot;
@@ -424,7 +425,7 @@ public class GuiTerminal extends GuiContainer {
 		int y = 18;
 		mc.getTextureManager().bindTexture(getBackground());
 		if (hasStatusLine() && signalStrength != -1) {
-			int color = Correlated.proxy.getColor("other", 64);
+			int color = ColorType.PALETTE.getColor(64);
 			float r = ((color >> 16)&0xFF)/255f;
 			float g = ((color >> 8)&0xFF)/255f;
 			float b = (color&0xFF)/255f;

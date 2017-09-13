@@ -4,6 +4,7 @@ import java.io.IOException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
+import com.elytradev.correlated.ColorType;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.client.gui.GuiTerminal;
 import com.elytradev.correlated.inventory.ContainerTerminal;
@@ -39,7 +40,7 @@ public class GuiTerminalShell extends GuiScreen {
 		int ySize = 144;
 		GlStateManager.pushMatrix();
 			GlStateManager.translate((width - xSize) / 2, (height - ySize) / 2, 0);
-			int bg = Correlated.proxy.getColor("terminal", palette*4);
+			int bg = ColorType.PALETTE.getColor(palette*4);
 			GlStateManager.color(((bg >> 16)&0xFF)/255f, ((bg >> 8)&0xFF)/255f, (bg&0xFF)/255f);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(terminal);
 			drawTexturedModalRect(0, 0, 0, 0, 256, 144);
@@ -57,7 +58,7 @@ public class GuiTerminalShell extends GuiScreen {
 				GL11.glScissor((int)((((width - xSize)/2f)+10)*res.getScaleFactor()), (int)((((height - ySize)/2f)+10.375f)*res.getScaleFactor()), (int)(((cols*4.5f)+5f)*res.getScaleFactor()), (int)((rows*8)+3.5f)*res.getScaleFactor());
 				GL11.glEnable(GL11.GL_SCISSOR_TEST);
 				GlStateManager.translate(0, (ClientProxy.ticks%244)-100, 16);
-				int c = Correlated.proxy.getColor("terminal", (palette*4)+1) & 0x00FFFFFF;
+				int c = ColorType.PALETTE.getColor((palette*4)+1) & 0x00FFFFFF;
 				drawGradientRect(11, 0, 244, 100, c, c | 0x44000000);
 				GL11.glDisable(GL11.GL_SCISSOR_TEST);
 			GlStateManager.popMatrix();

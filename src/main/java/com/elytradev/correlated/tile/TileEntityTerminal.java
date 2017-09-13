@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.elytradev.correlated.ColorType;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.CorrelatedWorldData;
 import com.elytradev.correlated.block.BlockTerminal;
@@ -108,7 +109,7 @@ public class TileEntityTerminal extends TileEntityAbstractEnergyAcceptor impleme
 			z += facing.getFrontOffsetZ()/2f;
 		}
 		
-		int color = Correlated.proxy.getColor("other", isErroring() ? 65 : 64);
+		int color = ColorType.OTHER.getColor(isErroring() ? "error" : "primary");
 		
 		return Light.builder()
 				.pos(x, y, z)

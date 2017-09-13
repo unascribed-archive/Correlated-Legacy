@@ -1,6 +1,5 @@
 package com.elytradev.correlated.item;
 
-import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.helper.Numbers;
 
 import net.minecraft.creativetab.CreativeTabs;
@@ -8,6 +7,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import com.elytradev.correlated.C28n;
+import com.elytradev.correlated.ColorType;
 
 public class ItemMemory extends Item {
 	public static final int[] tierSizes = {
@@ -20,7 +20,7 @@ public class ItemMemory extends Item {
 	}
 
 	public int getTierColor(ItemStack stack) {
-		return Correlated.proxy.getColor("tier", stack.getMetadata());
+		return ColorType.TIER.getColor(stack.getMetadata());
 	}
 
 	@Override

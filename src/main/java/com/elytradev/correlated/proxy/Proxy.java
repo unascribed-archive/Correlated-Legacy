@@ -1,5 +1,7 @@
 package com.elytradev.correlated.proxy;
 
+import com.elytradev.correlated.ColorType;
+import com.elytradev.correlated.ColorValues;
 import com.elytradev.correlated.CorrelatedPluralRulesLoader;
 import com.elytradev.correlated.entity.EntityAutomaton;
 import com.ibm.icu.text.PluralRules;
@@ -11,6 +13,18 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.translation.I18n;
 
 public class Proxy {
+	private final ColorValues DUMMY_COLOR_VALUES = new ColorValues() {
+		@Override
+		public int getColor(int index) {
+			return 0;
+		}
+		
+		@Override
+		public int getColor(String name) {
+			return 0;
+		}
+	};
+	
 	public void preInit() {
 
 	}
@@ -31,8 +45,8 @@ public class Proxy {
 		
 	}
 
-	public int getColor(String group, int index) {
-		return 0;
+	public ColorValues getColorValues(ColorType type) {
+		return DUMMY_COLOR_VALUES;
 	}
 
 	public void showAPNChangeMenu(BlockPos pos, boolean multiple, boolean client) {

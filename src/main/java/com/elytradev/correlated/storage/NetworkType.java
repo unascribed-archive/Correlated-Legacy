@@ -115,15 +115,9 @@ public class NetworkType {
 		if (getClass() != obj.getClass()) return false;
 		
 		NetworkType that = (NetworkType) obj;
-		if (this.lastModified != that.lastModified) {
-			System.out.println("last modified mismatch");
-			return false;
-		}
+		if (this.lastModified != that.lastModified) return false;
 		if (!Prototype.equals(this.stack, that.stack)) return false;
-		if (this.stack.getCount() != that.stack.getCount()) {
-			System.out.println("count mismatch");
-			return false;
-		}
+		if (this.stack.getCount() != that.stack.getCount()) return false;
 		
 		System.out.println(this+" == "+that);
 		return true;

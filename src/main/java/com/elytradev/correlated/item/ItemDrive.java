@@ -3,7 +3,6 @@ package com.elytradev.correlated.item;
 import java.util.List;
 import java.util.Locale;
 
-import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.EnergyHelper;
 import com.elytradev.correlated.block.BlockDriveBay;
 import com.elytradev.correlated.block.BlockMemoryBay;
@@ -41,6 +40,8 @@ import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import com.elytradev.correlated.C28n;
+import com.elytradev.correlated.ColorType;
+
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
@@ -101,20 +102,20 @@ public class ItemDrive extends Item {
 				idx += 256;
 			}
 		}
-		return Correlated.proxy.getColor("fullness", idx);
+		return ColorType.FADE.getColor(idx);
 	}
 
 	public int getTierColor(ItemStack stack) {
-		if (stack.getMetadata() == 4) return Correlated.proxy.getColor("tier", 16);
+		if (stack.getMetadata() == 4) return ColorType.TIER.getColor(16);
 		int meta = stack.getMetadata();
 		if (meta > 4) {
 			meta--;
 		}
-		return Correlated.proxy.getColor("tier", meta);
+		return ColorType.TIER.getColor(meta);
 	}
 
 	public int getBaseColor(ItemStack stack) {
-		return stack.getItemDamage() == 4 ? Correlated.proxy.getColor("other", 33) : Correlated.proxy.getColor("other", 49);
+		return stack.getItemDamage() == 4 ? ColorType.OTHER.getColor("voiddrive_base") : ColorType.OTHER.getColor("drive_base");
 	}
 	
 	@Override

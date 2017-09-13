@@ -6,8 +6,10 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -38,6 +40,9 @@ import org.lwjgl.opengl.KHRDebugCallback;
 import org.lwjgl.opengl.OpenGLException;
 
 import com.elytradev.correlated.CLog;
+import com.elytradev.correlated.CSSColors;
+import com.elytradev.correlated.ColorType;
+import com.elytradev.correlated.ColorValues;
 import com.elytradev.correlated.CorrelatedPluralRulesLoader;
 import com.elytradev.correlated.block.BlockDecor;
 import com.elytradev.correlated.block.BlockGlowingDecor;
@@ -82,15 +87,21 @@ import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
 import com.elytradev.correlated.tile.TileEntityOpticalReceiver;
 import com.elytradev.correlated.tile.TileEntityTerminal;
 import com.elytradev.correlated.wifi.IWirelessClient;
+import com.google.common.base.Charsets;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.ibm.icu.text.PluralRules;
 import com.ibm.icu.text.PluralRules.PluralType;
 import com.ibm.icu.util.ULocale;
 
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.Sound;
 import net.minecraft.client.audio.SoundHandler;
@@ -168,6 +179,53 @@ import paulscode.sound.codecs.CodecIBXM;
 
 // TODO this class is a mess
 public class ClientProxy extends Proxy {
+	private class IndexedColorValues implements ColorValues {
+		private final int[] values;
+
+		public IndexedColorValues(int[] values) {
+			this.values = values;
+		}
+
+		@Override
+		public int getColor(String name) {
+			try {
+				return values[Integer.parseInt(name)];
+			} catch (NumberFormatException e) {
+				return rand.nextInt();
+			}
+		}
+
+		@Override
+		public int getColor(int index) {
+			return values[index];
+		}
+	}
+	private class NamedColorValues implements ColorValues {
+		private final TObjectIntMap<String> values;
+
+		public NamedColorValues(TObjectIntMap<String> values) {
+			this.values = values;
+		}
+		
+		@Override
+		public int getColor(int index) {
+			return getColor(Integer.toString(index));
+		}
+		@Override
+		public int getColor(String name) {
+			return values.containsKey(name) ? values.get(name) : rand.nextInt();
+		}
+	}
+	private class BrokenColorValues implements ColorValues {
+		@Override
+		public int getColor(int index) {
+			return rand.nextInt();
+		}
+		@Override
+		public int getColor(String name) {
+			return rand.nextInt();
+		}
+	}
 	public static final List<IRenderHandler> shapes = Lists.newArrayList();
 
 	public static float ticks = 0;
@@ -179,8 +237,7 @@ public class ClientProxy extends Proxy {
 	private int jpegTexture = -1;
 	private Random rand = new Random();
 	
-	private Set<String> knownColorTypes = Sets.newHashSet("tier", "fullness", "other", "pci", "terminal");
-	private Map<String, int[]> colors = Maps.newHashMap();
+	private Map<ColorType, ColorValues> colors = Maps.newEnumMap(ColorType.class);
 	
 	private Future<BufferedImage> corruptionFuture;
 	private ExecutorService jpegCorruptor = Executors.newSingleThreadExecutor((r) -> new Thread(r, "JPEG Corruption Thread"));
@@ -230,17 +287,50 @@ public class ClientProxy extends Proxy {
 
 		((IReloadableResourceManager)Minecraft.getMinecraft().getResourceManager()).registerReloadListener((rm) -> {
 			colors.clear();
-			for (String s : knownColorTypes) {
+			for (ColorType type : ColorType.values()) {
+				String lowerName = type.name().toLowerCase(Locale.ROOT);
 				try {
-					IResource res = rm.getResource(new ResourceLocation("correlated", "textures/misc/"+s+"_colors.png"));
+					IResource res = rm.getResource(new ResourceLocation("correlated", "colors/"+lowerName+".png"));
 					InputStream in = res.getInputStream();
 					BufferedImage img = ImageIO.read(in);
 					in.close();
 					int[] rgb = new int[img.getWidth()*img.getHeight()];
 					img.getRGB(0, 0, img.getWidth(), img.getHeight(), rgb, 0, img.getWidth());
-					colors.put(s, rgb);
-				} catch (IOException e) {
-					CLog.info("Error while loading {} colors", s);
+					colors.put(type, new IndexedColorValues(rgb));
+				} catch (FileNotFoundException e) {
+					try {
+						IResource res = rm.getResource(new ResourceLocation("correlated", "colors/"+lowerName+".json"));
+						InputStreamReader isr = new InputStreamReader(res.getInputStream(), Charsets.UTF_8);
+						Gson gson = new Gson();
+						JsonObject obj = gson.fromJson(isr, JsonObject.class);
+						isr.close();
+						TObjectIntMap<String> map = new TObjectIntHashMap<>(obj.size());
+						for (Map.Entry<String, JsonElement> en : obj.entrySet()) {
+							JsonElement ele = en.getValue();
+							int color;
+							if (ele.isJsonPrimitive()) {
+								JsonPrimitive prim = ele.getAsJsonPrimitive();
+								if (prim.isString()) {
+									String s = prim.getAsString();
+									color = CSSColors.parse(s);
+								} else if (prim.isNumber()) {
+									color = prim.getAsInt();
+								} else {
+									throw new IllegalArgumentException("invalid JSON object type at key "+en.getKey()+", expected string or number");
+								}
+							} else {
+								throw new IllegalArgumentException("invalid JSON object type at key "+en.getKey()+", expected string or number");
+							}
+							map.put(en.getKey(), color);
+						}
+						colors.put(type, new NamedColorValues(map));
+					} catch (FileNotFoundException e1) {
+						CLog.warn("Can't find {} colors in PNG or JSON format", lowerName, e1);
+					} catch (Exception e1) {
+						CLog.warn("Error while loading {} colors from JSON", lowerName, e1);
+					}
+				} catch (Exception e) {
+					CLog.warn("Error while loading {} colors from PNG", lowerName, e);
 				}
 			}
 		});
@@ -390,12 +480,9 @@ public class ClientProxy extends Proxy {
 		}
 	}
 	@Override
-	public int getColor(String group, int index) {
-		if (index < 0) return rand.nextInt();
-		if (!colors.containsKey(group)) return rand.nextInt();
-		int[] rgb = colors.get(group);
-		if (rgb == null || index >= rgb.length) return rand.nextInt();
-		return rgb[index] | 0xFF000000;
+	public ColorValues getColorValues(ColorType type) {
+		if (!colors.containsKey(type)) return new BrokenColorValues();
+		return colors.get(type);
 	}
 	@Override
 	public void showAPNChangeMenu(BlockPos pos, boolean multiple, boolean client) {
@@ -472,22 +559,22 @@ public class ClientProxy extends Proxy {
 				} else if (tintIndex == 3) {
 					switch (id.getPartitioningMode(stack)) {
 						case NONE:
-							return getColor("other", 1);
+							return getColorValues(ColorType.OTHER).getColor("drive_mode_none");
 						case WHITELIST:
-							return getColor("other", 0);
-						//case BLACKLIST:
-						//	return getColor("other", 2);
+							return getColorValues(ColorType.OTHER).getColor("drive_mode_whitelist");
+						case BLACKLIST:
+							return getColorValues(ColorType.OTHER).getColor("drive_mode_blacklist");
 					}
 				} else if (tintIndex >= 4 && tintIndex <= 6) {
 					int uncolored;
 					if (stack.getItemDamage() == 4) {
-						uncolored = getColor("other", 32);
+						uncolored = getColorValues(ColorType.OTHER).getColor("voiddrive_unlit_light");
 					} else {
-						uncolored = getColor("other", 48);
+						uncolored = getColorValues(ColorType.OTHER).getColor("drive_unlit_light");
 					}
 
-					int red = getColor("other", 16);
-					int green = getColor("other", 17);
+					int red = getColorValues(ColorType.OTHER).getColor("drive_prioritylight_high");
+					int green = getColorValues(ColorType.OTHER).getColor("drive_prioritylight_low");
 					
 					int left = uncolored;
 					int middle = uncolored;
@@ -952,9 +1039,9 @@ public class ClientProxy extends Proxy {
 					
 					int uncolored;
 					if (is.getItemDamage() == 4) {
-						uncolored = getColor("other", 32);
+						uncolored = getColorValues(ColorType.OTHER).getColor("voiddrive_unlit_light");
 					} else {
-						uncolored = getColor("other", 48);
+						uncolored = getColorValues(ColorType.OTHER).getColor("drive_unlit_light");
 					}
 					
 					int priorityLeftColor = mc.getItemColors().getColorFromItemstack(is, 4);

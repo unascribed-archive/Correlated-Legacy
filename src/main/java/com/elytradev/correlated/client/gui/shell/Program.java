@@ -1,5 +1,6 @@
 package com.elytradev.correlated.client.gui.shell;
 
+import com.elytradev.correlated.ColorType;
 import com.elytradev.correlated.Correlated;
 import com.elytradev.correlated.client.IBMFontRenderer;
 
@@ -14,10 +15,10 @@ public abstract class Program {
 	public abstract void update();
 	
 	protected void drawString(float x, float y, String str) {
-		IBMFontRenderer.drawString(x, y, str, Correlated.proxy.getColor("terminal", (parent.palette*4)+1));
+		IBMFontRenderer.drawString(x, y, str, ColorType.PALETTE.getColor((parent.palette*4)+1));
 	}
 	
 	protected void drawStringInverseVideo(float x, float y, String str) {
-		IBMFontRenderer.drawStringInverseVideo(x, y, str, Correlated.proxy.getColor("terminal", (parent.palette*4)+1));
+		IBMFontRenderer.drawStringInverseVideo(x, y, str, ColorType.PALETTE.getColor((parent.palette*4)+1));
 	}
 }
