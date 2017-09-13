@@ -297,6 +297,7 @@ public class ClientProxy extends Proxy {
 					int[] rgb = new int[img.getWidth()*img.getHeight()];
 					img.getRGB(0, 0, img.getWidth(), img.getHeight(), rgb, 0, img.getWidth());
 					colors.put(type, new IndexedColorValues(rgb));
+					CLog.info("Successfully loaded {} colors from PNG", lowerName);
 				} catch (FileNotFoundException e) {
 					try {
 						IResource res = rm.getResource(new ResourceLocation("correlated", "colors/"+lowerName+".json"));
@@ -324,6 +325,7 @@ public class ClientProxy extends Proxy {
 							map.put(en.getKey(), color);
 						}
 						colors.put(type, new NamedColorValues(map));
+						CLog.info("Successfully loaded {} colors from JSON", lowerName);
 					} catch (FileNotFoundException e1) {
 						CLog.warn("Can't find {} colors in PNG or JSON format", lowerName, e1);
 					} catch (Exception e1) {

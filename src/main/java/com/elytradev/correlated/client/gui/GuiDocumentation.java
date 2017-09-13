@@ -151,8 +151,8 @@ public class GuiDocumentation extends GuiScreen {
 				lagScroll = 0;
 			}
 			
-			int bg = highContrast ? 0xFF222222 : ColorType.PALETTE.getColor(0);
-			int fg = highContrast ? 0xFFFFFFFF : ColorType.PALETTE.getColor(1);
+			int bg = highContrast ? ColorType.PALETTE.getColor(8) : ColorType.PALETTE.getColor(0);
+			int fg = highContrast ? ColorType.PALETTE.getColor(9) : ColorType.PALETTE.getColor(1);
 			
 			float rot = 0;
 			if (bootIdx >= bootText.length) {
