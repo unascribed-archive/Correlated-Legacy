@@ -129,6 +129,7 @@ public class GuiTerminal extends GuiContainer {
 		
 		// have to do this to prevent a "cannot reference a field before it is defined" error
 		UNION(20, contains("|"), QueryType::unionFilter),
+		INTERSECTION(20, contains("&"), QueryType::intersectionFilter),
 		
 		NORMAL(0, alwaysTrue(), (query, stack) -> {
 			if (stack.getDisplayName().toLowerCase().contains(query)) return true;
@@ -196,6 +197,27 @@ public class GuiTerminal extends GuiContainer {
 				}
 			}
 			return false;
+		}
+		private static boolean intersectionFilter(List<String> queries, ItemStack stack) {
+			boolean matches = true;
+			for (String s : queries) {
+				if (!matches) break;
+				boolean anyFilterAccepted = false;
+				for (QueryType qt : VALUES_BY_PRIORITY) {
+					Object mangled = qt.mangler.apply(s);
+					if (mangled == null) continue;
+					anyFilterAccepted = true;
+					if (!qt.filter.test(mangled, stack)) {
+						matches = false;
+						break;
+					}
+				}
+				if (!anyFilterAccepted) {
+					matches = false;
+					break;
+				}
+			}
+			return matches;
 		}
 	}
 	
