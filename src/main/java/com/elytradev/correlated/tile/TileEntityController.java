@@ -675,7 +675,7 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 	}
 	
 	private void changed(String reason) {
-		System.out.println("changed: "+reason);
+		//System.out.println("changed: "+reason);
 		changeId++;
 	}
 	

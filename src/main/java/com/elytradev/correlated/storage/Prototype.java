@@ -14,6 +14,8 @@ import net.minecraft.item.ItemStack;
  */
 public final class Prototype {
 
+	public static final Prototype EMPTY = new Prototype(ItemStack.EMPTY);
+	
 	private final ItemStack stack;
 	
 	public Prototype(@Nonnull ItemStack stack) {
@@ -60,13 +62,12 @@ public final class Prototype {
 	@Override
 	public String toString() {
 		// using a quick and dirty format string for clarity
-		String format = "{name}@{meta}{nbt} x{count}";
+		String format = "{name}@{meta}{nbt}";
 		
 		return format
 				.replace("{name}", getStack().getItem().getRegistryName().toString())
 				.replace("{meta}", Integer.toString(getStack().getMetadata()))
-				.replace("{nbt}", (stack.hasTagCompound() ? stack.getTagCompound().toString() : ""))
-				.replace("{count}", Integer.toString(getStack().getCount()));
+				.replace("{nbt}", (stack.hasTagCompound() ? stack.getTagCompound().toString() : ""));
 	}
 
 	public static int hashCode(@Nullable ItemStack is) {

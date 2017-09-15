@@ -30,6 +30,8 @@ import com.elytradev.correlated.inventory.ContainerTerminal.CraftingTarget;
 import com.elytradev.correlated.inventory.SortMode;
 import com.elytradev.correlated.network.inventory.InsertAllMessage;
 import com.elytradev.correlated.network.inventory.SetSearchQueryServerMessage;
+import com.elytradev.correlated.network.inventory.TerminalActionMessage;
+import com.elytradev.correlated.network.inventory.TerminalActionMessage.TerminalAction;
 import com.elytradev.correlated.storage.NetworkType;
 import com.elytradev.correlated.storage.Prototype;
 import com.google.common.base.CharMatcher;
@@ -248,6 +250,7 @@ public class GuiTerminal extends GuiContainer {
 	
 	public int signalStrength = -1;
 	private int rows;
+	private boolean mouseInNetworkListing;
 	private NetworkType hovered;
 	
 	private Map<Prototype, NetworkType> networkContents = Maps.newHashMap();
@@ -413,6 +416,10 @@ public class GuiTerminal extends GuiContainer {
 			GlStateManager.enableDepth();
 			j++;
 		}
+		
+		mouseInNetworkListing = (mouseXOfs > container.startX && mouseXOfs < container.startX+(container.slotsAcross*18) &&
+				mouseYOfs > container.startY && mouseYOfs < container.startY+(container.slotsTall*18));
+		
 		GlStateManager.disableLighting();
 		
 		GlStateManager.color(1, 1, 1);
@@ -827,6 +834,7 @@ public class GuiTerminal extends GuiContainer {
 				mc.gameSettings.showDebugInfo = !mc.gameSettings.showDebugInfo;
 				return;
 			}
+			tryAction(keyCode);
 			super.keyTyped(typedChar, keyCode);
 		}
 	}
@@ -895,7 +903,50 @@ public class GuiTerminal extends GuiContainer {
 			}
 			searchField.mouseClicked(mouseX, mouseY, mouseButton);
 		}
+		tryAction(mouseButton - 100);
 		super.mouseClicked(mouseX, mouseY, mouseButton);
+	}
+	
+	private void tryAction(int keyCode) {
+		if (mc.player.inventory.getItemStack().isEmpty()) {
+			if (hovered != null) {
+				Prototype proto = hovered.getPrototype();
+				if (mc.gameSettings.keyBindDrop.isActiveAndMatches(keyCode)) {
+					new TerminalActionMessage(TerminalAction.DROP, proto, isCtrlKeyDown() ? 1 : 0).sendToServer();
+				} else if (mc.gameSettings.keyBindPickBlock.isActiveAndMatches(keyCode)) {
+					new TerminalActionMessage(TerminalAction.INVOKE, proto, (isCtrlKeyDown() ? 1 : 0) | (isShiftKeyDown() ? 2 : 0)).sendToServer();
+				} else if (keyCode == -100) {
+					if (isShiftKeyDown()) {
+						new TerminalActionMessage(TerminalAction.GET, proto, 3).sendToServer();
+					} else {
+						new TerminalActionMessage(TerminalAction.GET, proto, 1).sendToServer();
+						moveItemToCursor(hovered, Math.min(hovered.getStack().getCount(), hovered.getStack().getMaxStackSize()));
+					}
+				} else if (keyCode == -99) {
+					if (isShiftKeyDown()) {
+						new TerminalActionMessage(TerminalAction.GET, proto, 2).sendToServer();
+					} else {
+						new TerminalActionMessage(TerminalAction.GET, proto, 0).sendToServer();
+						moveItemToCursor(hovered, 1);
+					}
+				}
+			}
+		} else if (mouseInNetworkListing) {
+			if (keyCode == -100) {
+				new TerminalActionMessage(TerminalAction.PUT, Prototype.EMPTY, 0).sendToServer();
+				mc.player.inventory.setItemStack(ItemStack.EMPTY);
+			} else if (keyCode == -99) {
+				new TerminalActionMessage(TerminalAction.PUT, Prototype.EMPTY, 1).sendToServer();
+				mc.player.inventory.getItemStack().shrink(1);;
+			}
+		}
+	}
+
+	private void moveItemToCursor(NetworkType nt, int amt) {
+		ItemStack copy = nt.getStack().copy();
+		nt.getStack().shrink(amt);
+		copy.setCount(amt);
+		mc.player.inventory.setItemStack(copy);
 	}
 
 	@Override

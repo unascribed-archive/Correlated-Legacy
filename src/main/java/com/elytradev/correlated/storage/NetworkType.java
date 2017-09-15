@@ -119,7 +119,6 @@ public class NetworkType {
 		if (!Prototype.equals(this.stack, that.stack)) return false;
 		if (this.stack.getCount() != that.stack.getCount()) return false;
 		
-		System.out.println(this+" == "+that);
 		return true;
 	}
 	

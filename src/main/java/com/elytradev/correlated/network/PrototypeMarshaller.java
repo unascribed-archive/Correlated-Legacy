@@ -4,6 +4,7 @@ import com.elytradev.concrete.network.Marshaller;
 import com.elytradev.correlated.storage.Prototype;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 
 public class PrototypeMarshaller implements Marshaller<Prototype> {
@@ -14,7 +15,9 @@ public class PrototypeMarshaller implements Marshaller<Prototype> {
 	
 	@Override
 	public void marshal(ByteBuf out, Prototype t) {
-		ByteBufUtils.writeItemStack(out, t.getStack());
+		ItemStack s = t.getStack().copy();
+		s.setCount(1);
+		ByteBufUtils.writeItemStack(out, s);
 	}
 	
 	@Override

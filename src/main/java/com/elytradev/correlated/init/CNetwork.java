@@ -22,6 +22,7 @@ import com.elytradev.correlated.network.inventory.InsertAllMessage;
 import com.elytradev.correlated.network.inventory.RecipeTransferMessage;
 import com.elytradev.correlated.network.inventory.SetSearchQueryClientMessage;
 import com.elytradev.correlated.network.inventory.SetSearchQueryServerMessage;
+import com.elytradev.correlated.network.inventory.TerminalActionMessage;
 import com.elytradev.correlated.network.inventory.UpdateNetworkContentsMessage;
 import com.elytradev.correlated.network.wireless.APNRequestMessage;
 import com.elytradev.correlated.network.wireless.APNResponseMessage;
@@ -85,6 +86,7 @@ public class CNetwork {
 		CONTEXT.register(InsertAllMessage.class);
 		CONTEXT.register(ChangeAPNMessage.class);
 		CONTEXT.register(SignalStrengthMessage.class);
+		CONTEXT.register(TerminalActionMessage.class);
 		
 		NetworkRegistry.INSTANCE.registerGuiHandler(Correlated.inst, new CorrelatedGuiHandler());
 	}

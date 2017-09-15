@@ -197,9 +197,6 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 		addOrChange.removeAll(lastNetworkContents);
 		remove.removeAll(protoOut);
 		
-		System.out.println("add/change: "+addOrChange);
-		System.out.println("remove: "+remove);
-		
 		UpdateNetworkContentsMessage msg = new UpdateNetworkContentsMessage(addOrChange, remove, false);
 		for (IContainerListener ic : listeners) {
 			if (ic instanceof EntityPlayerMP) {
@@ -390,7 +387,7 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 		return terminal.getStorage().addItemToNetwork(stack);
 	}
 
-	private void addStatusLine(ITextComponent line) {
+	public void addStatusLine(ITextComponent line) {
 		status.add(line);
 		for (IContainerListener ic : listeners) {
 			if (ic instanceof EntityPlayerMP) {
