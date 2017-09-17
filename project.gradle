@@ -66,4 +66,12 @@ dependencies {
 	
 	compile 'net.darkhax.tesla:Tesla-1.12:1.0.61'
 }
+
+jar {
+	manifest {
+		attributes(
+			'FMLAT': 'correlated_at.cfg'
+		)
+	}
+}
 }
