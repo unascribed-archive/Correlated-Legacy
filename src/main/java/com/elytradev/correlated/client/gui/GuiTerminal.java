@@ -93,16 +93,16 @@ public class GuiTerminal extends GuiContainer {
 			String idNoSpaces = CharMatcher.whitespace().replaceFrom(id, "");
 			String nameNoSpaces = CharMatcher.whitespace().replaceFrom(name, "");
 			if (id.contains(query)) return true;
-			if (name.contains(query)) return true;
+			if (C28n.contains(name, query)) return true;
 			if (idNoSpaces.contains(query)) return true;
-			if (nameNoSpaces.contains(query)) return true;
+			if (C28n.contains(nameNoSpaces, query)) return true;
 			return false;
 		}),
 		TOOLTIP(10, startsWith("#"), (query, stack) -> {
 			Minecraft mc = Minecraft.getMinecraft();
 			List<String> tooltip = stack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL);
 			for (String s : tooltip) {
-				if (s.toLowerCase().contains(query)) return true;
+				if (C28n.contains(s.toLowerCase(), query)) return true;
 			}
 			return false;
 		}),
@@ -120,7 +120,7 @@ public class GuiTerminal extends GuiContainer {
 			for (CreativeTabs ct : stack.getItem().getCreativeTabs()) {
 				if (ct != null) {
 					String name = I18n.format(ct.getTranslatedTabLabel()).toLowerCase();
-					if (name.contains(query)) return true;
+					if (C28n.contains(name, query)) return true;
 				}
 			}
 			return false;
@@ -134,7 +134,7 @@ public class GuiTerminal extends GuiContainer {
 		INTERSECTION(20, contains("&"), QueryType::intersectionFilter),
 		
 		NORMAL(0, alwaysTrue(), (query, stack) -> {
-			if (stack.getDisplayName().toLowerCase().contains(query)) return true;
+			if (C28n.contains(stack.getDisplayName().toLowerCase(), query)) return true;
 			TOOLTIP.filter.test(query, stack);
 			return false;
 		}),
@@ -401,8 +401,14 @@ public class GuiTerminal extends GuiContainer {
 
 			GlStateManager.pushMatrix();
 			GlStateManager.scale(0.5f, 0.5f, 1f);
+			boolean oldBidiFlag = fontRenderer.getBidiFlag();
+			boolean oldUnicodeMode = fontRenderer.getUnicodeFlag();
+			fontRenderer.setBidiFlag(false);
+			fontRenderer.setUnicodeFlag(false);
 			String str = Numbers.humanReadableItemCount(type.getStack().getCount());
 			fontRenderer.drawStringWithShadow(str, ((x*2)+32)-fontRenderer.getStringWidth(str), (y*2)+24, -1);
+			fontRenderer.setBidiFlag(oldBidiFlag);
+			fontRenderer.setUnicodeFlag(oldUnicodeMode);
 			GlStateManager.popMatrix();
 			
 			if (mouseXOfs > x && mouseXOfs < x+16 &&
