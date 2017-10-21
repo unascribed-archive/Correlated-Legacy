@@ -1,0 +1,6 @@
+{
+	modid: correlated
+	name: Correlated
+	short_description: Storage and automation for the modern world.
+	maintainer: unascribed
+}
