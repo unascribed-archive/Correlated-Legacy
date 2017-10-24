@@ -1108,17 +1108,20 @@ public class ClientProxy extends Proxy {
 		vb.pos(1, 1, 0).tex(maxU, maxV).endVertex();
 		tess.draw();
 	}
-	
+
 	@SubscribeEvent
 	public void onRenderTickForDebugOutput(RenderTickEvent e) {
 		if (e.phase == Phase.START && (Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment")) {
 			if (!checkedDebugSupport) {
 				if (!GLContext.getCapabilities().GL_KHR_debug) {
 					CLog.info("Your driver doesn't support KHR_debug_output...");
+					checkedDebugSupport = true;
 					return;
 				} else {
 					CLog.info("KHR_debug_output is supported. Enabling OpenGL debug output!");
 				}
+				checkedDebugSupport = true;
+
 				GL11.glEnable(KHRDebug.GL_DEBUG_OUTPUT);
 				GL11.glEnable(KHRDebug.GL_DEBUG_OUTPUT_SYNCHRONOUS);
 				KHRDebug.glDebugMessageCallback(new KHRDebugCallback(new KHRDebugCallback.Handler() {
