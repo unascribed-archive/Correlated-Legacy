@@ -405,7 +405,13 @@ public class GuiTerminal extends GuiContainer {
 			boolean oldUnicodeMode = fontRenderer.getUnicodeFlag();
 			fontRenderer.setBidiFlag(false);
 			fontRenderer.setUnicodeFlag(false);
-			String str = Numbers.humanReadableItemCount(type.getStack().getCount());
+			String str;
+			if (type.getStack().hasTagCompound() && type.getStack().getTagCompound().getBoolean("correlated:FromVendingDrive")) {
+				// Infinity
+				str = "\u221E";
+			} else {
+				str = Numbers.humanReadableItemCount(type.getStack().getCount());
+			}
 			fontRenderer.drawStringWithShadow(str, ((x*2)+32)-fontRenderer.getStringWidth(str), (y*2)+24, -1);
 			fontRenderer.setBidiFlag(oldBidiFlag);
 			fontRenderer.setUnicodeFlag(oldUnicodeMode);
@@ -637,7 +643,12 @@ public class GuiTerminal extends GuiContainer {
 			GlStateManager.scale(0.5f, 0.5f, 1);
 			int x = e.getX()*2;
 			int y = (e.getY()+e.getHeight()-8)*2;
-			String totalString = GROUPED_INTEGER.format(hovered.getStack().getCount())+" total";
+			String totalString;
+			if (hovered.getStack().hasTagCompound() && hovered.getStack().getTagCompound().getBoolean("correlated:FromVendingDrive")) {
+				totalString = "Infinity total";
+			} else {
+				totalString = GROUPED_INTEGER.format(hovered.getStack().getCount())+" total";
+			}
 			String modifiedString = NetworkType.formatLastModified(hovered.getLastModified());
 			fontRenderer.drawStringWithShadow(totalString, (x+(e.getWidth()*2))-fontRenderer.getStringWidth(totalString), y, 0xAAAAAA);
 			fontRenderer.drawStringWithShadow(modifiedString, (x+(e.getWidth()*2))-fontRenderer.getStringWidth(modifiedString), y+10, 0xAAAAAA);
@@ -962,7 +973,6 @@ public class GuiTerminal extends GuiContainer {
 			y += getScrollTrackY();
 			scrollKnobY = Math.max(Math.min(getScrollTrackHeight()-9, (mouseY-24)-y), 6);
 			float pct = ((scrollKnobY-6)/(float)(getScrollTrackHeight()-9));
-			System.out.println(pct);
 			scrollOffset = (int)(pct * (rows-1));
 		}
 		super.mouseClickMove(mouseX, mouseY, mouseButton, timeSinceLastClick);

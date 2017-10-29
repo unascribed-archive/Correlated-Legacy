@@ -74,7 +74,9 @@ public class ItemDrive extends Item {
 			16384 * 8,
 			65536 * 8,
 			-1,
-			131072 * 8
+			131072 * 8,
+			Integer.MAX_VALUE,
+			Integer.MAX_VALUE
 	};
 
 	public ItemDrive() {
@@ -115,7 +117,9 @@ public class ItemDrive extends Item {
 	}
 
 	public int getBaseColor(ItemStack stack) {
-		return stack.getItemDamage() == 4 ? ColorType.OTHER.getColor("voiddrive_base") : ColorType.OTHER.getColor("drive_base");
+		if (stack.getItemDamage() == 4) return ColorType.OTHER.getColor("voiddrive_base");
+		if (stack.getItemDamage() == 6 || stack.getItemDamage() == 7) return ColorType.OTHER.getColor("creativedrive_base");
+		return ColorType.OTHER.getColor("drive_base");
 	}
 	
 	@Override
@@ -125,8 +129,8 @@ public class ItemDrive extends Item {
 		if (stack.getItemDamage() == 4) {
 			C28n.formatList(tooltip, "tooltip.correlated.void_drive");
 		} else {
-			int bitsUsed = getKilobitsUsed(stack)*1024;
-			int bitsMax = getMaxKilobits(stack)*1024;
+			long bitsUsed = getKilobitsUsed(stack)*1024L;
+			long bitsMax = getMaxKilobits(stack)*1024L;
 
 			int bitsPercent = (int) (((double) bitsUsed / (double) bitsMax) * 100);
 
@@ -160,6 +164,8 @@ public class ItemDrive extends Item {
 
 	@Override
 	public String getItemStackDisplayName(ItemStack stack) {
+		if (stack.getMetadata() == 6) return com.elytradev.correlated.C28n.format("item.correlated.drive.creative.name");
+		if (stack.getMetadata() == 7) return com.elytradev.correlated.C28n.format("item.correlated.drive.vending.name");
 		if (stack.getMetadata() == 4) return com.elytradev.correlated.C28n.format("item.correlated.drive.void.name");
 		return com.elytradev.correlated.C28n.format("item.correlated.drive.normal.name", Numbers.humanReadableBits(getMaxKilobits(stack)*1024));
 	}
@@ -263,11 +269,13 @@ public class ItemDrive extends Item {
 	}
 
 	public PartitioningMode getPartitioningMode(ItemStack stack) {
+		if (stack.getItemDamage() == 7) return PartitioningMode.WHITELIST;
 		return ItemStacks.getEnum(stack, "PartitioningMode", PartitioningMode.class)
 				.or(PartitioningMode.NONE);
 	}
 
 	public void setPartitioningMode(ItemStack stack, PartitioningMode mode) {
+		if (stack.getItemDamage() == 7) return;
 		ItemStacks.ensureHasTag(stack).getTagCompound().setString("PartitioningMode", mode.name());
 	}
 
@@ -499,7 +507,12 @@ public class ItemDrive extends Item {
 			int count = tag.getInteger("Count");
 			if (count > 0) {
 				ItemStack is = new ItemStack(tag.getCompoundTag("Prototype"));
-				is.setCount(count);
+				if (drive.getItemDamage() == 7) {
+					is.setCount(Integer.MAX_VALUE);
+					ItemStacks.ensureHasTag(is).getTagCompound().setBoolean("correlated:FromVendingDrive", true);
+				} else {
+					is.setCount(count);
+				}
 				rtrn.add(new NetworkType(is, tag.getLong("LastModified")));
 			}
 		}
@@ -514,6 +527,9 @@ public class ItemDrive extends Item {
 	 * is zero.
 	 */
 	public void allocateType(ItemStack drive, ItemStack item, int count) {
+		if (drive.getItemDamage() == 7) {
+			count = 1;
+		}
 		NBTTagCompound prototype = createPrototype(item);
 		int idx = findDataIndexForPrototype(drive, prototype);
 		if (idx == -1) {
@@ -596,6 +612,12 @@ public class ItemDrive extends Item {
 			rtrn.add(is);
 		}
 		return rtrn;
+	}
+	
+	
+	
+	public boolean isCreativeDrive(ItemStack drive) {
+		return drive.getItemDamage() == 6 || drive.getItemDamage() == 7;
 	}
 
 }

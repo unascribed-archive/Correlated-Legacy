@@ -569,7 +569,9 @@ public class ClientProxy extends Proxy {
 					}
 				} else if (tintIndex >= 4 && tintIndex <= 6) {
 					int uncolored;
-					if (stack.getItemDamage() == 4) {
+					if (stack.getItemDamage() == 6 || stack.getItemDamage() == 7) {
+						uncolored = getColorValues(ColorType.OTHER).getColor("creativedrive_unlit_light");
+					} else if (stack.getItemDamage() == 4) {
 						uncolored = getColorValues(ColorType.OTHER).getColor("voiddrive_unlit_light");
 					} else {
 						uncolored = getColorValues(ColorType.OTHER).getColor("drive_unlit_light");

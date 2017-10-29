@@ -42,6 +42,7 @@ public class CConfig {
 	public static EnergyUnit preferredUnit;
 	
 	public static boolean weldthrowerHurts;
+	public static boolean restrictCreativeDrives;
 	
 	public static ImportMode importMode;
 	
@@ -62,6 +63,12 @@ public class CConfig {
 			"Balance", "weldthrowerHurts", true,
 			
 			"If enabled, the Weldthrower will damage mobs and set them on fire.");
+	
+	private static final ConfigKey<Boolean> RESTRICT_CREATIVE_DRIVES = ConfigKey.create(
+			"Balance", "restrictCreativeDrives", true,
+			
+			"If enabled, non-Creative players cannot put Vending or Creative",
+			"drives into a Drive Bay, or remove them.");
 	
 	
 	
@@ -244,6 +251,7 @@ public class CConfig {
 		easyProcessors = EASY_PROCESSORS.get(config);
 		
 		weldthrowerHurts = WELDTHROWER_HURTS.get(config);
+		restrictCreativeDrives = RESTRICT_CREATIVE_DRIVES.get(config);
 		
 		rfConversionRate = RF_CONVERSION_RATE.get(config);
 		euConversionRate = EU_CONVERSION_RATE.get(config);
@@ -290,6 +298,7 @@ public class CConfig {
 		EASY_PROCESSORS.set(config, easyProcessors);
 		
 		WELDTHROWER_HURTS.set(config, weldthrowerHurts);
+		RESTRICT_CREATIVE_DRIVES.set(config, restrictCreativeDrives);
 		
 		RF_CONVERSION_RATE.set(config, rfConversionRate);
 		EU_CONVERSION_RATE.set(config, euConversionRate);

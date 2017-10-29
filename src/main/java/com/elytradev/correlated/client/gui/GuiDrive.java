@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.elytradev.correlated.helper.Numbers;
+import com.elytradev.correlated.init.CItems;
 import com.elytradev.correlated.inventory.ContainerDrive;
 import com.elytradev.correlated.item.ItemDrive.PartitioningMode;
 import com.elytradev.correlated.item.ItemDrive.Priority;
@@ -51,6 +52,12 @@ public class GuiDrive extends GuiContainer {
 
 		buttonList.add(priority);
 		buttonList.add(partition);
+		
+		if (container.getDrive().getItem() == CItems.DRIVE && container.getDrive().getItemDamage() == 7) {
+			partition.enabled = false;
+		} else {
+			partition.enabled = true;
+		}
 	}
 
 	@Override
@@ -148,9 +155,13 @@ public class GuiDrive extends GuiContainer {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(-(width - xSize) / 2, -(height - ySize) / 2, 0);
 
+		if (!partition.enabled) GlStateManager.color(0.6f, 0.6f, 0.6f);
+		else GlStateManager.color(1, 1, 1);
 		PartitioningMode part = container.getItemDrive().getPartitioningMode(container.getDrive());
 		drawTexturedModalRect(partition.x+4, partition.y+2, 246, part.ordinal()*13, 10, 13);
 
+		if (!priority.enabled) GlStateManager.color(0.6f, 0.6f, 0.6f);
+		else GlStateManager.color(1, 1, 1);
 		Priority pri = container.getItemDrive().getPriority(container.getDrive());
 		drawTexturedModalRect(priority.x+4, priority.y+2, 246, 39+(pri.ordinal()*13), 10, 13);
 		if (partition.isMouseOver()) {

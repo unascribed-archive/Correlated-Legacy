@@ -14,5 +14,8 @@
 	"drive_unlit_light": "#555",
 
 	"voiddrive_base": "#150B3E",
-	"voiddrive_unlit_light": "#000"
+	"voiddrive_unlit_light": "#000",
+	
+	"creativedrive_base": "#AAA",
+	"creativedrive_unlit_light": "#999"
 }

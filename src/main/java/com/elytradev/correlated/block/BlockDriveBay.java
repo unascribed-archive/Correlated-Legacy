@@ -1,6 +1,7 @@
 package com.elytradev.correlated.block;
 
 import com.elytradev.correlated.helper.Blocks;
+import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.item.ItemDrive;
 import com.elytradev.correlated.tile.TileEntityDriveBay;
 import net.minecraft.block.Block;
@@ -89,6 +90,8 @@ public class BlockDriveBay extends Block {
 			if (te instanceof TileEntityDriveBay) {
 				TileEntityDriveBay tedb = (TileEntityDriveBay) te;
 				if (tedb.hasDriveInSlot(slot)) {
+					ItemStack drive = tedb.getDriveInSlot(slot);
+					if (CConfig.restrictCreativeDrives && drive.getItem() instanceof ItemDrive && ((ItemDrive)drive.getItem()).isCreativeDrive(drive) && !player.capabilities.isCreativeMode) return false;
 					if (!world.isRemote) {
 						EntityItem ent = new EntityItem(world, pos.getX()+hitX+(side.getFrontOffsetX()*0.2),
 								pos.getY()+hitY+(side.getFrontOffsetY()*0.2), pos.getZ()+hitZ+(side.getFrontOffsetZ()*0.2));
@@ -100,6 +103,7 @@ public class BlockDriveBay extends Block {
 					return true;
 				} else {
 					if (inHand != null && inHand.getItem() instanceof ItemDrive) {
+						if (CConfig.restrictCreativeDrives && ((ItemDrive)inHand.getItem()).isCreativeDrive(inHand) && !player.capabilities.isCreativeMode) return false;
 						if (!world.isRemote) {
 							tedb.setDriveInSlot(slot, inHand.copy());
 							inHand.setCount(0);

@@ -264,11 +264,18 @@ public class ItemDebugginator extends Item {
 	@Override
 	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
 		if (stack.getItemDamage() == 0) {
-			entity.playSound(CSoundEvents.CONVERT, 1f, 0.5f);
-			if (player.world instanceof WorldServer) {
-				((WorldServer)player.world).spawnParticle(EnumParticleTypes.REDSTONE, entity.posX, entity.posY+(entity.height/2), entity.posZ, 512, entity.width/2, entity.height/2, entity.width/2, 1000);
+			if (entity instanceof EntityPlayer) {
+				if (!player.world.isRemote) {
+					player.world.newExplosion(player, player.posX, player.posY, player.posZ, 1, false, false);
+					player.setHeldItem(EnumHand.MAIN_HAND, ItemStack.EMPTY);
+				}
+			} else {
+				entity.playSound(CSoundEvents.CONVERT, 1f, 0.5f);
+				if (player.world instanceof WorldServer) {
+					((WorldServer)player.world).spawnParticle(EnumParticleTypes.REDSTONE, entity.posX, entity.posY+(entity.height/2), entity.posZ, 512, entity.width/2, entity.height/2, entity.width/2, 1000);
+				}
+				entity.setDead();
 			}
-			entity.setDead();
 		} else {
 			entity.attackEntityFrom(DamageSource.causePlayerDamage(player), 9001);
 		}
