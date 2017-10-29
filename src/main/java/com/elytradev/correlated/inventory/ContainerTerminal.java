@@ -184,6 +184,10 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 	protected void resync() {
 		if (world.isRemote) return;
 		Set<NetworkType> out = Sets.newHashSet();
+		if (!terminal.hasStorage()) {
+			fullResync();
+			return;
+		}
 		terminal.getStorage().getTypes(Sets.newHashSet(terminal.getStorage()), out);
 		
 		if (lastNetworkContents.equals(out)) return;
@@ -216,9 +220,11 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 	protected void fullResync() {
 		if (world.isRemote) return;
 		Set<NetworkType> out = Sets.newHashSet();
-		terminal.getStorage().getTypes(Sets.newHashSet(terminal.getStorage()), out);
+		if (terminal.hasStorage()) {
+			terminal.getStorage().getTypes(Sets.newHashSet(terminal.getStorage()), out);
+		}
 		lastNetworkContents = out;
-		UpdateNetworkContentsMessage msg = new UpdateNetworkContentsMessage(terminal.getStorage().getTypes(), Collections.emptyList(), true);
+		UpdateNetworkContentsMessage msg = new UpdateNetworkContentsMessage(terminal.hasStorage() ? terminal.getStorage().getTypes() : Collections.emptyList(), Collections.emptyList(), true);
 		for (IContainerListener ic : listeners) {
 			if (ic instanceof EntityPlayerMP) {
 				EntityPlayerMP p = (EntityPlayerMP)ic;
@@ -471,7 +477,7 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 		}
 		
 		if (!world.isRemote) {
-			int changeId = terminal.getStorage().getChangeId();
+			int changeId = terminal.hasStorage() ? terminal.getStorage().getChangeId() : 0;
 			if (terminal.hasStorage() && changeId != lastChangeId) {
 				resync();
 				lastChangeId = changeId;
@@ -509,8 +515,11 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 		listener.sendWindowProperty(this, 6, jeiSyncEnabled ? 1 : 0);
 		if (listener instanceof EntityPlayerMP) {
 			new SetSearchQueryClientMessage(windowId, searchQuery).sendTo((EntityPlayerMP)listener);
-			new UpdateNetworkContentsMessage(terminal.getStorage().getTypes(), Collections.emptyList(), true).sendTo((EntityPlayerMP)listener);
-			
+			if (terminal.hasStorage()) {
+				new UpdateNetworkContentsMessage(terminal.getStorage().getTypes(), Collections.emptyList(), true).sendTo((EntityPlayerMP)listener);
+			} else {
+				new UpdateNetworkContentsMessage(Collections.emptyList(), Collections.emptyList(), true).sendTo((EntityPlayerMP)listener);
+			}
 		}
 	}
 
