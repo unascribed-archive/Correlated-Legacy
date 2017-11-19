@@ -10,7 +10,7 @@ import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
 import com.elytradev.correlated.tile.TileEntityNetworkImporter;
 import com.elytradev.correlated.tile.TileEntityOldWirelessReceiver;
 import com.elytradev.correlated.tile.TileEntityOldWirelessTransmitter;
-import com.elytradev.correlated.tile.TileEntityOpticalReceiver;
+import com.elytradev.correlated.tile.TileEntityOpticalTransceiver;
 import com.elytradev.correlated.tile.TileEntityPotentialisticsImporter;
 import com.elytradev.correlated.tile.TileEntityTerminal;
 import com.elytradev.correlated.tile.TileEntityVTImporter;
@@ -27,7 +27,7 @@ public class CTiles {
 		GameRegistry.registerTileEntity(TileEntityInterface.class, "correlated:interface");
 		GameRegistry.registerTileEntity(TileEntityImporterChest.class, "correlated:importer_chest");
 		GameRegistry.registerTileEntity(TileEntityMicrowaveBeam.class, "correlated:microwave_beam");
-		GameRegistry.registerTileEntity(TileEntityOpticalReceiver.class, "correlated:optical");
+		GameRegistry.registerTileEntity(TileEntityOpticalTransceiver.class, "correlated:optical");
 		GameRegistry.registerTileEntity(TileEntityBeaconLens.class, "correlated:beacon_lens");
 		
 		GameRegistry.registerTileEntity(TileEntityNetworkImporter.class, "correlatedpotentialistics:controller");

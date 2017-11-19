@@ -6,7 +6,7 @@ import java.util.Set;
 
 import com.elytradev.correlated.CorrelatedWorldData;
 import com.elytradev.correlated.storage.IDigitalStorage;
-import com.elytradev.correlated.tile.TileEntityOpticalReceiver;
+import com.elytradev.correlated.tile.TileEntityOpticalTransceiver;
 import com.google.common.collect.Lists;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -72,8 +72,8 @@ public class Optical extends RadiusBased implements INBTSerializable<NBTTagCompo
 	@Override
 	public boolean isOperational() {
 		TileEntity te = data.getWorld().getTileEntity(position);
-		if (te instanceof TileEntityOpticalReceiver) {
-			return ((TileEntityOpticalReceiver)te).isOperational();
+		if (te instanceof TileEntityOpticalTransceiver) {
+			return ((TileEntityOpticalTransceiver)te).isOperational();
 		}
 		return false;
 	}
@@ -83,8 +83,8 @@ public class Optical extends RadiusBased implements INBTSerializable<NBTTagCompo
 		alreadyChecked.add(this);
 		if (this.apn == null || !this.apn.equals(apn)) return Collections.emptyList();
 		TileEntity te = data.getWorld().getTileEntity(position);
-		if (te instanceof TileEntityOpticalReceiver) {
-			TileEntityOpticalReceiver teor = ((TileEntityOpticalReceiver)te);
+		if (te instanceof TileEntityOpticalTransceiver) {
+			TileEntityOpticalTransceiver teor = ((TileEntityOpticalTransceiver)te);
 			if (teor.hasController()) {
 				return Collections.singletonList(teor.getController());
 			} else {

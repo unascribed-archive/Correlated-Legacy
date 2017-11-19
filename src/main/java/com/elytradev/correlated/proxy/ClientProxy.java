@@ -63,7 +63,7 @@ import com.elytradev.correlated.client.render.tile.RenderDriveBay;
 import com.elytradev.correlated.client.render.tile.RenderImporterChest;
 import com.elytradev.correlated.client.render.tile.RenderMemoryBay;
 import com.elytradev.correlated.client.render.tile.RenderMicrowaveBeam;
-import com.elytradev.correlated.client.render.tile.RenderOpticalReceiver;
+import com.elytradev.correlated.client.render.tile.RenderOpticalTransceiver;
 import com.elytradev.correlated.client.render.tile.RenderTerminal;
 import com.elytradev.correlated.entity.EntityAutomaton;
 import com.elytradev.correlated.entity.EntityThrownItem;
@@ -84,7 +84,7 @@ import com.elytradev.correlated.tile.TileEntityDriveBay;
 import com.elytradev.correlated.tile.TileEntityImporterChest;
 import com.elytradev.correlated.tile.TileEntityMemoryBay;
 import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
-import com.elytradev.correlated.tile.TileEntityOpticalReceiver;
+import com.elytradev.correlated.tile.TileEntityOpticalTransceiver;
 import com.elytradev.correlated.tile.TileEntityTerminal;
 import com.elytradev.correlated.wifi.IWirelessClient;
 import com.google.common.base.Charsets;
@@ -275,7 +275,7 @@ public class ClientProxy extends Proxy {
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTerminal.class, new RenderTerminal());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityImporterChest.class, new RenderImporterChest());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityMicrowaveBeam.class, new RenderMicrowaveBeam());
-		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityOpticalReceiver.class, new RenderOpticalReceiver());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityOpticalTransceiver.class, new RenderOpticalTransceiver());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityBeaconLens.class, new RenderBeaconLens());
 		
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CBlocks.WIRELESS), 0, TileEntityMicrowaveBeam.class);

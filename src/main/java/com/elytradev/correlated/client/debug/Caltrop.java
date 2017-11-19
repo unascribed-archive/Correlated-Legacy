@@ -65,6 +65,7 @@ public class Caltrop extends IRenderHandler {
 		}
 		tess.draw();
 		GlStateManager.enableDepth();
+		GlStateManager.enableTexture2D();
 	}
 
 

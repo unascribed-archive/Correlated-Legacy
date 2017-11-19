@@ -10,7 +10,7 @@ import com.elytradev.correlated.CorrelatedWorldData;
 import com.elytradev.correlated.helper.Blocks;
 import com.elytradev.correlated.tile.TileEntityBeaconLens;
 import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
-import com.elytradev.correlated.tile.TileEntityOpticalReceiver;
+import com.elytradev.correlated.tile.TileEntityOpticalTransceiver;
 import com.elytradev.correlated.wifi.Beacon;
 import com.elytradev.correlated.wifi.Beam;
 import com.elytradev.correlated.wifi.Optical;
@@ -196,7 +196,7 @@ public class BlockWireless extends Block {
 			case MICROWAVE:
 				return new TileEntityMicrowaveBeam();
 			case OPTICAL:
-				return new TileEntityOpticalReceiver();
+				return new TileEntityOpticalTransceiver();
 			case BEACON:
 				return new TileEntityBeaconLens();
 		}
@@ -216,7 +216,7 @@ public class BlockWireless extends Block {
 						temb.link(other);
 					}
 				}
-			} else if (te instanceof TileEntityOpticalReceiver) {
+			} else if (te instanceof TileEntityOpticalTransceiver) {
 				CorrelatedWorldData data = CorrelatedWorldData.getFor(world);
 				Optical o = new Optical(data, pos, 32, placer.getName());
 				data.getWirelessManager().add(o);
@@ -259,7 +259,7 @@ public class BlockWireless extends Block {
 			CorrelatedWorldData data = CorrelatedWorldData.getFor(world);
 			Beam b = data.getWirelessManager().getBeam(pos);
 			data.getWirelessManager().remove(b);
-		} else if (te instanceof TileEntityOpticalReceiver) {
+		} else if (te instanceof TileEntityOpticalTransceiver) {
 			CorrelatedWorldData data = CorrelatedWorldData.getFor(world);
 			Optical o = data.getWirelessManager().getOptical(pos);
 			data.getWirelessManager().remove(o);

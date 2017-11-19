@@ -218,10 +218,10 @@ public class CStacks {
 	}
 	
 	
-	public static ItemStack opticalReceiver() {
-		return opticalReceiver(1);
+	public static ItemStack opticalTransceiver() {
+		return opticalTransceiver(1);
 	}
-	public static ItemStack opticalReceiver(int amount) {
+	public static ItemStack opticalTransceiver(int amount) {
 		return new ItemStack(CBlocks.WIRELESS, amount, 1);
 	}
 	

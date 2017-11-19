@@ -62,6 +62,7 @@ public class Globe extends IRenderHandler {
 			}
 		}
 		tess.draw();
+		GlStateManager.enableTexture2D();
 	}
 
 

@@ -58,6 +58,7 @@ public class Line extends IRenderHandler {
 		vb.pos(x1, y1, z1).endVertex();
 		vb.pos(x2, y2, z2).endVertex();
 		tess.draw();
+		GlStateManager.enableTexture2D();
 	}
 
 

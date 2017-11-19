@@ -10,7 +10,7 @@ import com.elytradev.correlated.network.fx.AddGlobeMessage;
 import com.elytradev.correlated.network.fx.AddLineMessage;
 import com.elytradev.correlated.tile.TileEntityController;
 import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
-import com.elytradev.correlated.tile.TileEntityOpticalReceiver;
+import com.elytradev.correlated.tile.TileEntityOpticalTransceiver;
 import com.elytradev.correlated.wifi.Beam;
 import com.elytradev.correlated.wifi.Optical;
 import com.google.common.collect.ImmutableMap;
@@ -237,7 +237,7 @@ public class ItemDebugginator extends Item {
 				}
 			}
 		} else {
-			if (te instanceof TileEntityOpticalReceiver) {
+			if (te instanceof TileEntityOpticalTransceiver) {
 				Optical o = CorrelatedWorldData.getFor(world).getWirelessManager().getOptical(pos);
 				if (o != null) {
 					new AddGlobeMessage(o.getX(), o.getY(), o.getZ(), (float)o.getRadius()).sendTo(player);

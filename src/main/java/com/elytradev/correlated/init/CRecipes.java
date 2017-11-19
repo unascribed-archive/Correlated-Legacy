@@ -236,7 +236,7 @@ public class CRecipes {
 				), "microwave_beam");
 		
 		// Optical Receiver
-		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, CStacks.opticalReceiver(),
+		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, CStacks.opticalTransceiver(),
 				"igi",
 				"gpg",
 				"igi",
@@ -244,7 +244,7 @@ public class CRecipes {
 				'i', COres.INGOT_IRON,
 				'p', CStacks.luminousPearl(),
 				'g', COres.BLOCK_GLASS
-				), "optical_receiver");
+				), "optical");
 		
 		// Beacon Lens
 		addRecipe(e.getRegistry(), new ShapedOreRecipe(null, CStacks.beaconLens(),

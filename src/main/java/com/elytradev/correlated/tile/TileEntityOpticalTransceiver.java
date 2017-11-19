@@ -27,13 +27,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.Capability;
 
-public class TileEntityOpticalReceiver extends TileEntityAbstractEnergyAcceptor implements ITickable, IWirelessClient {
+public class TileEntityOpticalTransceiver extends TileEntityAbstractEnergyAcceptor implements ITickable, IWirelessClient {
 
 	@Override
 	public int getPotentialConsumedPerTick() {
 		return CConfig.opticalPUsage;
 	}
-	
+
 	@Override
 	public int getMaxPotential() {
 		return getPotentialConsumedPerTick()*40;
@@ -48,7 +48,7 @@ public class TileEntityOpticalReceiver extends TileEntityAbstractEnergyAcceptor 
 	public boolean canReceivePotential() {
 		return !hasController();
 	}
-	
+
 	@Override
 	public void update() {
 		if (!hasWorld() || getWorld().isRemote) return;
@@ -73,31 +73,31 @@ public class TileEntityOpticalReceiver extends TileEntityAbstractEnergyAcceptor 
 			modifyEnergyStored(-getPotentialConsumedPerTick());
 		}
 	}
-	
+
 	public boolean isOperational() {
 		return hasController() ? getController().isPowered() : getPotentialStored() >= getPotentialConsumedPerTick();
 	}
-	
+
 	@Override
 	public SPacketUpdateTileEntity getUpdatePacket() {
 		return new SPacketUpdateTileEntity(getPos(), 0, getUpdateTag());
 	}
-	
+
 	@Override
 	public NBTTagCompound getUpdateTag() {
 		NBTTagCompound nbt = super.getUpdateTag();
 		return nbt;
 	}
-	
+
 	@Override
 	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
 		handleUpdateTag(pkt.getNbtCompound());
 	}
-	
+
 	@Override
 	public void handleUpdateTag(NBTTagCompound nbt) {
 	}
-	
+
 	@Override
 	public void setAPNs(Set<String> apn) {
 		if (apn.size() > 1) throw new IllegalArgumentException("Only supports 1 APN");
@@ -115,24 +115,24 @@ public class TileEntityOpticalReceiver extends TileEntityAbstractEnergyAcceptor 
 	public BlockPos getPosition() {
 		return getPos();
 	}
-	
+
 	@Override
 	public double getX() {
 		return getPos().getX()+0.5;
 	}
-	
+
 	@Override
 	public double getY() {
 		return getPos().getY()+0.5;
 	}
-	
+
 	@Override
 	public double getZ() {
 		return getPos().getZ()+0.5;
 	}
-	
+
 	private Object probeCapability;
-	
+
 	@Override
 	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
 		if (capability == null) return null;
@@ -142,7 +142,7 @@ public class TileEntityOpticalReceiver extends TileEntityAbstractEnergyAcceptor 
 		}
 		return super.getCapability(capability, facing);
 	}
-	
+
 	@Override
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
 		if (capability == null) return false;
@@ -151,7 +151,7 @@ public class TileEntityOpticalReceiver extends TileEntityAbstractEnergyAcceptor 
 		}
 		return super.hasCapability(capability, facing);
 	}
-	
+
 	private final class ProbeCapability implements IProbeDataProvider {
 		@Override
 		public void provideProbeData(List<IProbeData> data) {

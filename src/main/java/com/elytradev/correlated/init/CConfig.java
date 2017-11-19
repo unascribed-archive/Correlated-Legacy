@@ -155,7 +155,7 @@ public class CConfig {
 	private static final ConfigKey<Integer> OPTICAL_P_USAGE = ConfigKey.create(
 			"PowerUsage", "optical", 8,
 			
-			"The P/t used by the Optical Receiver.");
+			"The P/t used by the Optical Transceiver.");
 	
 	private static final ConfigKey<Integer> DRIVE_1MIB_P_USAGE = ConfigKey.create(
 			"PowerUsage", "1mDrive", 1,

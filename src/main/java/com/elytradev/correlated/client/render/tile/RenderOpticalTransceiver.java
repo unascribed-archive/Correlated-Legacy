@@ -5,7 +5,7 @@ import org.lwjgl.opengl.GL11;
 import com.elytradev.correlated.block.BlockWireless;
 import com.elytradev.correlated.block.BlockWireless.State;
 import com.elytradev.correlated.init.CBlocks;
-import com.elytradev.correlated.tile.TileEntityOpticalReceiver;
+import com.elytradev.correlated.tile.TileEntityOpticalTransceiver;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -18,10 +18,10 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
-public class RenderOpticalReceiver extends TileEntitySpecialRenderer<TileEntityOpticalReceiver> {
+public class RenderOpticalTransceiver extends TileEntitySpecialRenderer<TileEntityOpticalTransceiver> {
 
 	@Override
-	public void render(TileEntityOpticalReceiver te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
+	public void render(TileEntityOpticalTransceiver te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
 		super.render(te, x, y, z, partialTicks, destroyStage, alpha);
 		
 		IBlockState bs = te.getWorld().getBlockState(te.getPos());
