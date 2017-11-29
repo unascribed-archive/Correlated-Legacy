@@ -527,6 +527,7 @@ public class ItemDrive extends Item {
 	 * is zero.
 	 */
 	public void allocateType(ItemStack drive, ItemStack item, int count) {
+		if (item.isEmpty()) return;
 		if (drive.getItemDamage() == 7) {
 			count = 1;
 		}
@@ -548,6 +549,7 @@ public class ItemDrive extends Item {
 	 * they will be deleted.
 	 */
 	public void deallocateType(ItemStack drive, ItemStack item) {
+		if (item.isEmpty()) return;
 		NBTTagCompound prototype = createPrototype(item);
 		int idx = findDataIndexForPrototype(drive, prototype);
 		if (idx != -1) {
@@ -577,6 +579,7 @@ public class ItemDrive extends Item {
 	
 	
 	public void blacklistType(ItemStack drive, ItemStack item) {
+		if (item.isEmpty()) return;
 		NBTTagCompound prototype = createPrototype(item);
 		int idx = findBlacklistIndexForPrototype(drive, prototype);
 		if (idx == -1) {
@@ -588,6 +591,7 @@ public class ItemDrive extends Item {
 	}
 	
 	public void unblacklistType(ItemStack drive, ItemStack item) {
+		if (item.isEmpty()) return;
 		NBTTagCompound prototype = createPrototype(item);
 		int idx = findBlacklistIndexForPrototype(drive, prototype);
 		if (idx != -1) {
