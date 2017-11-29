@@ -10,6 +10,7 @@ import com.elytradev.correlated.client.gui.GuiTerminal;
 import com.elytradev.correlated.helper.Numbers;
 import com.elytradev.correlated.item.ItemDrive;
 import com.elytradev.correlated.network.inventory.AddStatusLineMessage;
+import com.elytradev.correlated.network.inventory.SetCraftingGhostClientMessage;
 import com.elytradev.correlated.network.inventory.SetSearchQueryClientMessage;
 import com.elytradev.correlated.network.inventory.UpdateNetworkContentsMessage;
 import com.elytradev.correlated.network.wireless.SignalStrengthMessage;
@@ -35,13 +36,9 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryCraftResult;
-import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
-import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
@@ -88,8 +85,6 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 	public boolean jeiSyncEnabled = false;
 	public boolean searchFocusedByDefault = false;
 	private int lastChangeId;
-	public InventoryCrafting craftMatrix = new InventoryCrafting(this, 3, 3);
-	public InventoryCraftResult craftResult = new InventoryCraftResult();
 	public int slotsAcross;
 	public int slotsTall;
 	public int startX;
@@ -107,6 +102,8 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 	
 	private Set<NetworkType> lastNetworkContents = Collections.emptySet();
 	private Set<Prototype> lastNetworkPrototypeContents = Collections.emptySet();
+	
+	private List<? extends List<ItemStack>> craftingGhost = NonNullList.withSize(9, NonNullList.from(ItemStack.EMPTY));
 
 	public ContainerTerminal(IInventory playerInventory, EntityPlayer player, ITerminal terminal) {
 		this.player = player;
@@ -124,6 +121,7 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 			craftingTarget = prefs.getCraftingTarget();
 			searchFocusedByDefault = prefs.isSearchFocusedByDefault();
 			jeiSyncEnabled = prefs.isJeiSyncEnabled();
+			craftingGhost = prefs.getCraftingGhost();
 		}
 
 		if (terminal.hasMaintenanceSlot()) {
@@ -156,16 +154,6 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 			});
 		}
 		
-		if (hasCraftingMatrix) {
-			addSlotToContainer(new SlotCrafting(player, craftMatrix, craftResult, 0, 26, 104));
-	
-			for (int i = 0; i < 3; ++i) {
-				for (int j = 0; j < 3; ++j) {
-					this.addSlotToContainer(new Slot(craftMatrix, j + i * 3, 7 + j * 18, 18 + i * 18));
-				}
-			}
-		}
-
 		for (int i = 0; i < 3; ++i) {
 			for (int j = 0; j < 9; ++j) {
 				addSlotToContainer(new Slot(playerInventory, j + i * 9 + 9, (x + j * 18) + playerInventoryOffsetX, (103 + i * 18 + y) + playerInventoryOffsetY));
@@ -345,15 +333,6 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 			case -62:
 				player.openGui(Correlated.inst, 1, world, 0, 0, 0);
 				break;
-			
-			case -128:
-				for (int i = 0; i < 9; i++) {
-					ItemStack is = craftMatrix.getStackInSlot(i);
-					if (is.isEmpty()) continue;
-					craftMatrix.setInventorySlotContents(i, addItemToNetwork(is).stack);
-				}
-				detectAndSendChanges();
-				break;
 		}
 		return true;
 	}
@@ -515,6 +494,7 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 		listener.sendWindowProperty(this, 6, jeiSyncEnabled ? 1 : 0);
 		if (listener instanceof EntityPlayerMP) {
 			new SetSearchQueryClientMessage(windowId, searchQuery).sendTo((EntityPlayerMP)listener);
+			new SetCraftingGhostClientMessage(windowId, craftingGhost).sendTo((EntityPlayerMP)listener);
 			if (terminal.hasStorage()) {
 				new UpdateNetworkContentsMessage(terminal.getStorage().getTypes(), Collections.emptyList(), true).sendTo((EntityPlayerMP)listener);
 			} else {
@@ -556,51 +536,9 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 			if (!player.world.isRemote && slot != null) {
 				ItemStack stack = slot.getStack();
 				if (!stack.isEmpty()) {
-					if (slot instanceof SlotCrafting) {
-						ItemStack template = stack.copy();
-						for (int i = 0; i < craftingAmount.amountToCraft.apply(template); i++) {
-							stack = slot.getStack();
-							if (stack.isEmpty() || !ItemStack.areItemsEqual(template, stack)) break;
-							boolean success;
-							switch (craftingTarget) {
-								case INVENTORY:
-									success = player.inventory.addItemStackToInventory(stack);
-									break;
-								case NETWORK:
-									int amountOrig = stack.getCount();
-									ItemStack res = addItemToNetwork(stack).stack;
-									success = res.getCount() <= 0;
-									if (!success && !res.isEmpty()) {
-										removeItemsFromNetwork(stack, amountOrig-res.getCount());
-									}
-									break;
-								default:
-									success = false;
-							}
-							if (!success) break;
-							for (int j = 0; j < 9; j++) {
-								ItemStack inSlot = craftMatrix.getStackInSlot(j);
-								if (inSlot.isEmpty()) continue;
-								ItemStack is = removeItemsFromNetwork(inSlot, 1);
-								if (!is.isEmpty() && is.getCount() > 0) {
-									inSlot.setCount(inSlot.getCount() + is.getCount());
-								}
-							}
-							slot.onTake(player, stack);
-						}
-						if (craftingAmount == CraftingAmount.MAX) {
-							craftingAmount = CraftingAmount.ONE;
-							for (IContainerListener ic : listeners) {
-								ic.sendWindowProperty(this, 4, craftingAmount.ordinal());
-							}
-						}
-						detectAndSendChanges();
-						return ItemStack.EMPTY;
-					} else {
-						ItemStack is = addItemToNetwork(stack).stack;
-						getSlot(slotId).putStack(is);
-						return is;
-					}
+					ItemStack is = addItemToNetwork(stack).stack;
+					getSlot(slotId).putStack(is);
+					return is;
 				}
 			}
 			if (slotId >= 0) {
@@ -615,15 +553,6 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 	@Override
 	public void onContainerClosed(EntityPlayer player) {
 		super.onContainerClosed(player);
-		if (!player.world.isRemote) {
-			for (int i = 0; i < 9; ++i) {
-				ItemStack itemstack = craftMatrix.removeStackFromSlot(i);
-
-				if (!itemstack.isEmpty()) {
-					player.dropItem(itemstack, false);
-				}
-			}
-		}
 		UserPreferences prefs = terminal.getPreferences(player);
 		prefs.setSortMode(sortMode);
 		prefs.setSortAscending(sortAscending);
@@ -631,18 +560,13 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 		prefs.setLastSearchQuery(searchQuery);
 		prefs.setJeiSyncEnabled(jeiSyncEnabled);
 		prefs.setSearchFocusedByDefault(searchFocusedByDefault);
+		prefs.setCraftingGhost(craftingGhost);
 		terminal.markUnderlyingStorageDirty();
 	}
 
 	@Override
-	public void onCraftMatrixChanged(IInventory inventory) {
-		IRecipe recipe = CraftingManager.findMatchingRecipe(craftMatrix, player.world);
-		craftResult.setInventorySlotContents(0, recipe == null ? ItemStack.EMPTY : recipe.getCraftingResult(craftMatrix));
-	}
-
-	@Override
 	public boolean canMergeSlot(ItemStack stack, Slot slot) {
-		return slot.inventory != craftResult && super.canMergeSlot(stack, slot);
+		return super.canMergeSlot(stack, slot);
 	}
 
 	@Override
@@ -678,6 +602,10 @@ public class ContainerTerminal extends Container implements IWirelessClient {
 
 	public void updateSearchQuery(String query) {
 		this.searchQuery = query;
+	}
+
+	public void setCraftingGhost(List<? extends List<ItemStack>> ghost) {
+		this.craftingGhost = ghost;
 	}
 
 }

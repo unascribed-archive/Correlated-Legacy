@@ -18,8 +18,10 @@ import com.elytradev.correlated.network.fx.SetGlitchStateMessage;
 import com.elytradev.correlated.network.fx.ShowTerminalErrorMessage;
 import com.elytradev.correlated.network.fx.StartWeldthrowingMessage;
 import com.elytradev.correlated.network.inventory.AddStatusLineMessage;
+import com.elytradev.correlated.network.inventory.CraftItemMessage;
 import com.elytradev.correlated.network.inventory.InsertAllMessage;
-import com.elytradev.correlated.network.inventory.RecipeTransferMessage;
+import com.elytradev.correlated.network.inventory.SetCraftingGhostClientMessage;
+import com.elytradev.correlated.network.inventory.SetCraftingGhostServerMessage;
 import com.elytradev.correlated.network.inventory.SetSearchQueryClientMessage;
 import com.elytradev.correlated.network.inventory.SetSearchQueryServerMessage;
 import com.elytradev.correlated.network.inventory.TerminalActionMessage;
@@ -66,10 +68,10 @@ public class CNetwork {
 		
 		CONTEXT.register(SetAutomatonNameMessage.class);
 		CONTEXT.register(SaveProgramMessage.class);
-		CONTEXT.register(RecipeTransferMessage.class);
 		CONTEXT.register(AnimationSeenMessage.class);
 		CONTEXT.register(OpenDocumentationMessage.class);
 		CONTEXT.register(ShowTerminalErrorMessage.class);
+		CONTEXT.register(CraftItemMessage.class);
 		
 		
 		// request/response
@@ -82,6 +84,8 @@ public class CNetwork {
 		
 		CONTEXT.register(SetSearchQueryClientMessage.class);
 		CONTEXT.register(SetSearchQueryServerMessage.class);
+		CONTEXT.register(SetCraftingGhostClientMessage.class);
+		CONTEXT.register(SetCraftingGhostServerMessage.class);
 		CONTEXT.register(UpdateNetworkContentsMessage.class);
 		CONTEXT.register(InsertAllMessage.class);
 		CONTEXT.register(ChangeAPNMessage.class);

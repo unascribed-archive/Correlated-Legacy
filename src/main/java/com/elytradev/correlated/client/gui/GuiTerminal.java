@@ -28,19 +28,24 @@ import com.elytradev.correlated.inventory.ContainerTerminal;
 import com.elytradev.correlated.inventory.ContainerTerminal.CraftingAmount;
 import com.elytradev.correlated.inventory.ContainerTerminal.CraftingTarget;
 import com.elytradev.correlated.inventory.SortMode;
+import com.elytradev.correlated.network.inventory.CraftItemMessage;
 import com.elytradev.correlated.network.inventory.InsertAllMessage;
+import com.elytradev.correlated.network.inventory.SetCraftingGhostServerMessage;
 import com.elytradev.correlated.network.inventory.SetSearchQueryServerMessage;
 import com.elytradev.correlated.network.inventory.TerminalActionMessage;
 import com.elytradev.correlated.network.inventory.TerminalActionMessage.TerminalAction;
+import com.elytradev.correlated.proxy.ClientProxy;
 import com.elytradev.correlated.storage.NetworkType;
 import com.elytradev.correlated.storage.Prototype;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Objects;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multiset;
 import com.google.common.math.IntMath;
 import com.google.common.primitives.Ints;
 
@@ -61,8 +66,11 @@ import com.elytradev.correlated.CLog;
 import com.elytradev.correlated.ColorType;
 
 import net.minecraft.init.SoundEvents;
+import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -73,6 +81,7 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
 import net.minecraft.creativetab.CreativeTabs;
@@ -262,6 +271,12 @@ public class GuiTerminal extends GuiContainer {
 	
 	private int scrollOffset = 0;
 	
+	private final NonNullList<NonNullList<ItemStack>> craftMatrix = NonNullList.withSize(9, NonNullList.from(ItemStack.EMPTY));
+	private final NonNullList<ItemStack> craftMatrixDummyLast = NonNullList.withSize(9, ItemStack.EMPTY);
+	private final InventoryCrafting craftMatrixResolved;
+	
+	private ItemStack craftMatrixResult = ItemStack.EMPTY;
+	
 	public GuiTerminal(ContainerTerminal container) {
 		super(container);
 		searchField.setEnableBackgroundDrawing(false);
@@ -271,6 +286,9 @@ public class GuiTerminal extends GuiContainer {
 		xSize = 256;
 		ySize = 222;
 		lastJeiQuery = Correlated.inst.jeiQueryReader.get();
+		
+		craftMatrixResolved = new InventoryCrafting(container, 3, 3);
+		
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 
@@ -383,39 +401,58 @@ public class GuiTerminal extends GuiContainer {
 		
 		hovered = null;
 		
+		if (container.hasCraftingMatrix) {
+			if ((Mouse.isButtonDown(0) || Mouse.isButtonDown(1))
+					&& mouseXOfs >= 6 && mouseXOfs < (6+54)
+					&& mouseYOfs >= 17 && mouseYOfs < (17+54)) {
+				int cX = (mouseXOfs-6)/18;
+				int cY = (mouseYOfs-17)/18;
+				int idx = cX+(cY*3);
+				ItemStack stack = mc.player.inventory.getItemStack().copy();
+				if (!stack.isEmpty()) {
+					stack.setCount(1);
+				}
+				craftMatrix.set(idx, stack.isEmpty() ? NonNullList.from(ItemStack.EMPTY) : NonNullList.from(ItemStack.EMPTY, stack));
+				new SetCraftingGhostServerMessage(container.windowId, craftMatrix).sendToServer();
+			}
+		}
+		
 		RenderHelper.enableGUIStandardItemLighting();
-		int j = -(scrollOffset * container.slotsAcross);
-		for (NetworkType type : networkContentsView) {
+		for (int j = -(scrollOffset * container.slotsAcross); j < (container.slotsAcross*container.slotsTall); j++) {
 			if (j < 0) {
-				j++;
 				continue;
 			}
+			NetworkType type = (j < networkContentsView.size() ? networkContentsView.get(j) : null);
 			int x = container.startX + (j % container.slotsAcross) * 18;
 			int y = (container.startY + 18) + (j / container.slotsAcross) * 18;
 			if (j >= (container.slotsAcross * container.slotsTall)) break;
-			itemRender.renderItemAndEffectIntoGUI(mc.player, type.getStack(), x, y);
-			itemRender.renderItemOverlayIntoGUI(fontRenderer, type.getStack(), x, y, "");
+			if (type != null) {
+				itemRender.renderItemAndEffectIntoGUI(mc.player, type.getStack(), x, y);
+				itemRender.renderItemOverlayIntoGUI(fontRenderer, type.getStack(), x, y, "");
+			}
 			GlStateManager.disableLighting();
 			GlStateManager.disableDepth();
 			GlStateManager.colorMask(true, true, true, false);
 
-			GlStateManager.pushMatrix();
-			GlStateManager.scale(0.5f, 0.5f, 1f);
-			boolean oldBidiFlag = fontRenderer.getBidiFlag();
-			boolean oldUnicodeMode = fontRenderer.getUnicodeFlag();
-			fontRenderer.setBidiFlag(false);
-			fontRenderer.setUnicodeFlag(false);
-			String str;
-			if (type.getStack().hasTagCompound() && type.getStack().getTagCompound().getBoolean("correlated:FromVendingDrive")) {
-				// Infinity
-				str = "\u221E";
-			} else {
-				str = Numbers.humanReadableItemCount(type.getStack().getCount());
+			if (type != null) {
+				GlStateManager.pushMatrix();
+				GlStateManager.scale(0.5f, 0.5f, 1f);
+				boolean oldBidiFlag = fontRenderer.getBidiFlag();
+				boolean oldUnicodeMode = fontRenderer.getUnicodeFlag();
+				fontRenderer.setBidiFlag(false);
+				fontRenderer.setUnicodeFlag(false);
+				String str;
+				if (type.getStack().hasTagCompound() && type.getStack().getTagCompound().getBoolean("correlated:FromVendingDrive")) {
+					// Infinity
+					str = "\u221E";
+				} else {
+					str = Numbers.humanReadableItemCount(type.getStack().getCount());
+				}
+				fontRenderer.drawStringWithShadow(str, ((x*2)+32)-fontRenderer.getStringWidth(str), (y*2)+24, -1);
+				fontRenderer.setBidiFlag(oldBidiFlag);
+				fontRenderer.setUnicodeFlag(oldUnicodeMode);
+				GlStateManager.popMatrix();
 			}
-			fontRenderer.drawStringWithShadow(str, ((x*2)+32)-fontRenderer.getStringWidth(str), (y*2)+24, -1);
-			fontRenderer.setBidiFlag(oldBidiFlag);
-			fontRenderer.setUnicodeFlag(oldUnicodeMode);
-			GlStateManager.popMatrix();
 			
 			if (mouseXOfs > x && mouseXOfs < x+16 &&
 					mouseYOfs > y && mouseYOfs < y+16) {
@@ -426,9 +463,97 @@ public class GuiTerminal extends GuiContainer {
 			GlStateManager.colorMask(true, true, true, true);
 			GlStateManager.enableLighting();
 			GlStateManager.enableDepth();
-			j++;
 		}
 		
+		int craftMatrixHovered = -1;
+		NonNullList<ItemStack> craftMatrixPreview = NonNullList.withSize(9, ItemStack.EMPTY);
+		
+		if (container.hasCraftingMatrix) {
+			Multiset<Prototype> alreadySeenNet = HashMultiset.create();
+			Multiset<Prototype> alreadySeenInv = HashMultiset.create();
+			boolean hasAll = true;
+			for (int i = 0; i < craftMatrix.size(); i++) {
+				int x = i % 3;
+				int y = i / 3;
+				x*=18;
+				y*=18;
+				x+=6;
+				y+=17;
+				
+				boolean available = false;
+				NonNullList<ItemStack> possibilities = craftMatrix.get(i);
+				ItemStack is = ItemStack.EMPTY;
+				if (possibilities.isEmpty()) {
+					available = true;
+				} else {
+					glass: for (ItemStack possibility : possibilities) {
+						Prototype pt = new Prototype(possibility);
+						if (networkContents.containsKey(pt) && networkContents.get(pt).getStack().getCount() >= alreadySeenNet.count(pt)+1) {
+							is = possibility;
+							available = true;
+							alreadySeenNet.add(pt);
+							break;
+						} else {
+							int found = 0;
+							for (int k = 0; k < mc.player.inventory.getSizeInventory(); k++) {
+								ItemStack inSlot = mc.player.inventory.getStackInSlot(k);
+								if (ItemHandlerHelper.canItemStacksStack(possibility, inSlot)) {
+									found += inSlot.getCount();
+									if (found >= alreadySeenInv.count(pt)+1) {
+										is = possibility;
+										available = true;
+										alreadySeenInv.add(pt);
+										break glass;
+									}
+								}
+							}
+						}
+					}
+				}
+				craftMatrixResolved.setInventorySlotContents(i, is);
+				
+				if (!available) {
+					is = possibilities.get(((((int)ClientProxy.ticks)/20)+i)%possibilities.size());
+					hasAll = false;
+				}
+				
+				craftMatrixPreview.set(i, is);
+				if (drawItemStack(is, x+1, y+1, mouseXOfs, mouseYOfs, !is.isEmpty() && !available)) {
+					craftMatrixHovered = i;
+				}
+			}
+			
+			if (!hasAll) {
+				craftMatrixResolved.clear();
+			}
+			
+			boolean craftMatrixChanged = false;
+			
+			for (int i = 0; i < 9; i++) {
+				if (!ItemStack.areItemStacksEqual(craftMatrixResolved.getStackInSlot(i), craftMatrixDummyLast.get(i)) ||
+						!ItemStack.areItemStackTagsEqual(craftMatrixResolved.getStackInSlot(i), craftMatrixDummyLast.get(i))) {
+					craftMatrixChanged = true;
+					break;
+				}
+			}
+			
+			if (craftMatrixChanged) {
+				craftMatrixResult = CraftingManager.findMatchingResult(craftMatrixResolved, mc.world);
+				for (int i = 0; i < 9; i++) {
+					craftMatrixDummyLast.set(i, craftMatrixResolved.getStackInSlot(i));
+				}
+			}
+			
+			ItemStack shownResult = craftMatrixResult;
+			
+			if (!hasAll) {
+				shownResult = ItemStack.EMPTY;
+			}
+			
+			if (drawItemStack(shownResult, 26, 104, mouseXOfs, mouseYOfs, false)) {
+				craftMatrixHovered = -2;
+			}
+		}
 		mouseInNetworkListing = (mouseXOfs > container.startX && mouseXOfs < container.startX+(container.slotsAcross*18) &&
 				mouseYOfs > container.startY && mouseYOfs < container.startY+(container.slotsTall*18));
 		
@@ -588,13 +713,19 @@ public class GuiTerminal extends GuiContainer {
 					), mouseX, mouseY);
 			}
 		}
+		if (mc.player.inventory.getItemStack().isEmpty() && craftMatrixHovered != -1) {
+			ItemStack is = craftMatrixHovered == -2 ? craftMatrixResult : craftMatrixPreview.get(craftMatrixHovered);
+			if (!is.isEmpty()) {
+				GuiUtils.drawHoveringText(is, getItemToolTip(is), mouseX, mouseY, width, height, -1, fontRenderer);
+			}
+		}
 		
 		GlStateManager.disableLighting();
 		mc.renderEngine.bindTexture(ENERGY);
 		GlStateManager.color(1, 1, 1);
 		drawModalRectWithCustomSizedTexture(preferredEnergySystem.x+2, preferredEnergySystem.y+2, 0, CConfig.preferredUnit.ordinal()*8, 8, 8, 8, 72);
 		
-		if (hovered != null) {
+		if (mc.player.inventory.getItemStack().isEmpty() && hovered != null) {
 			List<String> tooltip = getItemToolTip(hovered.getStack());
 			int totalWidth = fontRenderer.getStringWidth(GROUPED_INTEGER.format(hovered.getStack().getCount())+" total")/2;
 			int lastModifiedWidth = fontRenderer.getStringWidth(NetworkType.formatLastModified(hovered.getLastModified()))/2;
@@ -636,6 +767,32 @@ public class GuiTerminal extends GuiContainer {
 		}
 	}
 	
+	private boolean drawItemStack(ItemStack is, int x, int y, int mouseX, int mouseY, boolean redOverlay) {
+		boolean hovered = false;
+
+		itemRender.renderItemAndEffectIntoGUI(mc.player, is, x, y);
+		itemRender.renderItemOverlayIntoGUI(fontRenderer, is, x, y, "");
+		
+		GlStateManager.disableLighting();
+		GlStateManager.disableDepth();
+		GlStateManager.colorMask(true, true, true, false);
+		if (mouseX > x && mouseX < x+16 &&
+				mouseY > y && mouseY < y+16) {
+			drawRect(x, y, x+16, y+16, 0x80FFFFFF);
+			hovered = true;
+		}
+		
+		if (redOverlay) {
+			drawRect(x, y, x+16, y+16, 0x60FF0000);
+		}
+		
+		GlStateManager.colorMask(true, true, true, true);
+		GlStateManager.enableLighting();
+		GlStateManager.enableDepth();
+		
+		return hovered;
+	}
+
 	@SubscribeEvent
 	public void onRenderTooltipPostText(RenderTooltipEvent.PostText e) {
 		if (isDrawingHoverTooltip) {
@@ -763,7 +920,8 @@ public class GuiTerminal extends GuiContainer {
 
 			}
 		} else if (button.id == 4) {
-			mc.playerController.sendEnchantPacket(container.windowId, -128);
+			craftMatrix.clear();
+			new SetCraftingGhostServerMessage(container.windowId, craftMatrix).sendToServer();
 		} else if (button.id == 5) {
 			mc.playerController.sendEnchantPacket(container.windowId, container.searchFocusedByDefault ? -25 : -24);
 			container.searchFocusedByDefault = !container.searchFocusedByDefault;
@@ -872,6 +1030,24 @@ public class GuiTerminal extends GuiContainer {
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
 		int x = (width - xSize) / 2;
 		int y = (height - ySize) / 2;
+		
+		if (container.hasCraftingMatrix) {
+			if ((mouseButton == 0 || mouseButton == 1)
+					&& mouseX >= x+26 && mouseX <= x+(26+16)
+					&& mouseY >= y+104 && mouseY <= y+(104+16)) {
+				int action;
+				if (isShiftKeyDown()) {
+					action = 2;
+				} else if (mouseButton == 0) {
+					action = 0;
+				} else if (mouseButton == 1) {
+					action = 1;
+				} else {
+					throw new AssertionError();
+				}
+				new CraftItemMessage(container.windowId, craftMatrixResolved, action).sendToServer();
+			}
+		}
 		
 		int left = 68+container.playerInventoryOffsetX;
 		int top = 90+container.playerInventoryOffsetY;
@@ -1012,6 +1188,15 @@ public class GuiTerminal extends GuiContainer {
 		if (searchField != null) {
 			searchField.setFocused(true);
 		}
+	}
+
+	public void setRecipe(List<? extends List<ItemStack>> matrix) {
+		for (int i = 0; i < 9; i++) {
+			List<ItemStack> li = matrix.get(i);
+			NonNullList<ItemStack> nnl = NonNullList.from(ItemStack.EMPTY, li.toArray(new ItemStack[li.size()]));
+			craftMatrix.set(i, nnl);
+		}
+		new SetCraftingGhostServerMessage(container.windowId, craftMatrix).sendToServer();
 	}
 
 }

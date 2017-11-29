@@ -1,7 +1,11 @@
 package com.elytradev.correlated.storage;
 
+import java.util.List;
+
 import com.elytradev.correlated.inventory.ContainerTerminal.CraftingTarget;
 import com.elytradev.correlated.inventory.SortMode;
+
+import net.minecraft.item.ItemStack;
 
 public interface UserPreferences {
 	SortMode getSortMode();
@@ -21,4 +25,7 @@ public interface UserPreferences {
 	
 	boolean isSearchFocusedByDefault();
 	void setSearchFocusedByDefault(boolean searchFocusedByDefault);
+	
+	List<? extends List<ItemStack>> getCraftingGhost();
+	void setCraftingGhost(List<? extends List<ItemStack>> craftingGhost);
 }

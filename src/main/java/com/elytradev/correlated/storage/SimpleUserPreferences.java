@@ -1,11 +1,12 @@
 package com.elytradev.correlated.storage;
 
+import java.util.List;
+
 import com.elytradev.correlated.inventory.ContainerTerminal.CraftingTarget;
 import com.elytradev.correlated.inventory.SortMode;
-import com.google.common.base.Enums;
-import com.google.common.base.Strings;
-
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.NonNullList;
 
 public class SimpleUserPreferences implements UserPreferences {
 	private SortMode sortMode = SortMode.QUANTITY;
@@ -14,6 +15,8 @@ public class SimpleUserPreferences implements UserPreferences {
 	private CraftingTarget craftingTarget = CraftingTarget.INVENTORY;
 	private boolean jeiSyncEnabled = false;
 	private boolean searchFocusedByDefault = false;
+	private List<? extends List<ItemStack>> craftingGhost = NonNullList.withSize(9, NonNullList.from(ItemStack.EMPTY));
+	
 	
 	@Override
 	public SortMode getSortMode() {
@@ -24,6 +27,7 @@ public class SimpleUserPreferences implements UserPreferences {
 		this.sortMode = sortMode;
 	}
 	
+	
 	@Override
 	public boolean isSortAscending() {
 		return sortAscending;
@@ -32,6 +36,7 @@ public class SimpleUserPreferences implements UserPreferences {
 	public void setSortAscending(boolean sortAscending) {
 		this.sortAscending = sortAscending;
 	}
+	
 	
 	@Override
 	public String getLastSearchQuery() {
@@ -42,6 +47,7 @@ public class SimpleUserPreferences implements UserPreferences {
 		this.lastSearchQuery = lastSearchQuery;
 	}
 	
+	
 	@Override
 	public CraftingTarget getCraftingTarget() {
 		return craftingTarget;
@@ -50,6 +56,7 @@ public class SimpleUserPreferences implements UserPreferences {
 	public void setCraftingTarget(CraftingTarget craftingTarget) {
 		this.craftingTarget = craftingTarget;
 	}
+	
 	
 	@Override
 	public boolean isJeiSyncEnabled() {
@@ -60,6 +67,7 @@ public class SimpleUserPreferences implements UserPreferences {
 		this.jeiSyncEnabled = jeiSyncEnabled;
 	}
 	
+	
 	@Override
 	public boolean isSearchFocusedByDefault() {
 		return searchFocusedByDefault;
@@ -69,20 +77,36 @@ public class SimpleUserPreferences implements UserPreferences {
 		this.searchFocusedByDefault = searchFocusedByDefault;
 	}
 	
+	
+	@Override
+	public List<? extends List<ItemStack>> getCraftingGhost() {
+		return craftingGhost;
+	}
+	
+	@Override
+	public void setCraftingGhost(List<? extends List<ItemStack>> craftingGhost) {
+		this.craftingGhost = craftingGhost;
+	}
+	
+	
 	public void writeToNBT(NBTTagCompound data) {
-		data.setString("SortMode", getSortMode().name());
-		data.setBoolean("SortAscending", isSortAscending());
-		data.setString("LastSearchQuery", Strings.nullToEmpty(getLastSearchQuery()));
-		data.setString("CraftingTarget", getCraftingTarget().name());
-		data.setBoolean("JeiSyncEnabled", jeiSyncEnabled);
-		data.setBoolean("SearchFocusedByDefault", searchFocusedByDefault);
+		NBTUserPreferences nup = new NBTUserPreferences(data);
+		nup.setSortMode(sortMode);
+		nup.setSortAscending(sortAscending);
+		nup.setLastSearchQuery(lastSearchQuery);
+		nup.setCraftingTarget(craftingTarget);
+		nup.setJeiSyncEnabled(jeiSyncEnabled);
+		nup.setSearchFocusedByDefault(searchFocusedByDefault);
+		nup.setCraftingGhost(craftingGhost);
 	}
 	public void readFromNBT(NBTTagCompound data) {
-		setSortMode(Enums.getIfPresent(SortMode.class, data.getString("SortMode")).or(SortMode.QUANTITY));
-		setSortAscending(data.getBoolean("SortAscending"));
-		setLastSearchQuery(data.getString("LastSearchQuery"));
-		setCraftingTarget(Enums.getIfPresent(CraftingTarget.class, data.getString("CraftingTarget")).or(CraftingTarget.INVENTORY));
-		setJeiSyncEnabled(data.getBoolean("JeiSyncEnabled"));
-		setSearchFocusedByDefault(data.getBoolean("SearchFocusedByDefault"));
+		NBTUserPreferences nup = new NBTUserPreferences(data);
+		sortMode = nup.getSortMode();
+		sortAscending = nup.isSortAscending();
+		lastSearchQuery = nup.getLastSearchQuery();
+		craftingTarget = nup.getCraftingTarget();
+		jeiSyncEnabled = nup.isJeiSyncEnabled();
+		searchFocusedByDefault = nup.isSearchFocusedByDefault();
+		craftingGhost = nup.getCraftingGhost();
 	}
 }
