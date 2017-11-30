@@ -16,9 +16,9 @@
 	"[state=powered,cheaty=false]#top": {
 		"ticksperframe": 1,
 		"interpolate": true,
+		"glow": true,
 		"length": 36,
-		"u": 0,
-		"glow": true
+		"u": 0
 	},
 	"[state=powered,cheaty=false]#side": {
 		"ticksperframe": 1,
@@ -53,9 +53,9 @@
 	"[state=powered,cheaty=true]#side": {
 		"ticksperframe": 1,
 		"interpolate": true,
+		"glow": true,
 		"length": 36,
-		"u": 80,
-		"glow": true
+		"u": 80
 	},
 	"[state=booting,cheaty=*]#top": {
 		"ticksperframe": 4,
