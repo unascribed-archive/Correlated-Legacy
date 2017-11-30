@@ -1,4 +1,4 @@
-package com.elytradev.correlated.tile;
+package com.elytradev.correlated.tile.importer;
 
 import java.util.List;
 import java.util.Set;
@@ -11,6 +11,12 @@ import com.elytradev.correlated.block.BlockTerminal;
 import com.elytradev.correlated.init.CBlocks;
 import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.init.CItems;
+import com.elytradev.correlated.tile.TileEntityController;
+import com.elytradev.correlated.tile.TileEntityDriveBay;
+import com.elytradev.correlated.tile.TileEntityInterface;
+import com.elytradev.correlated.tile.TileEntityMemoryBay;
+import com.elytradev.correlated.tile.TileEntityNetworkMember;
+import com.elytradev.correlated.tile.TileEntityTerminal;
 import com.google.common.collect.EnumMultiset;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;

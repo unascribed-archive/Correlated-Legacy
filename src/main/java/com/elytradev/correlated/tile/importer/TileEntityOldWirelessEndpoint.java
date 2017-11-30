@@ -1,4 +1,4 @@
-package com.elytradev.correlated.tile;
+package com.elytradev.correlated.tile.importer;
 
 public abstract class TileEntityOldWirelessEndpoint extends TileEntityImporter {
 	

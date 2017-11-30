@@ -1,4 +1,4 @@
-package com.elytradev.correlated.tile;
+package com.elytradev.correlated.tile.importer;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;

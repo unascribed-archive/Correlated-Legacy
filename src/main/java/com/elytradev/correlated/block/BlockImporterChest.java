@@ -3,7 +3,7 @@ package com.elytradev.correlated.block;
 import java.util.Random;
 
 import com.elytradev.correlated.Correlated;
-import com.elytradev.correlated.tile.TileEntityImporterChest;
+import com.elytradev.correlated.tile.importer.TileEntityImporterChest;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;

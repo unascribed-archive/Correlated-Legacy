@@ -1,6 +1,6 @@
 package com.elytradev.correlated.client.render.tile;
 
-import com.elytradev.correlated.tile.TileEntityImporterChest;
+import com.elytradev.correlated.tile.importer.TileEntityImporterChest;
 
 import net.minecraft.client.model.ModelChest;
 import net.minecraft.client.renderer.GlStateManager;

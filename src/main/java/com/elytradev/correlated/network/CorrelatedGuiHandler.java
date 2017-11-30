@@ -15,9 +15,9 @@ import com.elytradev.correlated.inventory.ContainerTerminal;
 import com.elytradev.correlated.item.ItemDrive;
 import com.elytradev.correlated.item.ItemHandheldTerminal;
 import com.elytradev.correlated.storage.WirelessTerminal;
-import com.elytradev.correlated.tile.TileEntityImporterChest;
 import com.elytradev.correlated.tile.TileEntityInterface;
 import com.elytradev.correlated.tile.TileEntityTerminal;
+import com.elytradev.correlated.tile.importer.TileEntityImporterChest;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;

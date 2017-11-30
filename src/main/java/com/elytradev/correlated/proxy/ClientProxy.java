@@ -51,6 +51,7 @@ import com.elytradev.correlated.client.CorrelatedMusicTicker;
 import com.elytradev.correlated.client.DocumentationManager;
 import com.elytradev.correlated.client.IBMFontRenderer;
 import com.elytradev.correlated.client.ParticleWeldthrower;
+import com.elytradev.correlated.client.anim.AnimatedBlockTexture;
 import com.elytradev.correlated.client.gui.GuiAbortRetryFail;
 import com.elytradev.correlated.client.gui.GuiFakeReboot;
 import com.elytradev.correlated.client.gui.GuiGlitchedMainMenu;
@@ -59,6 +60,8 @@ import com.elytradev.correlated.client.render.entity.RenderAutomaton;
 import com.elytradev.correlated.client.render.entity.RenderThrownItem;
 import com.elytradev.correlated.client.render.tile.RenderBeaconLens;
 import com.elytradev.correlated.client.render.tile.RenderController;
+import com.elytradev.correlated.client.render.tile.RenderControllerItem;
+import com.elytradev.correlated.client.render.tile.RenderControllerItemCheaty;
 import com.elytradev.correlated.client.render.tile.RenderDriveBay;
 import com.elytradev.correlated.client.render.tile.RenderImporterChest;
 import com.elytradev.correlated.client.render.tile.RenderMemoryBay;
@@ -81,11 +84,12 @@ import com.elytradev.correlated.network.wireless.ChangeAPNMessage;
 import com.elytradev.correlated.tile.TileEntityBeaconLens;
 import com.elytradev.correlated.tile.TileEntityController;
 import com.elytradev.correlated.tile.TileEntityDriveBay;
-import com.elytradev.correlated.tile.TileEntityImporterChest;
+import com.elytradev.correlated.tile.TileEntityDummy;
 import com.elytradev.correlated.tile.TileEntityMemoryBay;
 import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
 import com.elytradev.correlated.tile.TileEntityOpticalTransceiver;
 import com.elytradev.correlated.tile.TileEntityTerminal;
+import com.elytradev.correlated.tile.importer.TileEntityImporterChest;
 import com.elytradev.correlated.wifi.IWirelessClient;
 import com.google.common.base.Charsets;
 import com.google.common.base.MoreObjects;
@@ -266,6 +270,8 @@ public class ClientProxy extends Proxy {
 
 	private boolean checkedDebugSupport = false;
 	
+	public AnimatedBlockTexture controllerAbt;
+	
 	@SuppressWarnings("deprecation")
 	@Override
 	public void preInit() {
@@ -278,7 +284,8 @@ public class ClientProxy extends Proxy {
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityOpticalTransceiver.class, new RenderOpticalTransceiver());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityBeaconLens.class, new RenderBeaconLens());
 		
-		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CBlocks.WIRELESS), 0, TileEntityMicrowaveBeam.class);
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityDummy.A.class, new RenderControllerItem());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityDummy.B.class, new RenderControllerItemCheaty());
 		
 		RenderingRegistry.registerEntityRenderingHandler(EntityThrownItem.class, (rm) -> new RenderThrownItem(rm, Minecraft.getMinecraft().getRenderItem()));
 		RenderingRegistry.registerEntityRenderingHandler(EntityAutomaton.class, RenderAutomaton::new);
@@ -334,6 +341,11 @@ public class ClientProxy extends Proxy {
 				} catch (Exception e) {
 					CLog.warn("Error while loading {} colors from PNG", lowerName, e);
 				}
+			}
+			try {
+				controllerAbt = AnimatedBlockTexture.read(rm, new ResourceLocation("correlated", "animations/controller_anim.json"));
+			} catch (IOException e) {
+				CLog.warn("Failed to load controller animations", e);
 			}
 		});
 		
@@ -420,15 +432,15 @@ public class ClientProxy extends Proxy {
 		ModelLoader.setCustomModelResourceLocation(CItems.DEBUGGINATOR, 0, new ModelResourceLocation(new ResourceLocation("correlated", "debugginator"), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(CItems.DEBUGGINATOR, 1, new ModelResourceLocation(new ResourceLocation("correlated", "debugginator_closed"), "inventory"));
 		
-		for (int i = 0; i < 16; i++) {
-			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.CONTROLLER), i, new ModelResourceLocation("correlated:controller", "inventory"+i));
-		}
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.CONTROLLER), 0, new ModelResourceLocation("correlated:controller_item", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.CONTROLLER), 8, new ModelResourceLocation("correlated:controller_item_cheaty", "inventory"));
 		
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.DRIVE_BAY), 0, new ModelResourceLocation("correlated:drive_bay", "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.MEMORY_BAY), 0, new ModelResourceLocation("correlated:memory_bay", "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.TERMINAL), 0, new ModelResourceLocation("correlated:terminal", "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.INTERFACE), 0, new ModelResourceLocation("correlated:interface", "inventory"));
-		for (int i = 0; i < BlockWireless.Variant.VALUES.length; i++) {
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.WIRELESS), 0, new ModelResourceLocation("correlated:microwave_beam_item", "inventory"));
+		for (int i = 1; i < BlockWireless.Variant.VALUES.length; i++) {
 			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CBlocks.WIRELESS), i, new ModelResourceLocation("correlated:wireless", "inventory"+i));
 		}
 		for (int i = 0; i < BlockDecor.Variant.VALUES.length; i++) {
@@ -524,6 +536,9 @@ public class ClientProxy extends Proxy {
 	}
 	@Override
 	public void postInit() {
+		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CBlocks.WIRELESS), 0, TileEntityMicrowaveBeam.class);
+		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CBlocks.CONTROLLER), 0, TileEntityDummy.A.class);
+		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CBlocks.CONTROLLER), 8, TileEntityDummy.B.class);
 		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
 			@Override
 			public int getColorFromItemstack(ItemStack stack, int tintIndex) {

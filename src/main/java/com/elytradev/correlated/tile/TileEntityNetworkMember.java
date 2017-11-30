@@ -1,6 +1,8 @@
 package com.elytradev.correlated.tile;
 
 import com.elytradev.correlated.CLog;
+import com.elytradev.correlated.tile.importer.TileEntityNetworkImporter;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;

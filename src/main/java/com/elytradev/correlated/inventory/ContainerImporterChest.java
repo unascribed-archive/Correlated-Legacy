@@ -1,7 +1,7 @@
 package com.elytradev.correlated.inventory;
 
 import com.elytradev.correlated.storage.InsertResult;
-import com.elytradev.correlated.tile.TileEntityImporterChest;
+import com.elytradev.correlated.tile.importer.TileEntityImporterChest;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;

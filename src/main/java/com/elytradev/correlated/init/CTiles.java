@@ -3,17 +3,17 @@ package com.elytradev.correlated.init;
 import com.elytradev.correlated.tile.TileEntityBeaconLens;
 import com.elytradev.correlated.tile.TileEntityController;
 import com.elytradev.correlated.tile.TileEntityDriveBay;
-import com.elytradev.correlated.tile.TileEntityImporterChest;
 import com.elytradev.correlated.tile.TileEntityInterface;
 import com.elytradev.correlated.tile.TileEntityMemoryBay;
 import com.elytradev.correlated.tile.TileEntityMicrowaveBeam;
-import com.elytradev.correlated.tile.TileEntityNetworkImporter;
-import com.elytradev.correlated.tile.TileEntityOldWirelessReceiver;
-import com.elytradev.correlated.tile.TileEntityOldWirelessTransmitter;
 import com.elytradev.correlated.tile.TileEntityOpticalTransceiver;
-import com.elytradev.correlated.tile.TileEntityPotentialisticsImporter;
 import com.elytradev.correlated.tile.TileEntityTerminal;
-import com.elytradev.correlated.tile.TileEntityVTImporter;
+import com.elytradev.correlated.tile.importer.TileEntityImporterChest;
+import com.elytradev.correlated.tile.importer.TileEntityNetworkImporter;
+import com.elytradev.correlated.tile.importer.TileEntityOldWirelessReceiver;
+import com.elytradev.correlated.tile.importer.TileEntityOldWirelessTransmitter;
+import com.elytradev.correlated.tile.importer.TileEntityPotentialisticsImporter;
+import com.elytradev.correlated.tile.importer.TileEntityVTImporter;
 
 import net.minecraftforge.fml.common.registry.GameRegistry;
 

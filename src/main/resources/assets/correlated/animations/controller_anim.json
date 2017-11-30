@@ -1,0 +1,74 @@
+{
+	"_notes": [
+		"valid orders are forward and random, forward is the default",
+		"keys are blockstates without the ID followed by a # and a side spec",
+		"* can be used as a placeholder for a property to mean 'any value'",
+		"the side can be any of the 6 block faces, or the special values 'side' and 'pole'",
+		"if a specification can't be found for a side, no overlay will be rendered",
+		"for example, there's no bottom spec by default, so there's no anim on the bottom",
+		"in addition there's no spec for off by default, so there's no anim while off",
+		"N.B: this system is *completely separate* from vanilla animated textures"
+	],
+	
+	"_framesize": 16,
+	"_texture": "correlated:textures/blocks/controller/controller_anim.png",
+	
+	"[state=powered,cheaty=false]#top": {
+		"ticksperframe": 1,
+		"interpolate": true,
+		"length": 36,
+		"u": 0,
+		"glow": true
+	},
+	"[state=powered,cheaty=false]#side": {
+		"ticksperframe": 1,
+		"interpolate": true,
+		"glow": true,
+		"length": 36,
+		"u": 16
+	},
+	"[state=error,cheaty=*]#top": {
+		"order": "random",
+		"ticksperframe": 1,
+		"interpolate": false,
+		"glow": true,
+		"length": 44,
+		"u": 32
+	},
+	"[state=error,cheaty=*]#side": {
+		"order": "random",
+		"ticksperframe": 1,
+		"interpolate": false,
+		"glow": true,
+		"length": 44,
+		"u": 48
+	},
+	"[state=powered,cheaty=true]#top": {
+		"ticksperframe": 1,
+		"interpolate": true,
+		"glow": true,
+		"length": 36,
+		"u": 64
+	},
+	"[state=powered,cheaty=true]#side": {
+		"ticksperframe": 1,
+		"interpolate": true,
+		"length": 36,
+		"u": 80,
+		"glow": true
+	},
+	"[state=booting,cheaty=*]#top": {
+		"ticksperframe": 4,
+		"interpolate": true,
+		"glow": true,
+		"length": 44,
+		"u": 96
+	},
+	"[state=booting,cheaty=*]#side": {
+		"ticksperframe": 4,
+		"interpolate": true,
+		"glow": true,
+		"length": 44,
+		"u": 112
+	}
+}
