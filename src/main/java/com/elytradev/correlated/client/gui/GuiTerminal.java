@@ -829,12 +829,12 @@ public class GuiTerminal extends GuiContainer {
 		if (hasSearchAndSort()) {
 			searchField.x = x+143;
 			searchField.y = y+6;
-			buttonList.add(sortDirection = new GuiButtonExt(0, x+236, y+4, 12, 12, ""));
-			buttonList.add(sortMode = new GuiButtonExt(1, x+128, y+4, 12, 12, ""));
-			buttonList.add(focusByDefault = new GuiButtonExt(5, x+114, y+4, 12, 12, ""));
-			buttonList.add(preferredEnergySystem = new GuiButtonExt(9, x+100, y+4, 12, 12, ""));
+			buttonList.add(sortDirection = new GuiButtonExt(0, x+100, y+4, 12, 12, ""));
+			buttonList.add(sortMode = new GuiButtonExt(1, x+114, y+4, 12, 12, ""));
+			buttonList.add(focusByDefault = new GuiButtonExt(5, x+128, y+4, 12, 12, ""));
+			buttonList.add(preferredEnergySystem = new GuiButtonExt(9, x-getXOffset()+getEnergyUnitX(), y-getYOffset()+getEnergyUnitY(), 12, 12, ""));
 			if (Correlated.inst.jeiAvailable) {
-				buttonList.add(jeiSync = new GuiButtonExt(6, x-getXOffset()+getJeiSyncX(), y-getYOffset()+getJeiSyncY(), 12, 12, ""));
+				buttonList.add(jeiSync = new GuiButtonExt(6, x+236, y+4, 12, 12, ""));
 			}
 		}
 		if (container.hasCraftingMatrix) {
@@ -856,11 +856,11 @@ public class GuiTerminal extends GuiContainer {
 		return 0;
 	}
 	
-	protected int getJeiSyncX() {
+	protected int getEnergyUnitX() {
 		return 236;
 	}
 	
-	protected int getJeiSyncY() {
+	protected int getEnergyUnitY() {
 		return 130;
 	}
 

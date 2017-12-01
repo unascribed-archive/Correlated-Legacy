@@ -90,12 +90,12 @@ public class GuiAutomaton extends GuiTerminal implements GuiResponder {
 	}
 	
 	@Override
-	protected int getJeiSyncX() {
+	protected int getEnergyUnitX() {
 		return 8;
 	}
 	
 	@Override
-	protected int getJeiSyncY() {
+	protected int getEnergyUnitY() {
 		return 115;
 	}
 	
