@@ -418,11 +418,13 @@ public class GuiTerminal extends GuiContainer {
 		}
 		
 		RenderHelper.enableGUIStandardItemLighting();
+		int l = 0;
 		for (int j = -(scrollOffset * container.slotsAcross); j < (container.slotsAcross*container.slotsTall); j++) {
+			l++;
 			if (j < 0) {
 				continue;
 			}
-			NetworkType type = (j < networkContentsView.size() ? networkContentsView.get(j) : null);
+			NetworkType type = (l < networkContentsView.size() ? networkContentsView.get(l) : null);
 			int x = container.startX + (j % container.slotsAcross) * 18;
 			int y = (container.startY + 18) + (j / container.slotsAcross) * 18;
 			if (j >= (container.slotsAcross * container.slotsTall)) break;

@@ -175,13 +175,17 @@ public abstract class TileEntityAbstractEnergyAcceptor extends TileEntityNetwork
 	@Override
 	@Optional.Method(modid="ic2")
 	public void onLoad() {
-		MinecraftForge.EVENT_BUS.post(new EnergyTileLoadEvent(this));
+		if (!hasWorld() || !getWorld().isRemote) {
+			MinecraftForge.EVENT_BUS.post(new EnergyTileLoadEvent(this));
+		}
 	}
 	
 	@Override
 	@Optional.Method(modid="ic2")
 	public void onChunkUnload() {
-		MinecraftForge.EVENT_BUS.post(new EnergyTileUnloadEvent(this));
+		if (!hasWorld() || !getWorld().isRemote) {
+			MinecraftForge.EVENT_BUS.post(new EnergyTileUnloadEvent(this));
+		}
 	}
 	
 	// IC2 END
