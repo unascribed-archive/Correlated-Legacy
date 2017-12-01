@@ -1151,7 +1151,7 @@ public class GuiTerminal extends GuiContainer {
 			y += getScrollTrackY();
 			scrollKnobY = Math.max(Math.min(getScrollTrackHeight()-9, (mouseY-24)-y), 6);
 			float pct = ((scrollKnobY-6)/(float)(getScrollTrackHeight()-9));
-			scrollOffset = (int)(pct * (rows-1));
+			scrollOffset = (int)(pct * rows);
 		}
 		super.mouseClickMove(mouseX, mouseY, mouseButton, timeSinceLastClick);
 	}
