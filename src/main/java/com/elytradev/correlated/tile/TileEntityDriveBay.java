@@ -31,7 +31,7 @@ import java.util.Arrays;
 public class TileEntityDriveBay extends TileEntityNetworkMember implements ITickable, Iterable<ItemStack> {
 
 	private ItemStack[] drives = new ItemStack[8];
-	private int consumedPerTick = CConfig.driveBayPUsage;
+	private double consumedPerTick = CConfig.driveBayPUsage;
 	
 	public TileEntityDriveBay() {
 		Arrays.fill(drives, ItemStack.EMPTY);
@@ -73,7 +73,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 	}
 
 	@Override
-	public int getPotentialConsumedPerTick() {
+	public double getPotentialConsumedPerTick() {
 		return consumedPerTick;
 	}
 
@@ -181,7 +181,7 @@ public class TileEntityDriveBay extends TileEntityNetworkMember implements ITick
 	}
 
 	private void onDriveChange() {
-		int old = consumedPerTick;
+		double old = consumedPerTick;
 		consumedPerTick = CConfig.driveBayPUsage;
 		for (ItemStack is : drives) {
 			if (is.getItem() instanceof ItemDrive) {

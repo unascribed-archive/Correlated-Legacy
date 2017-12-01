@@ -154,7 +154,7 @@ public class TileEntityTerminal extends TileEntityAbstractEnergyAcceptor impleme
 	}
 	
 	@Override
-	public int getPotentialConsumedPerTick() {
+	public double getPotentialConsumedPerTick() {
 		return CConfig.terminalPUsage;
 	}
 
@@ -453,12 +453,12 @@ public class TileEntityTerminal extends TileEntityAbstractEnergyAcceptor impleme
 	}
 	
 	@Override
-	public int getMaxPotential() {
+	public double getMaxPotential() {
 		return getPotentialConsumedPerTick()*40;
 	}
 
 	@Override
-	public int getReceiveCap() {
+	public double getReceiveCap() {
 		return getPotentialConsumedPerTick()*2;
 	}
 

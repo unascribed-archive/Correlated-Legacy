@@ -51,7 +51,7 @@ public class EntityAIAutomatonFollowOwner extends EntityAIBase {
 			return false;
 		} else if (entitylivingbase instanceof EntityPlayer && ((EntityPlayer) entitylivingbase).isSpectator()) {
 			return false;
-		} else if (this.thePet.getDistanceSqToEntity(entitylivingbase) < this.minDist * this.minDist) {
+		} else if (this.thePet.getDistanceSq(entitylivingbase) < this.minDist * this.minDist) {
 			return false;
 		} else {
 			this.theOwner = entitylivingbase;
@@ -64,7 +64,7 @@ public class EntityAIAutomatonFollowOwner extends EntityAIBase {
 	 */
 	@Override
 	public boolean shouldContinueExecuting() {
-		return !this.petPathfinder.noPath() && this.thePet.getDistanceSqToEntity(this.theOwner) > this.maxDist * this.maxDist;
+		return !this.petPathfinder.noPath() && this.thePet.getDistanceSq(this.theOwner) > this.maxDist * this.maxDist;
 	}
 
 	/**
@@ -83,7 +83,7 @@ public class EntityAIAutomatonFollowOwner extends EntityAIBase {
 	@Override
 	public void resetTask() {
 		this.theOwner = null;
-		this.petPathfinder.clearPathEntity();
+		this.petPathfinder.clearPath();
 		this.thePet.setPathPriority(PathNodeType.WATER, this.oldWaterCost);
 	}
 
@@ -105,7 +105,7 @@ public class EntityAIAutomatonFollowOwner extends EntityAIBase {
 
 			if (!this.petPathfinder.tryMoveToEntityLiving(this.theOwner, this.followSpeed)) {
 				if (!this.thePet.getLeashed()) {
-					if (this.thePet.getDistanceSqToEntity(this.theOwner) >= 144.0D) {
+					if (this.thePet.getDistanceSq(this.theOwner) >= 144.0D) {
 						int i = MathHelper.floor(this.theOwner.posX) - 2;
 						int j = MathHelper.floor(this.theOwner.posZ) - 2;
 						int k = MathHelper.floor(this.theOwner.getEntityBoundingBox().minY);
@@ -114,7 +114,7 @@ public class EntityAIAutomatonFollowOwner extends EntityAIBase {
 							for (int i1 = 0; i1 <= 4; ++i1) {
 								if ((l < 1 || i1 < 1 || l > 3 || i1 > 3) && this.theWorld.getBlockState(new BlockPos(i + l, k - 1, j + i1)).isOpaqueCube() && this.isEmptyBlock(new BlockPos(i + l, k, j + i1)) && this.isEmptyBlock(new BlockPos(i + l, k + 1, j + i1))) {
 									this.thePet.setLocationAndAngles(i + l + 0.5F, k, j + i1 + 0.5F, this.thePet.rotationYaw, this.thePet.rotationPitch);
-									this.petPathfinder.clearPathEntity();
+									this.petPathfinder.clearPath();
 									return;
 								}
 							}

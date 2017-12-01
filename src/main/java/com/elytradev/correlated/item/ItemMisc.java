@@ -62,7 +62,7 @@ public class ItemMisc extends Item {
 				EntityThrownItem e = new EntityThrownItem(src.getWorld(), src.getX()+facing.getFrontOffsetX(), src.getY()+facing.getFrontOffsetY(), src.getZ()+facing.getFrontOffsetZ());
 				ItemStack copy = stack.splitStack(1);
 				e.setStack(copy);
-				e.setThrowableHeading(facing.getFrontOffsetX(), facing.getFrontOffsetY(), facing.getFrontOffsetZ(), 0.5f, 1.0f);
+				e.shoot(facing.getFrontOffsetX(), facing.getFrontOffsetY(), facing.getFrontOffsetZ(), 0.5f, 1.0f);
 				src.getWorld().spawnEntity(e);
 				return stack;
 			} else {
@@ -118,7 +118,7 @@ public class ItemMisc extends Item {
 				ItemStack copy = itemStackIn.copy();
 				copy.setCount(1);
 				e.setStack(copy);
-				e.setHeadingFromThrower(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 0.0F, 0.9F, 1.0F);
+				e.shoot(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 0.0F, 0.9F, 1.0F);
 				worldIn.spawnEntity(e);
 			}
 			

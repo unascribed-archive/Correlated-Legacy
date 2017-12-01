@@ -59,8 +59,8 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 	public boolean error = false;
 	public boolean booting = true;
 	public String errorReason;
-	private int consumedPerTick = CConfig.controllerPUsage;
-	private int energyCapacity = CConfig.controllerCapacity;
+	private double consumedPerTick = CConfig.controllerPUsage;
+	private double energyCapacity = CConfig.controllerCapacity;
 	public int bootTicks = 0;
 	private int totalScanned = 0;
 	private transient Set<BlockPos> networkMemberLocations = Sets.newHashSet();
@@ -75,20 +75,20 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 	
 	protected long clientMemoryMax;
 	protected long clientMemoryUsed;
-	protected int clientEnergy;
-	protected int clientEnergyMax;
+	protected double clientEnergy;
+	protected double clientEnergyMax;
 	
 	private long maxMemory = 0;
 	
 	private String apn;
 	
 	@Override
-	public int getMaxPotential() {
+	public double getMaxPotential() {
 		return energyCapacity;
 	}
 	
 	@Override
-	public int getReceiveCap() {
+	public double getReceiveCap() {
 		return CConfig.controllerCap;
 	}
 	
@@ -191,7 +191,7 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 	}
 
 	@Override
-	public int getPotentialConsumedPerTick() {
+	public double getPotentialConsumedPerTick() {
 		return consumedPerTick;
 	}
 
@@ -377,7 +377,7 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 		booting = true;
 	}
 
-	public void updateConsumptionRate(int change) {
+	public void updateConsumptionRate(double change) {
 		consumedPerTick += change;
 		if (consumedPerTick > CConfig.controllerCap) {
 			error = true;
@@ -690,8 +690,8 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 		NBTTagCompound nbt = super.getUpdateTag();
 		nbt.setLong("MemoryUsed", clientMemoryUsed = getTotalUsedMemory());
 		nbt.setLong("MemoryMax", clientMemoryMax = getMaxMemory());
-		nbt.setInteger("Energy", clientEnergy = getPotentialStored());
-		nbt.setInteger("EnergyMax", clientEnergyMax = getMaxPotential());
+		nbt.setDouble("Energy", clientEnergy = getPotentialStored());
+		nbt.setDouble("EnergyMax", clientEnergyMax = getMaxPotential());
 		return nbt;
 	}
 	
@@ -704,15 +704,15 @@ public class TileEntityController extends TileEntityAbstractEnergyAcceptor imple
 	public void handleUpdateTag(NBTTagCompound nbt) {
 		clientMemoryUsed = nbt.getLong("MemoryUsed");
 		clientMemoryMax = nbt.getLong("MemoryMax");
-		clientEnergy = nbt.getInteger("Energy");
-		clientEnergyMax = nbt.getInteger("EnergyMax");
+		clientEnergy = nbt.getDouble("Energy");
+		clientEnergyMax = nbt.getDouble("EnergyMax");
 	}
 	
-	public int getClientEnergy() {
+	public double getClientEnergy() {
 		return clientEnergy;
 	}
 	
-	public int getClientEnergyMax() {
+	public double getClientEnergyMax() {
 		return clientEnergyMax;
 	}
 	

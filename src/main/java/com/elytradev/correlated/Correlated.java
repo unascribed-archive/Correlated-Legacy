@@ -19,6 +19,8 @@ import com.elytradev.correlated.init.CSoundEvents;
 import com.elytradev.correlated.init.CTiles;
 import com.elytradev.correlated.proxy.Proxy;
 import buildcraft.api.mj.IMjReceiver;
+import mekanism.api.energy.IStrictEnergyAcceptor;
+import mekanism.api.energy.IStrictEnergyStorage;
 
 import com.elytradev.probe.api.IProbeDataProvider;
 
@@ -70,6 +72,10 @@ public class Correlated {
 	public static Capability<?> MJ_RECEIVER;
 	@CapabilityInject(ITeslaConsumer.class)
 	public static Capability<?> TESLA_CONSUMER;
+	@CapabilityInject(IStrictEnergyAcceptor.class)
+	public static Capability<?> JOULE_ACCEPTOR;
+	@CapabilityInject(IStrictEnergyStorage.class)
+	public static Capability<?> JOULE_STORAGE;
 	
 
 	public static CreativeTabs CREATIVE_TAB = new CreativeTabs("correlated") {

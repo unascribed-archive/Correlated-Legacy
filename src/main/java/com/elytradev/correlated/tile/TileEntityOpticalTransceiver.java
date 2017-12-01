@@ -30,17 +30,17 @@ import net.minecraftforge.common.capabilities.Capability;
 public class TileEntityOpticalTransceiver extends TileEntityAbstractEnergyAcceptor implements ITickable, IWirelessClient {
 
 	@Override
-	public int getPotentialConsumedPerTick() {
+	public double getPotentialConsumedPerTick() {
 		return CConfig.opticalPUsage;
 	}
 
 	@Override
-	public int getMaxPotential() {
+	public double getMaxPotential() {
 		return getPotentialConsumedPerTick()*40;
 	}
 
 	@Override
-	public int getReceiveCap() {
+	public double getReceiveCap() {
 		return getPotentialConsumedPerTick()*2;
 	}
 

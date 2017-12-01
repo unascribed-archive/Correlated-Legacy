@@ -286,7 +286,7 @@ public class TileEntityInterface extends TileEntityNetworkMember implements IInv
 	}
 
 	@Override
-	public int getPotentialConsumedPerTick() {
+	public double getPotentialConsumedPerTick() {
 		return CConfig.interfacePUsage;
 	}
 

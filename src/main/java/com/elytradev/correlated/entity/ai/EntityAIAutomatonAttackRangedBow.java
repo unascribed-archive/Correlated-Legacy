@@ -85,7 +85,7 @@ public class EntityAIAutomatonAttackRangedBow extends EntityAIBase {
 			}
 
 			if (d0 <= this.maxAttackDistance && this.seeTime >= 20) {
-				this.entity.getNavigator().clearPathEntity();
+				this.entity.getNavigator().clearPath();
 				++this.strafingTime;
 			} else {
 				this.entity.getNavigator().tryMoveToEntityLiving(entitylivingbase, this.moveSpeedAmp);

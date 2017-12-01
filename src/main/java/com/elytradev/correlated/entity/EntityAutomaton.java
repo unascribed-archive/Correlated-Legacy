@@ -185,7 +185,7 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 		double d1 = target.getEntityBoundingBox().minY + target.height / 3.0F - entityarrow.posY;
 		double d2 = target.posZ - this.posZ;
 		double d3 = MathHelper.sqrt(d0 * d0 + d2 * d2);
-		entityarrow.setThrowableHeading(d0, d1 + d3 * 0.20000000298023224D, d2, 1.6F, 14 - this.world.getDifficulty().getDifficultyId() * 4);
+		entityarrow.shoot(d0, d1 + d3 * 0.20000000298023224D, d2, 1.6F, 14 - this.world.getDifficulty().getDifficultyId() * 4);
 		int i = EnchantmentHelper.getMaxEnchantmentLevel(Enchantments.POWER, this);
 		int j = EnchantmentHelper.getMaxEnchantmentLevel(Enchantments.PUNCH, this);
 		entityarrow.setDamage(p_82196_2_ * 2.0F + this.rand.nextGaussian() * 0.25D + this.world.getDifficulty().getDifficultyId() * 0.11F);
@@ -958,7 +958,7 @@ public class EntityAutomaton extends EntityCreature implements IEntityOwnable, I
 
 	@Override
 	public boolean canContinueInteracting(EntityPlayer player) {
-		return hasStorage() && getStorage().isPowered() && player.getDistanceSqToEntity(this) < 8*8;
+		return hasStorage() && getStorage().isPowered() && player.getDistanceSq(this) < 8*8;
 	}
 
 	@Override

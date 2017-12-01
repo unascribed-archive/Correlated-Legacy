@@ -67,7 +67,7 @@ public class ItemDebugginator extends Item {
 	}
 	
 	@Override
-	public float getStrVsBlock(ItemStack stack, IBlockState state) {
+	public float getDestroySpeed(ItemStack stack, IBlockState state) {
 		return 400f;
 	}
 	

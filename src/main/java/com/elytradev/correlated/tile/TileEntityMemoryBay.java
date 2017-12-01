@@ -71,7 +71,7 @@ public class TileEntityMemoryBay extends TileEntityNetworkMember implements ITic
 	}
 
 	@Override
-	public int getPotentialConsumedPerTick() {
+	public double getPotentialConsumedPerTick() {
 		return CConfig.memoryBayPUsage;
 	}
 

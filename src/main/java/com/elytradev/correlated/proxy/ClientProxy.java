@@ -541,7 +541,7 @@ public class ClientProxy extends Proxy {
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CBlocks.CONTROLLER), 8, TileEntityDummy.B.class);
 		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
 			@Override
-			public int getColorFromItemstack(ItemStack stack, int tintIndex) {
+			public int colorMultiplier(ItemStack stack, int tintIndex) {
 				if (!(stack.getItem() instanceof ItemModule)) return -1;
 				ItemModule id = (ItemModule)stack.getItem();
 				if (tintIndex == 1) {
@@ -553,7 +553,7 @@ public class ClientProxy extends Proxy {
 		}, CItems.MODULE);
 		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
 			@Override
-			public int getColorFromItemstack(ItemStack stack, int tintIndex) {
+			public int colorMultiplier(ItemStack stack, int tintIndex) {
 				if (!(stack.getItem() instanceof ItemMemory)) return -1;
 				ItemMemory id = (ItemMemory)stack.getItem();
 				if (tintIndex == 1) {
@@ -566,7 +566,7 @@ public class ClientProxy extends Proxy {
 		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor() {
 			@Override
 			@SuppressWarnings("fallthrough")
-			public int getColorFromItemstack(ItemStack stack, int tintIndex) {
+			public int colorMultiplier(ItemStack stack, int tintIndex) {
 				if (!(stack.getItem() instanceof ItemDrive)) return -1;
 				ItemDrive id = (ItemDrive)stack.getItem();
 				if (tintIndex == 1) {
@@ -1063,17 +1063,17 @@ public class ClientProxy extends Proxy {
 						uncolored = getColorValues(ColorType.OTHER).getColor("drive_unlit_light");
 					}
 					
-					int priorityLeftColor = mc.getItemColors().getColorFromItemstack(is, 4);
-					int priorityMidColor = mc.getItemColors().getColorFromItemstack(is, 5);
-					int priorityRightColor = mc.getItemColors().getColorFromItemstack(is, 6);
+					int priorityLeftColor = mc.getItemColors().colorMultiplier(is, 4);
+					int priorityMidColor = mc.getItemColors().colorMultiplier(is, 5);
+					int priorityRightColor = mc.getItemColors().colorMultiplier(is, 6);
 					
-					color(mc.getItemColors().getColorFromItemstack(is, 1));
+					color(mc.getItemColors().colorMultiplier(is, 1));
 					drawSprite(fullness);
 					
-					color(mc.getItemColors().getColorFromItemstack(is, 2));
+					color(mc.getItemColors().colorMultiplier(is, 2));
 					drawSprite(tier);
 					
-					color(mc.getItemColors().getColorFromItemstack(is, 3));
+					color(mc.getItemColors().colorMultiplier(is, 3));
 					drawSprite(partition);
 					
 					if (priorityLeftColor != uncolored) {
@@ -1090,7 +1090,7 @@ public class ClientProxy extends Proxy {
 					}
 				} else if (item == CItems.MEMORY) {
 					TextureAtlasSprite tier = mc.getTextureMapBlocks().getAtlasSprite("correlated:items/accessory/ram_tier_light");
-					color(mc.getItemColors().getColorFromItemstack(is, 1));
+					color(mc.getItemColors().colorMultiplier(is, 1));
 					drawSprite(tier);
 				} else if (item == CItems.KEYCARD) {
 					drawSprite(mc.getTextureMapBlocks().getAtlasSprite("correlated:items/keycard/glow"));
