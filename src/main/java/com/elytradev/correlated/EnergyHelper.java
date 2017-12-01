@@ -1,10 +1,15 @@
 package com.elytradev.correlated;
 
 import com.elytradev.correlated.init.CConfig;
+
+import java.text.NumberFormat;
+
 import com.elytradev.correlated.C28n;
 
 public class EnergyHelper {
 
+	private static final NumberFormat nf = NumberFormat.getNumberInstance();
+	
 	public static double convertToPotential(double input, EnergyUnit unit) {
 		switch (unit) {
 			case DANKS:
@@ -32,18 +37,18 @@ public class EnergyHelper {
 		switch (unit) {
 			case DANKS:
 			case TESLA:
-				return (int)(input * CConfig.teslaConversionRate);
+				return (input * CConfig.teslaConversionRate);
 			case ENERGY_UNITS:
-				return (int)(input * CConfig.euConversionRate);
+				return (input * CConfig.euConversionRate);
 			case FORGE_UNITS:
 			case FORGE_ENERGY:
-				return (int)(input * CConfig.fuConversionRate);
+				return (input * CConfig.fuConversionRate);
 			case JOULES:
-				return (int)(input * CConfig.jConversionRate); 
+				return (input * CConfig.jConversionRate); 
 			case MINECRAFT_JOULES:
-				return (int)(input * CConfig.mjConversionRate);
+				return (input * CConfig.mjConversionRate);
 			case REDSTONE_FLUX:
-				return (int)(input * CConfig.rfConversionRate);
+				return (input * CConfig.rfConversionRate);
 			case POTENTIAL:
 			default:
 				return input;
@@ -52,7 +57,7 @@ public class EnergyHelper {
 	}
 
 	public static String formatPotentialUsage(double p) {
-		return C28n.format("tooltip.correlated.energy_usage_tip", convertFromPotential(p, CConfig.preferredUnit), CConfig.preferredUnit.abbreviation);
+		return C28n.format("tooltip.correlated.energy_usage_tip", nf.format(convertFromPotential(p, CConfig.preferredUnit)), CConfig.preferredUnit.abbreviation);
 	}
 
 }
