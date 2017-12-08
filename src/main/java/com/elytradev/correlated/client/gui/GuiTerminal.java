@@ -344,7 +344,9 @@ public class GuiTerminal extends GuiContainer {
 				iter.remove();
 				continue;
 			}
-			if (queryType.filter.test(mangledQuery, stack)) continue;
+			if (queryType.filter.test(mangledQuery, stack)) {
+				continue;
+			}
 			iter.remove();
 		}
 		Comparator<NetworkType> comparator = container.sortMode.comparator;
@@ -418,7 +420,7 @@ public class GuiTerminal extends GuiContainer {
 		}
 		
 		RenderHelper.enableGUIStandardItemLighting();
-		int l = 0;
+		int l = -1;
 		for (int j = -(scrollOffset * container.slotsAcross); j < (container.slotsAcross*container.slotsTall); j++) {
 			l++;
 			if (j < 0) {
