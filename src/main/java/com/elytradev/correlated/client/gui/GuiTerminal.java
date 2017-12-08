@@ -475,6 +475,7 @@ public class GuiTerminal extends GuiContainer {
 		if (container.hasCraftingMatrix) {
 			Multiset<Prototype> alreadySeenNet = HashMultiset.create();
 			Multiset<Prototype> alreadySeenInv = HashMultiset.create();
+			int alreadySeenHand = 0;
 			boolean hasAll = true;
 			for (int i = 0; i < craftMatrix.size(); i++) {
 				int x = i % 3;
@@ -492,7 +493,12 @@ public class GuiTerminal extends GuiContainer {
 				} else {
 					glass: for (ItemStack possibility : possibilities) {
 						Prototype pt = new Prototype(possibility);
-						if (networkContents.containsKey(pt) && networkContents.get(pt).getStack().getCount() >= alreadySeenNet.count(pt)+1) {
+						ItemStack hand = mc.player.inventory.getItemStack();
+						if (Prototype.equals(possibility, hand) && hand.getCount() >= alreadySeenHand+1) {
+							is = possibility;
+							alreadySeenHand++;
+							available = true;
+						} else if (networkContents.containsKey(pt) && networkContents.get(pt).getStack().getCount() >= alreadySeenNet.count(pt)+1) {
 							is = possibility;
 							available = true;
 							alreadySeenNet.add(pt);
@@ -562,6 +568,7 @@ public class GuiTerminal extends GuiContainer {
 				mouseYOfs > container.startY && mouseYOfs < container.startY+(container.slotsTall*18));
 		
 		GlStateManager.disableLighting();
+		GlStateManager.enableAlpha();
 		
 		GlStateManager.color(1, 1, 1);
 		
@@ -775,7 +782,7 @@ public class GuiTerminal extends GuiContainer {
 		boolean hovered = false;
 
 		itemRender.renderItemAndEffectIntoGUI(mc.player, is, x, y);
-		itemRender.renderItemOverlayIntoGUI(fontRenderer, is, x, y, "");
+		itemRender.renderItemOverlayIntoGUI(fontRenderer, is, x, y, null);
 		
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
