@@ -276,6 +276,7 @@ public class GuiTerminal extends GuiContainer {
 	private final InventoryCrafting craftMatrixResolved;
 	
 	private ItemStack craftMatrixResult = ItemStack.EMPTY;
+	private boolean smearingCraftMatrix = false;
 	
 	public GuiTerminal(ContainerTerminal container) {
 		super(container);
@@ -402,22 +403,6 @@ public class GuiTerminal extends GuiContainer {
 		int mouseYOfs = mouseY - (height - ySize) / 2;
 		
 		hovered = null;
-		
-		if (container.hasCraftingMatrix) {
-			if ((Mouse.isButtonDown(0) || Mouse.isButtonDown(1))
-					&& mouseXOfs >= 6 && mouseXOfs < (6+54)
-					&& mouseYOfs >= 17 && mouseYOfs < (17+54)) {
-				int cX = (mouseXOfs-6)/18;
-				int cY = (mouseYOfs-17)/18;
-				int idx = cX+(cY*3);
-				ItemStack stack = mc.player.inventory.getItemStack().copy();
-				if (!stack.isEmpty()) {
-					stack.setCount(1);
-				}
-				craftMatrix.set(idx, stack.isEmpty() ? NonNullList.from(ItemStack.EMPTY) : NonNullList.from(ItemStack.EMPTY, stack));
-				new SetCraftingGhostServerMessage(container.windowId, craftMatrix).sendToServer();
-			}
-		}
 		
 		RenderHelper.enableGUIStandardItemLighting();
 		int l = -1;
@@ -1019,12 +1004,17 @@ public class GuiTerminal extends GuiContainer {
 			if (keyCode == Keyboard.KEY_F3) {
 				mc.gameSettings.showDebugInfo = !mc.gameSettings.showDebugInfo;
 				return;
+			} else if (keyCode == Keyboard.KEY_LCONTROL || keyCode == Keyboard.KEY_RCONTROL) {
+				new TerminalActionMessage(TerminalAction.PUT, Prototype.EMPTY, 0).sendToServer();
+				mc.player.inventory.setItemStack(ItemStack.EMPTY);
+				return;
 			}
 			tryAction(keyCode);
 			super.keyTyped(typedChar, keyCode);
 		}
 	}
-
+	
+	
 	protected int getScrollTrackX() {
 		return 236;
 	}
@@ -1043,6 +1033,7 @@ public class GuiTerminal extends GuiContainer {
 		int y = (height - ySize) / 2;
 		
 		if (container.hasCraftingMatrix) {
+			matrixMouseAction(mouseX-x, mouseY-y, mouseButton, true);
 			if ((mouseButton == 0 || mouseButton == 1)
 					&& mouseX >= x+26 && mouseX <= x+(26+16)
 					&& mouseY >= y+104 && mouseY <= y+(104+16)) {
@@ -1111,6 +1102,27 @@ public class GuiTerminal extends GuiContainer {
 		super.mouseClicked(mouseX, mouseY, mouseButton);
 	}
 	
+	private void matrixMouseAction(int mouseX, int mouseY, int mouseButton, boolean initial) {
+		if ((mouseButton == 0 || mouseButton == 1)
+				&& mouseX >= 6 && mouseX < (6+54)
+				&& mouseY >= 17 && mouseY < (17+54)) {
+			int cX = (mouseX-6)/18;
+			int cY = (mouseY-17)/18;
+			int idx = cX+(cY*3);
+			ItemStack stack = mc.player.inventory.getItemStack().copy();
+			if (!stack.isEmpty()) {
+				stack.setCount(1);
+			}
+			if (craftMatrix.get(idx).isEmpty() || initial) {
+				craftMatrix.set(idx, stack.isEmpty() ? NonNullList.from(ItemStack.EMPTY) : NonNullList.from(ItemStack.EMPTY, stack));
+			}
+			if (initial) {
+				smearingCraftMatrix = true;
+			}
+			new SetCraftingGhostServerMessage(container.windowId, craftMatrix).sendToServer();
+		}
+	}
+
 	private void tryAction(int keyCode) {
 		if (mc.player.inventory.getItemStack().isEmpty()) {
 			if (hovered != null) {
@@ -1141,7 +1153,7 @@ public class GuiTerminal extends GuiContainer {
 				mc.player.inventory.setItemStack(ItemStack.EMPTY);
 			} else if (keyCode == -99) {
 				new TerminalActionMessage(TerminalAction.PUT, Prototype.EMPTY, 1).sendToServer();
-				mc.player.inventory.getItemStack().shrink(1);;
+				mc.player.inventory.getItemStack().shrink(1);
 			}
 		}
 	}
@@ -1155,6 +1167,11 @@ public class GuiTerminal extends GuiContainer {
 
 	@Override
 	protected void mouseClickMove(int mouseX, int mouseY, int mouseButton, long timeSinceLastClick) {
+		if (container.hasCraftingMatrix && smearingCraftMatrix) {
+			int x = (width - xSize) / 2;
+			int y = (height - ySize) / 2;
+			matrixMouseAction(mouseX-x, mouseY-y, mouseButton, false);
+		}
 		if (draggingScrollKnob && rows > container.slotsTall) {
 			int y = (height - ySize) / 2;
 			y += getScrollTrackY();
@@ -1169,6 +1186,9 @@ public class GuiTerminal extends GuiContainer {
 	protected void mouseReleased(int mouseX, int mouseY, int mouseButton) {
 		if (mouseButton == 0) {
 			draggingScrollKnob = false;
+		}
+		if (smearingCraftMatrix && mouseButton == 0 || mouseButton == 1) {
+			smearingCraftMatrix = false;
 		}
 		Slot slot = getSlotAtPosition(mouseX, mouseY);
 		if (doubleClick && slot != null && mouseButton == 0 && inventorySlots.canMergeSlot(ItemStack.EMPTY, slot)
