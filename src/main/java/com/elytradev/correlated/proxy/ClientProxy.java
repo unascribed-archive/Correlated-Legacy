@@ -753,6 +753,8 @@ public class ClientProxy extends Proxy {
 				EntityPlayer ep = (EntityPlayer)e.getEntity();
 				if (!ep.isWearing(EnumPlayerModelParts.CAPE)) return;
 			}
+			lightmapLastX = OpenGlHelper.lastBrightnessX;
+			lightmapLastY = OpenGlHelper.lastBrightnessY;
 			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
 			GlStateManager.disableLighting();
 		}
