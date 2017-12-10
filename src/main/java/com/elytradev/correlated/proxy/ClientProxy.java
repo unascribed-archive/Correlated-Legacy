@@ -744,14 +744,28 @@ public class ClientProxy extends Proxy {
 		}
 		GlStateManager.popMatrix();
 	}
+	private float lightmapLastX;
+	private float lightmapLastY;
 	@SubscribeEvent
-	public void onRenderLiving(RenderLivingEvent.Pre<EntityLivingBase> e) {
+	public void onRenderLivingPre(RenderLivingEvent.Pre<EntityLivingBase> e) {
 		if (TextFormatting.getTextWithoutFormattingCodes(e.getEntity().getName()).equals("unascribed")) {
 			if (e.getEntity() instanceof EntityPlayer) {
 				EntityPlayer ep = (EntityPlayer)e.getEntity();
 				if (!ep.isWearing(EnumPlayerModelParts.CAPE)) return;
 			}
 			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
+			GlStateManager.disableLighting();
+		}
+	}
+	@SubscribeEvent
+	public void onRenderLivingPost(RenderLivingEvent.Post<EntityLivingBase> e) {
+		if (TextFormatting.getTextWithoutFormattingCodes(e.getEntity().getName()).equals("unascribed")) {
+			if (e.getEntity() instanceof EntityPlayer) {
+				EntityPlayer ep = (EntityPlayer)e.getEntity();
+				if (!ep.isWearing(EnumPlayerModelParts.CAPE)) return;
+			}
+			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lightmapLastX, lightmapLastY);
+			GlStateManager.enableLighting();
 		}
 	}
 	@SubscribeEvent(priority=EventPriority.LOWEST)
