@@ -69,7 +69,10 @@ public class CraftItemMessage extends Message {
 			InventoryCrafting dummyMatrix = new InventoryCrafting(ct, 3, 3);
 			if (!fillMatrix(matrix, dummyMatrix, ct.terminal.getStorage(), player)) return;
 			IRecipe ir = CraftingManager.findMatchingRecipe(dummyMatrix, player.world);
-			if (ir == null) return;
+			if (ir == null) {
+				clearMatrix(dummyMatrix, ct.terminal.getStorage(), player);
+				return;
+			}
 			if (action == 2) {
 				CraftingTarget target = ct.craftingTarget;
 				CraftingAmount amt = ct.craftingAmount;
@@ -102,7 +105,8 @@ public class CraftItemMessage extends Message {
 				}
 			} else {
 				ItemStack preview = ir.getRecipeOutput();
-				if (!player.inventory.getItemStack().isEmpty() && !ItemHandlerHelper.canItemStacksStack(preview, player.inventory.getItemStack())) {
+				if (!player.inventory.getItemStack().isEmpty() && !ItemHandlerHelper.canItemStacksStack(preview, player.inventory.getItemStack())
+						|| player.inventory.getItemStack().getCount()+preview.getCount() > player.inventory.getItemStack().getMaxStackSize()) {
 					clearMatrix(dummyMatrix, ct.terminal.getStorage(), player);
 					return;
 				}
@@ -126,7 +130,7 @@ public class CraftItemMessage extends Message {
 					if (out.isEmpty()) {
 						out = result;
 					} else {
-						if (ItemHandlerHelper.canItemStacksStack(result, out)) {
+						if (ItemHandlerHelper.canItemStacksStack(result, out) && out.getCount()+result.getCount() <= out.getMaxStackSize()) {
 							out.grow(result.getCount());
 						} else {
 							player.dropItem(result, false);
