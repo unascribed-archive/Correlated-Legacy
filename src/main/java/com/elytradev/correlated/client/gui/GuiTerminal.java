@@ -759,8 +759,8 @@ public class GuiTerminal extends GuiContainer {
 			fontRenderer.drawString(container.slotsAcross+"x"+container.slotsTall, container.startX+2, container.startY+18+2, 0);
 			fontRenderer.drawString(scrollOffset+"", getScrollTrackX(), getScrollTrackY()+20, 0);
 			fontRenderer.drawString(scrollKnobY+"", getScrollTrackX(), getScrollTrackY()+32, 0);
-			GlStateManager.enableDepth();
 		}
+		GlStateManager.enableDepth();
 	}
 	
 	private boolean drawItemStack(ItemStack is, int x, int y, int mouseX, int mouseY, boolean redOverlay) {
