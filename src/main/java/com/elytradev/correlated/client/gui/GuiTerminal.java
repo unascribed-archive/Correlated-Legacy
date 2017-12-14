@@ -954,8 +954,8 @@ public class GuiTerminal extends GuiContainer {
 	@Override
 	public void updateScreen() {
 		super.updateScreen();
+		int dWheel = Mouse.getDWheel() / 120;
 		if (rows > container.slotsTall) {
-			int dWheel = Mouse.getDWheel() / 120;
 			if (dWheel != 0) {
 				scrollOffset = Math.max(Math.min(rows-1, scrollOffset-dWheel), 0);
 				dWheel *= IntMath.divide(getScrollTrackHeight()+6, rows, RoundingMode.UP);
