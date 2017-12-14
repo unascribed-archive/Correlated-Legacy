@@ -978,7 +978,7 @@ public class GuiTerminal extends GuiContainer {
 				ticksSinceLastQueryChange = 0;
 				if (scrollKnobY != 6) {
 					scrollKnobY = 6;
-					mc.playerController.sendEnchantPacket(container.windowId, 0);
+					scrollOffset = 0;
 				}
 			}
 			ticksSinceLastQueryChange++;
@@ -1202,7 +1202,6 @@ public class GuiTerminal extends GuiContainer {
 	}
 
 	public void updateSearchQuery(String query) {
-		lastSearchQuery = query;
 		if (hasSearchAndSort()) {
 			searchField.setText(query);
 			if (container.jeiSyncEnabled) {
