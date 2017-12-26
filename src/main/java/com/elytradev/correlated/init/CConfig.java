@@ -48,6 +48,8 @@ public class CConfig {
 	
 	public static int limboDimId;
 	
+	public static boolean enableResourceDownloader;
+	
 	
 	
 	
@@ -241,6 +243,18 @@ public class CConfig {
 			"         and general strangeness. Not recommended."
 			);
 	
+	private static final ConfigKey<Boolean> ENABLE_RESOURCE_DOWNLOADER = ConfigKey.create(
+			"Misc", "enableResourceDownloader", true,
+			
+			"If true, Correlated will download large resources such as music",
+			"during init if they don't already exist. An integrity check will",
+			"also be performed, to detect incidental corruption. If you want to",
+			"use custom music or expect to use Correlated offline and don't want",
+			"to wait for a connection timeout, turn this off.",
+			"",
+			"Correlated specifically blanks out the user agent and doesn't send",
+			"any sort of analytics information when performing a resource download.");
+	
 	public static void setConfig(Configuration config) {
 		CConfig.config = config;
 	}
@@ -285,6 +299,8 @@ public class CConfig {
 		limboDimId = LIMBO_DIM_ID.get(config);
 		
 		importMode = IMPORT_MODE.get(config);
+		
+		enableResourceDownloader = ENABLE_RESOURCE_DOWNLOADER.get(config);
 		
 		config.getCategory("PowerUsage").remove("drivePow");
 		config.getCategory("PowerUsage").remove("driveDiv");
@@ -332,6 +348,8 @@ public class CConfig {
 		LIMBO_DIM_ID.set(config, limboDimId);
 		
 		IMPORT_MODE.set(config, importMode);
+		
+		ENABLE_RESOURCE_DOWNLOADER.set(config, enableResourceDownloader);
 		
 		config.save();
 	}

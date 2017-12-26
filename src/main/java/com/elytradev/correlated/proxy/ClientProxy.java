@@ -6,12 +6,15 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.BitSet;
@@ -26,6 +29,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -48,6 +52,7 @@ import com.elytradev.correlated.block.BlockDecor;
 import com.elytradev.correlated.block.BlockGlowingDecor;
 import com.elytradev.correlated.block.BlockWireless;
 import com.elytradev.correlated.client.CorrelatedMusicTicker;
+import com.elytradev.correlated.client.DirectoryResourcePack;
 import com.elytradev.correlated.client.DocumentationManager;
 import com.elytradev.correlated.client.IBMFontRenderer;
 import com.elytradev.correlated.client.ParticleWeldthrower;
@@ -70,6 +75,7 @@ import com.elytradev.correlated.client.render.tile.RenderOpticalTransceiver;
 import com.elytradev.correlated.client.render.tile.RenderTerminal;
 import com.elytradev.correlated.entity.EntityAutomaton;
 import com.elytradev.correlated.entity.EntityThrownItem;
+import com.elytradev.correlated.helper.Numbers;
 import com.elytradev.correlated.init.CBlocks;
 import com.elytradev.correlated.init.CConfig;
 import com.elytradev.correlated.init.CItems;
@@ -93,9 +99,15 @@ import com.elytradev.correlated.tile.importer.TileEntityImporterChest;
 import com.elytradev.correlated.wifi.IWirelessClient;
 import com.google.common.base.Charsets;
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.hash.Hasher;
+import com.google.common.hash.Hashing;
+import com.google.common.hash.HashingOutputStream;
+import com.google.common.io.BaseEncoding;
+import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -135,7 +147,9 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResource;
+import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.client.resources.LanguageManager;
+import net.minecraft.client.resources.SimpleReloadableResourceManager;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EnumPlayerModelParts;
@@ -171,6 +185,8 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
+import net.minecraftforge.fml.common.ProgressManager;
+import net.minecraftforge.fml.common.ProgressManager.ProgressBar;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
@@ -292,7 +308,10 @@ public class ClientProxy extends Proxy {
 		
 		MinecraftForge.EVENT_BUS.register(this);
 
+		IResourcePack assetsResourcePack = DirectoryResourcePack.createWithFixedDomain("correlated", new File(Minecraft.getMinecraft().mcDataDir, "correlated/assets"));
+		
 		((IReloadableResourceManager)Minecraft.getMinecraft().getResourceManager()).registerReloadListener((rm) -> {
+			((SimpleReloadableResourceManager)rm).reloadResourcePack(assetsResourcePack);
 			colors.clear();
 			for (ColorType type : ColorType.values()) {
 				String lowerName = type.name().toLowerCase(Locale.ROOT);
@@ -394,6 +413,100 @@ public class ClientProxy extends Proxy {
 		}
 		
 		documentationManager = new DocumentationManager(pages);
+		
+		if (CConfig.enableResourceDownloader) {
+			try {
+				File outfile = new File(Minecraft.getMinecraft().mcDataDir, "correlated/assets/sounds/music/enceladus.ogg");
+				boolean needsDownload = false;
+				String expectedHash = "cd5f22cfa82730289f42b40ee794d8bf6e9cc7b03cf5e167ef1974e69da0a56f";
+				URL enceladus = new URL("https://unascribed.com/correlated/assets/enceladus.ogg");
+				if (!outfile.exists()) {
+					needsDownload = true;
+					CLog.info("{} does not exist, downloading it from {}", outfile, enceladus);
+				} else {
+					try (InputStream in = new FileInputStream(outfile)) {
+						Hasher hasher = Hashing.sha256().newHasher();
+						byte[] buf = new byte[16384];
+						while (true) {
+							int read = in.read(buf);
+							if (read == -1) break;
+							hasher.putBytes(buf, 0, read);
+						}
+						in.close();
+						String ourHash = BaseEncoding.base16().lowerCase().encode(hasher.hash().asBytes());
+						if (expectedHash.equals(ourHash)) {
+							CLog.info("{} exists and matches the expected hash, continuing", outfile);
+						} else {
+							CLog.info("{} exists but does not match the expected hash, downloading it from {}", outfile, enceladus);
+						}
+					}
+				}
+				if (needsDownload) {
+					HttpURLConnection head = (HttpURLConnection)enceladus.openConnection();
+					head.setRequestMethod("HEAD");
+					head.setRequestProperty("User-Agent", "");
+					head.setConnectTimeout(1500);
+					head.connect();
+					head.disconnect();
+					if (head.getResponseCode() >= 200 && head.getResponseCode() < 300) {
+						Files.createParentDirs(outfile);
+						String clacks = head.getHeaderField("X-Clacks-Overhead");
+						int contentLength = head.getContentLength();
+						ProgressBar prog = ProgressManager.push("Downloading enceladus.ogg", contentLength);
+						HttpURLConnection get = (HttpURLConnection)enceladus.openConnection();
+						get.setRequestMethod("GET");
+						get.setRequestProperty("User-Agent", "");
+						get.setConnectTimeout(1500);
+						get.connect();
+						File partfile = new File(outfile.getPath()+".part");
+						try (InputStream in = get.getInputStream();
+								FileOutputStream fos = new FileOutputStream(partfile)) {
+							HashingOutputStream hos = new HashingOutputStream(Hashing.sha256(), fos);
+							byte[] buf = new byte[16384];
+							long readThisPeriod = 0;
+							long readLastPeriod = -1;
+							Stopwatch sw = Stopwatch.createStarted();
+							while (true) {
+								int read = in.read(buf);
+								if (read == -1) break;
+								readThisPeriod += read;
+								hos.write(buf, 0, read);
+								if (sw.elapsed(TimeUnit.MILLISECONDS) >= 500) {
+									readLastPeriod = readThisPeriod;
+									readThisPeriod = 0;
+									sw.reset().start();
+								}
+								String msg = (readLastPeriod == -1 ? "" : Numbers.humanReadableBytes(readLastPeriod*2)+"/s");
+								for (int i = 0; i < read; i++) {
+									prog.step(msg);
+								}
+							}
+							hos.close();
+							in.close();
+							String ourHash = BaseEncoding.base16().lowerCase().encode(hos.hash().asBytes());
+							if (expectedHash.equals(ourHash)) {
+								CLog.info("Download successful, hash matches. Moving partfile to outfile and continuing");
+								if (!partfile.renameTo(outfile)) {
+									CLog.info("Failed to rename partfile - ignoring, the dungeon will not have music");
+									partfile.delete();
+								}
+							} else {
+								CLog.info("Download failed, wrong hash {} - ignoring, the dungeon will not have music", ourHash);
+								partfile.delete();
+							}
+							if (clacks != null) {
+								CLog.info("X-Clacks-Overhead: {}", clacks);
+							}
+						}
+						ProgressManager.pop(prog);
+					} else {
+						CLog.warn("Couldn't download enceladus.ogg - {} {}, the dungeon will not have music", head.getResponseCode(), head.getResponseMessage());
+					}
+				}
+			} catch (Exception e) {
+				CLog.warn("Couldn't download enceladus.ogg, the dungeon will not have music", e);
+			}
+		}
 	}
 	
 	@SubscribeEvent
