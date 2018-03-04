@@ -3,6 +3,8 @@
 # Correlated
 [>>> Bleeding Edge Downloads (Jenkins) <<<](https://ci.elytradev.com/job/elytra/job/Correlated/)
 
+## Notice: Correlated is currently unmaintained.
+
 *Storage and automation for the modern world.*
 
 **This mod is open source and under a permissive license.** All Elytra mods are,
